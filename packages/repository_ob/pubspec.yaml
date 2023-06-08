@@ -16,5 +16,5 @@ dependencies:
 
 dev_dependencies:
   build: ^2.4.0
-  build_runner: ^2.4.4
+  build_runner: ^2.4.5
   objectbox_generator: ^2.0.0
