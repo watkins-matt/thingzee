@@ -1,0 +1,18 @@
+name: repository_hive
+description: Hive backend repository code.
+
+publish_to: "none"
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+dependencies:
+  hive: ^2.2.3
+  repository:
+    path: ../repository
+
+dev_dependencies:
+  build: ^2.4.0
+  build_runner: ^2.4.4
+  hive_generator: ^2.0.0

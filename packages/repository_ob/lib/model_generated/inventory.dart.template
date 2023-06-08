@@ -1,0 +1,39 @@
+String get dbHistory {
+  return jsonEncode(history.toJson());
+}
+
+set dbHistory(String value) {
+  Map<String, dynamic> json = jsonDecode(value) as Map<String, dynamic>;
+  history = History.fromJson(json).trim();
+}
+
+int get dbLastUpdate {
+  return lastUpdate.isPresent ? lastUpdate.value.millisecondsSinceEpoch : 0;
+}
+
+set dbLastUpdate(int value) {
+  lastUpdate = value != 0
+      ? Optional.of(DateTime.fromMillisecondsSinceEpoch(value))
+      : const Optional.absent();
+}
+
+List<String> get dbExpirationDates {
+  List<String> dates = [];
+  for (final exp in expirationDates) {
+    dates.add(exp.millisecondsSinceEpoch.toString());
+  }
+
+  return dates;
+}
+
+set dbExpirationDates(List<String> dates) {
+  expirationDates.clear();
+
+  for (final date in dates) {
+    int? timestamp = int.tryParse(date);
+
+    if (timestamp != null) {
+      expirationDates.add(DateTime.fromMillisecondsSinceEpoch(timestamp));
+    }
+  }
+}

@@ -1,0 +1,50 @@
+name: thingzee
+description: Store, track, rate and share your favorite things.
+publish_to: "none"
+
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+dependencies:
+  csv: ^5.0.2
+  cupertino_icons: ^1.0.2
+  dio: ^5.1.2
+  file_picker: ^5.3.1
+  flutter:
+    sdk: flutter
+  flutter_hooks: ^0.18.6
+  hooks_riverpod: ^2.3.6
+  image: ^4.0.17
+  intl: ^0.18.1
+  logger: ^1.3.0
+  material_floating_search_bar_2: ^0.5.0
+  path_provider: ^2.0.15
+  qr_mobile_vision: ^4.1.2
+  quiver: ^3.2.1
+  repository:
+    path: packages/repository
+  repository_ob:
+    path: packages/repository_ob
+  riverpod_annotation: ^2.1.1
+  settings_ui: ^2.0.2
+  share_plus: ^7.0.2
+  stats:
+    path: packages/stats
+
+dev_dependencies:
+  flutter_lints: ^2.0.0
+  flutter_test:
+    sdk: flutter
+  riverpod_lint: ^1.3.2
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/no_image_available.png
+    - assets/images/no_image_small.png
+  fonts:
+    - family: IconLibrary
+      fonts:
+        - asset: fonts/IconLibrary.ttf

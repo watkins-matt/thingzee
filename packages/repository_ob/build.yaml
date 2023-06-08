@@ -1,0 +1,18 @@
+builders:
+  object_box_builder:
+    import: "package:repository_ob/object_box_builder.dart"
+    builder_factories: ["objectBoxBuilder"]
+    build_extensions: { ".dart": [".ob.dart"] }
+    auto_apply: all_packages
+    build_to: source
+
+targets:
+  $default:
+    builders:
+      repository_ob|object_box_builder:
+        enabled: true
+        generate_for:
+          - lib/model/product.dart
+          - lib/model/Item.dart
+          - lib/model/manufacturer.dart
+          - lib/model/inventory.dart
