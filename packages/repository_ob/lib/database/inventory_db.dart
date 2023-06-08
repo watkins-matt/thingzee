@@ -1,7 +1,7 @@
 import 'package:quiver/core.dart';
 import 'package:repository/database/inventory_database.dart';
 import 'package:repository/model/inventory.dart';
-import 'package:repository_ob/model_generated/inventory.ob.dart';
+import 'package:repository_ob/model/inventory.ob.dart';
 import 'package:repository_ob/objectbox.g.dart';
 
 class ObjectBoxInventoryDatabase extends InventoryDatabase {

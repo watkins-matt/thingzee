@@ -2,7 +2,7 @@ import 'package:quiver/core.dart';
 import 'package:repository/database/item_database.dart';
 import 'package:repository/model/filter.dart';
 import 'package:repository/model/item.dart';
-import 'package:repository_ob/model_generated/item.ob.dart';
+import 'package:repository_ob/model/item.ob.dart';
 import 'package:repository_ob/objectbox.g.dart';
 
 extension ObjectBoxCondition on Filter {
