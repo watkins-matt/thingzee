@@ -36,7 +36,7 @@ class MLHistory {
   }
 
   bool get canPredict {
-    return current.observations.length >= 2 || previous.observations.length >= 2;
+    return current.regressor.hasIntercept || previous.regressor.hasIntercept;
   }
 
   HistorySeries get best {
@@ -44,7 +44,7 @@ class MLHistory {
   }
 
   int get predictedOutageTimestamp {
-    return current.regressor.xIntercept;
+    return best.regressor.xIntercept;
   }
 
   double predict(int timestamp) {
