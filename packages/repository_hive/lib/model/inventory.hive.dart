@@ -2,7 +2,7 @@ import 'dart:core';
 
 import 'package:hive/hive.dart';
 import 'package:quiver/core.dart';
-import 'package:repository/model/history.dart';
+import 'package:repository/ml/ml_history.dart';
 import 'package:repository/model/inventory.dart';
 
 @HiveType(typeId: 0)
@@ -18,7 +18,7 @@ class HiveInventory extends HiveObject {
   @HiveField(4)
   late List<String> locations;
   @HiveField(5)
-  late History history;
+  late MLHistory history;
   @HiveField(6)
   late bool restock;
   @HiveField(7)
