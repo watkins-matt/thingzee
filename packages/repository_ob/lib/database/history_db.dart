@@ -1,6 +1,7 @@
 import 'package:quiver/core.dart';
 import 'package:repository/database/history_database.dart';
 import 'package:repository/ml/ml_history.dart';
+import 'package:repository/model/inventory.dart';
 import 'package:repository_ob/model_custom/ml_history_ob.dart';
 import 'package:repository_ob/objectbox.g.dart';
 
@@ -59,5 +60,32 @@ class ObjectBoxHistoryDatabase extends HistoryDatabase {
 
     assert(historyOb.upc.isNotEmpty && historyOb.history.upc.isNotEmpty);
     box.put(historyOb);
+  }
+
+  @override
+  Map<String, Inventory> join(Map<String, Inventory> inventoryMap) {
+    final allHistory = map();
+
+    for (final inventory in inventoryMap.values) {
+      if (allHistory.containsKey(inventory.upc)) {
+        final history = allHistory[inventory.upc]!;
+        inventory.history = history;
+      }
+    }
+    return inventoryMap;
+  }
+
+  @override
+  List<Inventory> joinList(List<Inventory> inventoryList) {
+    final allHistory = map();
+
+    for (final inventory in inventoryList) {
+      if (allHistory.containsKey(inventory.upc)) {
+        final history = allHistory[inventory.upc]!;
+        inventory.history = history;
+      }
+    }
+
+    return inventoryList;
   }
 }
