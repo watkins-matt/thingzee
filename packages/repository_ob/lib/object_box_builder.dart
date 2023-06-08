@@ -7,7 +7,8 @@ import 'package:path/path.dart' as path;
 Builder objectBoxBuilder(BuilderOptions options) => ObjectBoxBuilder();
 
 class ObjectBoxBuilder implements Builder {
-  final uniqueFields = const ['upc'];
+  final Set<String> uniqueFields = const {'upc'};
+  final Set<String> transientFields = const {'history'};
   final Map<String, String> packageReplace = {'repository_ob': 'repository'};
 
   @override
@@ -82,6 +83,11 @@ class ObjectBoxBuilder implements Builder {
       // Skip all properties
       if (field.setter == null) {
         continue;
+      }
+
+      // This field should be transient
+      if (transientFields.contains(field.name)) {
+        buffer.writeln('  @Transient()');
       }
 
       if (uniqueFields.contains(field.name)) {
