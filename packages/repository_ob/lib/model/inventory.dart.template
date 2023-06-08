@@ -1,11 +1,11 @@
-String get dbHistory {
-  return jsonEncode(history.toJson());
-}
+//String get dbHistory {
+//  return jsonEncode(history.toJson());
+//}
 
-set dbHistory(String value) {
-  Map<String, dynamic> json = jsonDecode(value) as Map<String, dynamic>;
-  history = History.fromJson(json).trim();
-}
+//set dbHistory(String value) {
+//  Map<String, dynamic> json = jsonDecode(value) as Map<String, dynamic>;
+//  history = History.fromJson(json).trim();
+//}
 
 int get dbLastUpdate {
   return lastUpdate.isPresent ? lastUpdate.value.millisecondsSinceEpoch : 0;
