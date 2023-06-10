@@ -75,6 +75,10 @@ class Inventory {
 //     }
 //   }
 
+  // double get usageSpeedMinutes {
+  //   return history.best.
+  // }
+
 //   double get usageSpeedMinutes {
 //     return history.currentSeriesRegression == 0
 //         ? 0
@@ -156,6 +160,10 @@ class Inventory {
 
   String get preferredAmountString {
     return preferredAmount.roundTo(2).toString();
+  }
+
+  double get preferredPredictedAmount {
+    return canPredict ? predictedUnits : units;
   }
 
   String get preferredPredictedUnitString {
