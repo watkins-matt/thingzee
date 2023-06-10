@@ -21,6 +21,13 @@ class ObjectBoxRepository extends Repository {
     inv = ObjectBoxInventoryDatabase(store);
     hist = ObjectBoxHistoryDatabase(store);
 
+    // Link inventory and history together
+    (inv as ObjectBoxInventoryDatabase).registerGetCallback((inv) {
+      final itemHistory = hist.get(inv.upc);
+      inv.history = itemHistory;
+      return inv;
+    });
+
     ready = true;
   }
 
