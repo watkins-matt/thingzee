@@ -4,15 +4,16 @@ import 'package:objectbox/objectbox.dart';
 import 'package:quiver/core.dart';
 import 'package:repository/ml/ml_history.dart';
 import 'package:repository/model/inventory.dart';
+
 @Entity()
 class ObjectBoxInventory {
   late double amount;
   late int unitCount;
-  late Optional<DateTime> lastUpdate;
+  Optional<DateTime> lastUpdate = const Optional.absent();
   List<DateTime> expirationDates = [];
   List<String> locations = [];
   @Transient()
-  late MLHistory history;
+  MLHistory history = MLHistory();
   late bool restock;
   @Unique()
   late String upc;
@@ -44,7 +45,6 @@ class ObjectBoxInventory {
       ..restock = restock
       ..upc = upc
       ..iuid = iuid
-      ..units = units
-    ;
+      ..units = units;
   }
 }
