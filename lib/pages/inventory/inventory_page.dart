@@ -34,25 +34,6 @@ class _InventoryPageState extends ConsumerState<InventoryPage> {
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            DrawerHeader(
-              decoration: const BoxDecoration(
-                color: Colors.blue,
-              ),
-              child: Container(),
-            ),
-            ListTile(
-              title: const Text('Find Recipes'),
-              onTap: () {
-                // RecipeBrowserPage.push(context, '');
-              },
-            ),
-          ],
-        ),
-      ),
       body: FloatingSearchBar(
         hint: count > 0 ? 'Search $count items...' : 'Search...',
         isScrollControlled: true,
