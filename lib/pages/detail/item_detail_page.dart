@@ -166,14 +166,10 @@ class ItemDetailPage extends HookConsumerWidget {
                     ),
                   ],
                 ),
-                const Visibility(
-                  // visible: widget.product.canPredictAmount,
-                  visible: true,
-                  child: Padding(
-                    padding: EdgeInsets.all(8),
-                    child: Divider(
-                      thickness: 2,
-                    ),
+                const Padding(
+                  padding: EdgeInsets.all(8),
+                  child: Divider(
+                    thickness: 2,
                   ),
                 ),
                 Column(
@@ -244,16 +240,19 @@ class ItemDetailPage extends HookConsumerWidget {
                     ),
                   ],
                 ),
-                const Padding(
-                  padding: EdgeInsets.all(8),
-                  child: Divider(
-                    thickness: 2,
+                Visibility(
+                  visible: ref.read(editableItemProvider).inventory.canPredict,
+                  child: const Padding(
+                    padding: EdgeInsets.all(8),
+                    child: Divider(
+                      thickness: 2,
+                    ),
                   ),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8),
                   child: Visibility(
-                    visible: true,
+                    visible: ref.read(editableItemProvider).inventory.canPredict,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
@@ -331,7 +330,11 @@ class ItemDetailPage extends HookConsumerWidget {
                                 decoration: const InputDecoration(border: InputBorder.none),
                                 textAlign: TextAlign.center,
                                 controller: TextEditingController(
-                                    text: '9/9/2023'), //widget.product.predictedOutDateString),
+                                  text: ref
+                                      .watch(editableItemProvider)
+                                      .inventory
+                                      .predictedOutDateString,
+                                ),
                                 readOnly: true,
                                 maxLines: null,
                               ),
