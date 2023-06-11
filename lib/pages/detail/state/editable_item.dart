@@ -154,7 +154,6 @@ class EditableItem extends StateNotifier<EditableItemState> {
       state.inventory.lastUpdate = Optional.of(DateTime.now());
 
       repo.inv.put(state.inventory);
-      repo.hist.put(state.inventory.history);
     }
   }
 }
