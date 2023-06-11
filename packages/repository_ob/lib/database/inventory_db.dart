@@ -42,6 +42,18 @@ class ObjectBoxInventoryDatabase extends InventoryDatabase {
     return result;
   }
 
+  @override
+  Map<String, Inventory> map() {
+    Map<String, Inventory> map = {};
+    final allInventory = all();
+
+    for (final inv in allInventory) {
+      map[inv.upc] = inv;
+    }
+
+    return map;
+  }
+
   // @override
   // List<Inventory> outs({bool predicted = false}) {
   // final query =
@@ -100,17 +112,5 @@ class ObjectBoxInventoryDatabase extends InventoryDatabase {
     }
 
     box.put(invOb);
-  }
-
-  @override
-  Map<String, Inventory> map() {
-    Map<String, Inventory> map = {};
-    final allInventory = all();
-
-    for (final inv in allInventory) {
-      map[inv.upc] = inv;
-    }
-
-    return map;
   }
 }
