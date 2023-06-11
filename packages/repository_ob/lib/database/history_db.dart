@@ -24,13 +24,12 @@ class ObjectBoxHistoryDatabase extends HistoryDatabase {
   }
 
   @override
-  MLHistory get(String upc) {
+  Optional<MLHistory> get(String upc) {
     final query = box.query(ObjectBoxMLHistory_.upc.equals(upc)).build();
     final result = Optional.fromNullable(query.findFirst()?.toMLHistory());
     query.close();
 
-    return result.isPresent ? result.value : MLHistory()
-      ..upc = upc;
+    return result;
   }
 
   @override
