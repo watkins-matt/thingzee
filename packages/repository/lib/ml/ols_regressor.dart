@@ -7,6 +7,8 @@ class OLSRegressor {
   late Vector _coefficients;
   late String _target;
 
+  String get target => _target;
+
   void fit(DataFrame df, String target) {
     final X = Matrix.fromColumns([
       Vector.filled(df.rows.length, 1.0,

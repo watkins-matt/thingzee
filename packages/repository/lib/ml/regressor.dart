@@ -122,7 +122,7 @@ class SimpleOLSRegressor implements Regressor {
     final matrix = Matrix.fromRows([vector]);
 
     var dataframe = DataFrame.fromMatrix(matrix, header: Observation.header);
-    dataframe = dataframe.dropSeries(names: ['amount']);
+    dataframe = dataframe.dropSeries(names: [regressor.target]);
 
     var predicted = regressor.predict(dataframe);
     return predicted;
@@ -153,7 +153,7 @@ class MLLinearRegressor implements Regressor {
     final matrix = Matrix.fromRows([vector]);
     var dataframe = DataFrame.fromMatrix(matrix);
 
-    final df = dataframe.dropSeries(indices: [1]); // TODO: Remove hardcoded index
+    final df = dataframe.dropSeries(names: [regressor.targetName]);
 
     var predicted = regressor.predict(df);
     return predicted[0].data.first;
