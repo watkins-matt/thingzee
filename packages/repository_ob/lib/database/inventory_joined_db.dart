@@ -11,6 +11,15 @@ class ObjectBoxJoinedInventoryDatabase extends ObjectBoxInventoryDatabase {
   ObjectBoxJoinedInventoryDatabase(Store store, this.historyDb) : super(store);
 
   @override
+  List<Inventory> all() {
+    final all = box.getAll();
+    var inventoryList = all.map((objBoxInv) => objBoxInv.toInventory()).toList();
+    inventoryList = historyDb.joinList(inventoryList);
+
+    return inventoryList;
+  }
+
+  @override
   Optional<Inventory> get(String upc) {
     final inventory = super.get(upc);
 
@@ -30,5 +39,18 @@ class ObjectBoxJoinedInventoryDatabase extends ObjectBoxInventoryDatabase {
     }
 
     return inventory;
+  }
+
+  @override
+  Map<String, Inventory> map() {
+    var map = super.map();
+    map = historyDb.join(map);
+    return map;
+  }
+
+  @override
+  void put(Inventory inv) {
+    super.put(inv);
+    historyDb.put(inv.history);
   }
 }
