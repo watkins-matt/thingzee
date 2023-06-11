@@ -8,6 +8,7 @@ environment:
   sdk: ">=3.0.0 <4.0.0"
 
 dependencies:
+  duration: ^3.0.12
   intl: ^0.18.1
   json_annotation: ^4.8.1
   ml_algo: ^16.17.7

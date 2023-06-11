@@ -235,7 +235,7 @@ class ItemDetailPage extends HookConsumerWidget {
                         Expanded(
                           flex: 3,
                           child: Text(
-                            DateTime.now().toString(), //widget.product.timeSinceLastUpdateString
+                            ref.read(editableItemProvider).inventory.timeSinceLastUpdateString,
                             textScaleFactor: 0.9,
                             style: const TextStyle(fontStyle: FontStyle.italic, color: Colors.blue),
                           ),

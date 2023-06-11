@@ -1,4 +1,5 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:quiver/core.dart';
 import 'package:repository/model/inventory.dart';
 import 'package:repository/model/item.dart';
 import 'package:repository/repository.dart';
@@ -148,6 +149,9 @@ class EditableItem extends StateNotifier<EditableItemState> {
         state.inventory.history
             .add(DateTime.now().millisecondsSinceEpoch, state.inventory.amount, 2);
       }
+
+      // Make sure we update the last updated time
+      state.inventory.lastUpdate = Optional.of(DateTime.now());
 
       repo.inv.put(state.inventory);
       repo.hist.put(state.inventory.history);

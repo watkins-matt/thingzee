@@ -1,5 +1,6 @@
 import 'package:intl/intl.dart';
 import 'package:quiver/core.dart';
+import 'package:repository/extension/duration.dart';
 import 'package:repository/ml/ml_history.dart';
 import 'package:stats/double.dart';
 
@@ -27,16 +28,6 @@ class Inventory {
     amount = value / unitCount;
   }
 
-//   int get dbLastUpdate {
-//     return lastUpdate.isPresent ? lastUpdate.value.millisecondsSinceEpoch : 0;
-//   }
-
-//   set dbLastUpdate(int value) {
-//     lastUpdate = value != 0
-//         ? Optional.of(DateTime.fromMillisecondsSinceEpoch(value))
-//         : const Optional.absent();
-//   }
-
 //   List<String> get dbExpirationDates {
 //     List<String> dates = [];
 //     for (final exp in expirationDates) {
@@ -58,22 +49,22 @@ class Inventory {
 //     }
 //   }
 
-//   String get lastUpdatedString {
-//     return lastUpdate.isPresent ? DateFormat.yMMMd().format(lastUpdate.value) : 'Never';
-//   }
+  String get lastUpdatedString {
+    return lastUpdate.isPresent ? DateFormat.yMMMd().format(lastUpdate.value) : 'Never';
+  }
 
-//   Duration get timeSinceLastUpdate {
-//     assert(lastUpdate.isPresent);
-//     return DateTime.now().difference(lastUpdate.value);
-//   }
+  Duration get timeSinceLastUpdate {
+    assert(lastUpdate.isPresent);
+    return DateTime.now().difference(lastUpdate.value);
+  }
 
-//   String get timeSinceLastUpdateString {
-//     if (lastUpdate.isPresent) {
-//       return 'Amount updated ${timeSinceLastUpdate.toHumanReadableString()} ago.';
-//     } else {
-//       return 'Amount not updated recently.';
-//     }
-//   }
+  String get timeSinceLastUpdateString {
+    if (lastUpdate.isPresent) {
+      return 'Amount updated ${timeSinceLastUpdate.toHumanReadableString()} ago.';
+    } else {
+      return 'Amount not updated recently.';
+    }
+  }
 
   // double get usageSpeedMinutes {
   //   return history.best.
