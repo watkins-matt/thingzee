@@ -5,66 +5,16 @@ import 'package:repository/ml/ml_history.dart';
 import 'package:stats/double.dart';
 
 class Inventory {
-  Inventory();
   double amount = 0;
   int unitCount = 1;
-
   Optional<DateTime> lastUpdate = const Optional.absent();
   List<DateTime> expirationDates = <DateTime>[];
   List<String> locations = <String>[];
   MLHistory history = MLHistory();
   bool restock = true;
-
-  // Reference to Item
   String upc = '';
   String iuid = '';
-
-  double get units {
-    return amount * unitCount;
-  }
-
-  set units(double value) {
-    assert(unitCount != 0);
-    amount = value / unitCount;
-  }
-
-//   List<String> get dbExpirationDates {
-//     List<String> dates = [];
-//     for (final exp in expirationDates) {
-//       dates.add(exp.millisecondsSinceEpoch.toString());
-//     }
-
-//     return dates;
-//   }
-
-//   set dbExpirationDates(List<String> dates) {
-//     expirationDates.clear();
-
-//     for (final date in dates) {
-//       int? timestamp = int.tryParse(date);
-
-//       if (timestamp != null) {
-//         expirationDates.add(DateTime.fromMillisecondsSinceEpoch(timestamp));
-//       }
-//     }
-//   }
-
-  String get lastUpdatedString {
-    return lastUpdate.isPresent ? DateFormat.yMMMd().format(lastUpdate.value) : 'Never';
-  }
-
-  Duration get timeSinceLastUpdate {
-    assert(lastUpdate.isPresent);
-    return DateTime.now().difference(lastUpdate.value);
-  }
-
-  String get timeSinceLastUpdateString {
-    if (lastUpdate.isPresent) {
-      return 'Amount updated ${timeSinceLastUpdate.toHumanReadableString()} ago.';
-    } else {
-      return 'Amount not updated recently.';
-    }
-  }
+  Inventory();
 
   // double get usageSpeedMinutes {
   //   return history.best.
@@ -90,10 +40,14 @@ class Inventory {
     return predictedAmount <= 0;
   }
 
-//   String get minutesToReduceByOneString {
+  String get lastUpdatedString {
+    return lastUpdate.isPresent ? DateFormat.yMMMd().format(lastUpdate.value) : 'Never';
+  }
+
+  //   String get minutesToReduceByOneString {
 //     final reductionInMinutes = Duration(minutes: usageSpeedMinutes.round());
 
-//     return canPredictAmount
+//     return canPredict
 //         ? 'Quantity is reducing by 1 every:\n ${reductionInMinutes.toHumanReadableString()}.'
 //         : 'Please enter another valid quantity\nat a later date to allow quantity predictions to be made.';
 //   }
@@ -131,15 +85,15 @@ class Inventory {
     return Duration(milliseconds: millisecondsUntilOut.abs());
   }
 
-  // String get predictedTimeUntilOutString {
-  //   assert(canPredict);
-  //   final alreadyGoneString =
-  //       '${'Item was gone ' + predictedTimeUntilOut.toHumanReadableString()} ago.';
-  //   final timeUntilGoneString =
-  //       '${'${'Item will be gone in ' + predictedTimeUntilOut.toHumanReadableString()}\nat ${DateFormat.yMd().add_jm().format(predictedOutDate)}'}.';
+  String get predictedTimeUntilOutString {
+    assert(canPredict);
+    final alreadyGoneString =
+        '${'Item was gone ${predictedTimeUntilOut.toHumanReadableString()}'} ago.';
+    final timeUntilGoneString =
+        '${'${'Item will be gone in ${predictedTimeUntilOut.toHumanReadableString()}'}\nat ${DateFormat.yMd().add_jm().format(predictedOutDate)}'}.';
 
-  //   return isPredictedOut ? alreadyGoneString : timeUntilGoneString;
-  // }
+    return isPredictedOut ? alreadyGoneString : timeUntilGoneString;
+  }
 
   double get predictedUnits {
     return predictedAmount * unitCount;
@@ -161,5 +115,27 @@ class Inventory {
     return canPredict
         ? predictedUnits.toStringAsFixed(2).toString()
         : units.toStringAsFixed(2).toString();
+  }
+
+  Duration get timeSinceLastUpdate {
+    assert(lastUpdate.isPresent);
+    return DateTime.now().difference(lastUpdate.value);
+  }
+
+  String get timeSinceLastUpdateString {
+    if (lastUpdate.isPresent) {
+      return 'Amount updated ${timeSinceLastUpdate.toHumanReadableString()} ago.';
+    } else {
+      return 'Amount not updated recently.';
+    }
+  }
+
+  double get units {
+    return amount * unitCount;
+  }
+
+  set units(double value) {
+    assert(unitCount != 0);
+    amount = value / unitCount;
   }
 }
