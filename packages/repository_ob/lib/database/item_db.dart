@@ -5,17 +5,17 @@ import 'package:repository/model/item.dart';
 import 'package:repository_ob/model/item.ob.dart';
 import 'package:repository_ob/objectbox.g.dart';
 
-extension ObjectBoxCondition on Filter {
-  Condition<ObjectBoxItem>? toObjectBoxItemCondition() {
-    return ObjectBoxItem_.consumable.equals(consumable);
-  }
-}
-
 class ObjectBoxItemDatabase extends ItemDatabase {
   late Box<ObjectBoxItem> box;
 
   ObjectBoxItemDatabase(Store store) {
     box = store.box<ObjectBoxItem>();
+  }
+
+  @override
+  List<Item> all() {
+    final all = box.getAll();
+    return all.map((objBoxItem) => objBoxItem.toItem()).toList();
   }
 
   @override
@@ -74,10 +74,10 @@ class ObjectBoxItemDatabase extends ItemDatabase {
     final results = query.find();
     return results.map((objBoxItem) => objBoxItem.toItem()).toList();
   }
+}
 
-  @override
-  List<Item> all() {
-    final all = box.getAll();
-    return all.map((objBoxItem) => objBoxItem.toItem()).toList();
+extension ObjectBoxCondition on Filter {
+  Condition<ObjectBoxItem>? toObjectBoxItemCondition() {
+    return ObjectBoxItem_.consumable.equals(consumable);
   }
 }
