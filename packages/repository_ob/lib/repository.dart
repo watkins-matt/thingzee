@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:repository/repository.dart';
 import 'package:repository_ob/database/history_db.dart';
-import 'package:repository_ob/database/inventory_db.dart';
+import 'package:repository_ob/database/inventory_joined_db.dart';
 import 'package:repository_ob/database/item_db.dart';
 
 import 'objectbox.g.dart';
@@ -18,15 +18,8 @@ class ObjectBoxRepository extends Repository {
     store = Store(getObjectBoxModel(), directory: '${directory.path}/objectbox');
 
     items = ObjectBoxItemDatabase(store);
-    inv = ObjectBoxInventoryDatabase(store);
     hist = ObjectBoxHistoryDatabase(store);
-
-    // Link inventory and history together
-    (inv as ObjectBoxInventoryDatabase).registerGetCallback((inv) {
-      final itemHistory = hist.get(inv.upc);
-      inv.history = itemHistory;
-      return inv;
-    });
+    inv = ObjectBoxJoinedInventoryDatabase(store, hist);
 
     ready = true;
   }

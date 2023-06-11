@@ -11,11 +11,6 @@ class ObjectBoxInventoryDatabase extends InventoryDatabase {
     box = store.box<ObjectBoxInventory>();
   }
 
-  final List<Function> _callbacks = [];
-  void registerGetCallback(Function callback) {
-    _callbacks.add(callback);
-  }
-
   @override
   List<Inventory> all() {
     final all = box.getAll();
@@ -43,13 +38,6 @@ class ObjectBoxInventoryDatabase extends InventoryDatabase {
     final query = box.query(ObjectBoxInventory_.upc.equals(upc)).build();
     var result = Optional.fromNullable(query.findFirst()?.toInventory());
     query.close();
-
-    // Allow processing though callback functions
-    if (result.isPresent) {
-      for (final callback in _callbacks) {
-        result = Optional.fromNullable(callback(result.value));
-      }
-    }
 
     return result;
   }
