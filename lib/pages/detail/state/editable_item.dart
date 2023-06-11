@@ -22,10 +22,10 @@ class EditableItemState {
 class EditableItem extends StateNotifier<EditableItemState> {
   EditableItem() : super(EditableItemState.empty());
 
-  void copyFrom(Item item, Inventory inv, MLHistory history) {
+  void copyFrom(Item item, Inventory inv) {
     copyFromItem(item);
     copyFromInventory(inv);
-    copyFromHistory(history);
+    copyFromHistory(inv.history);
   }
 
   void copyFromHistory(MLHistory history) {

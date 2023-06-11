@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:repository/model/inventory.dart';
 import 'package:repository/model/item.dart';
-import 'package:thingzee/app.dart';
 import 'package:thingzee/pages/detail/item_detail_page.dart';
 import 'package:thingzee/pages/detail/state/editable_item.dart';
 import 'package:thingzee/pages/inventory/state/item_thumbnail_cache.dart';
@@ -13,9 +12,8 @@ class ItemListTile extends ConsumerWidget {
   const ItemListTile(this.item, this.inventory, {Key? key}) : super(key: key);
 
   Future<void> onTap(BuildContext context, WidgetRef ref) async {
-    final history = App.repo.hist.get(item.upc);
     final itemProv = ref.watch(editableItemProvider.notifier);
-    itemProv.copyFrom(item, inventory, history);
+    itemProv.copyFrom(item, inventory);
 
     await Navigator.push(
       context,

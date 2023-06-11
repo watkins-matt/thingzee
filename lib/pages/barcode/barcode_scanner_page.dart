@@ -118,10 +118,9 @@ class _BarcodeScannerPageState extends ConsumerState<BarcodeScannerPage> {
       inv.value.amount = 1;
     }
 
-    final history = App.repo.hist.get(barcode);
-
     final itemProv = ref.watch(editableItemProvider.notifier);
-    itemProv.copyFrom(item.value, inv.value, history);
+    itemProv.copyFrom(
+        item.value, inv.value); // These are guaranteed to be valid (initialized above)
     await Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => ItemDetailPage(item.value)),

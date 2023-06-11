@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:repository/ml/ml_history.dart';
 import 'package:repository/model/inventory.dart';
 import 'package:repository/model/item.dart';
 import 'package:stats/double.dart';
@@ -22,10 +21,14 @@ class ItemDetailPage extends HookConsumerWidget {
   final Item item;
   const ItemDetailPage(this.item, {Key? key}) : super(key: key);
 
-  static Future<void> push(BuildContext context, WidgetRef ref, Item item, Inventory inventory,
-      MLHistory history) async {
+  static Future<void> push(
+    BuildContext context,
+    WidgetRef ref,
+    Item item,
+    Inventory inventory,
+  ) async {
     final itemProv = ref.watch(editableItemProvider.notifier);
-    itemProv.copyFrom(item, inventory, history);
+    itemProv.copyFrom(item, inventory);
 
     await Navigator.push(
       context,
