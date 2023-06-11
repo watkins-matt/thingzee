@@ -92,7 +92,7 @@ class Inventory {
 //   }
 
   bool get canPredict {
-    return lastUpdate.isPresent && history.canPredict;
+    return history.canPredict;
   }
 
   bool get isPredictedOut {
