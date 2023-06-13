@@ -38,8 +38,9 @@ class ObjectBoxHistoryDatabase extends HistoryDatabase {
     final allHistory = map();
 
     for (final inventory in inventoryMap.values) {
-      if (allHistory.containsKey(inventory.upc)) {
+      if (inventory.upc.isNotEmpty && allHistory.containsKey(inventory.upc)) {
         final history = allHistory[inventory.upc]!;
+        assert(history.upc.isNotEmpty && history.upc == inventory.upc);
         inventory.history = history;
       }
     }
@@ -51,8 +52,9 @@ class ObjectBoxHistoryDatabase extends HistoryDatabase {
     final allHistory = map();
 
     for (final inventory in inventoryList) {
-      if (allHistory.containsKey(inventory.upc)) {
+      if (inventory.upc.isNotEmpty && allHistory.containsKey(inventory.upc)) {
         final history = allHistory[inventory.upc]!;
+        assert(history.upc.isNotEmpty && history.upc == inventory.upc);
         inventory.history = history;
       }
     }

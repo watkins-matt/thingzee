@@ -33,12 +33,14 @@ class InventoryViewWidget extends ConsumerWidget {
     if (index == 0) return const ListTile();
 
     final products = ref.watch(inventoryProvider);
-    final inventory = ref.read(inventoryProvider.notifier).inventory;
+    final inventoryMap = ref.read(inventoryProvider.notifier).inventory;
     final productUpc = products[index - 1].upc;
 
-    return ItemListTile(
-        products[index - 1],
-        inventory[productUpc] ?? Inventory()
-          ..upc = productUpc);
+    // We create a new inventory if it doesn't exist. Note that changing
+    // the upc here updates the upc in History as well so the state remains
+    // valid.
+    final inventory = inventoryMap[productUpc] ?? Inventory.withUPC(productUpc);
+
+    return ItemListTile(products[index - 1], inventory);
   }
 }

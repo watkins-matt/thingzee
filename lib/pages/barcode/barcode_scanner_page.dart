@@ -118,6 +118,7 @@ class _BarcodeScannerPageState extends ConsumerState<BarcodeScannerPage> {
       inv.value.upc = barcode;
       inv.value.amount = 1;
       inv.value.history = MLHistory()..upc = barcode;
+      inv.value.lastUpdate = Optional.of(DateTime.now());
     }
 
     final itemProv = ref.watch(editableItemProvider.notifier);

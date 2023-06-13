@@ -15,6 +15,9 @@ class Inventory {
   String upc = '';
   String iuid = '';
   Inventory();
+  Inventory.withUPC(this.upc) {
+    history.upc = upc;
+  }
 
   // double get usageSpeedMinutes {
   //   return history.best.

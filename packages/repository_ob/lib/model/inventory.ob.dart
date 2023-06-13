@@ -35,6 +35,9 @@ class ObjectBoxInventory {
     units = original.units;
   }
   Inventory toInventory() {
+    // Ensure history is in a consistent state
+    history.upc = upc;
+
     return Inventory()
       ..amount = amount
       ..unitCount = unitCount
