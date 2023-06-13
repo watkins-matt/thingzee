@@ -43,6 +43,17 @@ class ObjectBoxInventoryDatabase extends InventoryDatabase {
   }
 
   @override
+  List<Inventory> getAll(List<String> upcs) {
+    final query = box.query(ObjectBoxInventory_.upc.oneOf(upcs)).build();
+    final results = query.find();
+    query.close();
+
+    // Convert to list of Inventory objects
+    var inventoryList = results.map((objBoxInv) => objBoxInv.toInventory()).toList();
+    return inventoryList;
+  }
+
+  @override
   Map<String, Inventory> map() {
     Map<String, Inventory> map = {};
     final allInventory = all();

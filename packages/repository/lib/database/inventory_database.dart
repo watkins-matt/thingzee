@@ -6,6 +6,7 @@ abstract class InventoryDatabase {
   void delete(Inventory inv);
   void deleteAll();
   Optional<Inventory> get(String upc);
+  List<Inventory> getAll(List<String> upcs);
   Map<String, Inventory> map();
   List<Inventory> outs();
   void put(Inventory inv);
