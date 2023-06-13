@@ -37,7 +37,6 @@ class ObjectBoxInventory {
   Inventory toInventory() {
     // Ensure history is in a consistent state
     history.upc = upc;
-
     return Inventory()
       ..amount = amount
       ..unitCount = unitCount
@@ -49,5 +48,36 @@ class ObjectBoxInventory {
       ..upc = upc
       ..iuid = iuid
       ..units = units;
+  }
+
+  int get dbLastUpdate {
+    return lastUpdate.isPresent ? lastUpdate.value.millisecondsSinceEpoch : 0;
+  }
+
+  set dbLastUpdate(int value) {
+    lastUpdate = value != 0
+        ? Optional.of(DateTime.fromMillisecondsSinceEpoch(value))
+        : const Optional.absent();
+  }
+
+  List<String> get dbExpirationDates {
+    List<String> dates = [];
+    for (final exp in expirationDates) {
+      dates.add(exp.millisecondsSinceEpoch.toString());
+    }
+
+    return dates;
+  }
+
+  set dbExpirationDates(List<String> dates) {
+    expirationDates.clear();
+
+    for (final date in dates) {
+      int? timestamp = int.tryParse(date);
+
+      if (timestamp != null) {
+        expirationDates.add(DateTime.fromMillisecondsSinceEpoch(timestamp));
+      }
+    }
   }
 }
