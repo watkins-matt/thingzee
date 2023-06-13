@@ -108,24 +108,32 @@ class ArimaRegressor {
     return Matrix.fromRows(matrixData);
   }
 
-  Vector difference(Vector series, int order) {
-    if (order == 0) {
-      return series;
-    } else {
-      var output = <double>[];
-      for (int i = order; i < series.length; i++) {
-        output.add(series[i] - series[i - 1]);
-      }
-      return Vector.fromList(output);
+  Vector difference(Vector series, int order, [int lag = 1]) {
+    Vector differenced = series;
+    for (int i = 0; i < order; i++) {
+      differenced = _lagDifference(differenced, lag);
     }
+    return differenced;
   }
 
-  double undifference(double value, Vector series, int order) {
-    if (order == 0) {
-      return value;
-    } else {
-      return value + series[series.length - 1];
+  Vector _lagDifference(Vector series, int lag) {
+    var output = <double>[];
+    for (int i = lag; i < series.length; i++) {
+      output.add(series[i] - series[i - lag]);
     }
+    return Vector.fromList(output);
+  }
+
+  double undifference(double value, Vector series, int order, [int lag = 1]) {
+    double undifferenced = value;
+    for (int i = 0; i < order; i++) {
+      undifferenced = _lagUndifference(undifferenced, series, lag);
+    }
+    return undifferenced;
+  }
+
+  double _lagUndifference(double value, Vector series, int lag) {
+    return value + series[series.length - lag];
   }
 }
 
