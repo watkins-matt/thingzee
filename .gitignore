@@ -28,6 +28,8 @@ custom_lint-*.log
 .dart_tool/
 .flutter-plugins
 .flutter-plugins-dependencies
+*.flutter-plugins
+*.flutter-plugins-dependencies
 .packages
 .pub-cache/
 .pub/
