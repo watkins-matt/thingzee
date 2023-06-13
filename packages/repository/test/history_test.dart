@@ -41,7 +41,6 @@ void main() {
       expect(predictedAmounts[0], closeTo(4, 0.1));
       expect(predictedAmounts[1], closeTo(3, 0.1));
       expect(predictedAmounts[2], closeTo(2, 0.1));
-      print(predictedAmounts);
     });
   });
 }
