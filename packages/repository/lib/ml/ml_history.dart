@@ -36,7 +36,7 @@ class MLHistory {
   }
 
   bool get canPredict {
-    return current.regressor.hasIntercept || previous.regressor.hasIntercept;
+    return current.regressor.hasXIntercept || previous.regressor.hasXIntercept;
   }
 
   HistorySeries get best {
