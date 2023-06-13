@@ -95,8 +95,17 @@ class ObjectBoxBuilder implements Builder {
       }
 
       final type = field.type.getDisplayString(withNullability: false);
+      // Must initialize empty lists
       if (type.contains('List<')) {
         buffer.writeln('  $type ${field.name} = [];');
+      }
+      // Optional values must be initialized
+      else if (type.contains('Optional<')) {
+        buffer.writeln('  $type ${field.name} = const Optional.absent();');
+      }
+      // Initialize transient fields
+      else if (transientFields.contains(field.name)) {
+        buffer.writeln('  $type ${field.name} = $type();');
       } else {
         buffer.writeln('  late $type ${field.name};');
       }
@@ -119,6 +128,12 @@ class ObjectBoxBuilder implements Builder {
 
     // Write the conversion methods.
     buffer.writeln('  ${originalClass.name} to${originalClass.name}() {');
+
+    if (originalClass.name == 'Inventory') {
+      buffer.writeln('      // Ensure history is in a consistent state');
+      buffer.writeln('      history.upc = upc;');
+    }
+
     buffer.writeln('    return ${originalClass.name}()');
     for (final field in originalClass.fields) {
       if (field.setter != null) {
