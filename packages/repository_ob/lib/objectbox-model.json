@@ -5,7 +5,7 @@
   "entities": [
     {
       "id": "1:3723209419512490517",
-      "lastPropertyId": "22:6040227891217577961",
+      "lastPropertyId": "24:5080861922992731976",
       "name": "ObjectBoxInventory",
       "properties": [
         {
@@ -50,6 +50,16 @@
           "id": "12:1728930760721481711",
           "name": "units",
           "type": 8
+        },
+        {
+          "id": "23:6915659985871251568",
+          "name": "dbLastUpdate",
+          "type": 6
+        },
+        {
+          "id": "24:5080861922992731976",
+          "name": "dbExpirationDates",
+          "type": 30
         }
       ],
       "relations": []
