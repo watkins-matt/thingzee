@@ -6,133 +6,92 @@ import 'package:repository/ml/normalizer.dart';
 import 'package:repository/ml/observation.dart';
 import 'package:repository/ml/ols_regressor.dart';
 
-abstract class Regressor {
-  double predict(int x);
-  int get xIntercept;
-  bool get hasIntercept;
-}
-
 class EmptyRegressor implements Regressor {
+  @override
+  bool get hasXIntercept => false;
+
+  @override
+  bool get hasSlope => false;
+
+  @override
+  double get slope => 0;
+
+  @override
+  int get xIntercept => 0;
+
   @override
   double predict(int x) {
     return 0;
   }
-
-  @override
-  int get xIntercept => 0;
-
-  @override
-  bool get hasIntercept => false;
 }
 
-class SingleDataPointLinearRegressor implements Regressor {
-  final double intercept;
+class HoltLinearRegressor extends Regressor {
+  final List<MapEntry<int, double>> data;
+  final double alpha;
+  final double beta;
+  final int unitDuration;
 
-  SingleDataPointLinearRegressor(this.intercept);
+  HoltLinearRegressor(this.data, this.alpha, this.beta,
+      {this.unitDuration = Duration.millisecondsPerDay});
 
-  @override
-  double predict(int x) {
-    return intercept;
-  }
-
-  @override
-  bool get hasIntercept => false;
-
-  @override
-  int get xIntercept => 0;
-}
-
-class TwoPointLinearRegressor implements Regressor {
-  final double slope;
-  final double intercept;
-
-  TwoPointLinearRegressor(this.slope, this.intercept);
-  TwoPointLinearRegressor.fromPoints(int x1, double y1, int x2, double y2)
-      : slope = (y2 - y1) / (x2 - x1),
-        intercept = y1 - (y2 - y1) / (x2 - x1) * x1;
+  HoltLinearRegressor.fromMap(Map<int, double> mapData, this.alpha, this.beta,
+      {this.unitDuration = Duration.millisecondsPerDay})
+      : data = mapData.entries.toList();
 
   @override
-  double predict(int x) {
-    return slope * x + intercept;
+  bool get hasXIntercept => true;
+
+  @override
+  bool get hasSlope => true;
+
+  @override
+  double get slope {
+    _HoltLinearResult result = _calculateHoltLinear();
+    // Return the final calculated trend as the slope.
+    return result.trend;
   }
 
   @override
   int get xIntercept {
-    return (-intercept / slope).round();
+    _HoltLinearResult result = _calculateHoltLinear();
+
+    // The time when the trend hits zero is when level + dt * trend = 0, solving for dt gives.
+    int dtZero = (-result.level / result.trend).round();
+
+    // Return the timestamp when the trend is expected to hit zero.
+    return data.last.key + dtZero * unitDuration;
   }
 
   @override
-  bool get hasIntercept => true;
-}
+  double predict(int x) {
+    _HoltLinearResult result = _calculateHoltLinear();
 
-class SimpleLinearRegressor implements Regressor {
-  late double intercept;
-  late double slope;
+    // Estimate the time difference from the last known point to the prediction point.
+    int dtPred = (x - data.last.key) ~/ unitDuration;
 
-  SimpleLinearRegressor(Map<int, double> dataPoints) {
-    final xValues = dataPoints.keys.toList();
-    final yValues = dataPoints.values.toList();
+    // Return the forecasted value.
+    return result.level + dtPred * result.trend;
+  }
 
-    // Calculate the means of x and y
-    final xMean = xValues.reduce((a, b) => a + b) / xValues.length;
-    final yMean = yValues.reduce((a, b) => a + b) / yValues.length;
+  // A private method to calculate the current level and trend using Holt's Linear Exponential Smoothing.
+  _HoltLinearResult _calculateHoltLinear() {
+    // Define the initial level and trend.
+    double level = data[0].value;
+    double trend = data[1].value - data[0].value;
 
-    // Calculate slope (m) and intercept (c) for y = mx + c
-    var numerator = 0.0;
-    var denominator = 0.0;
+    // Iteratively apply Holt's Linear Exponential Smoothing.
+    for (var i = 1; i < data.length; i++) {
+      // Calculate the time difference between current and previous timestamp.
+      int dt = (data[i].key - data[i - 1].key) ~/ unitDuration;
 
-    for (var i = 0; i < xValues.length; i++) {
-      numerator += (xValues[i] - xMean) * (yValues[i] - yMean);
-      denominator += (xValues[i] - xMean) * (xValues[i] - xMean);
+      // Adjust level and trend for the elapsed time.
+      double oldLevel = level;
+      level = alpha * data[i].value + (1 - alpha) * (level + dt * trend);
+      trend = beta * (level - oldLevel) / dt + (1 - beta) * trend;
     }
 
-    slope = numerator / denominator;
-    intercept = yMean - slope * xMean;
+    return _HoltLinearResult(level, trend);
   }
-
-  @override
-  double predict(int x) {
-    return slope * x + intercept;
-  }
-
-  @override
-  bool get hasIntercept => true;
-
-  @override
-  int get xIntercept {
-    return (-intercept / slope).round();
-  }
-}
-
-class SimpleOLSRegressor implements Regressor {
-  final OLSRegressor regressor;
-  final Normalizer normalizer;
-
-  SimpleOLSRegressor(this.regressor, this.normalizer);
-
-  @override
-  double predict(int x) {
-    var observation = Observation(
-      timestamp: x.toDouble(),
-      amount: 0,
-      householdCount: 2,
-    );
-
-    final vector = Vector.fromList(observation.normalize(normalizer));
-    final matrix = Matrix.fromRows([vector]);
-
-    var dataframe = DataFrame.fromMatrix(matrix, header: Observation.header);
-    dataframe = dataframe.dropSeries(names: [regressor.target]);
-
-    var predicted = regressor.predict(dataframe);
-    return predicted;
-  }
-
-  @override
-  bool get hasIntercept => false;
-
-  @override
-  int get xIntercept => 0;
 }
 
 class MLLinearRegressor implements Regressor {
@@ -142,25 +101,13 @@ class MLLinearRegressor implements Regressor {
   MLLinearRegressor(this.regressor, this.normalizer);
 
   @override
-  double predict(int x) {
-    var observation = Observation(
-      timestamp: x.toDouble(),
-      amount: 0,
-      householdCount: 2,
-    );
-
-    final vector = Vector.fromList(observation.normalize(normalizer));
-    final matrix = Matrix.fromRows([vector]);
-    var dataframe = DataFrame.fromMatrix(matrix);
-
-    final df = dataframe.dropSeries(names: [regressor.targetName]);
-
-    var predicted = regressor.predict(df);
-    return predicted[0].data.first;
-  }
+  bool get hasXIntercept => true;
 
   @override
-  bool get hasIntercept => true;
+  bool get hasSlope => false;
+
+  @override
+  double get slope => 0;
 
   @override
   int get xIntercept {
@@ -225,6 +172,24 @@ class MLLinearRegressor implements Regressor {
     // Return the timestamp when amount runs out
     return upperBound.round();
   }
+
+  @override
+  double predict(int x) {
+    var observation = Observation(
+      timestamp: x.toDouble(),
+      amount: 0,
+      householdCount: 2,
+    );
+
+    final vector = Vector.fromList(observation.normalize(normalizer));
+    final matrix = Matrix.fromRows([vector]);
+    var dataframe = DataFrame.fromMatrix(matrix, header: Observation.header);
+
+    final df = dataframe.dropSeries(names: [regressor.targetName]);
+
+    var predicted = regressor.predict(df);
+    return predicted[0].data.first;
+  }
 }
 
 class NaiveRegressor implements Regressor {
@@ -237,7 +202,13 @@ class NaiveRegressor implements Regressor {
       : this(map.entries.toList(), unitDuration: unitDuration);
 
   @override
-  double predict(int timestamp) {
+  bool get hasXIntercept => true;
+
+  @override
+  bool get hasSlope => true;
+
+  @override
+  double get slope {
     // Calculate the time difference between the last two timestamps
     int dt = (data.last.key - data[data.length - 2].key) ~/ unitDuration;
 
@@ -245,13 +216,7 @@ class NaiveRegressor implements Regressor {
     double dv = data.last.value - data[data.length - 2].value;
 
     // Calculate the trend
-    double trend = dv / dt;
-
-    // Estimate the time difference from the last known point to the prediction point
-    int dtPred = (timestamp - data.last.key) ~/ unitDuration;
-
-    // Return the forecasted value
-    return data.last.value + dtPred * trend;
+    return dv / dt;
   }
 
   @override
@@ -270,68 +235,171 @@ class NaiveRegressor implements Regressor {
   }
 
   @override
-  bool get hasIntercept => true;
-}
+  double predict(int timestamp) {
+    // Calculate the time difference between the last two timestamps
+    int dt = (data.last.key - data[data.length - 2].key) ~/ unitDuration;
 
-class HoltLinearRegressor extends Regressor {
-  final List<MapEntry<int, double>> data;
-  final double alpha;
-  final double beta;
-  final int unitDuration;
+    // Calculate the value difference between the last two points
+    double dv = data.last.value - data[data.length - 2].value;
 
-  HoltLinearRegressor(this.data, this.alpha, this.beta,
-      {this.unitDuration = Duration.millisecondsPerDay});
-  HoltLinearRegressor.fromMap(Map<int, double> mapData, this.alpha, this.beta,
-      {this.unitDuration = Duration.millisecondsPerDay})
-      : data = mapData.entries.toList();
-
-  @override
-  double predict(int x) {
-    // Define the initial level and trend
-    double level = data[0].value;
-    double trend = data[1].value - data[0].value;
-
-    // Iteratively apply Holt's Linear Exponential Smoothing
-    for (var i = 1; i < data.length; i++) {
-      // Calculate the time difference between current and previous timestamp
-      int dt = (data[i].key - data[i - 1].key) ~/ unitDuration;
-
-      // Adjust level and trend for the elapsed time
-      double oldLevel = level;
-      level = alpha * data[i].value + (1 - alpha) * (level + dt * trend);
-      trend = beta * (level - oldLevel) / dt + (1 - beta) * trend;
-    }
+    // Calculate the trend
+    double trend = dv / dt;
 
     // Estimate the time difference from the last known point to the prediction point
-    int dtPred = (x - data.last.key) ~/ unitDuration;
+    int dtPred = (timestamp - data.last.key) ~/ unitDuration;
 
     // Return the forecasted value
-    return level + dtPred * trend;
+    return data.last.value + dtPred * trend;
   }
+}
+
+abstract class Regressor {
+  bool get hasXIntercept;
+  bool get hasSlope;
+  double get slope;
+  int get xIntercept;
+  double predict(int x);
+}
+
+class SimpleLinearRegressor implements Regressor {
+  late double _intercept;
+  late double _slope;
+
+  SimpleLinearRegressor(Map<int, double> dataPoints) {
+    final xValues = dataPoints.keys.toList();
+    final yValues = dataPoints.values.toList();
+
+    // Calculate the means of x and y
+    final xMean = xValues.reduce((a, b) => a + b) / xValues.length;
+    final yMean = yValues.reduce((a, b) => a + b) / yValues.length;
+
+    // Calculate slope (m) and intercept (c) for y = mx + c
+    var numerator = 0.0;
+    var denominator = 0.0;
+
+    for (var i = 0; i < xValues.length; i++) {
+      numerator += (xValues[i] - xMean) * (yValues[i] - yMean);
+      denominator += (xValues[i] - xMean) * (xValues[i] - xMean);
+    }
+
+    _slope = numerator / denominator;
+    _intercept = yMean - _slope * xMean;
+  }
+
+  @override
+  bool get hasXIntercept => true;
+
+  @override
+  bool get hasSlope => true;
+
+  @override
+  double get slope => _slope;
 
   @override
   int get xIntercept {
-    double level = data[0].value;
-    double trend = data[1].value - data[0].value;
-
-    // Iteratively apply Holt's Linear Exponential Smoothing
-    for (var i = 1; i < data.length; i++) {
-      // Calculate the time difference between current and previous timestamp
-      int dt = (data[i].key - data[i - 1].key) ~/ unitDuration;
-
-      // Adjust level and trend for the elapsed time
-      double oldLevel = level;
-      level = alpha * data[i].value + (1 - alpha) * (level + dt * trend);
-      trend = beta * (level - oldLevel) / dt + (1 - beta) * trend;
-    }
-
-    // The time when the trend hits zero is when level + dt * trend = 0, solving for dt gives:
-    int dtZero = (-level / trend).round();
-
-    // Return the timestamp when the trend is expected to hit zero
-    return data.last.key + dtZero * unitDuration;
+    return (-_intercept / _slope).round();
   }
 
   @override
-  bool get hasIntercept => true;
+  double predict(int x) {
+    return _slope * x + _intercept;
+  }
+}
+
+class SimpleOLSRegressor implements Regressor {
+  final OLSRegressor regressor;
+  final Normalizer normalizer;
+
+  SimpleOLSRegressor(this.regressor, this.normalizer);
+
+  @override
+  bool get hasXIntercept => false;
+
+  @override
+  bool get hasSlope => false;
+
+  @override
+  double get slope => 0;
+
+  @override
+  int get xIntercept => 0;
+
+  @override
+  double predict(int x) {
+    var observation = Observation(
+      timestamp: x.toDouble(),
+      amount: 0,
+      householdCount: 2,
+    );
+
+    final vector = Vector.fromList(observation.normalize(normalizer));
+    final matrix = Matrix.fromRows([vector]);
+
+    var dataframe = DataFrame.fromMatrix(matrix, header: Observation.header);
+    dataframe = dataframe.dropSeries(names: [regressor.target]);
+
+    var predicted = regressor.predict(dataframe);
+    return predicted;
+  }
+}
+
+class SingleDataPointLinearRegressor implements Regressor {
+  final double intercept;
+
+  SingleDataPointLinearRegressor(this.intercept);
+
+  @override
+  bool get hasXIntercept => false;
+
+  @override
+  bool get hasSlope => false;
+
+  @override
+  double get slope => 0;
+
+  @override
+  int get xIntercept => 0;
+
+  @override
+  double predict(int x) {
+    return intercept;
+  }
+}
+
+class TwoPointLinearRegressor implements Regressor {
+  final double _slope;
+  final double _intercept;
+
+  TwoPointLinearRegressor(this._slope, this._intercept);
+  TwoPointLinearRegressor.fromPoints(int x1, double y1, int x2, double y2)
+      : _slope = (y2 - y1) / (x2 - x1),
+        _intercept = y1 - (y2 - y1) / (x2 - x1) * x1;
+
+  @override
+  bool get hasXIntercept => true;
+
+  @override
+  bool get hasSlope => true;
+
+  @override
+  double get slope => _slope;
+
+  @override
+  int get xIntercept {
+    return (-_intercept / _slope).round();
+  }
+
+  double get yIntercept => _intercept;
+
+  @override
+  double predict(int x) {
+    return _slope * x + _intercept;
+  }
+}
+
+class _HoltLinearResult {
+  final double level;
+  final double trend;
+
+  _HoltLinearResult(this.level, this.trend);
 }

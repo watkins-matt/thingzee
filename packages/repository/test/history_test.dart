@@ -24,7 +24,7 @@ void main() {
       history.add(1641081600000, 6, 2);
       TwoPointLinearRegressor regressor = history.current.regressor as TwoPointLinearRegressor;
 
-      expect(regressor.intercept, closeTo(75982, 1e-5));
+      expect(regressor.yIntercept, closeTo(75982, 1e-5));
       expect(regressor.slope, closeTo(-4.62963e-8, 1e-13));
     });
 
@@ -41,6 +41,7 @@ void main() {
       expect(predictedAmounts[0], closeTo(4, 0.1));
       expect(predictedAmounts[1], closeTo(3, 0.1));
       expect(predictedAmounts[2], closeTo(2, 0.1));
+      print(predictedAmounts);
     });
   });
 }
