@@ -9,6 +9,6 @@ abstract class HistoryDatabase {
   Map<String, Inventory> join(Map<String, Inventory> inventoryMap);
   List<Inventory> joinList(List<Inventory> inventoryList);
   Map<String, MLHistory> map();
-  List<MLHistory> predictedOuts(int days);
+  Set<String> predictedOuts(int days);
   void put(MLHistory history);
 }

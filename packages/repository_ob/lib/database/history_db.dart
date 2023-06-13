@@ -72,16 +72,16 @@ class ObjectBoxHistoryDatabase extends HistoryDatabase {
   }
 
   @override
-  List<MLHistory> predictedOuts(int days) {
+  Set<String> predictedOuts(int days) {
     final allHistory = all();
-    List<MLHistory> predictedOuts = [];
+    Set<String> predictedOuts = {};
     final futureDate = DateTime.now().add(const Duration(days: 12));
 
     for (final history in allHistory) {
       if (history.canPredict) {
         final outTime = DateTime.fromMillisecondsSinceEpoch(history.predictedOutageTimestamp);
         if (outTime.isBefore(futureDate)) {
-          predictedOuts.add(history);
+          predictedOuts.add(history.upc);
         }
       }
     }
