@@ -26,7 +26,7 @@ final _entities = <ModelEntity>[
   ModelEntity(
       id: const IdUid(1, 3723209419512490517),
       name: 'ObjectBoxInventory',
-      lastPropertyId: const IdUid(22, 6040227891217577961),
+      lastPropertyId: const IdUid(24, 5080861922992731976),
       flags: 0,
       properties: <ModelProperty>[
         ModelProperty(
@@ -69,6 +69,16 @@ final _entities = <ModelEntity>[
             id: const IdUid(12, 1728930760721481711),
             name: 'units',
             type: 8,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(23, 6915659985871251568),
+            name: 'dbLastUpdate',
+            type: 6,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(24, 5080861922992731976),
+            name: 'dbExpirationDates',
+            type: 30,
             flags: 0)
       ],
       relations: <ModelRelation>[],
@@ -371,7 +381,10 @@ ModelDefinition getObjectBoxModel() {
               object.locations.map(fbb.writeString).toList(growable: false));
           final upcOffset = fbb.writeString(object.upc);
           final iuidOffset = fbb.writeString(object.iuid);
-          fbb.startTable(23);
+          final dbExpirationDatesOffset = fbb.writeList(object.dbExpirationDates
+              .map(fbb.writeString)
+              .toList(growable: false));
+          fbb.startTable(25);
           fbb.addFloat64(0, object.amount);
           fbb.addOffset(1, locationsOffset);
           fbb.addBool(2, object.restock);
@@ -380,6 +393,8 @@ ModelDefinition getObjectBoxModel() {
           fbb.addOffset(9, iuidOffset);
           fbb.addInt64(10, object.unitCount);
           fbb.addFloat64(11, object.units);
+          fbb.addInt64(22, object.dbLastUpdate);
+          fbb.addOffset(23, dbExpirationDatesOffset);
           fbb.finish(fbb.endTable());
           return object.id;
         },
@@ -404,7 +419,13 @@ ModelDefinition getObjectBoxModel() {
             ..unitCount =
                 const fb.Int64Reader().vTableGet(buffer, rootOffset, 24, 0)
             ..units =
-                const fb.Float64Reader().vTableGet(buffer, rootOffset, 26, 0);
+                const fb.Float64Reader().vTableGet(buffer, rootOffset, 26, 0)
+            ..dbLastUpdate =
+                const fb.Int64Reader().vTableGet(buffer, rootOffset, 48, 0)
+            ..dbExpirationDates = const fb.ListReader<String>(
+                    fb.StringReader(asciiOptimization: true),
+                    lazy: false)
+                .vTableGet(buffer, rootOffset, 50, []);
 
           return object;
         }),
@@ -682,6 +703,14 @@ class ObjectBoxInventory_ {
   /// see [ObjectBoxInventory.units]
   static final units =
       QueryDoubleProperty<ObjectBoxInventory>(_entities[0].properties[7]);
+
+  /// see [ObjectBoxInventory.dbLastUpdate]
+  static final dbLastUpdate =
+      QueryIntegerProperty<ObjectBoxInventory>(_entities[0].properties[8]);
+
+  /// see [ObjectBoxInventory.dbExpirationDates]
+  static final dbExpirationDates =
+      QueryStringVectorProperty<ObjectBoxInventory>(_entities[0].properties[9]);
 }
 
 /// [ObjectBoxManufacturer] entity fields to define ObjectBox queries.
