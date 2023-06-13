@@ -54,47 +54,20 @@ class ObjectBoxInventoryDatabase extends InventoryDatabase {
     return map;
   }
 
-  // @override
-  // List<Inventory> outs({bool predicted = false}) {
-  // final query =
-  //     box.query(Product_.amount.lessOrEqual(0).and(Product_.restock.equals(true))).build();
+  @override
+  List<Inventory> outs() {
+    final query = box
+        .query(
+            ObjectBoxInventory_.amount.lessOrEqual(0).and(ObjectBoxInventory_.restock.equals(true)))
+        .build();
 
-  // // We only needed the actual outs
-  // if (!predicted) {
-  //   return query.find();
-  // }
+    final results = query.find();
+    query.close();
 
-  // // Find all predicted outs as well
-  // else {
-  //   var outs = query.find();
-
-  //   var restockQuery = box
-  //       .query(Product_.amount
-  //           .greaterOrEqual(0)
-  //           .and(Product_.restock.equals(true))
-  //           .and(Product_.consumable.equals(true)))
-  //       .build();
-  //   var restockable = restockQuery.find();
-
-  //   // Whatever date in the future we need to be stocked until
-  //   final futureDate = DateTime.now().add(const Duration(days: 12));
-
-  //   for (final product in restockable) {
-  //     if (product.canPredictAmount &&
-  //         product.predictedOutDate.isBefore(futureDate) &&
-  //         !outs.any((element) => element.upc == product.upc)) {
-  //       // Extra filter for items that are used quickly
-  //       if (product.amount <= 1 && product.predictedAmount <= 0.5) {
-  //         outs.add(product);
-  //       }
-  //     }
-  //   }
-
-  //   outs.sort();
-  //   return outs;
-  // }
-  //   return [];
-  // }
+    // Convert to list of Inventory objects
+    var outs = results.map((objBoxInv) => objBoxInv.toInventory()).toList();
+    return outs;
+  }
 
   // Find the product info and replace with our new info. We have to find the id of the old
   // object to update correctly.

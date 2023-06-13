@@ -33,35 +33,6 @@ class ObjectBoxHistoryDatabase extends HistoryDatabase {
   }
 
   @override
-  Map<String, MLHistory> map() {
-    Map<String, MLHistory> map = {};
-    final allHistory = all();
-
-    for (final hist in allHistory) {
-      map[hist.upc] = hist;
-    }
-
-    return map;
-  }
-
-  @override
-  void put(MLHistory history) {
-    assert(history.upc.isNotEmpty);
-    final historyOb = ObjectBoxMLHistory.from(history);
-
-    final query = box.query(ObjectBoxMLHistory_.upc.equals(history.upc)).build();
-    final exists = Optional.fromNullable(query.findFirst());
-    query.close();
-
-    if (exists.isPresent && historyOb.id != exists.value.id) {
-      historyOb.id = exists.value.id;
-    }
-
-    assert(historyOb.upc.isNotEmpty && historyOb.history.upc.isNotEmpty);
-    box.put(historyOb);
-  }
-
-  @override
   Map<String, Inventory> join(Map<String, Inventory> inventoryMap) {
     final allHistory = map();
 
@@ -86,5 +57,52 @@ class ObjectBoxHistoryDatabase extends HistoryDatabase {
     }
 
     return inventoryList;
+  }
+
+  @override
+  Map<String, MLHistory> map() {
+    Map<String, MLHistory> map = {};
+    final allHistory = all();
+
+    for (final hist in allHistory) {
+      map[hist.upc] = hist;
+    }
+
+    return map;
+  }
+
+  @override
+  List<MLHistory> predictedOuts(int days) {
+    final allHistory = all();
+    List<MLHistory> predictedOuts = [];
+    final futureDate = DateTime.now().add(const Duration(days: 12));
+
+    for (final history in allHistory) {
+      if (history.canPredict) {
+        final outTime = DateTime.fromMillisecondsSinceEpoch(history.predictedOutageTimestamp);
+        if (outTime.isBefore(futureDate)) {
+          predictedOuts.add(history);
+        }
+      }
+    }
+
+    return predictedOuts;
+  }
+
+  @override
+  void put(MLHistory history) {
+    assert(history.upc.isNotEmpty);
+    final historyOb = ObjectBoxMLHistory.from(history);
+
+    final query = box.query(ObjectBoxMLHistory_.upc.equals(history.upc)).build();
+    final exists = Optional.fromNullable(query.findFirst());
+    query.close();
+
+    if (exists.isPresent && historyOb.id != exists.value.id) {
+      historyOb.id = exists.value.id;
+    }
+
+    assert(historyOb.upc.isNotEmpty && historyOb.history.upc.isNotEmpty);
+    box.put(historyOb);
   }
 }
