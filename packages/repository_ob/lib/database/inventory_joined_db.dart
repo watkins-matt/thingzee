@@ -50,6 +50,7 @@ class ObjectBoxJoinedInventoryDatabase extends ObjectBoxInventoryDatabase {
 
   @override
   void put(Inventory inv) {
+    assert(inv.upc.isNotEmpty && inv.history.upc == inv.upc);
     super.put(inv);
     historyDb.put(inv.history);
   }

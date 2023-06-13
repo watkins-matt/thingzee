@@ -25,6 +25,7 @@ class ObjectBoxHistoryDatabase extends HistoryDatabase {
 
   @override
   Optional<MLHistory> get(String upc) {
+    assert(upc.isNotEmpty);
     final query = box.query(ObjectBoxMLHistory_.upc.equals(upc)).build();
     final result = Optional.fromNullable(query.findFirst()?.toMLHistory());
     query.close();
