@@ -68,7 +68,7 @@ class ItemThumbnailCache extends StateNotifier<Map<String, Image>> {
     try {
       response =
           await Dio().get<List<int>>(imageUrl, options: Options(responseType: ResponseType.bytes));
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       if (e.response?.statusCode == 404) {
         return false;
       } else {
