@@ -94,13 +94,22 @@ class ObjectBoxHistoryDatabase extends HistoryDatabase {
 
   @override
   void put(MLHistory history) {
+    // Ensure UPC is not empty
     assert(history.upc.isNotEmpty);
+
+    // Remove any invalid values
+    history = history.clean();
+
+    // Convert to ObjectBoxMLHistory
     final historyOb = ObjectBoxMLHistory.from(history);
 
+    // Check if history already exists
     final query = box.query(ObjectBoxMLHistory_.upc.equals(history.upc)).build();
     final exists = Optional.fromNullable(query.findFirst());
     query.close();
 
+    // If history exists, update the ID to match the existing history
+    // before we replace it
     if (exists.isPresent && historyOb.id != exists.value.id) {
       historyOb.id = exists.value.id;
     }
