@@ -10,6 +10,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:thingzee/app.dart';
 import 'package:thingzee/data/csv_export_service.dart';
 import 'package:thingzee/data/csv_exporter.dart';
+import 'package:thingzee/data/csv_import_service.dart';
 import 'package:thingzee/data/csv_importer.dart';
 import 'package:thingzee/pages/inventory/state/inventory_view.dart';
 import 'package:thingzee/pages/inventory/state/item_thumbnail_cache.dart';
@@ -46,6 +47,26 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
       content: Text('Data exported successfully.'),
+    ));
+  }
+
+  Future<void> onImportButtonPressed(BuildContext context) async {
+    await CsvImportService().importAllData(App.repo);
+
+    if (!mounted) return;
+    await _refreshPostImport(context);
+  }
+
+  Future<void> _refreshPostImport(BuildContext context) async {
+    final view = ref.read(inventoryProvider.notifier);
+    final imageCache = ref.read(itemThumbnailCache.notifier);
+
+    await view.refresh();
+    await view.downloadImages(imageCache);
+
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+      content: Text('Backup imported.'),
     ));
   }
 
@@ -217,6 +238,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             SettingsSection(
               title: const Text('Restore'),
               tiles: [
+                SettingsTile(
+                    title: const Text('Import Backup (Zipped CSV Archive)'),
+                    onPressed: onImportButtonPressed),
                 SettingsTile(
                     title: const Text('Import History Info Backup (CSV)'),
                     onPressed: onImportHistory),
