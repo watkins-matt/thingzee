@@ -14,14 +14,14 @@ class CsvExportService {
   // Exports all of the data, zips it and shares the file
   Future<void> exportAllData(Repository repo) async {
     final exportMethods = {
-      'history': CSVExporter.exportHistory,
-      'item': CSVExporter.exportProductData,
-      'inventory': CSVExporter.exportInventoryData,
+      'history.csv': CSVExporter.exportHistory,
+      'item.csv': CSVExporter.exportProductData,
+      'inventory.csv': CSVExporter.exportInventoryData,
     };
 
     for (final entry in exportMethods.entries) {
       String csvData = await entry.value(repo);
-      String fileName = '${entry.key}.csv';
+      String fileName = entry.key;
       await _writeToFile(csvData, fileName);
     }
 
