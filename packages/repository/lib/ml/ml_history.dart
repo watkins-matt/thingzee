@@ -20,6 +20,25 @@ class MLHistory {
     return this;
   }
 
+  // Remove any invalid observations from the history
+  // (This means any series where there is only a 0 value,
+  // or the timestamp is 0)
+  MLHistory clean() {
+    for (final s in series) {
+      // There was only one observation with amount 0, so remove it
+      if (s.observations.length == 1 && s.observations.first.amount == 0) {
+        s.observations.clear();
+      }
+      // Remove any observations with placeholder timestamps
+      else {
+        s.observations.removeWhere((o) => o.timestamp == 0);
+      }
+    }
+
+    trim();
+    return this;
+  }
+
   int get totalPoints {
     return series.fold(0, (sum, s) => sum + s.observations.length);
   }
@@ -32,6 +51,9 @@ class MLHistory {
     if (series.isEmpty) {
       series.add(HistorySeries());
     }
+
+    // There will always be at least one series
+    // because we created it above if it doesn't exist
     return series.last;
   }
 
@@ -53,6 +75,15 @@ class MLHistory {
   }
 
   void add(int timestamp, double amount, int householdCount) {
+    assert(timestamp != 0); // Timestamp cannot be a placeholder value
+
+    // There is not any point in making a HistorySeries where the only
+    // entry is 0. We can't use a single 0 value for prediction purposes.
+    // Do not add the value under these circumstances.
+    if (current.observations.isEmpty && amount == 0) {
+      return;
+    }
+
     // Create a new observation
     var observation = Observation(
       timestamp: timestamp.toDouble(),
