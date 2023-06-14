@@ -1,9 +1,5 @@
 include: package:flutter_lints/flutter.yaml
 
-analyzer:
-  plugins:
-    - custom_lint
-
 linter:
   rules:
     - always_declare_return_types
@@ -69,7 +65,6 @@ linter:
     - prefer_final_in_for_each
     #- prefer_final_locals
     - prefer_for_elements_to_map_fromIterable
-    - prefer_foreach
     - prefer_generic_function_type_aliases
     # - prefer_if_elements_to_conditional_expressions
     - prefer_if_null_operators
