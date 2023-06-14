@@ -38,6 +38,13 @@ class BarcodeScannerPage extends ConsumerStatefulWidget {
 
   const BarcodeScannerPage(this.mode, {Key? key, this.location = ''}) : super(key: key);
 
+  static Future<void> push(BuildContext context, BarcodeScannerMode mode) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => BarcodeScannerPage(mode)),
+    );
+  }
+
   @override
   ConsumerState<BarcodeScannerPage> createState() => _BarcodeScannerPageState();
 }
