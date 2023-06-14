@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:thingzee/pages/inventory/inventory_page.dart';
 import 'package:thingzee/pages/settings/settings_page.dart';
+import 'package:thingzee/pages/shopping/shopping_list_page.dart';
 
 class HomePage extends StatefulWidget {
   static int index = 0;
@@ -14,7 +15,7 @@ class _HomePageState extends State<HomePage> {
   List<Widget> pageList = [
     const InventoryPage(),
     Container(), // const LocationPage(),
-    Container(), // const ShoppingListPage(),
+    const ShoppingListPage(),
     const SettingsPage()
   ];
 
