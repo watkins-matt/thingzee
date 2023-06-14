@@ -26,13 +26,13 @@ class HistoryCSVRow {
 
     // All of these columns must be present to be valid
     String upc = row[columnIndex['upc']!].toString().normalizeUPC();
-    int seriesId = row[columnIndex['series_id']!] as int;
-    double timestamp = row[columnIndex['timestamp']!] as double;
-    double amount = row[columnIndex['amount']!] as double;
+    int seriesId = int.parse(row[columnIndex['series_id']!].toString());
+    double timestamp = double.parse(row[columnIndex['timestamp']!].toString());
+    double amount = double.parse(row[columnIndex['amount']!].toString());
 
     // We can use a default household count if it's not present
     int householdCount = columnIndex.containsKey('household_count')
-        ? row[columnIndex['household_count']!]
+        ? int.parse(row[columnIndex['household_count']!].toString())
         : defaultHouseholdCount;
 
     return HistoryCSVRow._(upc, seriesId, timestamp, amount, householdCount);

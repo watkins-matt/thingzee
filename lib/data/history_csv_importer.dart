@@ -6,7 +6,8 @@ import 'package:thingzee/data/history_csv_row.dart';
 
 class HistoryCSVImporter {
   Future<bool> importHistory(String csvString, Repository r) async {
-    List<List<dynamic>> csvData = const CsvToListConverter().convert(csvString);
+    List<List<dynamic>> csvData =
+        const CsvToListConverter().convert(csvString, shouldParseNumbers: true);
     Map<String, MLHistory> upcHistoryMap = {};
     Map<String, Map<int, HistorySeries>> upcSeriesIdMap = {};
 
