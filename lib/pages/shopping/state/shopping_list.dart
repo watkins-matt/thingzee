@@ -1,4 +1,5 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:repository/database/joined_item_database.dart';
 import 'package:repository/model/item.dart';
 import 'package:repository/repository.dart';
 import 'package:thingzee/app.dart';
@@ -9,18 +10,26 @@ final shoppingListProvider = StateNotifierProvider<ShoppingList, ShoppingListSta
 
 class ShoppingList extends StateNotifier<ShoppingListState> {
   final Repository repo;
+  JoinedItemDatabase db;
 
-  ShoppingList(this.repo) : super(ShoppingListState([], {}));
+  ShoppingList(this.repo)
+      : db = JoinedItemDatabase(repo.items, repo.inv),
+        super(ShoppingListState([], {})) {
+    _populateList();
+  }
 
-  // void refresh() {
-  //   state = state.copyWith(
-  //     items: ,
-  //     checked: state.items.fold<Map<String, bool>>(
-  //       {},
-  //       (checked, product) => checked..putIfAbsent(product.upc, () => false),
-  //     ),
-  //   );
-  // }
+  void _populateList() {
+    List<JoinedItem> outs = db.outs();
+    List<JoinedItem> predictedOuts = db.predictedOuts(repo.hist);
+
+    outs.addAll(predictedOuts);
+    outs.sort();
+
+    state = state.copyWith(
+      items: outs.map((e) => e.item).toList(),
+    );
+  }
+
   void check(int index, bool value) {
     final items = state.items;
     assert(index < items.length);
