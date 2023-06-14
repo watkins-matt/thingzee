@@ -39,7 +39,8 @@ class CSVExporter {
       'category',
       'type',
       'name_unit',
-      'name_unit_plural'
+      'name_unit_plural',
+      'image_url'
     ]);
 
     List<Item> allItems = r.items.all();
@@ -120,7 +121,8 @@ class CSVExporter {
       item.category,
       item.type,
       item.unitName != 'Package' ? item.unitName : '',
-      item.unitPlural != 'Packages' ? item.unitPlural : ''
+      item.unitPlural != 'Packages' ? item.unitPlural : '',
+      item.imageUrl
     ];
   }
 

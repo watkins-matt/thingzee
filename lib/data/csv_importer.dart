@@ -6,7 +6,6 @@ import 'package:repository/ml/observation.dart';
 import 'package:repository/model/inventory.dart';
 import 'package:repository/model/item.dart';
 import 'package:repository/repository.dart';
-import 'package:thingzee/app.dart';
 
 class CSVImporter {
   static Future<bool> importHistory(String csvString, Repository r) async {
@@ -69,7 +68,7 @@ class CSVImporter {
   static Future<bool> importProductData(String csvString, Repository r) async {
     List<List<dynamic>> csvData = const CsvToListConverter().convert(csvString);
 
-    assert(csvData[0].length == 9);
+    // assert(csvData[0].length == 9);
 
     if (csvData.isNotEmpty) {
       csvData.removeAt(0);
@@ -90,7 +89,9 @@ class CSVImporter {
       item.unitPlural = row[7] as String;
       if (item.unitPlural.isEmpty) item.unitPlural = 'Packages';
 
-      item.imageUrl = row[8] as String;
+      if (row.length > 8) {
+        item.imageUrl = row[8] as String;
+      }
 
       r.items.put(item);
     }
@@ -101,7 +102,7 @@ class CSVImporter {
   static Future<bool> importInventoryData(String csvString, Repository r) async {
     List<List<dynamic>> csvData = const CsvToListConverter().convert(csvString);
 
-    assert(csvData[0].length == 15);
+    // assert(csvData[0].length == 15);
 
     if (csvData.isNotEmpty) {
       csvData.removeAt(0);
@@ -123,6 +124,7 @@ class CSVImporter {
 
       Inventory inventory = Inventory();
       inventory.upc = item.upc;
+      inventory.history.upc = item.upc;
       // inventoryInfo.name = row[1] as String;
       inventory.amount = row[2] as double;
       inventory.lastUpdate = Optional.of(DateTime.fromMillisecondsSinceEpoch(row[3] as int));
@@ -131,13 +133,13 @@ class CSVImporter {
       // inventoryInfo.locations = jsonDecode(row[11] as String) as List<String>;
       // inventoryInfo.dbHistory = row[12] as String;
       // inventoryInfo.imageUrl = row[13] as String;
-      item.imageUrl = row[13] as String;
+      // item.imageUrl = row[13] as String;
 
-      if (item.imageUrl.isNotEmpty) {
-        App.log.d('Found image ${item.name}: URL: ${item.imageUrl}');
-      }
+      // if (item.imageUrl.isNotEmpty) {
+      //   App.log.d('Found image ${item.name}: URL: ${item.imageUrl}');
+      // }
 
-      inventory.restock = row[14] == 1;
+      inventory.restock = row[10] == 1;
 
       r.items.put(item);
       r.inv.put(inventory);
