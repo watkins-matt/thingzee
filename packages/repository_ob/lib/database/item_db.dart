@@ -50,6 +50,17 @@ class ObjectBoxItemDatabase extends ItemDatabase {
     return result;
   }
 
+  @override
+  List<Item> getAll(List<String> upcs) {
+    final query = box.query(ObjectBoxItem_.upc.oneOf(upcs)).build();
+    final results = query.find();
+    query.close();
+
+    // Convert to list of Item objects
+    var itemList = results.map((objBoxItem) => objBoxItem.toItem()).toList();
+    return itemList;
+  }
+
   // Find the product info and replace with our new info. We have to find the id of the old
   // object to update correctly.
   @override
