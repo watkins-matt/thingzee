@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:archive/archive_io.dart';
+import 'package:intl/intl.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:repository/repository.dart';
@@ -51,9 +52,9 @@ class CsvExportService {
     String dirPath = path.join(appDocDir.path, _exportDirName);
 
     final encoder = ZipFileEncoder();
-    final dateTime = DateTime.now().toIso8601String().replaceAll('.', '-').replaceAll(':', '-');
+    final date = DateFormat('yyyy-MM-dd').format(DateTime.now());
 
-    String zipFilePath = path.join(dirPath, 'backup_$dateTime.zip');
+    String zipFilePath = path.join(dirPath, 'Thingzee_Backup_$date.zip');
     encoder.create(zipFilePath);
 
     // Add all files in the export directory to the zip file
