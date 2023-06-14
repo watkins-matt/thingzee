@@ -8,43 +8,17 @@ part 'ml_history.g.dart';
 class MLHistory {
   String upc = '';
   List<HistorySeries> series = [];
-
   MLHistory();
 
   factory MLHistory.fromJson(Map<String, dynamic> json) => _$MLHistoryFromJson(json);
   Map<String, dynamic> toJson() => _$MLHistoryToJson(this);
 
-  // Remove any empty series values in the history
-  MLHistory trim() {
-    series.removeWhere((s) => s.observations.isEmpty);
-    return this;
+  HistorySeries get best {
+    return canPredict ? current : previous;
   }
 
-  // Remove any invalid observations from the history
-  // (This means any series where there is only a 0 value,
-  // or the timestamp is 0)
-  MLHistory clean() {
-    for (final s in series) {
-      // There was only one observation with amount 0, so remove it
-      if (s.observations.length == 1 && s.observations.first.amount == 0) {
-        s.observations.clear();
-      }
-      // Remove any observations with placeholder timestamps
-      else {
-        s.observations.removeWhere((o) => o.timestamp == 0);
-      }
-    }
-
-    trim();
-    return this;
-  }
-
-  int get totalPoints {
-    return series.fold(0, (sum, s) => sum + s.observations.length);
-  }
-
-  HistorySeries get previous {
-    return series.length > 1 ? series[series.length - 2] : current;
+  bool get canPredict {
+    return current.regressor.hasXIntercept || previous.regressor.hasXIntercept;
   }
 
   HistorySeries get current {
@@ -57,21 +31,16 @@ class MLHistory {
     return series.last;
   }
 
-  bool get canPredict {
-    return current.regressor.hasXIntercept || previous.regressor.hasXIntercept;
-  }
-
-  HistorySeries get best {
-    return canPredict ? current : previous;
-  }
-
   int get predictedOutageTimestamp {
     return best.regressor.xIntercept;
   }
 
-  double predict(int timestamp) {
-    // Note that if this series is empty, it will predict based on the last series
-    return best.regressor.predict(timestamp);
+  HistorySeries get previous {
+    return series.length > 1 ? series[series.length - 2] : current;
+  }
+
+  int get totalPoints {
+    return series.fold(0, (sum, s) => sum + s.observations.length);
   }
 
   void add(int timestamp, double amount, int householdCount) {
@@ -155,5 +124,35 @@ class MLHistory {
         }
       }
     }
+  }
+
+  // Remove any invalid observations from the history
+  // (This means any series where there is only a 0 value,
+  // or the timestamp is 0)
+  MLHistory clean() {
+    for (final s in series) {
+      // There was only one observation with amount 0, so remove it
+      if (s.observations.length == 1 && s.observations.first.amount == 0) {
+        s.observations.clear();
+      }
+      // Remove any observations with placeholder timestamps
+      else {
+        s.observations.removeWhere((o) => o.timestamp == 0);
+      }
+    }
+
+    trim();
+    return this;
+  }
+
+  double predict(int timestamp) {
+    // Note that if this series is empty, it will predict based on the last series
+    return best.regressor.predict(timestamp);
+  }
+
+  // Remove any empty series values in the history
+  MLHistory trim() {
+    series.removeWhere((s) => s.observations.isEmpty);
+    return this;
   }
 }
