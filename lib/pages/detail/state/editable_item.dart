@@ -130,7 +130,10 @@ class EditableItem extends StateNotifier<EditableItemState> {
     final inv = state.inventory;
     inv.unitCount = value;
 
-    state = EditableItemState(state.item, inv, state.changedFields);
+    final item = state.item;
+    item.unitCount = value;
+
+    state = EditableItemState(item, inv, state.changedFields);
   }
 
   double get totalUnitCount => state.inventory.units;
