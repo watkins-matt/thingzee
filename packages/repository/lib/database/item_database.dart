@@ -7,6 +7,7 @@ abstract class ItemDatabase {
   void delete(Item item);
   void deleteAll();
   List<Item> filter(Filter filter);
+  List<Item> getAll(List<String> upcs);
   Optional<Item> get(String upc);
   void put(Item item);
   List<Item> search(String string);

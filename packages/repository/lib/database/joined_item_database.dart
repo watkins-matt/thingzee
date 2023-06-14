@@ -1,14 +1,20 @@
 import 'package:quiver/core.dart';
+import 'package:repository/database/history_database.dart';
 import 'package:repository/database/inventory_database.dart';
 import 'package:repository/database/item_database.dart';
 import 'package:repository/model/filter.dart';
 import 'package:repository/model/inventory.dart';
 import 'package:repository/model/item.dart';
 
-class JoinedItem {
+class JoinedItem implements Comparable<JoinedItem> {
   final Item item;
   final Inventory inventory;
   JoinedItem(this.item, this.inventory);
+
+  @override
+  int compareTo(JoinedItem other) {
+    return item.name.compareTo(other.item.name);
+  }
 }
 
 class JoinedItemDatabase {
@@ -79,6 +85,38 @@ class JoinedItemDatabase {
 
     // Sort everything by name
     joinedItems.sort((a, b) => a.item.name.compareTo(b.item.name));
+
+    return joinedItems;
+  }
+
+  List<JoinedItem> outs() {
+    List<Inventory> inventoryOuts = inventoryDatabase.outs();
+    List<JoinedItem> joinedItems = [];
+
+    for (final inventory in inventoryOuts) {
+      final item = itemDatabase.get(inventory.upc);
+
+      if (item.isPresent) {
+        joinedItems.add(JoinedItem(item.value, inventory));
+      }
+    }
+
+    return joinedItems;
+  }
+
+  List<JoinedItem> predictedOuts(HistoryDatabase historyDb, {int days = 12}) {
+    Set<String> predicted = historyDb.predictedOuts(days);
+    return getAll(predicted.toList());
+  }
+
+  List<JoinedItem> getAll(List<String> upcs) {
+    List<Item> items = itemDatabase.getAll(upcs);
+    List<Inventory> inventory = inventoryDatabase.getAll(upcs);
+    List<JoinedItem> joinedItems = [];
+
+    for (int i = 0; i < items.length; i++) {
+      joinedItems.add(JoinedItem(items[i], inventory[i]));
+    }
 
     return joinedItems;
   }
