@@ -8,6 +8,7 @@ import 'package:quiver/core.dart';
 import 'package:settings_ui/settings_ui.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:thingzee/app.dart';
+import 'package:thingzee/data/csv_export_service.dart';
 import 'package:thingzee/data/csv_exporter.dart';
 import 'package:thingzee/data/csv_importer.dart';
 import 'package:thingzee/pages/inventory/state/inventory_view.dart';
@@ -37,6 +38,15 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     }
 
     return chosenPath;
+  }
+
+  Future<void> onExportButtonPressed(BuildContext context) async {
+    await CsvExportService().exportAllData(App.repo);
+
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+      content: Text('Data exported successfully.'),
+    ));
   }
 
   Future<void> onImportHistory(BuildContext context) async {
@@ -190,6 +200,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             SettingsSection(
               title: const Text('Backup'),
               tiles: [
+                SettingsTile(
+                    title: const Text('Export Backup (Zipped CSV Archive)'),
+                    onPressed: onExportButtonPressed),
                 SettingsTile(
                     title: const Text('Export History Backup (CSV)'),
                     onPressed: onExportHistoryButtonPressed),
