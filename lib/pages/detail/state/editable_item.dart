@@ -53,6 +53,7 @@ class EditableItem extends StateNotifier<EditableItemState> {
     copiedInv.upc = inv.upc;
     copiedInv.unitCount = inv.unitCount;
     copiedInv.history = inv.history;
+    copiedInv.lastUpdate = inv.lastUpdate;
 
     // Make sure the upc is copied to the item
     if (state.item.upc != copiedInv.upc) {
