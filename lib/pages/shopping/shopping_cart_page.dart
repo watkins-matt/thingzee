@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:thingzee/pages/detail/item_detail_page.dart';
 import 'package:thingzee/pages/shopping/confirmation_dialog.dart';
+import 'package:thingzee/pages/shopping/price_entry_dialog.dart';
 import 'package:thingzee/pages/shopping/state/shopping_cart.dart';
 import 'package:thingzee/pages/shopping/state/shopping_list.dart';
 
@@ -68,7 +69,7 @@ class ShoppingCartPage extends ConsumerWidget {
               item.name,
             ),
             trailing: ElevatedButton(
-              onPressed: () {},
+              onPressed: () async => await PriceEntryDialog.show(context),
               child: const Text('Enter Price'),
             )),
       ),

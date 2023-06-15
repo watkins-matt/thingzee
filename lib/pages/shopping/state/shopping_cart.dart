@@ -57,6 +57,7 @@ class ShoppingCart extends StateNotifier<ShoppingCartState> {
 
 class ShoppingCartState {
   final List<JoinedItem> items;
+  final Map<String, double> prices = {};
 
   ShoppingCartState({required this.items});
 
