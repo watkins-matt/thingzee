@@ -45,9 +45,10 @@ class InventoryViewWidget extends ConsumerWidget {
       onDismissed: (direction) {
         ref.read(inventoryProvider.notifier).deleteInventory(inventory);
 
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('$item.name deleted from inventory.'),
+            content: Text('${item.name} deleted.'),
             action: SnackBarAction(
               label: 'Undo',
               onPressed: () {
