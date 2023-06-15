@@ -1,34 +1,36 @@
 import 'dart:developer';
 
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:repository/database/joined_item_database.dart';
 import 'package:repository/model/filter.dart';
 import 'package:repository/model/inventory.dart';
-import 'package:repository/model/item.dart';
 import 'package:repository/repository.dart';
 import 'package:thingzee/app.dart';
 import 'package:thingzee/pages/inventory/state/item_thumbnail_cache.dart';
 
-final inventoryProvider = StateNotifierProvider<InventoryView, List<Item>>((ref) {
+final inventoryProvider = StateNotifierProvider<InventoryView, List<JoinedItem>>((ref) {
   return InventoryView(App.repo);
 });
 
-class InventoryView extends StateNotifier<List<Item>> {
+class InventoryView extends StateNotifier<List<JoinedItem>> {
   final Repository r;
+  final JoinedItemDatabase joinedItemDb;
   Filter filter = Filter();
   String query = '';
-  Map<String, Inventory> inventory = {};
 
-  InventoryView(this.r) : super(<Item>[]) {
+  InventoryView(this.r)
+      : joinedItemDb = JoinedItemDatabase(r.items, r.inv),
+        super(<JoinedItem>[]) {
     refresh();
   }
 
-  void add(Inventory inventory) {
-    r.inv.put(inventory);
+  void addInventory(Inventory inv) {
+    joinedItemDb.inventoryDatabase.put(inv);
     refresh();
   }
 
-  void delete(Inventory inventory) {
-    r.inv.delete(inventory);
+  void deleteInventory(Inventory inv) {
+    joinedItemDb.inventoryDatabase.delete(inv);
     refresh();
   }
 
@@ -40,22 +42,17 @@ class InventoryView extends StateNotifier<List<Item>> {
       return;
     }
 
-    state = r.items.search(query);
-    state.sort((a, b) => a.name.compareTo(b.name));
+    state = joinedItemDb.search(query);
   }
 
   Future<void> refresh() async {
-    // Always update the inventory map
-    inventory = r.inv.map();
-
     // We should keep the query loaded unless the user deletes it
     if (query.isNotEmpty) {
       return await search(query);
     }
 
     Stopwatch stopwatch = Stopwatch()..start();
-    state = r.items.filter(filter);
-    state.sort((a, b) => a.name.compareTo(b.name));
+    state = joinedItemDb.filter(filter);
 
     stopwatch.stop();
     final elapsed = stopwatch.elapsed.inMilliseconds;
@@ -66,11 +63,11 @@ class InventoryView extends StateNotifier<List<Item>> {
     await cache.loadMapping();
 
     // Iterate through each image, download everything that isn't cached
-    for (final item in state) {
+    for (final joinedItem in state) {
       // If the image URL is empty, skip it. If we have an image
       // loaded already we can skip it as well
-      if (item.imageUrl.isNotEmpty) {
-        await cache.loadImageFromUrl(item.imageUrl, item.upc);
+      if (joinedItem.item.imageUrl.isNotEmpty) {
+        await cache.loadImageFromUrl(joinedItem.item.imageUrl, joinedItem.item.upc);
       }
     }
 
