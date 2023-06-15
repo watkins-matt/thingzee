@@ -7,16 +7,18 @@ import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:quiver/core.dart';
 import 'package:repository/repository.dart';
-import 'package:thingzee/data/csv_importer.dart';
+import 'package:thingzee/data/history_csv_importer.dart';
+import 'package:thingzee/data/inventory_csv_importer.dart';
+import 'package:thingzee/data/item_csv_importer.dart';
 
 class CsvImportService {
   static const String _importDirName = 'import';
 
   Future<void> importAllData(Repository repo) async {
     final importMethods = {
-      'history.csv': CSVImporter.importHistory,
-      'item.csv': CSVImporter.importProductData,
-      'inventory.csv': CSVImporter.importInventoryData,
+      'history.csv': HistoryCSVImporter().import,
+      'item.csv': ItemCSVImporter().import,
+      'inventory.csv': InventoryCSVImporter().import,
     };
 
     Optional<String> chosenFilePath = await pickFilePath();
