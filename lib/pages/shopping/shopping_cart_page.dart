@@ -60,6 +60,11 @@ class ShoppingCartPage extends ConsumerWidget {
       },
       child: Dismissible(
         key: UniqueKey(),
+        background: Container(color: Colors.red),
+        dismissThresholds: const {
+          DismissDirection.endToStart: 0.9,
+          DismissDirection.startToEnd: 0.9,
+        },
         onDismissed: (_) {
           ref.read(shoppingCartProvider.notifier).removeAt(index);
           ref.read(shoppingListProvider.notifier).check(sl.items.indexOf(joinedItem), false);

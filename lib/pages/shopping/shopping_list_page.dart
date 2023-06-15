@@ -79,9 +79,10 @@ class ShoppingListPage extends ConsumerWidget {
       },
       child: Dismissible(
         key: UniqueKey(),
+        background: Container(color: Colors.red),
         dismissThresholds: const {
-          DismissDirection.endToStart: 1.0,
-          DismissDirection.startToEnd: 1.0,
+          DismissDirection.endToStart: 0.9,
+          DismissDirection.startToEnd: 0.9,
         },
         onDismissed: (_) {
           ref.read(shoppingListProvider.notifier).removeAt(index);
