@@ -66,7 +66,7 @@ class CSVImporter {
   }
 
   static Future<bool> importProductData(String csvString, Repository r) async {
-    List<List<dynamic>> csvData = const CsvToListConverter().convert(csvString);
+    List<List<dynamic>> csvData = const CsvToListConverter().convert(csvString, eol: '\n');
 
     // assert(csvData[0].length == 9);
 
