@@ -3,7 +3,7 @@ import 'package:repository/repository.dart';
 import 'package:thingzee/data/inventory_csv_row.dart';
 
 class InventoryCSVImporter {
-  Future<bool> importInventoryData(String csvString, Repository r) async {
+  Future<bool> import(String csvString, Repository r) async {
     List<List<dynamic>> csvData =
         const CsvToListConverter().convert(csvString, shouldParseNumbers: true);
 
