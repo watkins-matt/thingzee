@@ -177,6 +177,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.3.1"
+  decimal:
+    dependency: transitive
+    description:
+      name: decimal
+      sha256: eece91944f523657c75a3a008a90ec7f7eb3986191153a78570c7d0ac8ef3d01
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.3.2"
   device_info_plus:
     dependency: transitive
     description:
@@ -241,6 +249,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.3.2"
+  fixed:
+    dependency: transitive
+    description:
+      name: fixed
+      sha256: "928887f443d9e667dc50d1a060a9129833a9910ec1912801c0375ab8fe56b1ac"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.4.0"
   flat_buffers:
     dependency: transitive
     description:
@@ -472,6 +488,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "7.0.2"
+  money2:
+    dependency: "direct main"
+    description:
+      name: money2
+      sha256: "0a53f184abf1b3d5be4c4e811357bd065f7311c1724835569f7ec871de2abd30"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.4.1"
   native_device_orientation:
     dependency: transitive
     description:
@@ -632,6 +656,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.2.1"
+  rational:
+    dependency: transitive
+    description:
+      name: rational
+      sha256: ba58e9e18df9abde280e8b10051e4bce85091e41e8e7e411b6cde2e738d357cf
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.2.2"
   repository:
     dependency: "direct main"
     description:
