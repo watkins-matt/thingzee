@@ -1,6 +1,5 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:repository/database/joined_item_database.dart';
-import 'package:repository/model/item.dart';
 import 'package:repository/repository.dart';
 import 'package:thingzee/app.dart';
 
@@ -26,7 +25,7 @@ class ShoppingList extends StateNotifier<ShoppingListState> {
     outs.sort();
 
     state = state.copyWith(
-      items: outs.map((e) => e.item).toList(),
+      items: outs,
     );
   }
 
@@ -35,7 +34,7 @@ class ShoppingList extends StateNotifier<ShoppingListState> {
     assert(index < items.length);
 
     var checked = state.checked;
-    final item = items[index];
+    final item = items[index].item;
 
     if (value) {
       checked.add(item.upc);
@@ -52,14 +51,14 @@ class ShoppingList extends StateNotifier<ShoppingListState> {
     final items = state.items;
     assert(index < items.length);
 
-    final item = items[index];
+    final item = items[index].item;
     return state.checked.contains(item.upc);
   }
 
   void removeAt(int index) {
     var items = state.items;
     assert(index < items.length);
-    final item = items[index];
+    final item = items[index].item;
 
     // TODO: Turn off restock for this item here if removed from list
 
@@ -78,13 +77,13 @@ class ShoppingList extends StateNotifier<ShoppingListState> {
 }
 
 class ShoppingListState {
-  final List<Item> items;
+  final List<JoinedItem> items;
   final Set<String> checked;
 
   ShoppingListState(this.items, this.checked);
 
   ShoppingListState copyWith({
-    List<Item>? items,
+    List<JoinedItem>? items,
     Set<String>? checked,
   }) {
     return ShoppingListState(

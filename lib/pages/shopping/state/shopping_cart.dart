@@ -1,5 +1,5 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:repository/model/item.dart';
+import 'package:repository/database/joined_item_database.dart';
 import 'package:repository/repository.dart';
 import 'package:thingzee/app.dart';
 
@@ -12,13 +12,13 @@ class ShoppingCart extends StateNotifier<ShoppingCartState> {
 
   ShoppingCart(this.repo) : super(ShoppingCartState(items: []));
 
-  void add(Item item) {
+  void add(JoinedItem item) {
     state = state.copyWith(
       items: [...state.items, item],
     );
   }
 
-  void remove(Item item) {
+  void remove(JoinedItem item) {
     state = state.copyWith(
       items: state.items..remove(item),
     );
@@ -56,12 +56,12 @@ class ShoppingCart extends StateNotifier<ShoppingCartState> {
 }
 
 class ShoppingCartState {
-  final List<Item> items;
+  final List<JoinedItem> items;
 
   ShoppingCartState({required this.items});
 
   ShoppingCartState copyWith({
-    List<Item>? items,
+    List<JoinedItem>? items,
   }) {
     return ShoppingCartState(
       items: items ?? this.items,
