@@ -22,6 +22,16 @@ class InventoryView extends StateNotifier<List<Item>> {
     refresh();
   }
 
+  void add(Inventory inventory) {
+    r.inv.put(inventory);
+    refresh();
+  }
+
+  void delete(Inventory inventory) {
+    r.inv.delete(inventory);
+    refresh();
+  }
+
   Future<void> search(String value) async {
     query = value;
 
