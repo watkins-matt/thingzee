@@ -15,6 +15,6 @@ abstract class SharedRepository extends Repository {
   @override
   bool get isMultiUser => true;
 
-  Future<void> registerUser(String username, String password);
+  Future<void> registerUser(String username, String email, String password);
   Future<void> loginUser(String username, String password);
 }
