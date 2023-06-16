@@ -18,3 +18,23 @@ abstract class SharedRepository extends Repository {
   Future<void> registerUser(String username, String email, String password);
   Future<void> loginUser(String username, String password);
 }
+
+class SynchronizedRepository extends SharedRepository {
+  final Repository local;
+  final SharedRepository remote;
+
+  SynchronizedRepository(this.local, this.remote);
+
+  @override
+  bool get isMultiUser => true;
+
+  @override
+  Future<void> registerUser(String username, String email, String password) async {
+    await remote.registerUser(username, email, password);
+  }
+
+  @override
+  Future<void> loginUser(String username, String password) async {
+    await remote.loginUser(username, password);
+  }
+}
