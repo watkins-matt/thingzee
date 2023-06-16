@@ -17,7 +17,7 @@ class UserProfileButton extends StatelessWidget {
       offset: const Offset(0, 20),
       elevation: 20,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      child: CircleAvatar(
+      icon: CircleAvatar(
         backgroundImage: AssetImage(imagePath),
         backgroundColor: Colors.transparent,
         radius: 16,
