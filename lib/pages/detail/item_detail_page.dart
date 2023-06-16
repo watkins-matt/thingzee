@@ -6,6 +6,7 @@ import 'package:repository/model/item.dart';
 import 'package:stats/double.dart';
 import 'package:thingzee/app.dart';
 import 'package:thingzee/pages/detail/state/editable_item.dart';
+import 'package:thingzee/pages/detail/widget/labeled_text_field.dart';
 import 'package:thingzee/pages/history/widget/history_list_view.dart';
 import 'package:thingzee/pages/inventory/state/inventory_view.dart';
 import 'package:thingzee/pages/inventory/state/item_thumbnail_cache.dart';
@@ -174,40 +175,13 @@ class ItemDetailPage extends HookConsumerWidget {
                 ),
                 Column(
                   children: [
-                    Row(
-                      children: [
-                        const Expanded(
-                          flex: 2,
-                          child: Padding(
-                            padding: EdgeInsets.all(4),
-                            child: Align(
-                              alignment: Alignment.centerRight,
-                              child: Text(
-                                'UPC',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          flex: 3,
-                          child: TextField(
-                            keyboardType: TextInputType.number,
-                            decoration:
-                                const InputDecoration(border: InputBorder.none, isCollapsed: true),
-                            textAlign: TextAlign.left,
-                            controller: upcController,
-                            onChanged: (value) {
-                              ref.read(editableItemProvider.notifier).upc = value;
-                            },
-                            minLines: 1,
-                            maxLines: null,
-                          ),
-                        ),
-                      ],
+                    LabeledTextField(
+                      labelText: 'UPC',
+                      keyboardType: TextInputType.number,
+                      controller: upcController,
+                      onChanged: (value) {
+                        ref.read(editableItemProvider.notifier).upc = value;
+                      },
                     ),
                     const SizedBox(height: 16),
                     Row(
