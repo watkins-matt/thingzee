@@ -47,6 +47,7 @@ flutter:
   assets:
     - assets/images/no_image_available.png
     - assets/images/no_image_small.png
+    - assets/images/account.png
   fonts:
     - family: IconLibrary
       fonts:
