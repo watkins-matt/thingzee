@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:repository/repository.dart';
 import 'package:repository_ob/database/history_db.dart';
@@ -15,7 +16,13 @@ class ObjectBoxRepository extends Repository {
 
   Future<void> _init() async {
     Directory directory = await getApplicationSupportDirectory();
-    store = Store(getObjectBoxModel(), directory: '${directory.path}/objectbox');
+    String dbPath = path.join(directory.path, 'objectbox');
+
+    if (!Directory(dbPath).existsSync()) {
+      Directory(dbPath).createSync(recursive: true);
+    }
+
+    store = Store(getObjectBoxModel(), directory: dbPath);
 
     items = ObjectBoxItemDatabase(store);
     hist = ObjectBoxHistoryDatabase(store);
