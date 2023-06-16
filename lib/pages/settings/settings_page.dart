@@ -25,6 +25,13 @@ import 'package:thingzee/pages/inventory/state/item_thumbnail_cache.dart';
 class SettingsPage extends ConsumerStatefulWidget {
   const SettingsPage({Key? key}) : super(key: key);
 
+  static Future<void> push(BuildContext context) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const SettingsPage()),
+    );
+  }
+
   @override
   ConsumerState<SettingsPage> createState() => _SettingsPageState();
 }

@@ -6,6 +6,8 @@ import 'package:thingzee/pages/barcode/barcode_scanner_page.dart';
 import 'package:thingzee/pages/inventory/filter_dialog.dart';
 import 'package:thingzee/pages/inventory/inventory_view_widget.dart';
 import 'package:thingzee/pages/inventory/state/inventory_view.dart';
+import 'package:thingzee/pages/inventory/widget/user_profile_button.dart';
+import 'package:thingzee/pages/settings/settings_page.dart';
 
 class InventoryPage extends ConsumerStatefulWidget {
   const InventoryPage({Key? key}) : super(key: key);
@@ -52,15 +54,31 @@ class _InventoryPageState extends ConsumerState<InventoryPage> {
                   });
                 },
               )),
-          IconButton(
-            icon: gridView ? const Icon(Icons.view_list) : const Icon(Icons.grid_view),
-            onPressed: () {
-              setState(() {
-                gridView = !gridView;
-              });
+          // IconButton(
+          //   icon: gridView ? const Icon(Icons.view_list) : const Icon(Icons.grid_view),
+          //   onPressed: () {
+          //     setState(() {
+          //       gridView = !gridView;
+          //     });
+          //   },
+          // ),
+          FilterButton(key: GlobalKey()),
+          UserProfileButton(
+            imagePath: 'assets/images/account.png',
+            onSelected: (String value) async {
+              if (value == 'Settings') {
+                await SettingsPage.push(context);
+              }
+            },
+            itemBuilder: (BuildContext context) {
+              return {'Manually Add Item', 'Login', 'Register', 'Settings'}.map((String choice) {
+                return PopupMenuItem<String>(
+                  value: choice,
+                  child: Text(choice),
+                );
+              }).toList();
             },
           ),
-          FilterButton(key: GlobalKey()),
         ],
         body:
             const InventoryViewWidget() /*gridView ? const InventoryGridViewWidget() : const InventoryViewWidget()*/
