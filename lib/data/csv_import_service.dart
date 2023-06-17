@@ -16,9 +16,9 @@ class CsvImportService {
 
   Future<void> importAllData(Repository repo) async {
     final importMethods = {
-      'history.csv': HistoryCSVImporter().import,
-      'item.csv': ItemCSVImporter().import,
-      'inventory.csv': InventoryCSVImporter().import,
+      'history.csv': HistoryCsvImporter().import,
+      'item.csv': ItemCsvImporter().import,
+      'inventory.csv': InventoryCsvImporter().import,
     };
 
     Optional<String> chosenFilePath = await pickFilePath();

@@ -6,7 +6,7 @@ import 'package:repository/repository.dart';
 import 'package:thingzee/data/csv_exporter.dart';
 
 extension on Inventory {
-  List<dynamic> toCSVList(Optional<Item> optionalItem, List<String> headers) {
+  List<dynamic> toCsvList(Optional<Item> optionalItem, List<String> headers) {
     if (!optionalItem.isPresent) {
       return [];
     }
@@ -31,7 +31,7 @@ extension on Inventory {
   }
 }
 
-class InventoryCSVExporter implements CSVExporter {
+class InventoryCsvExporter implements CsvExporter {
   @override
   List<String> get headers => [
         'upc',
@@ -53,7 +53,7 @@ class InventoryCSVExporter implements CSVExporter {
     List<Inventory> allInventory = r.inv.all();
 
     for (final inventory in allInventory) {
-      rows.add(inventory.toCSVList(r.items.get(inventory.upc), headers));
+      rows.add(inventory.toCsvList(r.items.get(inventory.upc), headers));
     }
 
     rows.sort((a, b) => a[1].compareTo(b[1]));

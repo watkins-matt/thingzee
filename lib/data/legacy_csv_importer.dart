@@ -7,7 +7,7 @@ import 'package:repository/model/inventory.dart';
 import 'package:repository/model/item.dart';
 import 'package:repository/repository.dart';
 
-class CSVImporter {
+class LegacyCsvImporter {
   static Future<bool> importHistory(String csvString, Repository r) async {
     List<List<dynamic>> csvData = const CsvToListConverter().convert(csvString);
 

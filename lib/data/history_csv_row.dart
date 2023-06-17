@@ -1,6 +1,6 @@
 import 'package:repository/ml/observation.dart';
 
-class HistoryCSVRow {
+class HistoryCsvRow {
   static int defaultHouseholdCount = 2;
 
   String upc = '';
@@ -31,14 +31,14 @@ class HistoryCSVRow {
     return Observation(timestamp: timestamp, amount: amount, householdCount: householdCount);
   }
 
-  static HistoryCSVRow? fromRow(List<dynamic> row, Map<String, int> columnIndex) {
+  static HistoryCsvRow? fromRow(List<dynamic> row, Map<String, int> columnIndex) {
     // Check if all required keys are present and return null otherwise
     const requiredKeys = ['upc', 'series_id', 'timestamp', 'amount'];
     if (!requiredKeys.every((key) => columnIndex.containsKey(key))) {
       return null;
     }
 
-    HistoryCSVRow newRow = HistoryCSVRow();
+    HistoryCsvRow newRow = HistoryCsvRow();
     newRow.loadFromRow(row, columnIndex);
 
     return newRow;

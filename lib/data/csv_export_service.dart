@@ -17,9 +17,9 @@ class CsvExportService {
   // Exports all of the data, zips it and shares the file
   Future<void> exportAllData(Repository repo) async {
     final exportMethods = {
-      'history.csv': HistoryCSVExporter().export,
-      'item.csv': ItemCSVExporter().export,
-      'inventory.csv': InventoryCSVExporter().export,
+      'history.csv': HistoryCsvExporter().export,
+      'item.csv': ItemCsvExporter().export,
+      'inventory.csv': InventoryCsvExporter().export,
     };
 
     for (final entry in exportMethods.entries) {

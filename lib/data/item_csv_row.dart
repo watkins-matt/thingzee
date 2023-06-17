@@ -1,6 +1,6 @@
 import 'package:repository/model/item.dart';
 
-class ItemCSVRow {
+class ItemCsvRow {
   String upc = '';
   String name = '';
   bool consumable = false;

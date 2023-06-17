@@ -6,7 +6,7 @@ import 'package:repository/model/inventory.dart';
 import 'package:repository/model/item.dart';
 import 'package:repository/repository.dart';
 
-class LegacyCSVExporter {
+class LegacyCsvExporter {
   static Future<String> exportHistory(Repository r) async {
     List<List<dynamic>> rows = [];
     rows.add([

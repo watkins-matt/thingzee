@@ -4,7 +4,7 @@ import 'package:repository/ml/ml_history.dart';
 import 'package:repository/repository.dart';
 import 'package:thingzee/data/history_csv_row.dart';
 
-class HistoryCSVImporter {
+class HistoryCsvImporter {
   Future<bool> import(String csvString, Repository r) async {
     List<List<dynamic>> csvData =
         const CsvToListConverter().convert(csvString, shouldParseNumbers: true);
@@ -19,9 +19,9 @@ class HistoryCSVImporter {
     csvData.removeAt(0);
 
     // Create all the history rows, removing those that are null (invalid)
-    List<HistoryCSVRow> allHistoryRows = csvData
-        .map((row) => HistoryCSVRow.fromRow(row, headerIndices))
-        .whereType<HistoryCSVRow>()
+    List<HistoryCsvRow> allHistoryRows = csvData
+        .map((row) => HistoryCsvRow.fromRow(row, headerIndices))
+        .whereType<HistoryCsvRow>()
         .toList();
 
     for (final historyRow in allHistoryRows) {

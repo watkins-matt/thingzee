@@ -4,7 +4,7 @@ import 'package:repository/ml/observation.dart';
 import 'package:repository/repository.dart';
 import 'package:thingzee/data/csv_exporter.dart';
 
-class HistoryCSVExporter implements CSVExporter {
+class HistoryCsvExporter implements CsvExporter {
   @override
   List<String> get headers => [
         'upc',
@@ -24,7 +24,7 @@ class HistoryCSVExporter implements CSVExporter {
     List<MLHistory> allHistory = r.hist.all();
 
     for (final history in allHistory) {
-      rows.addAll(history.toCSVList(headers));
+      rows.addAll(history.toCsvList(headers));
     }
 
     return const ListToCsvConverter().convert(rows);
@@ -32,13 +32,13 @@ class HistoryCSVExporter implements CSVExporter {
 }
 
 extension on MLHistory {
-  List<List<dynamic>> toCSVList(List<String> headers) {
+  List<List<dynamic>> toCsvList(List<String> headers) {
     List<List<dynamic>> rows = [];
     var seriesId = 0;
 
     for (final series in series) {
       for (final obs in series.observations) {
-        rows.add(obs.toCSVList(upc, seriesId, headers));
+        rows.add(obs.toCsvList(upc, seriesId, headers));
       }
 
       seriesId++;
@@ -49,7 +49,7 @@ extension on MLHistory {
 }
 
 extension on Observation {
-  List<dynamic> toCSVList(String upc, int seriesId, List<String> headers) {
+  List<dynamic> toCsvList(String upc, int seriesId, List<String> headers) {
     Map<String, dynamic> map = {
       'upc': upc,
       'series_id': seriesId,

@@ -4,7 +4,7 @@ import 'package:repository/repository.dart';
 import 'package:thingzee/data/csv_exporter.dart';
 
 extension on Item {
-  List<dynamic> toCSVList(List<String> headers) {
+  List<dynamic> toCsvList(List<String> headers) {
     Map<String, dynamic> map = {
       'upc': upc.normalizeUPC(),
       'name': name,
@@ -21,7 +21,7 @@ extension on Item {
   }
 }
 
-class ItemCSVExporter implements CSVExporter {
+class ItemCsvExporter implements CsvExporter {
   @override
   List<String> get headers => [
         'upc',
@@ -42,7 +42,7 @@ class ItemCSVExporter implements CSVExporter {
     allItems.sort();
 
     for (final item in allItems) {
-      rows.add(item.toCSVList(headers));
+      rows.add(item.toCsvList(headers));
     }
 
     return const ListToCsvConverter().convert(rows);

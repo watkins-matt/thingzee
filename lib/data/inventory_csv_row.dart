@@ -2,7 +2,7 @@ import 'package:quiver/core.dart';
 import 'package:repository/model/inventory.dart';
 import 'package:repository/model/item.dart';
 
-class InventoryCSVRow {
+class InventoryCsvRow {
   String upc = '';
   String name = '';
   bool consumable = false;
