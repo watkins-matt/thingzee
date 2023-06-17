@@ -6,7 +6,9 @@ import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:repository/repository.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:thingzee/data/csv_exporter.dart';
+import 'package:thingzee/data/history_csv_exporter.dart';
+import 'package:thingzee/data/inventory_csv_exporter.dart';
+import 'package:thingzee/data/item_csv_exporter.dart';
 
 class CsvExportService {
   // The temporary directory to store the exported files
@@ -15,9 +17,9 @@ class CsvExportService {
   // Exports all of the data, zips it and shares the file
   Future<void> exportAllData(Repository repo) async {
     final exportMethods = {
-      'history.csv': CSVExporter.exportHistory,
-      'item.csv': CSVExporter.exportProductData,
-      'inventory.csv': CSVExporter.exportInventoryData,
+      'history.csv': HistoryCSVExporter().export,
+      'item.csv': ItemCSVExporter().export,
+      'inventory.csv': InventoryCSVExporter().export,
     };
 
     for (final entry in exportMethods.entries) {

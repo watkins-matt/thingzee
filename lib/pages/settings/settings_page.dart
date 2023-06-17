@@ -9,9 +9,9 @@ import 'package:settings_ui/settings_ui.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:thingzee/app.dart';
 import 'package:thingzee/data/csv_export_service.dart';
-import 'package:thingzee/data/csv_exporter.dart';
 import 'package:thingzee/data/csv_import_service.dart';
 import 'package:thingzee/data/csv_importer.dart';
+import 'package:thingzee/data/legacy_csv_exporter.dart';
 import 'package:thingzee/pages/inventory/state/inventory_view.dart';
 import 'package:thingzee/pages/inventory/state/item_thumbnail_cache.dart';
 
@@ -139,7 +139,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 
   Future<void> onExportInfoBackupPressed(BuildContext context) async {
     // Generate CSV data
-    String csvData = await CSVExporter.exportProductData(App.repo);
+    String csvData = await LegacyCSVExporter.exportProductData(App.repo);
 
     // Get application directory
     Directory appDocDir = await getApplicationDocumentsDirectory();
@@ -165,7 +165,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 
   Future<void> onExportInventoryBackupPressed(BuildContext context) async {
     // Generate CSV data
-    String csvData = await CSVExporter.exportInventoryData(App.repo);
+    String csvData = await LegacyCSVExporter.exportInventoryData(App.repo);
 
     // Get application directory
     Directory appDocDir = await getApplicationDocumentsDirectory();
@@ -191,7 +191,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 
   Future<void> onExportHistoryButtonPressed(BuildContext context) async {
     // Generate CSV data
-    String csvData = await CSVExporter.exportHistory(App.repo);
+    String csvData = await LegacyCSVExporter.exportHistory(App.repo);
 
     // Get application directory
     Directory appDocDir = await getApplicationDocumentsDirectory();
