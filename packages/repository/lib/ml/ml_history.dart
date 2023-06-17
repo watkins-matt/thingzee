@@ -43,7 +43,24 @@ class MLHistory {
     return series.fold(0, (sum, s) => sum + s.observations.length);
   }
 
-  void add(int timestamp, double amount, int householdCount) {
+  /// Adds a new data point to the history series.
+  /// [timestamp] represents the time of the data point in milliseconds since epoch. This value cannot be zero.
+  /// [amount] represents the amount of inventory.
+  /// [householdCount] represents the number of people living in the household.
+  /// Requirements:
+  /// - Function will fail if [timestamp] is zero.
+  /// - We only care about decreasing values. If the series is empty,
+  ///   a single zero amount will be discarded.
+  /// - Create a new series if necessary.
+  /// - If this is a new series, add the new data point and return.
+  /// - If the amount is within the minimum offset, we update the timestamp only.
+  /// - If the amount is greater than the last amount, start a new series
+  ///     and add the new data point.
+  /// - If the amount was decreased add the amount.
+  /// - If we predicted the amount to be 0 before the user set it to zero,
+  ///     choose the predicted timestamp as the timestamp, assuming that
+  ///     the user likely updated the amount after the fact.
+  void add(int timestamp, double amount, int householdCount, {int minOffsetHours = 24}) {
     assert(timestamp != 0); // Timestamp cannot be a placeholder value
 
     // There is not any point in making a HistorySeries where the only
@@ -63,11 +80,10 @@ class MLHistory {
     // If the series is empty, start a new series
     if (series.isEmpty) {
       series.add(HistorySeries());
-      current.observations.add(observation);
-      return;
     }
 
-    // Check if current.observations is empty, if yes then add the observation and return
+    // Check if current.observations is empty. If so, we only need
+    // to add the single non-zero value.
     if (current.observations.isEmpty) {
       current.observations.add(observation);
       return;
@@ -79,8 +95,8 @@ class MLHistory {
     // Calculate the time difference between the new observation and the last one
     var timeDifference = observation.timestamp - lastObservation.timestamp;
 
-    // Define the minimum time offset (24 hours in milliseconds)
-    const minOffset = 24 * 60 * 60 * 1000;
+    // Define the minimum time offset in ms (specified by minOffsetHours)
+    final minOffset = minOffsetHours * 60 * 60 * 1000;
 
     // If the time difference is less than the minimum offset, update the last observation
     if (timeDifference < minOffset) {
