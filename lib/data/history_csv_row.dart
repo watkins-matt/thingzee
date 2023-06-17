@@ -1,3 +1,4 @@
+import 'package:repository/extension/string.dart';
 import 'package:repository/ml/observation.dart';
 
 class HistoryCsvRow {
@@ -11,7 +12,7 @@ class HistoryCsvRow {
 
   void loadFromRow(List<dynamic> row, Map<String, int> columnIndex) {
     final parsers = {
-      'upc': (value) => upc = value.isNotEmpty ? value.normalizeUPC() : upc,
+      'upc': (value) => upc = value.isNotEmpty ? (value as String).normalizeUPC() : upc,
       'series_id': (value) => seriesId = value.isNotEmpty ? int.parse(value) : seriesId,
       'timestamp': (value) => timestamp = value.isNotEmpty ? double.parse(value) : timestamp,
       'amount': (value) => amount = value.isNotEmpty ? double.parse(value) : amount,

@@ -1,4 +1,5 @@
 import 'package:csv/csv.dart';
+import 'package:repository/extension/string.dart';
 import 'package:repository/model/item.dart';
 import 'package:repository/repository.dart';
 import 'package:thingzee/data/csv_exporter.dart';

@@ -1,5 +1,6 @@
 import 'package:csv/csv.dart';
 import 'package:quiver/core.dart';
+import 'package:repository/extension/string.dart';
 import 'package:repository/ml/history.dart';
 import 'package:repository/ml/observation.dart';
 import 'package:repository/model/inventory.dart';

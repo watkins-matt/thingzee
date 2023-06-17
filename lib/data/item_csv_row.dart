@@ -1,3 +1,4 @@
+import 'package:repository/extension/string.dart';
 import 'package:repository/model/item.dart';
 
 class ItemCsvRow {
@@ -13,7 +14,7 @@ class ItemCsvRow {
 
   void fromRow(List<dynamic> row, Map<String, int> columnIndex) {
     final parsers = {
-      'upc': (value) => upc = value.isNotEmpty ? value.normalizeUPC() : upc,
+      'upc': (value) => upc = value.isNotEmpty ? (value as String).normalizeUPC() : upc,
       'name': (value) => name = value.isNotEmpty ? value : name,
       'consumable': (value) => consumable = value.isNotEmpty && value == '1',
       'unitCount': (value) => unitCount = value.isNotEmpty ? int.parse(value) : unitCount,
