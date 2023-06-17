@@ -1,7 +1,8 @@
+import 'dart:core';
+
 import 'package:hive/hive.dart';
 import 'package:repository/model/manufacturer.dart';
-import 'package:json_annotation/json_annotation.dart';
-import 'dart:core';
+
 @HiveType(typeId: 0)
 class HiveManufacturer extends HiveObject {
   @HiveField(0)
@@ -27,7 +28,6 @@ class HiveManufacturer extends HiveObject {
       ..website = website
       ..muid = muid
       ..parentName = parentName
-      ..parentMuid = parentMuid
-    ;
+      ..parentMuid = parentMuid;
   }
 }

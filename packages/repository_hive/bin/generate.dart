@@ -33,9 +33,22 @@ void main() async {
   String workingDir = Directory.fromUri(scriptUri.resolve('..')).path;
 
   // Run "dart run build_runner build"
-  var process = await Process.start(
-      'dart', ['run', 'build_runner', 'build', '--delete-conflicting-outputs'],
-      workingDirectory: workingDir);
+  await execute(
+      'dart', ['run', 'build_runner', 'build', '--delete-conflicting-outputs'], workingDir);
+
+  // Run dart fix --apply
+  await execute('dart', ['fix', '--apply'], workingDir);
+
+  // Delete copied files
+  for (final file in copiedFiles) {
+    if (file.existsSync()) {
+      await file.delete();
+    }
+  }
+}
+
+Future<void> execute(String executable, List<String> args, String workingDir) async {
+  var process = await Process.start(executable, args, workingDirectory: workingDir);
 
   // Print output in real-time
   process.stdout.transform(utf8.decoder).listen((data) {
@@ -47,11 +60,4 @@ void main() async {
   });
 
   await process.exitCode;
-
-  // Delete copied files
-  for (final file in copiedFiles) {
-    if (file.existsSync()) {
-      await file.delete();
-    }
-  }
 }
