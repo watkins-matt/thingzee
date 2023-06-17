@@ -263,34 +263,18 @@ class ItemDetailPage extends HookConsumerWidget {
                                 decoration: const InputDecoration(border: InputBorder.none),
                                 textAlign: TextAlign.center,
                                 controller: TextEditingController(
-                                    text:
-                                        '3.0'), // widget.product.usageSpeedDays.toStringAsFixed(2)),
+                                    text: ref
+                                        .watch(editableItemProvider)
+                                        .inventory
+                                        .usageSpeedDays
+                                        .roundTo(2)
+                                        .toString()),
                                 readOnly: true,
                                 maxLines: null,
                               ),
                             ],
                           ),
                         ),
-                        // SizedBox(
-                        //   width: 100,
-                        //   child: Column(
-                        //     mainAxisSize: MainAxisSize.min,
-                        //     crossAxisAlignment: CrossAxisAlignment.center,
-                        //     children: [
-                        //       Text(
-                        //         'Usage (Minutes)',
-                        //       ),
-                        //       TextField(
-                        //         decoration: InputDecoration(border: InputBorder.none),
-                        //         textAlign: TextAlign.center,
-                        //         controller: TextEditingController(
-                        //             text: widget.product.usageSpeedMinutes.roundTo(2).toString()),
-                        //         readOnly: true,
-                        //         maxLines: null,
-                        //       ),
-                        //     ],
-                        //   ),
-                        // ),
                         SizedBox(
                           width: 100,
                           child: Column(

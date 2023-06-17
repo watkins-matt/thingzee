@@ -19,21 +19,17 @@ class Inventory {
     history.upc = upc;
   }
 
-  // double get usageSpeedMinutes {
-  //   return history.best.
-  // }
+  double get usageSpeedMinutes {
+    return history.best.regressor.hasSlope
+        ? (1 / history.best.regressor.slope.abs()) / 1000 / 60
+        : 0;
+  }
 
-//   double get usageSpeedMinutes {
-//     return history.currentSeriesRegression == 0
-//         ? 0
-//         : (1 / history.currentSeriesRegression.abs()) / 1000 / 60;
-//   }
-
-//   double get usageSpeedDays {
-//     return history.currentSeriesRegression == 0
-//         ? 0
-//         : (1 / history.currentSeriesRegression.abs()) / 1000 / 60 / 60 / 24;
-//   }
+  double get usageSpeedDays {
+    return history.best.regressor.hasSlope
+        ? (1 / history.best.regressor.slope.abs()) / 1000 / 60 / 60 / 24
+        : 0;
+  }
 
   bool get canPredict {
     return history.canPredict;
