@@ -43,13 +43,13 @@ class Inventory {
     return lastUpdate.isPresent ? DateFormat.yMMMd().format(lastUpdate.value) : 'Never';
   }
 
-  //   String get minutesToReduceByOneString {
-//     final reductionInMinutes = Duration(minutes: usageSpeedMinutes.round());
+  String get minutesToReduceByOneString {
+    final reductionInMinutes = Duration(minutes: usageSpeedMinutes.round());
 
-//     return canPredict
-//         ? 'Quantity is reducing by 1 every:\n ${reductionInMinutes.toHumanReadableString()}.'
-//         : 'Please enter another valid quantity\nat a later date to allow quantity predictions to be made.';
-//   }
+    return canPredict
+        ? 'Quantity is reducing by 1 every:\n ${reductionInMinutes.toHumanReadableString()}.'
+        : 'Please enter another valid quantity\nat a later date to allow quantity predictions to be made.';
+  }
 
   double get predictedAmount {
     // If we can't predict anything, return the existing amount
@@ -117,12 +117,12 @@ class Inventory {
   }
 
   Duration get timeSinceLastUpdate {
-    assert(lastUpdate.isPresent);
+    assert(lastUpdate.isPresent && lastUpdate.value != DateTime.fromMillisecondsSinceEpoch(0));
     return DateTime.now().difference(lastUpdate.value);
   }
 
   String get timeSinceLastUpdateString {
-    if (lastUpdate.isPresent) {
+    if (lastUpdate.isPresent && lastUpdate.value != DateTime.fromMillisecondsSinceEpoch(0)) {
       return 'Amount updated ${timeSinceLastUpdate.toHumanReadableString()} ago.';
     } else {
       return 'Amount not updated recently.';
