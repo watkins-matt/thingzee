@@ -17,8 +17,16 @@ class InventoryCsvImporter {
     for (final row in csvData) {
       InventoryCsvRow inventoryRow = InventoryCsvRow();
       inventoryRow.fromRow(row, headerIndices);
+
+      // Pull the history before updating the inventory
+      var inv = inventoryRow.toInventory();
+      final historyResult = r.hist.get(inv.upc);
+      if (historyResult.isNotEmpty) {
+        inv.history = historyResult.value;
+      }
+
       r.items.put(inventoryRow.toItem());
-      r.inv.put(inventoryRow.toInventory());
+      r.inv.put(inv);
     }
 
     return true;

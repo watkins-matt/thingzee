@@ -21,13 +21,13 @@ class InventoryCsvRow {
       'upc': (value) => upc = value.isNotEmpty ? (value as String).normalizeUPC() : upc,
       'name': (value) => name = value.isNotEmpty ? value : name,
       'consumable': (value) => consumable = value.isNotEmpty && value == '1',
-      'unitCount': (value) => unitCount = value.isNotEmpty ? int.parse(value) : unitCount,
+      'unit_count': (value) => unitCount = value.isNotEmpty ? int.parse(value) : unitCount,
       'category': (value) => category = value.isNotEmpty ? value : category,
       'type': (value) => type = value.isNotEmpty ? value : type,
-      'unitName': (value) => unitName = value.isNotEmpty ? value : unitName,
-      'unitPlural': (value) => unitPlural = value.isNotEmpty ? value : unitPlural,
-      'amount': (value) => amount = value.isNotEmpty ? double.parse(value) : amount,
-      'lastUpdate': (value) {
+      'name_unit': (value) => unitName = value.isNotEmpty ? value : unitName,
+      'name_unit_plural': (value) => unitPlural = value.isNotEmpty ? value : unitPlural,
+      'quantity': (value) => amount = value.isNotEmpty ? double.parse(value) : amount,
+      'update_date': (value) {
         if (value.isNotEmpty) {
           int lastUpdateTimestamp = int.parse(value);
 
