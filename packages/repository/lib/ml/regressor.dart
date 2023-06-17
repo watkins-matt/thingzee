@@ -8,10 +8,10 @@ import 'package:repository/ml/ols_regressor.dart';
 
 class EmptyRegressor implements Regressor {
   @override
-  bool get hasXIntercept => false;
+  bool get hasSlope => false;
 
   @override
-  bool get hasSlope => false;
+  bool get hasXIntercept => false;
 
   @override
   double get slope => 0;
@@ -39,10 +39,10 @@ class HoltLinearRegressor extends Regressor {
       : data = mapData.entries.toList();
 
   @override
-  bool get hasXIntercept => true;
+  bool get hasSlope => true;
 
   @override
-  bool get hasSlope => true;
+  bool get hasXIntercept => true;
 
   @override
   double get slope {
@@ -101,10 +101,10 @@ class MLLinearRegressor implements Regressor {
   MLLinearRegressor(this.regressor, this.normalizer);
 
   @override
-  bool get hasXIntercept => true;
+  bool get hasSlope => false;
 
   @override
-  bool get hasSlope => false;
+  bool get hasXIntercept => true;
 
   @override
   double get slope => 0;
@@ -202,10 +202,10 @@ class NaiveRegressor implements Regressor {
       : this(map.entries.toList(), unitDuration: unitDuration);
 
   @override
-  bool get hasXIntercept => true;
+  bool get hasSlope => true;
 
   @override
-  bool get hasSlope => true;
+  bool get hasXIntercept => true;
 
   @override
   double get slope {
@@ -254,11 +254,62 @@ class NaiveRegressor implements Regressor {
 }
 
 abstract class Regressor {
-  bool get hasXIntercept;
   bool get hasSlope;
+  bool get hasXIntercept;
   double get slope;
   int get xIntercept;
   double predict(int x);
+}
+
+class ShiftedInterceptLinearRegressor implements Regressor {
+  late double _intercept;
+  late double _slope;
+
+  ShiftedInterceptLinearRegressor(Map<int, double> dataPoints) {
+    final xValues = dataPoints.keys.toList();
+    final yValues = dataPoints.values.toList();
+
+    // Calculate the means of x and y
+    final xMean = xValues.reduce((a, b) => a + b) / xValues.length;
+    final yMean = yValues.reduce((a, b) => a + b) / yValues.length;
+
+    // Calculate slope (m) and intercept (c) for y = mx + c
+    var numerator = 0.0;
+    var denominator = 0.0;
+
+    for (var i = 0; i < xValues.length; i++) {
+      numerator += (xValues[i] - xMean) * (yValues[i] - yMean);
+      denominator += (xValues[i] - xMean) * (xValues[i] - xMean);
+    }
+
+    _slope = numerator / denominator;
+
+    // Find point with maximum x value
+    final xMax = xValues.reduce((current, next) => current > next ? current : next);
+    final yMax = dataPoints[xMax]!;
+
+    // Adjust intercept so line passes through (xMax, yMax)
+    _intercept = yMax - _slope * xMax;
+  }
+
+  @override
+  bool get hasSlope => true;
+
+  @override
+  bool get hasXIntercept => true;
+
+  @override
+  double get slope => _slope;
+
+  @override
+  int get xIntercept {
+    return (-_intercept / _slope).round();
+  }
+
+  @override
+  double predict(int x) {
+    return _slope * x + _intercept;
+  }
 }
 
 class SimpleLinearRegressor implements Regressor {
@@ -287,10 +338,10 @@ class SimpleLinearRegressor implements Regressor {
   }
 
   @override
-  bool get hasXIntercept => true;
+  bool get hasSlope => true;
 
   @override
-  bool get hasSlope => true;
+  bool get hasXIntercept => true;
 
   @override
   double get slope => _slope;
@@ -313,10 +364,10 @@ class SimpleOLSRegressor implements Regressor {
   SimpleOLSRegressor(this.regressor, this.normalizer);
 
   @override
-  bool get hasXIntercept => false;
+  bool get hasSlope => false;
 
   @override
-  bool get hasSlope => false;
+  bool get hasXIntercept => false;
 
   @override
   double get slope => 0;
@@ -349,10 +400,10 @@ class SingleDataPointLinearRegressor implements Regressor {
   SingleDataPointLinearRegressor(this.intercept);
 
   @override
-  bool get hasXIntercept => false;
+  bool get hasSlope => false;
 
   @override
-  bool get hasSlope => false;
+  bool get hasXIntercept => false;
 
   @override
   double get slope => 0;
@@ -376,10 +427,10 @@ class TwoPointLinearRegressor implements Regressor {
         _intercept = y1 - (y2 - y1) / (x2 - x1) * x1;
 
   @override
-  bool get hasXIntercept => true;
+  bool get hasSlope => true;
 
   @override
-  bool get hasSlope => true;
+  bool get hasXIntercept => true;
 
   @override
   double get slope => _slope;
@@ -390,6 +441,59 @@ class TwoPointLinearRegressor implements Regressor {
   }
 
   double get yIntercept => _intercept;
+
+  @override
+  double predict(int x) {
+    return _slope * x + _intercept;
+  }
+}
+
+class WeightedLeastSquaresLinearRegressor implements Regressor {
+  late double _intercept;
+  late double _slope;
+
+  WeightedLeastSquaresLinearRegressor(Map<int, double> dataPoints) {
+    final xValues = dataPoints.keys.toList();
+    final yValues = dataPoints.values.toList();
+
+    // Create weights that decrease linearly
+    final weights = List<double>.generate(xValues.length, (i) => (xValues.length - i).toDouble());
+
+    // Calculate the weighted means of x and y
+    final xMean =
+        xValues.asMap().entries.map((e) => e.value * weights[e.key]).reduce((a, b) => a + b) /
+            weights.reduce((a, b) => a + b);
+    final yMean =
+        yValues.asMap().entries.map((e) => e.value * weights[e.key]).reduce((a, b) => a + b) /
+            weights.reduce((a, b) => a + b);
+
+    // Calculate slope (m) and intercept (c) for y = mx + c
+    var numerator = 0.0;
+    var denominator = 0.0;
+
+    for (var i = 0; i < xValues.length; i++) {
+      var weight = weights[i];
+      numerator += weight * (xValues[i] - xMean) * (yValues[i] - yMean);
+      denominator += weight * (xValues[i] - xMean) * (xValues[i] - xMean);
+    }
+
+    _slope = numerator / denominator;
+    _intercept = yMean - _slope * xMean;
+  }
+
+  @override
+  bool get hasSlope => true;
+
+  @override
+  bool get hasXIntercept => true;
+
+  @override
+  double get slope => _slope;
+
+  @override
+  int get xIntercept {
+    return (-_intercept / _slope).round();
+  }
 
   @override
   double predict(int x) {
