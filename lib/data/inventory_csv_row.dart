@@ -29,7 +29,10 @@ class InventoryCsvRow {
       'lastUpdate': (value) {
         if (value.isNotEmpty) {
           int lastUpdateTimestamp = int.parse(value);
-          if (lastUpdateTimestamp != 0) {
+
+          // If it's 0 assume it's a placeholder so ignore it
+          // If it's below zero, the value is invalid
+          if (lastUpdateTimestamp > 0) {
             lastUpdate = Optional.of(DateTime.fromMillisecondsSinceEpoch(lastUpdateTimestamp));
           }
         }
