@@ -138,7 +138,7 @@ class LegacyCsvExporter {
       inventory.upc.normalizeUPC(),
       item.name,
       inventory.amount,
-      inventory.lastUpdate.or(DateTime(0)).millisecondsSinceEpoch,
+      inventory.lastUpdate.isPresent ? inventory.lastUpdate.value.millisecondsSinceEpoch : '',
       item.consumable ? 1 : 0,
       item.unitCount,
       item.category,
