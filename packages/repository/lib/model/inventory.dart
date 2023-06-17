@@ -1,7 +1,7 @@
 import 'package:intl/intl.dart';
 import 'package:quiver/core.dart';
 import 'package:repository/extension/duration.dart';
-import 'package:repository/ml/ml_history.dart';
+import 'package:repository/ml/history.dart';
 import 'package:stats/double.dart';
 
 class Inventory {
@@ -10,7 +10,7 @@ class Inventory {
   Optional<DateTime> lastUpdate = const Optional.absent();
   List<DateTime> expirationDates = <DateTime>[];
   List<String> locations = <String>[];
-  MLHistory history = MLHistory();
+  History history = History();
   bool restock = true;
   String upc = '';
   String iuid = '';

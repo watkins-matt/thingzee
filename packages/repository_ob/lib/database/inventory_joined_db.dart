@@ -1,7 +1,7 @@
 import 'package:objectbox/objectbox.dart';
 import 'package:quiver/core.dart';
 import 'package:repository/database/history_database.dart';
-import 'package:repository/ml/ml_history.dart';
+import 'package:repository/ml/history.dart';
 import 'package:repository/model/inventory.dart';
 import 'package:repository_ob/database/inventory_db.dart';
 
@@ -33,7 +33,7 @@ class ObjectBoxJoinedInventoryDatabase extends ObjectBoxInventoryDatabase {
 
         // Initialize a default history with the current upc
       } else {
-        final newHistory = MLHistory()..upc = upc;
+        final newHistory = History()..upc = upc;
         inventory.value.history = newHistory;
       }
     }

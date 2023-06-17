@@ -1,10 +1,11 @@
-import 'dart:core';
-
 import 'package:hive/hive.dart';
-import 'package:quiver/core.dart';
-import 'package:repository/ml/ml_history.dart';
 import 'package:repository/model/inventory.dart';
-
+import 'package:intl/intl.dart';
+import 'package:quiver/core.dart';
+import 'package:repository/extension/duration.dart';
+import 'package:repository/ml/history.dart';
+import 'package:stats/double.dart';
+import 'dart:core';
 @HiveType(typeId: 0)
 class HiveInventory extends HiveObject {
   @HiveField(0)
@@ -18,7 +19,7 @@ class HiveInventory extends HiveObject {
   @HiveField(4)
   late List<String> locations;
   @HiveField(5)
-  late MLHistory history;
+  late History history;
   @HiveField(6)
   late bool restock;
   @HiveField(7)
@@ -50,6 +51,7 @@ class HiveInventory extends HiveObject {
       ..restock = restock
       ..upc = upc
       ..iuid = iuid
-      ..units = units;
+      ..units = units
+    ;
   }
 }

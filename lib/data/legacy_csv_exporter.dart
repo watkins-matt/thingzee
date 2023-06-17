@@ -1,6 +1,6 @@
 import 'package:csv/csv.dart';
 import 'package:quiver/core.dart';
-import 'package:repository/ml/ml_history.dart';
+import 'package:repository/ml/history.dart';
 import 'package:repository/ml/observation.dart';
 import 'package:repository/model/inventory.dart';
 import 'package:repository/model/item.dart';
@@ -20,7 +20,7 @@ class LegacyCsvExporter {
       'household_count'
     ]);
 
-    List<MLHistory> allHistory = r.hist.all();
+    List<History> allHistory = r.hist.all();
 
     for (final history in allHistory) {
       rows.addAll(convertHistoryToList(history));
@@ -83,7 +83,7 @@ class LegacyCsvExporter {
     return const ListToCsvConverter().convert(rows);
   }
 
-  static List<List<dynamic>> convertHistoryToList(MLHistory history) {
+  static List<List<dynamic>> convertHistoryToList(History history) {
     List<List<dynamic>> rows = [];
     var seriesId = 0;
 
@@ -99,7 +99,7 @@ class LegacyCsvExporter {
     return rows;
   }
 
-  static List<dynamic> observationToList(MLHistory history, Observation obs, int seriesId) {
+  static List<dynamic> observationToList(History history, Observation obs, int seriesId) {
     return [
       history.upc,
       seriesId,

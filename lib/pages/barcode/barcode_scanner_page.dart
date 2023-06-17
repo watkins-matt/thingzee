@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:qr_mobile_vision/qr_camera.dart';
 import 'package:quiver/core.dart';
-import 'package:repository/ml/ml_history.dart';
+import 'package:repository/ml/history.dart';
 import 'package:repository/model/inventory.dart';
 import 'package:repository/model/item.dart';
 import 'package:thingzee/app.dart';
@@ -124,7 +124,7 @@ class _BarcodeScannerPageState extends ConsumerState<BarcodeScannerPage> {
       inv = Optional.of(Inventory());
       inv.value.upc = barcode;
       inv.value.amount = 1;
-      inv.value.history = MLHistory()..upc = barcode;
+      inv.value.history = History()..upc = barcode;
       inv.value.lastUpdate = Optional.of(DateTime.now());
     }
 

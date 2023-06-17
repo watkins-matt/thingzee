@@ -1,7 +1,7 @@
 import 'package:csv/csv.dart';
 import 'package:quiver/core.dart';
+import 'package:repository/ml/history.dart';
 import 'package:repository/ml/history_series.dart';
-import 'package:repository/ml/ml_history.dart';
 import 'package:repository/ml/observation.dart';
 import 'package:repository/model/inventory.dart';
 import 'package:repository/model/item.dart';
@@ -18,14 +18,14 @@ class LegacyCsvImporter {
       csvData.removeAt(0);
     }
 
-    Map<String, MLHistory> historyMap = {};
+    Map<String, History> historyMap = {};
     Map<String, Map<int, HistorySeries>> seriesMap = {};
 
     for (final row in csvData) {
       final upc = row[0].toString().normalizeUPC();
 
       if (!historyMap.containsKey(upc)) {
-        historyMap[upc] = MLHistory()..upc = upc;
+        historyMap[upc] = History()..upc = upc;
         seriesMap[upc] = {};
       }
 

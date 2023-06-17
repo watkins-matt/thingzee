@@ -1,19 +1,19 @@
 import 'package:quiver/core.dart';
 import 'package:repository/database/history_database.dart';
-import 'package:repository/ml/ml_history.dart';
+import 'package:repository/ml/history.dart';
 import 'package:repository/model/inventory.dart';
-import 'package:repository_ob/model_custom/ml_history_ob.dart';
+import 'package:repository_ob/model_custom/history_ob.dart';
 import 'package:repository_ob/objectbox.g.dart';
 
 class ObjectBoxHistoryDatabase extends HistoryDatabase {
-  late Box<ObjectBoxMLHistory> box;
+  late Box<ObjectBoxHistory> box;
 
   ObjectBoxHistoryDatabase(Store store) {
-    box = store.box<ObjectBoxMLHistory>();
+    box = store.box<ObjectBoxHistory>();
   }
 
   @override
-  List<MLHistory> all() {
+  List<History> all() {
     final all = box.getAll();
     return all.map((objBoxHist) => objBoxHist.toMLHistory()).toList();
   }
@@ -24,9 +24,9 @@ class ObjectBoxHistoryDatabase extends HistoryDatabase {
   }
 
   @override
-  Optional<MLHistory> get(String upc) {
+  Optional<History> get(String upc) {
     assert(upc.isNotEmpty);
-    final query = box.query(ObjectBoxMLHistory_.upc.equals(upc)).build();
+    final query = box.query(ObjectBoxHistory_.upc.equals(upc)).build();
     final result = Optional.fromNullable(query.findFirst()?.toMLHistory());
     query.close();
 
@@ -63,8 +63,8 @@ class ObjectBoxHistoryDatabase extends HistoryDatabase {
   }
 
   @override
-  Map<String, MLHistory> map() {
-    Map<String, MLHistory> map = {};
+  Map<String, History> map() {
+    Map<String, History> map = {};
     final allHistory = all();
 
     for (final hist in allHistory) {
@@ -93,7 +93,7 @@ class ObjectBoxHistoryDatabase extends HistoryDatabase {
   }
 
   @override
-  void put(MLHistory history) {
+  void put(History history) {
     // Ensure UPC is not empty
     assert(history.upc.isNotEmpty);
 
@@ -101,10 +101,10 @@ class ObjectBoxHistoryDatabase extends HistoryDatabase {
     history = history.clean();
 
     // Convert to ObjectBoxMLHistory
-    final historyOb = ObjectBoxMLHistory.from(history);
+    final historyOb = ObjectBoxHistory.from(history);
 
     // Check if history already exists
-    final query = box.query(ObjectBoxMLHistory_.upc.equals(history.upc)).build();
+    final query = box.query(ObjectBoxHistory_.upc.equals(history.upc)).build();
     final exists = Optional.fromNullable(query.findFirst());
     query.close();
 

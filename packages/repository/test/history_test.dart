@@ -1,4 +1,4 @@
-import 'package:repository/ml/ml_history.dart';
+import 'package:repository/ml/history.dart';
 import 'package:repository/ml/regressor.dart';
 import 'package:test/test.dart';
 
@@ -6,7 +6,7 @@ void main() {
   const int minOffset = 86400000;
   group('MLHistory:', () {
     test('should ensure that values added are at least 24 hours apart.', () async {
-      MLHistory history = MLHistory();
+      History history = History();
       history.add(1, 100, 2);
       history.add(2, 90, 2);
       history.add(minOffset + 2, 80, 2);
@@ -19,7 +19,7 @@ void main() {
     });
 
     test('Regression of two points should match expected values.', () async {
-      MLHistory history = MLHistory();
+      History history = History();
       history.add(1640995200000, 10, 2);
       history.add(1641081600000, 6, 2);
       TwoPointLinearRegressor regressor = history.current.regressor as TwoPointLinearRegressor;
@@ -29,7 +29,7 @@ void main() {
     });
 
     test('Regression with three points', () {
-      MLHistory history = MLHistory();
+      History history = History();
       history.add(1 * 86400000, 4, 2); // Day 1
       history.add(3 * 86400000, 3, 2); // Day 3
       history.add(5 * 86400000, 2, 2); // Day 5

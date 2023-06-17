@@ -1,11 +1,11 @@
 import 'dart:convert';
 
 import 'package:objectbox/objectbox.dart';
-import 'package:repository/ml/ml_history.dart';
+import 'package:repository/ml/history.dart';
 
 @Entity()
-class ObjectBoxMLHistory {
-  MLHistory history = MLHistory();
+class ObjectBoxHistory {
+  History history = History();
 
   @Unique()
   String upc = '';
@@ -13,12 +13,12 @@ class ObjectBoxMLHistory {
   @Id()
   int id = 0;
 
-  ObjectBoxMLHistory();
-  ObjectBoxMLHistory.from(MLHistory original) {
+  ObjectBoxHistory();
+  ObjectBoxHistory.from(History original) {
     history = original;
     upc = original.upc;
   }
-  MLHistory toMLHistory() {
+  History toMLHistory() {
     return history;
   }
 
@@ -28,6 +28,6 @@ class ObjectBoxMLHistory {
 
   set dbHistory(String value) {
     Map<String, dynamic> json = jsonDecode(value) as Map<String, dynamic>;
-    history = MLHistory.fromJson(json).trim();
+    history = History.fromJson(json).trim();
   }
 }

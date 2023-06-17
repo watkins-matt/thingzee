@@ -2,16 +2,16 @@ import 'package:json_annotation/json_annotation.dart';
 import 'package:repository/ml/history_series.dart';
 import 'package:repository/ml/observation.dart';
 
-part 'ml_history.g.dart';
+part 'history.g.dart';
 
 @JsonSerializable(explicitToJson: true)
-class MLHistory {
+class History {
   String upc = '';
   List<HistorySeries> series = [];
-  MLHistory();
+  History();
 
-  factory MLHistory.fromJson(Map<String, dynamic> json) => _$MLHistoryFromJson(json);
-  Map<String, dynamic> toJson() => _$MLHistoryToJson(this);
+  factory History.fromJson(Map<String, dynamic> json) => _$HistoryFromJson(json);
+  Map<String, dynamic> toJson() => _$HistoryToJson(this);
 
   HistorySeries get best {
     return canPredict ? current : previous;
@@ -145,7 +145,7 @@ class MLHistory {
   // Remove any invalid observations from the history
   // (This means any series where there is only a 0 value,
   // or the timestamp is 0)
-  MLHistory clean() {
+  History clean() {
     for (final s in series) {
       // There was only one observation with amount 0, so remove it
       if (s.observations.length == 1 && s.observations.first.amount == 0) {
@@ -167,7 +167,7 @@ class MLHistory {
   }
 
   // Remove any empty series values in the history
-  MLHistory trim() {
+  History trim() {
     series.removeWhere((s) => s.observations.isEmpty);
     return this;
   }

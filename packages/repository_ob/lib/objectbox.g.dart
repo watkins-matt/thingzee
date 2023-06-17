@@ -18,7 +18,7 @@ import 'model/inventory.ob.dart';
 import 'model/item.ob.dart';
 import 'model/manufacturer.ob.dart';
 import 'model/product.ob.dart';
-import 'model_custom/ml_history_ob.dart';
+import 'model_custom/history_ob.dart';
 
 export 'package:objectbox/objectbox.dart'; // so that callers only have to import this file
 
@@ -281,24 +281,24 @@ final _entities = <ModelEntity>[
       relations: <ModelRelation>[],
       backlinks: <ModelBacklink>[]),
   ModelEntity(
-      id: const IdUid(10, 5035609981372595064),
-      name: 'ObjectBoxMLHistory',
-      lastPropertyId: const IdUid(3, 1856176597008648871),
+      id: const IdUid(12, 8845027561250741274),
+      name: 'ObjectBoxHistory',
+      lastPropertyId: const IdUid(3, 8507136725000371231),
       flags: 0,
       properties: <ModelProperty>[
         ModelProperty(
-            id: const IdUid(1, 2915645506796281321),
+            id: const IdUid(1, 5930073436429162412),
             name: 'upc',
             type: 9,
             flags: 2080,
-            indexId: const IdUid(3, 315913898425468620)),
+            indexId: const IdUid(4, 1380383612824248493)),
         ModelProperty(
-            id: const IdUid(2, 2461830532801570432),
+            id: const IdUid(2, 4738601771660428828),
             name: 'id',
             type: 6,
             flags: 1),
         ModelProperty(
-            id: const IdUid(3, 1856176597008648871),
+            id: const IdUid(3, 8507136725000371231),
             name: 'dbHistory',
             type: 9,
             flags: 0)
@@ -327,8 +327,8 @@ Future<Store> openStore(
 ModelDefinition getObjectBoxModel() {
   final model = ModelInfo(
       entities: _entities,
-      lastEntityId: const IdUid(11, 2032575102652478660),
-      lastIndexId: const IdUid(3, 315913898425468620),
+      lastEntityId: const IdUid(12, 8845027561250741274),
+      lastIndexId: const IdUid(4, 1380383612824248493),
       lastRelationId: const IdUid(0, 0),
       lastSequenceId: const IdUid(0, 0),
       retiredEntityUids: const [
@@ -336,7 +336,8 @@ ModelDefinition getObjectBoxModel() {
         8424580053237053064,
         4409076866089830057,
         6867336823909880876,
-        2032575102652478660
+        2032575102652478660,
+        5035609981372595064
       ],
       retiredIndexUids: const [],
       retiredPropertyUids: const [
@@ -360,7 +361,10 @@ ModelDefinition getObjectBoxModel() {
         6386881952248259748,
         2097527918487075803,
         5026288376565790065,
-        6040227891217577961
+        6040227891217577961,
+        2915645506796281321,
+        2461830532801570432,
+        1856176597008648871
       ],
       retiredRelationUids: const [],
       modelVersion: 5,
@@ -634,15 +638,15 @@ ModelDefinition getObjectBoxModel() {
 
           return object;
         }),
-    ObjectBoxMLHistory: EntityDefinition<ObjectBoxMLHistory>(
+    ObjectBoxHistory: EntityDefinition<ObjectBoxHistory>(
         model: _entities[5],
-        toOneRelations: (ObjectBoxMLHistory object) => [],
-        toManyRelations: (ObjectBoxMLHistory object) => {},
-        getId: (ObjectBoxMLHistory object) => object.id,
-        setId: (ObjectBoxMLHistory object, int id) {
+        toOneRelations: (ObjectBoxHistory object) => [],
+        toManyRelations: (ObjectBoxHistory object) => {},
+        getId: (ObjectBoxHistory object) => object.id,
+        setId: (ObjectBoxHistory object, int id) {
           object.id = id;
         },
-        objectToFB: (ObjectBoxMLHistory object, fb.Builder fbb) {
+        objectToFB: (ObjectBoxHistory object, fb.Builder fbb) {
           final upcOffset = fbb.writeString(object.upc);
           final dbHistoryOffset = fbb.writeString(object.dbHistory);
           fbb.startTable(4);
@@ -656,7 +660,7 @@ ModelDefinition getObjectBoxModel() {
           final buffer = fb.BufferContext(fbData);
           final rootOffset = buffer.derefObject(0);
 
-          final object = ObjectBoxMLHistory()
+          final object = ObjectBoxHistory()
             ..upc = const fb.StringReader(asciiOptimization: true)
                 .vTableGet(buffer, rootOffset, 4, '')
             ..id = const fb.Int64Reader().vTableGet(buffer, rootOffset, 6, 0)
@@ -853,17 +857,17 @@ class ObjectBoxItemTranslation_ {
       _entities[4].properties[5]);
 }
 
-/// [ObjectBoxMLHistory] entity fields to define ObjectBox queries.
-class ObjectBoxMLHistory_ {
-  /// see [ObjectBoxMLHistory.upc]
+/// [ObjectBoxHistory] entity fields to define ObjectBox queries.
+class ObjectBoxHistory_ {
+  /// see [ObjectBoxHistory.upc]
   static final upc =
-      QueryStringProperty<ObjectBoxMLHistory>(_entities[5].properties[0]);
+      QueryStringProperty<ObjectBoxHistory>(_entities[5].properties[0]);
 
-  /// see [ObjectBoxMLHistory.id]
+  /// see [ObjectBoxHistory.id]
   static final id =
-      QueryIntegerProperty<ObjectBoxMLHistory>(_entities[5].properties[1]);
+      QueryIntegerProperty<ObjectBoxHistory>(_entities[5].properties[1]);
 
-  /// see [ObjectBoxMLHistory.dbHistory]
+  /// see [ObjectBoxHistory.dbHistory]
   static final dbHistory =
-      QueryStringProperty<ObjectBoxMLHistory>(_entities[5].properties[2]);
+      QueryStringProperty<ObjectBoxHistory>(_entities[5].properties[2]);
 }

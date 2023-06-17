@@ -1,5 +1,5 @@
 import 'package:csv/csv.dart';
-import 'package:repository/ml/ml_history.dart';
+import 'package:repository/ml/history.dart';
 import 'package:repository/ml/observation.dart';
 import 'package:repository/repository.dart';
 import 'package:thingzee/data/csv_exporter.dart';
@@ -21,7 +21,7 @@ class HistoryCsvExporter implements CsvExporter {
   Future<String> export(Repository r) async {
     List<List<dynamic>> rows = [headers];
 
-    List<MLHistory> allHistory = r.hist.all();
+    List<History> allHistory = r.hist.all();
 
     for (final history in allHistory) {
       rows.addAll(history.toCsvList(headers));
@@ -31,7 +31,7 @@ class HistoryCsvExporter implements CsvExporter {
   }
 }
 
-extension on MLHistory {
+extension on History {
   List<List<dynamic>> toCsvList(List<String> headers) {
     List<List<dynamic>> rows = [];
     var seriesId = 0;

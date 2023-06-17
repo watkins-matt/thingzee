@@ -1,6 +1,6 @@
 import 'package:csv/csv.dart';
+import 'package:repository/ml/history.dart';
 import 'package:repository/ml/history_series.dart';
-import 'package:repository/ml/ml_history.dart';
 import 'package:repository/repository.dart';
 import 'package:thingzee/data/history_csv_row.dart';
 
@@ -8,7 +8,7 @@ class HistoryCsvImporter {
   Future<bool> import(String csvString, Repository r) async {
     List<List<dynamic>> csvData =
         const CsvToListConverter().convert(csvString, shouldParseNumbers: true);
-    Map<String, MLHistory> upcHistoryMap = {};
+    Map<String, History> upcHistoryMap = {};
     Map<String, Map<int, HistorySeries>> upcSeriesIdMap = {};
 
     if (csvData.isEmpty) {
@@ -27,7 +27,7 @@ class HistoryCsvImporter {
     for (final historyRow in allHistoryRows) {
       // Ensure that the MLHistory exists, creating if necessary
       if (!upcHistoryMap.containsKey(historyRow.upc)) {
-        upcHistoryMap[historyRow.upc] = MLHistory()..upc = historyRow.upc;
+        upcHistoryMap[historyRow.upc] = History()..upc = historyRow.upc;
       }
 
       // Create or get the HistorySeries
