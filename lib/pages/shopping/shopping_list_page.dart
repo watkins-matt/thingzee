@@ -115,9 +115,9 @@ class ShoppingListPage extends ConsumerWidget {
                           : TextDecoration.none))
               : null,
           secondary: Text(
-            inventory.preferredPredictedUnitString,
+            inventory.preferredAmountString,
             textScaleFactor: 1.5,
-            style: TextStyle(color: inventory.predictedAmount > 0.5 ? Colors.green : Colors.red),
+            style: TextStyle(color: inventory.preferredAmount > 0.5 ? Colors.green : Colors.red),
           ),
         ),
       ),

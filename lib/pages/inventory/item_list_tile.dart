@@ -57,12 +57,11 @@ class ItemListTile extends ConsumerWidget {
                 child: Align(
                   alignment: Alignment.centerRight,
                   child: Text(
-                    inventory.preferredPredictedUnitString,
+                    inventory.preferredAmountString,
                     textAlign: TextAlign.right,
                     textScaleFactor: 1.5,
                     style: TextStyle(
-                        color:
-                            inventory.preferredPredictedAmount > 0.5 ? Colors.green : Colors.red),
+                        color: inventory.preferredAmount > 0.5 ? Colors.green : Colors.red),
                   ),
                 ),
               ),

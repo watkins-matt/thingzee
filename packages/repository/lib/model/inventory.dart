@@ -19,18 +19,6 @@ class Inventory {
     history.upc = upc;
   }
 
-  double get usageSpeedMinutes {
-    return history.best.regressor.hasSlope
-        ? (1 / history.best.regressor.slope.abs()) / 1000 / 60
-        : 0;
-  }
-
-  double get usageSpeedDays {
-    return history.best.regressor.hasSlope
-        ? (1 / history.best.regressor.slope.abs()) / 1000 / 60 / 60 / 24
-        : 0;
-  }
-
   bool get canPredict {
     return history.canPredict;
   }
@@ -99,21 +87,15 @@ class Inventory {
   }
 
   double get preferredAmount {
-    return unitCount == 1 ? amount : units;
+    if (canPredict) {
+      return unitCount == 1 ? predictedAmount : predictedUnits.roundTo(0);
+    } else {
+      return unitCount == 1 ? amount : units.roundTo(0);
+    }
   }
 
   String get preferredAmountString {
-    return preferredAmount.roundTo(2).toString();
-  }
-
-  double get preferredPredictedAmount {
-    return canPredict ? predictedUnits : units;
-  }
-
-  String get preferredPredictedUnitString {
-    return canPredict
-        ? predictedUnits.toStringAsFixed(2).toString()
-        : units.toStringAsFixed(2).toString();
+    return unitCount == 1 ? preferredAmount.toStringAsFixed(2) : preferredAmount.toStringAsFixed(0);
   }
 
   Duration get timeSinceLastUpdate {
@@ -136,5 +118,17 @@ class Inventory {
   set units(double value) {
     assert(unitCount != 0);
     amount = value / unitCount;
+  }
+
+  double get usageSpeedDays {
+    return history.best.regressor.hasSlope
+        ? (1 / history.best.regressor.slope.abs()) / 1000 / 60 / 60 / 24
+        : 0;
+  }
+
+  double get usageSpeedMinutes {
+    return history.best.regressor.hasSlope
+        ? (1 / history.best.regressor.slope.abs()) / 1000 / 60
+        : 0;
   }
 }
