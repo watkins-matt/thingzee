@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:thingzee/pages/inventory/item_list_tile.dart';
 import 'package:thingzee/pages/inventory/state/inventory_view.dart';
+import 'package:thingzee/pages/inventory/widget/item_list_tile.dart';
 
 class InventoryViewWidget extends ConsumerWidget {
   const InventoryViewWidget({Key? key}) : super(key: key);
