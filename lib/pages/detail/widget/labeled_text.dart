@@ -40,11 +40,14 @@ class LabeledText extends StatelessWidget {
         ),
         Expanded(
           flex: 3,
-          child: Text(
-            value,
-            textScaleFactor: textScaleFactor,
-            style: valueTextStyle,
-            textAlign: valueTextAlign,
+          child: Padding(
+            padding: const EdgeInsets.all(4),
+            child: Text(
+              value,
+              textScaleFactor: textScaleFactor,
+              style: valueTextStyle,
+              textAlign: valueTextAlign,
+            ),
           ),
         ),
       ],
