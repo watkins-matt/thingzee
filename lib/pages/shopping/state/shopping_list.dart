@@ -17,18 +17,6 @@ class ShoppingList extends StateNotifier<ShoppingListState> {
     _populateList();
   }
 
-  void _populateList() {
-    List<JoinedItem> outs = db.outs();
-    List<JoinedItem> predictedOuts = db.predictedOuts(repo.hist);
-
-    outs.addAll(predictedOuts);
-    outs.sort();
-
-    state = state.copyWith(
-      items: outs,
-    );
-  }
-
   void check(int index, bool value) {
     final items = state.items;
     assert(index < items.length);
@@ -42,9 +30,8 @@ class ShoppingList extends StateNotifier<ShoppingListState> {
       checked.remove(item.upc);
     }
 
-    state = state.copyWith(
-      checked: checked,
-    );
+    sortItems(items);
+    state = state.copyWith(items: items, checked: checked);
   }
 
   bool isChecked(int index) {
@@ -72,6 +59,31 @@ class ShoppingList extends StateNotifier<ShoppingListState> {
     state = state.copyWith(
       items: items,
       checked: checked,
+    );
+  }
+
+  void sortItems(List<JoinedItem> items) {
+    items.sort((a, b) {
+      if (state.checked.contains(a.item.upc) == state.checked.contains(b.item.upc)) {
+        return a.item.name.compareTo(b.item.name);
+      }
+      if (state.checked.contains(a.item.upc)) {
+        return 1;
+      } else {
+        return -1;
+      }
+    });
+  }
+
+  void _populateList() {
+    List<JoinedItem> outs = db.outs();
+    List<JoinedItem> predictedOuts = db.predictedOuts(repo.hist);
+
+    outs.addAll(predictedOuts);
+    sortItems(outs);
+
+    state = state.copyWith(
+      items: outs,
     );
   }
 }
