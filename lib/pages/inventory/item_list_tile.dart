@@ -61,7 +61,7 @@ class ItemListTile extends ConsumerWidget {
                     textAlign: TextAlign.right,
                     textScaleFactor: 1.5,
                     style: TextStyle(
-                        color: inventory.preferredAmount > 0.5 ? Colors.green : Colors.red),
+                        color: inventory.predictedAmount > 0.5 ? Colors.green : Colors.red),
                   ),
                 ),
               ),
