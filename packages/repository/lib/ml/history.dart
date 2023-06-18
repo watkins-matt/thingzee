@@ -2,6 +2,7 @@ import 'package:json_annotation/json_annotation.dart';
 import 'package:repository/ml/evaluator.dart';
 import 'package:repository/ml/history_series.dart';
 import 'package:repository/ml/observation.dart';
+import 'package:repository/ml/regressor.dart';
 
 part 'history.g.dart';
 
@@ -14,12 +15,12 @@ class History {
 
   factory History.fromJson(Map<String, dynamic> json) => _$HistoryFromJson(json);
 
-  HistorySeries get best {
-    return canPredict ? current : previous;
+  bool get canPredict {
+    return regressor.hasXIntercept;
   }
 
-  bool get canPredict {
-    return current.regressor.hasXIntercept || previous.regressor.hasXIntercept;
+  Regressor get regressor {
+    return evaluator.best;
   }
 
   HistorySeries get current {
@@ -33,7 +34,7 @@ class History {
   }
 
   int get predictedOutageTimestamp {
-    return best.regressor.xIntercept;
+    return regressor.xIntercept;
   }
 
   HistorySeries get previous {

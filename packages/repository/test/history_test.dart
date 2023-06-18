@@ -19,10 +19,8 @@ void main() {
     });
 
     test('Regression of two points should match expected values.', () async {
-      History history = History();
-      history.add(1640995200000, 10, 2);
-      history.add(1641081600000, 6, 2);
-      TwoPointLinearRegressor regressor = history.current.regressor as TwoPointLinearRegressor;
+      TwoPointLinearRegressor regressor =
+          TwoPointLinearRegressor.fromPoints(1640995200000, 10, 1641081600000, 6);
 
       expect(regressor.yIntercept, closeTo(75982, 1e-5));
       expect(regressor.slope, closeTo(-4.62963e-8, 1e-13));
@@ -34,7 +32,7 @@ void main() {
       history.add(3 * 86400000, 3, 2); // Day 3
       history.add(5 * 86400000, 2, 2); // Day 5
 
-      var regressor = history.current.regressor;
+      var regressor = history.regressor;
       var predictedAmounts =
           history.current.observations.map((o) => regressor.predict(o.timestamp.toInt())).toList();
 

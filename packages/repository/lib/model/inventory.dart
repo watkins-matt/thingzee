@@ -121,14 +121,12 @@ class Inventory {
   }
 
   double get usageSpeedDays {
-    return history.best.regressor.hasSlope
-        ? (1 / history.best.regressor.slope.abs()) / 1000 / 60 / 60 / 24
+    return history.regressor.hasSlope
+        ? (1 / history.regressor.slope.abs()) / 1000 / 60 / 60 / 24
         : 0;
   }
 
   double get usageSpeedMinutes {
-    return history.best.regressor.hasSlope
-        ? (1 / history.best.regressor.slope.abs()) / 1000 / 60
-        : 0;
+    return history.regressor.hasSlope ? (1 / history.regressor.slope.abs()) / 1000 / 60 : 0;
   }
 }
