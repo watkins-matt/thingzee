@@ -8,11 +8,11 @@ part of 'history.dart';
 
 History _$HistoryFromJson(Map<String, dynamic> json) => History()
   ..upc = json['upc'] as String
-  ..series = (json['series'] as List<dynamic>)
+  ..allSeries = (json['series'] as List<dynamic>)
       .map((e) => HistorySeries.fromJson(e as Map<String, dynamic>))
       .toList();
 
 Map<String, dynamic> _$HistoryToJson(History instance) => <String, dynamic>{
       'upc': instance.upc,
-      'series': instance.series.map((e) => e.toJson()).toList(),
+      'series': instance.allSeries.map((e) => e.toJson()).toList(),
     };

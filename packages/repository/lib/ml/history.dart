@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:repository/ml/evaluator.dart';
 import 'package:repository/ml/history_series.dart';
 import 'package:repository/ml/observation.dart';
 
@@ -7,11 +8,11 @@ part 'history.g.dart';
 @JsonSerializable(explicitToJson: true)
 class History {
   String upc = '';
-  List<HistorySeries> series = [];
+  List<HistorySeries> allSeries = [];
+  Evaluator evaluator = Evaluator();
   History();
 
   factory History.fromJson(Map<String, dynamic> json) => _$HistoryFromJson(json);
-  Map<String, dynamic> toJson() => _$HistoryToJson(this);
 
   HistorySeries get best {
     return canPredict ? current : previous;
@@ -22,13 +23,13 @@ class History {
   }
 
   HistorySeries get current {
-    if (series.isEmpty) {
-      series.add(HistorySeries());
+    if (allSeries.isEmpty) {
+      allSeries.add(HistorySeries());
     }
 
     // There will always be at least one series
     // because we created it above if it doesn't exist
-    return series.last;
+    return allSeries.last;
   }
 
   int get predictedOutageTimestamp {
@@ -36,11 +37,11 @@ class History {
   }
 
   HistorySeries get previous {
-    return series.length > 1 ? series[series.length - 2] : current;
+    return allSeries.length > 1 ? allSeries[allSeries.length - 2] : current;
   }
 
   int get totalPoints {
-    return series.fold(0, (sum, s) => sum + s.observations.length);
+    return allSeries.fold(0, (sum, s) => sum + s.observations.length);
   }
 
   /// Adds a new data point to the history series.
@@ -78,8 +79,8 @@ class History {
     );
 
     // If the series is empty, start a new series
-    if (series.isEmpty) {
-      series.add(HistorySeries());
+    if (allSeries.isEmpty) {
+      allSeries.add(HistorySeries());
     }
 
     // Check if current.observations is empty. If so, we only need
@@ -119,7 +120,7 @@ class History {
         }
 
         // Start a new series
-        series.add(HistorySeries());
+        allSeries.add(HistorySeries());
         current.observations.add(observation);
       }
 
@@ -140,13 +141,16 @@ class History {
         }
       }
     }
+
+    evaluator.assess(observation);
+    evaluator.train(this);
   }
 
   // Remove any invalid observations from the history
   // (This means any series where there is only a 0 value,
   // or the timestamp is 0)
   History clean() {
-    for (final s in series) {
+    for (final s in allSeries) {
       // There was only one observation with amount 0, so remove it
       if (s.observations.length == 1 && s.observations.first.amount == 0) {
         s.observations.clear();
@@ -161,14 +165,31 @@ class History {
     return this;
   }
 
-  double predict(int timestamp) {
-    // Note that if this series is empty, it will predict based on the last series
-    return best.regressor.predict(timestamp);
+  List<Observation> getNormalizedObservations() {
+    return allSeries.expand((s) {
+      double initialTimestamp = s.observations[0].timestamp;
+      double initialAmount = s.observations[0].amount;
+      return s.observations.map((o) => Observation(
+            timestamp: o.timestamp - initialTimestamp,
+            amount: o.amount / initialAmount,
+            householdCount: o.householdCount,
+          ));
+    }).toList();
   }
+
+  double predict(int timestamp) {
+    if (!evaluator.trained) {
+      evaluator.train(this);
+    }
+
+    return evaluator.predict(timestamp);
+  }
+
+  Map<String, dynamic> toJson() => _$HistoryToJson(this);
 
   // Remove any empty series values in the history
   History trim() {
-    series.removeWhere((s) => s.observations.isEmpty);
+    allSeries.removeWhere((s) => s.observations.isEmpty);
     return this;
   }
 }

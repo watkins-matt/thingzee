@@ -17,6 +17,9 @@ class EmptyRegressor implements Regressor {
   double get slope => 0;
 
   @override
+  String get type => 'Empty';
+
+  @override
   int get xIntercept => 0;
 
   @override
@@ -50,6 +53,9 @@ class HoltLinearRegressor extends Regressor {
     // Return the final calculated trend as the slope.
     return result.trend;
   }
+
+  @override
+  String get type => 'Holt';
 
   @override
   int get xIntercept {
@@ -108,6 +114,9 @@ class MLLinearRegressor implements Regressor {
 
   @override
   double get slope => 0;
+
+  @override
+  String get type => 'MLLinear';
 
   @override
   int get xIntercept {
@@ -220,6 +229,9 @@ class NaiveRegressor implements Regressor {
   }
 
   @override
+  String get type => 'Naive';
+
+  @override
   int get xIntercept {
     // Calculate the time difference between the last two timestamps
     int dt = (data.last.key - data[data.length - 2].key) ~/ unitDuration;
@@ -257,6 +269,7 @@ abstract class Regressor {
   bool get hasSlope;
   bool get hasXIntercept;
   double get slope;
+  String get type;
   int get xIntercept;
   double predict(int x);
 }
@@ -300,6 +313,9 @@ class ShiftedInterceptLinearRegressor implements Regressor {
 
   @override
   double get slope => _slope;
+
+  @override
+  String get type => 'ShiftedIntercept';
 
   @override
   int get xIntercept {
@@ -347,6 +363,9 @@ class SimpleLinearRegressor implements Regressor {
   double get slope => _slope;
 
   @override
+  String get type => 'Simple';
+
+  @override
   int get xIntercept {
     return (-_intercept / _slope).round();
   }
@@ -371,6 +390,9 @@ class SimpleOLSRegressor implements Regressor {
 
   @override
   double get slope => 0;
+
+  @override
+  String get type => 'Ols';
 
   @override
   int get xIntercept => 0;
@@ -409,6 +431,9 @@ class SingleDataPointLinearRegressor implements Regressor {
   double get slope => 0;
 
   @override
+  String get type => 'SinglePoint';
+
+  @override
   int get xIntercept => 0;
 
   @override
@@ -422,10 +447,10 @@ class TwoPointLinearRegressor implements Regressor {
   final double _intercept;
 
   TwoPointLinearRegressor(this._slope, this._intercept);
+
   TwoPointLinearRegressor.fromPoints(int x1, double y1, int x2, double y2)
       : _slope = (y2 - y1) / (x2 - x1),
         _intercept = y1 - (y2 - y1) / (x2 - x1) * x1;
-
   @override
   bool get hasSlope => true;
 
@@ -434,6 +459,9 @@ class TwoPointLinearRegressor implements Regressor {
 
   @override
   double get slope => _slope;
+
+  @override
+  String get type => 'TwoPoint';
 
   @override
   int get xIntercept {
@@ -489,6 +517,9 @@ class WeightedLeastSquaresLinearRegressor implements Regressor {
 
   @override
   double get slope => _slope;
+
+  @override
+  String get type => 'Wls';
 
   @override
   int get xIntercept {

@@ -69,7 +69,7 @@ class EditableItem extends StateNotifier<EditableItemState> {
 
   List<MapEntry<int, double>> get allHistoryEntries {
     final entries = <MapEntry<int, double>>[];
-    for (final eachSeries in state.inventory.history.series) {
+    for (final eachSeries in state.inventory.history.allSeries) {
       final allEntries =
           eachSeries.observations.map((o) => MapEntry(o.timestamp.toInt(), o.amount)).toList();
       allEntries.sort((a, b) => a.key.compareTo(b.key));

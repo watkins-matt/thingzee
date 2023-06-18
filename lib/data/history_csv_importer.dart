@@ -54,7 +54,7 @@ class HistoryCsvImporter {
 
         // Add the series to the history object
         for (final id in seriesIds) {
-          upcHistoryMap[upc]?.series.add(upcSeriesIdMap[upc]![id]!);
+          upcHistoryMap[upc]?.allSeries.add(upcSeriesIdMap[upc]![id]!);
         }
       }
 
