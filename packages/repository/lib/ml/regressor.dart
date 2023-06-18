@@ -2,7 +2,8 @@ import 'package:ml_algo/ml_algo.dart';
 import 'package:ml_dataframe/ml_dataframe.dart';
 import 'package:ml_linalg/matrix.dart';
 import 'package:ml_linalg/vector.dart';
-import 'package:repository/ml/normalizer.dart';
+import 'package:repository/ml/normalizer_df.dart';
+import 'package:repository/ml/normalizer_map.dart';
 import 'package:repository/ml/observation.dart';
 import 'package:repository/ml/ols_regressor.dart';
 
@@ -102,7 +103,7 @@ class HoltLinearRegressor extends Regressor {
 
 class MLLinearRegressor implements Regressor {
   final LinearRegressor regressor;
-  final Normalizer normalizer;
+  final DataFrameNormalizer normalizer;
 
   MLLinearRegressor(this.regressor, this.normalizer);
 
@@ -376,9 +377,37 @@ class SimpleLinearRegressor implements Regressor {
   }
 }
 
+class NormalizedRegressor implements Regressor {
+  MapNormalizer normalizer;
+  Regressor regressor;
+
+  NormalizedRegressor(this.normalizer, this.regressor);
+
+  @override
+  bool get hasSlope => regressor.hasSlope;
+
+  @override
+  bool get hasXIntercept => regressor.hasXIntercept;
+
+  @override
+  double get slope => regressor.slope;
+
+  @override
+  String get type => regressor.type;
+
+  @override
+  int get xIntercept => regressor.xIntercept;
+
+  @override
+  double predict(int x) {
+    var normalizedPrediction = regressor.predict(x);
+    return normalizer.denormalizeAmount(normalizedPrediction);
+  }
+}
+
 class SimpleOLSRegressor implements Regressor {
   final OLSRegressor regressor;
-  final Normalizer normalizer;
+  final DataFrameNormalizer normalizer;
 
   SimpleOLSRegressor(this.regressor, this.normalizer);
 

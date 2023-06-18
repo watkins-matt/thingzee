@@ -1,6 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:repository/ml/date_time.dart';
-import 'package:repository/ml/normalizer.dart';
+import 'package:repository/ml/normalizer_df.dart';
 
 part 'observation.g.dart';
 
@@ -58,7 +58,7 @@ class Observation {
     ];
   }
 
-  List<double> normalize(Normalizer normalizer) {
+  List<double> normalize(DataFrameNormalizer normalizer) {
     return [
       normalizer.normalizeValue('timestamp', timestamp),
       amount,

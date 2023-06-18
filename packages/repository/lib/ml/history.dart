@@ -16,6 +16,7 @@ class History {
   }
 
   factory History.fromJson(Map<String, dynamic> json) => _$HistoryFromJson(json);
+  Map<String, dynamic> toJson() => _$HistoryToJson(this);
 
   bool get canPredict {
     return regressor.hasXIntercept;
@@ -168,7 +169,7 @@ class History {
     return this;
   }
 
-  List<Observation> getNormalizedObservations() {
+  List<Observation> get normalizedObservations {
     return allSeries.expand((s) {
       double initialTimestamp = s.observations[0].timestamp;
       double initialAmount = s.observations[0].amount;
@@ -187,8 +188,6 @@ class History {
 
     return evaluator.predict(timestamp);
   }
-
-  Map<String, dynamic> toJson() => _$HistoryToJson(this);
 
   // Remove any empty series values in the history
   History trim() {

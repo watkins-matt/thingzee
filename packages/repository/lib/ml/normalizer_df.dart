@@ -1,12 +1,12 @@
 import 'package:ml_dataframe/ml_dataframe.dart';
 
-class Normalizer {
+class DataFrameNormalizer {
   DataFrame df;
   String target;
   late Map<String, double> minValues;
   late Map<String, double> maxValues;
 
-  Normalizer(this.df, this.target) {
+  DataFrameNormalizer(this.df, this.target) {
     minValues = {};
     maxValues = {};
 

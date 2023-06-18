@@ -1,10 +1,10 @@
+import 'package:repository/ml/history.dart';
 import 'package:repository/ml/history_series.dart';
-import 'package:repository/ml/normalizer.dart';
+import 'package:repository/ml/normalizer_df.dart';
+import 'package:repository/ml/normalizer_map.dart';
 import 'package:repository/ml/observation.dart';
 import 'package:repository/ml/ols_regressor.dart';
 import 'package:repository/ml/regressor.dart';
-
-import 'history.dart';
 
 class Evaluator {
   Map<String, Regressor> regressors = {};
@@ -65,71 +65,81 @@ class Evaluator {
       throw Exception('Evaluator has not been trained. Train before predicting.');
     }
 
+    print(allPredictions(timestamp));
+
     return best.predict(timestamp);
   }
 
   void train(History history) {
-    if (history.allSeries.isEmpty || history.allSeries.last.observations.isEmpty) {
+    if (history.allSeries.isEmpty) {
       return;
     }
 
-    int seriesId = history.allSeries.length - 1;
-    final series = history.allSeries.last;
-    final regressorList = _generateRegressors(series);
+    int seriesId = 0;
+    for (final series in history.allSeries) {
+      var regressorList = _generateRegressors(series);
 
-    // Add the regressors to the map
-    for (final regressor in regressorList) {
-      regressors['${regressor.type}-$seriesId'] = regressor;
+      for (final regressor in regressorList) {
+        regressors['${regressor.type}-$seriesId'] = regressor;
+
+        if (regressor.type != 'Empty' && regressor.type != 'SinglePoint') {
+          _best = regressor;
+        }
+      }
+
+      seriesId++;
     }
 
-    // We haven't initialized the best regressor yet
-    if (!_trained) {
-      _trained = true;
-      _best = regressors['$defaultType-$seriesId'] ?? regressorList.last;
+    _trained = true;
+  }
+
+  List<Regressor> _generateRegressors(HistorySeries series) {
+    List<Regressor> regressors = [];
+
+    switch (series.observations.length) {
+      case 0:
+      case 1:
+        return [];
+      case 2:
+        var x1 = series.observations[0].timestamp.toInt();
+        var y1 = series.observations[0].amount;
+        var x2 = series.observations[1].timestamp.toInt();
+        var y2 = series.observations[1].amount;
+        return [TwoPointLinearRegressor.fromPoints(x1, y1, x2, y2)];
+      default:
+        final points = series.toPoints();
+        MapNormalizer normalizer = MapNormalizer(points);
+
+        final simple = SimpleLinearRegressor(points);
+        final naive = NaiveRegressor.fromMap(points);
+        final holt = HoltLinearRegressor.fromMap(points, .85, .75);
+        final shifted = ShiftedInterceptLinearRegressor(points);
+        final weighted = WeightedLeastSquaresLinearRegressor(points);
+
+        regressors.add(NormalizedRegressor(normalizer, simple));
+        regressors.add(NormalizedRegressor(normalizer, naive));
+        regressors.add(NormalizedRegressor(normalizer, holt));
+        regressors.add(NormalizedRegressor(normalizer, shifted));
+        regressors.add(NormalizedRegressor(normalizer, weighted));
+
+        final dataFrame = series.toDataFrame();
+        final dataFrameNormalizer = DataFrameNormalizer(dataFrame, 'amount');
+
+        // Using the OLS Model
+        final olsRegressor = OLSRegressor();
+        olsRegressor.fit(dataFrameNormalizer.dataFrame, 'amount');
+        regressors.add(SimpleOLSRegressor(olsRegressor, dataFrameNormalizer));
+
+      // Using the SGD Model
+      // final regressor = LinearRegressor.SGD(normalizer.dataFrame, 'amount',
+      //     fitIntercept: true,
+      //     interceptScale: .25,
+      //     iterationLimit: 5000,
+      //     initialLearningRate: 1,
+      //     learningRateType: LearningRateType.constant);
+      // return MLLinearRegressor(regressor, normalizer);
     }
+
+    return regressors;
   }
-}
-
-List<Regressor> _generateRegressors(HistorySeries series) {
-  List<Regressor> regressors = [];
-
-  switch (series.observations.length) {
-    case 0:
-      return [EmptyRegressor()];
-    case 1:
-      return [SingleDataPointLinearRegressor(series.observations[0].amount)];
-    case 2:
-      var x1 = series.observations[0].timestamp.toInt();
-      var y1 = series.observations[0].amount;
-      var x2 = series.observations[1].timestamp.toInt();
-      var y2 = series.observations[1].amount;
-      return [TwoPointLinearRegressor.fromPoints(x1, y1, x2, y2)];
-    default:
-      final points = series.toPoints();
-
-      regressors.add(SimpleLinearRegressor(points));
-      regressors.add(NaiveRegressor.fromMap(points));
-      regressors.add(HoltLinearRegressor.fromMap(points, .85, .75));
-      regressors.add(ShiftedInterceptLinearRegressor(points));
-      regressors.add(WeightedLeastSquaresLinearRegressor(points));
-
-      final dataFrame = series.toDataFrame();
-      final normalizer = Normalizer(dataFrame, 'amount');
-
-      // Using the OLS Model
-      final olsRegressor = OLSRegressor();
-      olsRegressor.fit(normalizer.dataFrame, 'amount');
-      regressors.add(SimpleOLSRegressor(olsRegressor, normalizer));
-
-    // Using the SGD Model
-    // final regressor = LinearRegressor.SGD(normalizer.dataFrame, 'amount',
-    //     fitIntercept: true,
-    //     interceptScale: .25,
-    //     iterationLimit: 5000,
-    //     initialLearningRate: 1,
-    //     learningRateType: LearningRateType.constant);
-    // return MLLinearRegressor(regressor, normalizer);
-  }
-
-  return regressors;
 }
