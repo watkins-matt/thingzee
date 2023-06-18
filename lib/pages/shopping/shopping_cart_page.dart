@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:thingzee/pages/detail/item_detail_page.dart';
 import 'package:thingzee/pages/shopping/confirmation_dialog.dart';
-import 'package:thingzee/pages/shopping/price_entry_dialog.dart';
 import 'package:thingzee/pages/shopping/state/shopping_cart.dart';
-import 'package:thingzee/pages/shopping/state/shopping_list.dart';
+import 'package:thingzee/pages/shopping/widget/shopping_cart_list_tile.dart';
 
 class ShoppingCartPage extends ConsumerWidget {
   const ShoppingCartPage({Key? key}) : super(key: key);
@@ -18,9 +16,6 @@ class ShoppingCartPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final sc = ref.watch(shoppingCartProvider);
-    final sl = ref.watch(shoppingListProvider);
-
     return Scaffold(
       appBar: AppBar(
         actions: [
@@ -38,45 +33,16 @@ class ShoppingCartPage extends ConsumerWidget {
       body: Column(
         children: [
           Expanded(
-            child: ListView.builder(
-              itemBuilder: (context, index) => shoppingCartItemBuilder(context, ref, index, sc, sl),
-              itemCount: sc.items.length,
+            child: ListView.separated(
+              itemBuilder: (context, index) {
+                final item = ref.watch(shoppingCartProvider).items[index];
+                return ShoppingCartListTile(joinedItem: item, index: index);
+              },
+              separatorBuilder: (context, index) => const Divider(height: 1, color: Colors.grey),
+              itemCount: ref.watch(shoppingCartProvider).items.length,
             ),
-          )
+          ),
         ],
-      ),
-    );
-  }
-
-  Widget shoppingCartItemBuilder(
-      BuildContext context, WidgetRef ref, int index, ShoppingCartState sc, ShoppingListState sl) {
-    final joinedItem = sc.items[index];
-    final item = joinedItem.item;
-    final inventory = joinedItem.inventory;
-
-    return InkWell(
-      onLongPress: () async {
-        await ItemDetailPage.push(context, ref, item, inventory);
-      },
-      child: Dismissible(
-        key: UniqueKey(),
-        background: Container(color: Colors.red),
-        dismissThresholds: const {
-          DismissDirection.endToStart: 0.9,
-          DismissDirection.startToEnd: 0.9,
-        },
-        onDismissed: (_) {
-          ref.read(shoppingCartProvider.notifier).removeAt(index);
-          ref.read(shoppingListProvider.notifier).check(sl.items.indexOf(joinedItem), false);
-        },
-        child: ListTile(
-            title: Text(
-              item.name,
-            ),
-            trailing: ElevatedButton(
-              onPressed: () async => await PriceEntryDialog.show(context),
-              child: const Text('Enter Price'),
-            )),
       ),
     );
   }
