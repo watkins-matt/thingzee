@@ -65,8 +65,6 @@ class Evaluator {
       throw Exception('Evaluator has not been trained. Train before predicting.');
     }
 
-    print(allPredictions(timestamp));
-
     return best.predict(timestamp);
   }
 
