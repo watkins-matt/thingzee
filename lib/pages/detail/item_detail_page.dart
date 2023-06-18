@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:repository/model/inventory.dart';
@@ -302,6 +303,9 @@ class ItemDetailPage extends HookConsumerWidget {
                             decoration: const InputDecoration(border: InputBorder.none),
                             textAlign: TextAlign.center,
                             controller: amountController,
+                            inputFormatters: <TextInputFormatter>[
+                              FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
+                            ],
                             onChanged: (value) {
                               double? doubleValue = double.tryParse(value);
                               if (doubleValue != null) {
@@ -310,8 +314,6 @@ class ItemDetailPage extends HookConsumerWidget {
                                 final editableItem = ref.read(editableItemProvider.notifier);
                                 totalUnitController.text =
                                     editableItem.totalUnitCount.toStringNoZero(2);
-                              } else {
-                                // TODO: Show validation error
                               }
                             },
                             keyboardType: const TextInputType.numberWithOptions(decimal: true),
@@ -331,11 +333,14 @@ class ItemDetailPage extends HookConsumerWidget {
                           TextField(
                               decoration: const InputDecoration(border: InputBorder.none),
                               textAlign: TextAlign.center,
+                              inputFormatters: <TextInputFormatter>[
+                                FilteringTextInputFormatter.allow(RegExp(r'^\d*')),
+                              ],
                               controller: unitController,
                               keyboardType: TextInputType.number,
                               onChanged: (value) {
                                 int? intValue = int.tryParse(value);
-                                if (intValue != null) {
+                                if (intValue != null && intValue > 0) {
                                   // Update the unit count
                                   ref.read(editableItemProvider.notifier).unitCount = intValue;
 
@@ -343,8 +348,6 @@ class ItemDetailPage extends HookConsumerWidget {
                                   final editableItem = ref.read(editableItemProvider.notifier);
                                   totalUnitController.text =
                                       editableItem.totalUnitCount.toStringNoZero(2);
-                                } else {
-                                  // TODO: Validation error
                                 }
                               }),
                         ],
@@ -363,6 +366,9 @@ class ItemDetailPage extends HookConsumerWidget {
                             decoration: const InputDecoration(border: InputBorder.none),
                             textAlign: TextAlign.center,
                             controller: totalUnitController,
+                            inputFormatters: <TextInputFormatter>[
+                              FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
+                            ],
                             keyboardType: TextInputType.number,
                             onChanged: (value) {
                               double? totalUnitDouble = double.tryParse(value);
