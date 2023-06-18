@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class LabeledTextField extends StatelessWidget {
+class LabeledEditableText extends StatelessWidget {
   final String labelText;
   final TextInputType keyboardType;
   final TextEditingController controller;
@@ -8,7 +8,7 @@ class LabeledTextField extends StatelessWidget {
   static const int maxLines = 1;
   static const int minLines = 1;
 
-  const LabeledTextField({
+  const LabeledEditableText({
     Key? key,
     required this.labelText,
     required this.keyboardType,

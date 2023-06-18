@@ -6,7 +6,8 @@ import 'package:repository/model/item.dart';
 import 'package:stats/double.dart';
 import 'package:thingzee/app.dart';
 import 'package:thingzee/pages/detail/state/editable_item.dart';
-import 'package:thingzee/pages/detail/widget/labeled_text_field.dart';
+import 'package:thingzee/pages/detail/widget/labeled_editable_text.dart';
+import 'package:thingzee/pages/detail/widget/labeled_text.dart';
 import 'package:thingzee/pages/history/widget/history_list_view.dart';
 import 'package:thingzee/pages/inventory/state/inventory_view.dart';
 import 'package:thingzee/pages/inventory/state/item_thumbnail_cache.dart';
@@ -175,7 +176,7 @@ class ItemDetailPage extends HookConsumerWidget {
                 ),
                 Column(
                   children: [
-                    LabeledTextField(
+                    LabeledEditableText(
                       labelText: 'UPC',
                       keyboardType: TextInputType.number,
                       controller: upcController,
@@ -184,33 +185,9 @@ class ItemDetailPage extends HookConsumerWidget {
                       },
                     ),
                     const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        const Expanded(
-                          flex: 2,
-                          child: Padding(
-                            padding: EdgeInsets.all(4),
-                            child: Align(
-                              alignment: Alignment.centerRight,
-                              child: Text(
-                                'Last Updated',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          flex: 3,
-                          child: Text(
-                            ref.read(editableItemProvider).inventory.timeSinceLastUpdateString,
-                            textScaleFactor: 0.9,
-                            style: const TextStyle(fontStyle: FontStyle.italic, color: Colors.blue),
-                          ),
-                        ),
-                      ],
+                    LabeledText(
+                      labelText: 'Last Updated',
+                      value: ref.read(editableItemProvider).inventory.timeSinceLastUpdateString,
                     ),
                   ],
                 ),
