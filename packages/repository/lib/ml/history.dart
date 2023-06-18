@@ -10,8 +10,10 @@ part 'history.g.dart';
 class History {
   String upc = '';
   List<HistorySeries> allSeries = [];
-  Evaluator evaluator = Evaluator();
-  History();
+  late Evaluator evaluator;
+  History() {
+    evaluator = Evaluator(this);
+  }
 
   factory History.fromJson(Map<String, dynamic> json) => _$HistoryFromJson(json);
 

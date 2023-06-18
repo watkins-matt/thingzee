@@ -8,9 +8,12 @@ import 'history.dart';
 
 class Evaluator {
   Map<String, Regressor> regressors = {};
-  late Regressor best;
+  Regressor _best = EmptyRegressor();
   bool _trained = false;
   final String defaultType = 'Simple';
+  final History history;
+
+  Evaluator(this.history);
 
   bool get trained => _trained;
 
@@ -30,6 +33,13 @@ class Evaluator {
     return predictions;
   }
 
+  Regressor get best {
+    if (!_trained) {
+      train(history);
+    }
+    return _best;
+  }
+
   void assess(Observation observation) {
     if (!_trained) {
       throw Exception('Evaluator has not been trained. Train before assessing.');
@@ -45,7 +55,7 @@ class Evaluator {
 
       if (distance < minimumDistance) {
         minimumDistance = distance;
-        best = regressor;
+        _best = regressor;
       }
     }
   }
@@ -59,6 +69,10 @@ class Evaluator {
   }
 
   void train(History history) {
+    if (history.allSeries.isEmpty || history.allSeries.last.observations.isEmpty) {
+      return;
+    }
+
     int seriesId = history.allSeries.length - 1;
     final series = history.allSeries.last;
     final regressorList = _generateRegressors(series);
@@ -71,7 +85,7 @@ class Evaluator {
     // We haven't initialized the best regressor yet
     if (!_trained) {
       _trained = true;
-      best = regressors['$defaultType-$seriesId'] ?? regressorList.last;
+      _best = regressors['$defaultType-$seriesId'] ?? regressorList.last;
     }
   }
 }
