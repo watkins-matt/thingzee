@@ -4,8 +4,8 @@ import 'package:material_floating_search_bar_2/material_floating_search_bar_2.da
 import 'package:thingzee/icon_library.dart';
 import 'package:thingzee/pages/barcode/barcode_scanner_page.dart';
 import 'package:thingzee/pages/inventory/filter_dialog.dart';
-import 'package:thingzee/pages/inventory/inventory_view_widget.dart';
 import 'package:thingzee/pages/inventory/state/inventory_view.dart';
+import 'package:thingzee/pages/inventory/widget/inventory_view_widget.dart';
 import 'package:thingzee/pages/inventory/widget/user_profile_button.dart';
 import 'package:thingzee/pages/settings/settings_page.dart';
 
