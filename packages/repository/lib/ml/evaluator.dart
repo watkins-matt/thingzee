@@ -59,67 +59,63 @@ class Evaluator {
   }
 
   void train(History history) {
-    int seriesId = 0;
-    final lastSeriesId = history.allSeries.length - 1;
+    int seriesId = history.allSeries.length - 1;
+    final series = history.allSeries.last;
+    final regressorList = _generateRegressors(series);
 
-    for (final series in history.allSeries) {
-      final regressorList = _generateRegressors(series);
-
-      // Add the regressors to the map
-      for (final regressor in regressorList) {
-        regressors['${regressor.type}-$seriesId'] = regressor;
-      }
-
-      // We haven't initialized the best regressor yet
-      if (!_trained && seriesId == lastSeriesId) {
-        _trained = true;
-        best = regressors['$defaultType-$seriesId'] ?? regressorList.last;
-      }
-
-      seriesId++;
-    }
-  }
-
-  List<Regressor> _generateRegressors(HistorySeries series) {
-    List<Regressor> regressors = [];
-
-    switch (series.observations.length) {
-      case 0:
-      case 1:
-        return regressors;
-      case 2:
-        var x1 = series.observations[0].timestamp.toInt();
-        var y1 = series.observations[0].amount;
-        var x2 = series.observations[1].timestamp.toInt();
-        var y2 = series.observations[1].amount;
-        return [TwoPointLinearRegressor.fromPoints(x1, y1, x2, y2)];
-      default:
-        final points = series.toPoints();
-
-        regressors.add(SimpleLinearRegressor(points));
-        regressors.add(NaiveRegressor.fromMap(points));
-        regressors.add(HoltLinearRegressor.fromMap(points, .85, .75));
-        regressors.add(ShiftedInterceptLinearRegressor(points));
-        regressors.add(WeightedLeastSquaresLinearRegressor(points));
-
-        final dataFrame = series.toDataFrame();
-        final normalizer = Normalizer(dataFrame, 'amount');
-
-        // Using the OLS Model
-        final olsRegressor = OLSRegressor();
-        olsRegressor.fit(normalizer.dataFrame, 'amount');
-        regressors.add(SimpleOLSRegressor(olsRegressor, normalizer));
-
-      // Using the SGD Model
-      // final regressor = LinearRegressor.SGD(normalizer.dataFrame, 'amount',
-      //     fitIntercept: true,
-      //     interceptScale: .25,
-      //     iterationLimit: 5000,
-      //     initialLearningRate: 1,
-      //     learningRateType: LearningRateType.constant);
-      // return MLLinearRegressor(regressor, normalizer);
+    // Add the regressors to the map
+    for (final regressor in regressorList) {
+      regressors['${regressor.type}-$seriesId'] = regressor;
     }
 
-    return regressors;
+    // We haven't initialized the best regressor yet
+    if (!_trained) {
+      _trained = true;
+      best = regressors['$defaultType-$seriesId'] ?? regressorList.last;
+    }
   }
+}
+
+List<Regressor> _generateRegressors(HistorySeries series) {
+  List<Regressor> regressors = [];
+
+  switch (series.observations.length) {
+    case 0:
+      return [EmptyRegressor()];
+    case 1:
+      return [SingleDataPointLinearRegressor(series.observations[0].amount)];
+    case 2:
+      var x1 = series.observations[0].timestamp.toInt();
+      var y1 = series.observations[0].amount;
+      var x2 = series.observations[1].timestamp.toInt();
+      var y2 = series.observations[1].amount;
+      return [TwoPointLinearRegressor.fromPoints(x1, y1, x2, y2)];
+    default:
+      final points = series.toPoints();
+
+      regressors.add(SimpleLinearRegressor(points));
+      regressors.add(NaiveRegressor.fromMap(points));
+      regressors.add(HoltLinearRegressor.fromMap(points, .85, .75));
+      regressors.add(ShiftedInterceptLinearRegressor(points));
+      regressors.add(WeightedLeastSquaresLinearRegressor(points));
+
+      final dataFrame = series.toDataFrame();
+      final normalizer = Normalizer(dataFrame, 'amount');
+
+      // Using the OLS Model
+      final olsRegressor = OLSRegressor();
+      olsRegressor.fit(normalizer.dataFrame, 'amount');
+      regressors.add(SimpleOLSRegressor(olsRegressor, normalizer));
+
+    // Using the SGD Model
+    // final regressor = LinearRegressor.SGD(normalizer.dataFrame, 'amount',
+    //     fitIntercept: true,
+    //     interceptScale: .25,
+    //     iterationLimit: 5000,
+    //     initialLearningRate: 1,
+    //     learningRateType: LearningRateType.constant);
+    // return MLLinearRegressor(regressor, normalizer);
+  }
+
+  return regressors;
 }
