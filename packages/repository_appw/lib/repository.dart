@@ -1,10 +1,12 @@
 import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/models.dart';
 import 'package:repository/repository.dart';
+import 'package:repository_appw/database/item_db.dart';
 
 class AppwriteRepository extends SharedRepository {
   late Client _client;
   late Account _account;
+  late Databases _databases;
   final String appwriteEndpoint = 'https://cloud.appwrite.io/v1';
   final String projectId = 'thingzee';
   Session? _session;
@@ -18,6 +20,9 @@ class AppwriteRepository extends SharedRepository {
     _client.setEndpoint(appwriteEndpoint).setProject(projectId).setSelfSigned(status: true);
 
     _account = Account(_client);
+    _databases = Databases(_client);
+
+    items = AppwriteItemDatabase(_databases, 'production', 'items');
   }
 
   @override
