@@ -1,11 +1,13 @@
 import 'package:appwrite/appwrite.dart';
+import 'package:appwrite/models.dart';
 import 'package:repository/repository.dart';
 
 class AppwriteRepository extends SharedRepository {
   late Client _client;
   late Account _account;
   final String appwriteEndpoint = 'https://cloud.appwrite.io/v1';
-  final String projectId = 'placeholder_project_id';
+  final String projectId = 'thingzee';
+  Session? _session;
 
   AppwriteRepository() : super() {
     _init();
@@ -13,7 +15,7 @@ class AppwriteRepository extends SharedRepository {
 
   void _init() {
     _client = Client();
-    _client.setEndpoint(appwriteEndpoint).setProject(projectId);
+    _client.setEndpoint(appwriteEndpoint).setProject(projectId).setSelfSigned(status: true);
 
     _account = Account(_client);
   }
@@ -32,7 +34,14 @@ class AppwriteRepository extends SharedRepository {
 
   @override
   Future<void> loginUser(String username, String password) async {
-    // Unimplemented
-    throw UnimplementedError();
+    try {
+      _session = await _account.createEmailSession(email: username, password: password);
+    } catch (e) {
+      throw Exception('Failed to login user: $e');
+    }
   }
+
+  @override
+  bool get loggedIn =>
+      _session != null && DateTime.now().isBefore(DateTime.parse(_session!.expire));
 }
