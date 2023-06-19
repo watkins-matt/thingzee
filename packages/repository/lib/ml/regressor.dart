@@ -108,13 +108,21 @@ class MLLinearRegressor implements Regressor {
   MLLinearRegressor(this.regressor, this.normalizer);
 
   @override
-  bool get hasSlope => false;
+  bool get hasSlope => true;
 
   @override
   bool get hasXIntercept => true;
 
   @override
-  double get slope => 0;
+  double get slope {
+    // Note that the dataframe should be normalized, so predict 0
+    // will return the y-intercept
+    double yIntercept = predict(0);
+    double xIntercept = this.xIntercept.toDouble();
+
+    // calculate slope using (y2 - y1) / (x2 - x1)
+    return (yIntercept - 0) / (xIntercept - 0);
+  }
 
   @override
   String get type => 'MLLinear';
@@ -380,8 +388,10 @@ class SimpleLinearRegressor implements Regressor {
 class NormalizedRegressor implements Regressor {
   MapNormalizer normalizer;
   Regressor regressor;
+  int baseTimestamp;
 
-  NormalizedRegressor(this.normalizer, this.regressor);
+  NormalizedRegressor(this.normalizer, this.regressor) : baseTimestamp = normalizer.minTime;
+  NormalizedRegressor.withBase(this.normalizer, this.regressor, this.baseTimestamp);
 
   @override
   bool get hasSlope => regressor.hasSlope;
@@ -400,7 +410,8 @@ class NormalizedRegressor implements Regressor {
 
   @override
   double predict(int x) {
-    var normalizedPrediction = regressor.predict(x);
+    var normalizedX = x - baseTimestamp;
+    var normalizedPrediction = regressor.predict(normalizedX);
     return normalizer.denormalizeAmount(normalizedPrediction);
   }
 }
@@ -412,19 +423,91 @@ class SimpleOLSRegressor implements Regressor {
   SimpleOLSRegressor(this.regressor, this.normalizer);
 
   @override
-  bool get hasSlope => false;
+  bool get hasSlope => true;
 
   @override
-  bool get hasXIntercept => false;
+  bool get hasXIntercept => true;
 
   @override
-  double get slope => 0;
+  double get slope {
+    // Note that the dataframe should be normalized, so predict 0
+    // will return the y-intercept
+    double yIntercept = predict(0);
+    double xIntercept = this.xIntercept.toDouble();
+
+    // calculate slope using (y2 - y1) / (x2 - x1)
+    return (yIntercept - 0) / (xIntercept - 0);
+  }
 
   @override
   String get type => 'Ols';
 
   @override
-  int get xIntercept => 0;
+  int get xIntercept {
+    // Define the search window for timestamps.
+    double lowerBound = DateTime.now().millisecondsSinceEpoch.toDouble();
+    double upperBound = lowerBound + 30 * 24 * 60 * 60 * 1000; // 30 days
+
+    double predictedAmount;
+    double mid;
+
+    // Check if the upper bound is high enough
+    var observation = Observation(
+      timestamp: upperBound,
+      amount: 0,
+      householdCount: 2,
+    );
+
+    var matrix = Matrix.fromRows([Vector.fromList(observation.normalize(normalizer))]);
+    var dataframe = DataFrame.fromMatrix(matrix, header: Observation.header);
+    dataframe = dataframe.dropSeries(names: [regressor.target]);
+    predictedAmount = regressor.predict(dataframe);
+
+    // If the predicted amount at the upper bound is above zero,
+    // continuously double the upper bound until the predicted amount is below zero.
+    while (predictedAmount > 0) {
+      upperBound *= 2;
+
+      observation = Observation(
+        timestamp: upperBound,
+        amount: 0,
+        householdCount: 2,
+      );
+
+      matrix = Matrix.fromRows([Vector.fromList(observation.normalize(normalizer))]);
+      dataframe = DataFrame.fromMatrix(matrix, header: Observation.header);
+      dataframe = dataframe.dropSeries(names: [regressor.target]);
+      predictedAmount = regressor.predict(dataframe);
+    }
+
+    // Perform binary search
+    int counter = 0;
+    while ((upperBound - lowerBound).abs() > 1 && counter < 50) {
+      mid = (lowerBound + upperBound) / 2;
+
+      observation = Observation(
+        timestamp: mid,
+        amount: 0,
+        householdCount: 2,
+      );
+
+      matrix = Matrix.fromRows([Vector.fromList(observation.normalize(normalizer))]);
+      dataframe = DataFrame.fromMatrix(matrix, header: Observation.header);
+      dataframe = dataframe.dropSeries(names: [regressor.target]);
+      predictedAmount = regressor.predict(dataframe);
+
+      if (predictedAmount > 0) {
+        lowerBound = mid;
+      } else {
+        upperBound = mid;
+      }
+
+      counter++;
+    }
+
+    // Return the timestamp when amount runs out
+    return upperBound.round();
+  }
 
   @override
   double predict(int x) {

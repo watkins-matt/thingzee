@@ -1,9 +1,7 @@
 import 'package:repository/ml/history.dart';
 import 'package:repository/ml/history_series.dart';
-import 'package:repository/ml/normalizer_df.dart';
 import 'package:repository/ml/normalizer_map.dart';
 import 'package:repository/ml/observation.dart';
-import 'package:repository/ml/ols_regressor.dart';
 import 'package:repository/ml/regressor.dart';
 
 class Evaluator {
@@ -16,6 +14,38 @@ class Evaluator {
   Evaluator(this.history);
 
   bool get trained => _trained;
+
+  int get _baseTimestamp {
+    if (history.allSeries.isEmpty) {
+      return 0;
+    }
+
+    for (int i = history.allSeries.length - 1; i >= 0; i--) {
+      final series = history.allSeries[i];
+
+      if (series.observations.isNotEmpty) {
+        return series.observations.first.timestamp.toInt();
+      }
+    }
+
+    return 0;
+  }
+
+  double get _baseAmount {
+    if (history.allSeries.isEmpty) {
+      return 0;
+    }
+
+    for (int i = history.allSeries.length - 1; i >= 0; i--) {
+      final series = history.allSeries[i];
+
+      if (series.observations.isNotEmpty) {
+        return series.observations.first.amount;
+      }
+    }
+
+    return 0;
+  }
 
   Map<String, double> allPredictions(int timestamp) {
     if (!_trained) {
@@ -37,6 +67,13 @@ class Evaluator {
     if (!_trained) {
       train(history);
     }
+
+    // If there is any series with a length greater than one
+    // then the best regressor should not be an EmptyRegressor
+    if (history.allSeries.any((s) => s.observations.length > 1)) {
+      assert(_best.type != 'Empty' && _best.type != 'SinglePoint');
+    }
+
     return _best;
   }
 
@@ -65,7 +102,15 @@ class Evaluator {
       throw Exception('Evaluator has not been trained. Train before predicting.');
     }
 
-    return best.predict(timestamp);
+    // Everything is normalized except this one
+    if (best is TwoPointLinearRegressor) {
+      return best.predict(timestamp);
+    }
+
+    var normTimestamp = timestamp - _baseTimestamp;
+    var normAmount = _baseAmount;
+
+    return best.predict(normTimestamp) * normAmount;
   }
 
   void train(History history) {
@@ -105,8 +150,9 @@ class Evaluator {
         var y2 = series.observations[1].amount;
         return [TwoPointLinearRegressor.fromPoints(x1, y1, x2, y2)];
       default:
-        final points = series.toPoints();
+        var points = series.toPoints();
         MapNormalizer normalizer = MapNormalizer(points);
+        points = normalizer.dataPoints;
 
         final simple = SimpleLinearRegressor(points);
         final naive = NaiveRegressor.fromMap(points);
@@ -114,19 +160,19 @@ class Evaluator {
         final shifted = ShiftedInterceptLinearRegressor(points);
         final weighted = WeightedLeastSquaresLinearRegressor(points);
 
-        regressors.add(NormalizedRegressor(normalizer, simple));
-        regressors.add(NormalizedRegressor(normalizer, naive));
-        regressors.add(NormalizedRegressor(normalizer, holt));
-        regressors.add(NormalizedRegressor(normalizer, shifted));
-        regressors.add(NormalizedRegressor(normalizer, weighted));
+        regressors.add(simple);
+        regressors.add(naive);
+        regressors.add(holt);
+        regressors.add(shifted);
+        regressors.add(weighted);
 
-        final dataFrame = series.toDataFrame();
-        final dataFrameNormalizer = DataFrameNormalizer(dataFrame, 'amount');
+      // final dataFrame = series.toDataFrame();
+      // final dataFrameNormalizer = DataFrameNormalizer(dataFrame, 'amount');
 
-        // Using the OLS Model
-        final olsRegressor = OLSRegressor();
-        olsRegressor.fit(dataFrameNormalizer.dataFrame, 'amount');
-        regressors.add(SimpleOLSRegressor(olsRegressor, dataFrameNormalizer));
+      // Using the OLS Model
+      // final olsRegressor = OLSRegressor();
+      // olsRegressor.fit(dataFrameNormalizer.dataFrame, 'amount');
+      // regressors.add(SimpleOLSRegressor(olsRegressor, dataFrameNormalizer));
 
       // Using the SGD Model
       // final regressor = LinearRegressor.SGD(normalizer.dataFrame, 'amount',
