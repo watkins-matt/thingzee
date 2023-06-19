@@ -7,6 +7,7 @@ import 'package:thingzee/pages/inventory/filter_dialog.dart';
 import 'package:thingzee/pages/inventory/state/inventory_view.dart';
 import 'package:thingzee/pages/inventory/widget/inventory_view_widget.dart';
 import 'package:thingzee/pages/inventory/widget/user_profile_button.dart';
+import 'package:thingzee/pages/login/login_page.dart';
 import 'package:thingzee/pages/settings/settings_page.dart';
 
 class InventoryPage extends ConsumerStatefulWidget {
@@ -66,12 +67,14 @@ class _InventoryPageState extends ConsumerState<InventoryPage> {
           UserProfileButton(
             imagePath: 'assets/images/account.png',
             onSelected: (String value) async {
-              if (value == 'Settings') {
+              if (value == 'Login/Register') {
+                await LoginPage.push(context);
+              } else if (value == 'Settings') {
                 await SettingsPage.push(context);
               }
             },
             itemBuilder: (BuildContext context) {
-              return {'Manually Add Item', 'Login', 'Register', 'Settings'}.map((String choice) {
+              return {'Manually Add Item', 'Login/Register', 'Settings'}.map((String choice) {
                 return PopupMenuItem<String>(
                   value: choice,
                   child: Text(choice),

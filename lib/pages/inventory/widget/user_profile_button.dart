@@ -14,7 +14,7 @@ class UserProfileButton extends StatelessWidget {
       onSelected: onSelected,
       itemBuilder: itemBuilder,
       position: PopupMenuPosition.under,
-      offset: const Offset(0, 20),
+      offset: const Offset(-10, 0),
       elevation: 20,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       icon: CircleAvatar(
