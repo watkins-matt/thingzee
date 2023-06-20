@@ -15,6 +15,30 @@ class History {
     evaluator = Evaluator(this);
   }
 
+  Scale get scale {
+    if (allSeries.isEmpty) {
+      return Scale();
+    }
+
+    int initialXValue = 0;
+    double yScalefactor = 1;
+
+    for (int i = allSeries.length - 1; i >= 0; i--) {
+      final series = allSeries[i];
+
+      if (series.observations.isNotEmpty) {
+        final observation = series.observations.first;
+        initialXValue = observation.timestamp.toInt();
+        yScalefactor = observation.amount;
+        break;
+      }
+    }
+
+    return Scale()
+      ..initialXValue = initialXValue
+      ..yScaleFactor = yScalefactor;
+  }
+
   factory History.fromJson(Map<String, dynamic> json) => _$HistoryFromJson(json);
   Map<String, dynamic> toJson() => _$HistoryToJson(this);
 
@@ -37,7 +61,7 @@ class History {
   }
 
   int get predictedOutageTimestamp {
-    return regressor.xIntercept;
+    return scale.initialXValue + regressor.xIntercept;
   }
 
   HistorySeries get previous {

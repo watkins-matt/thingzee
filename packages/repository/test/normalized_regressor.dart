@@ -16,6 +16,7 @@ void main() {
 
       MapNormalizer normalizer = MapNormalizer(points);
       final weighted = WeightedLeastSquaresLinearRegressor(points);
+      // ignore: unused_local_variable
       const base = 1687067165106;
 
       // final regressor = NormalizedRegressor(normalizer, weighted);
