@@ -1,4 +1,5 @@
 import 'package:csv/csv.dart';
+import 'package:flutter/widgets.dart';
 import 'package:repository/repository.dart';
 import 'package:thingzee/data/item_csv_row.dart';
 
@@ -8,6 +9,13 @@ class ItemCsvImporter {
         const CsvToListConverter().convert(csvString, shouldParseNumbers: true);
 
     if (csvData.isEmpty) {
+      return false;
+    }
+
+    List<dynamic> headerRow = csvData[0];
+    bool headerRowIsValid = headerRow.every((value) => value is String);
+    if (!headerRowIsValid) {
+      debugPrint('Header row is not valid. Import failed.');
       return false;
     }
 
