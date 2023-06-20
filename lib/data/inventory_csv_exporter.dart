@@ -50,14 +50,21 @@ class InventoryCsvExporter implements CsvExporter {
 
   @override
   Future<String> export(Repository r) async {
-    List<List<dynamic>> rows = [headers];
+    List<List<dynamic>> rows = []; // Headers added at the end
     List<Inventory> allInventory = r.inv.all();
 
     for (final inventory in allInventory) {
       rows.add(inventory.toCsvList(r.items.get(inventory.upc), headers));
     }
 
+    // Important: we sort the rows by the second column (name)
+    // before we add the headers. This prevents the headers from being
+    // sorted themselves
     rows.sort((a, b) => a[1].compareTo(b[1]));
+
+    // Add the headers to the start of the list
+    rows.insert(0, headers);
+
     return const ListToCsvConverter().convert(rows);
   }
 }
