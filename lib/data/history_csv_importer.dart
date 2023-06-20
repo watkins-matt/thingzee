@@ -1,4 +1,5 @@
 import 'package:csv/csv.dart';
+import 'package:flutter/widgets.dart';
 import 'package:repository/ml/history.dart';
 import 'package:repository/ml/history_series.dart';
 import 'package:repository/repository.dart';
@@ -12,6 +13,13 @@ class HistoryCsvImporter {
     Map<String, Map<int, HistorySeries>> upcSeriesIdMap = {};
 
     if (csvData.isEmpty) {
+      return false;
+    }
+
+    List<dynamic> headerRow = csvData[0];
+    bool headerRowIsValid = headerRow.every((value) => value is String);
+    if (!headerRowIsValid) {
+      debugPrint('Header row is not valid. Import failed.');
       return false;
     }
 
@@ -30,10 +38,14 @@ class HistoryCsvImporter {
         upcHistoryMap[historyRow.upc] = History()..upc = historyRow.upc;
       }
 
-      // Create or get the HistorySeries
-      if (!upcSeriesIdMap.containsKey(historyRow.upc) ||
-          !upcSeriesIdMap[historyRow.upc]!.containsKey(historyRow.seriesId)) {
-        upcSeriesIdMap[historyRow.upc] = {historyRow.seriesId: HistorySeries()};
+      // Check if the UPC is already in the map
+      if (!upcSeriesIdMap.containsKey(historyRow.upc)) {
+        upcSeriesIdMap[historyRow.upc] = {};
+      }
+
+      // Check if the seriesId is already in the map for that UPC
+      if (!upcSeriesIdMap[historyRow.upc]!.containsKey(historyRow.seriesId)) {
+        upcSeriesIdMap[historyRow.upc]![historyRow.seriesId] = HistorySeries();
       }
 
       // Add the observation to the correct series
