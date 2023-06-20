@@ -109,13 +109,26 @@ class JoinedItemDatabase {
     return getAll(predicted.toList());
   }
 
-  List<JoinedItem> getAll(List<String> upcs) {
+  List<JoinedItem> getAll(List<String> upcs, {bool innerJoin = true}) {
     List<Item> items = itemDatabase.getAll(upcs);
-    List<Inventory> inventory = inventoryDatabase.getAll(upcs);
+    final inventoryMap = inventoryDatabase.map();
     List<JoinedItem> joinedItems = [];
 
     for (int i = 0; i < items.length; i++) {
-      joinedItems.add(JoinedItem(items[i], inventory[i]));
+      final upc = items[i].upc;
+
+      // There may be cases where the item exists, but doesn't have inventory
+      // As long as innerJoin is true, we only return items that have
+      // a corresponding inventory object.
+      if (inventoryMap.containsKey(upc)) {
+        final inventory = inventoryMap[upc]!;
+        joinedItems.add(JoinedItem(items[i], inventory));
+      }
+
+      // If innerJoin is false, we return the item with an empty inventory
+      else if (!innerJoin) {
+        joinedItems.add(JoinedItem(items[i], Inventory.withUPC(upc)));
+      }
     }
 
     return joinedItems;
