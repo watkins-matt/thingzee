@@ -9,7 +9,7 @@ part 'history.g.dart';
 @JsonSerializable(explicitToJson: true)
 class History {
   String upc = '';
-  List<HistorySeries> allSeries = [];
+  List<HistorySeries> series = [];
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   late Evaluator evaluator;
@@ -19,18 +19,18 @@ class History {
   }
 
   Scale get scale {
-    if (allSeries.isEmpty) {
+    if (series.isEmpty) {
       return Scale();
     }
 
     int initialXValue = 0;
     double yScalefactor = 1;
 
-    for (int i = allSeries.length - 1; i >= 0; i--) {
-      final series = allSeries[i];
+    for (int i = series.length - 1; i >= 0; i--) {
+      final individualSeries = series[i];
 
-      if (series.observations.isNotEmpty) {
-        final observation = series.observations.first;
+      if (individualSeries.observations.isNotEmpty) {
+        final observation = individualSeries.observations.first;
         initialXValue = observation.timestamp.toInt();
         yScalefactor = observation.amount;
         break;
@@ -54,13 +54,13 @@ class History {
   }
 
   HistorySeries get current {
-    if (allSeries.isEmpty) {
-      allSeries.add(HistorySeries());
+    if (series.isEmpty) {
+      series.add(HistorySeries());
     }
 
     // There will always be at least one series
     // because we created it above if it doesn't exist
-    return allSeries.last;
+    return series.last;
   }
 
   int get predictedOutageTimestamp {
@@ -68,11 +68,11 @@ class History {
   }
 
   HistorySeries get previous {
-    return allSeries.length > 1 ? allSeries[allSeries.length - 2] : current;
+    return series.length > 1 ? series[series.length - 2] : current;
   }
 
   int get totalPoints {
-    return allSeries.fold(0, (sum, s) => sum + s.observations.length);
+    return series.fold(0, (sum, s) => sum + s.observations.length);
   }
 
   /// Adds a new data point to the history series.
@@ -110,8 +110,8 @@ class History {
     );
 
     // If the series is empty, start a new series
-    if (allSeries.isEmpty) {
-      allSeries.add(HistorySeries());
+    if (series.isEmpty) {
+      series.add(HistorySeries());
     }
 
     // Check if current.observations is empty. If so, we only need
@@ -151,7 +151,7 @@ class History {
         }
 
         // Start a new series
-        allSeries.add(HistorySeries());
+        series.add(HistorySeries());
         current.observations.add(observation);
       }
 
@@ -181,7 +181,7 @@ class History {
   // (This means any series where there is only a 0 value,
   // or the timestamp is 0)
   History clean() {
-    for (final s in allSeries) {
+    for (final s in series) {
       // There was only one observation with amount 0, so remove it
       if (s.observations.length == 1 && s.observations.first.amount == 0) {
         s.observations.clear();
@@ -197,7 +197,7 @@ class History {
   }
 
   List<Observation> get normalizedObservations {
-    return allSeries.expand((s) {
+    return series.expand((s) {
       double initialTimestamp = s.observations[0].timestamp;
       double initialAmount = s.observations[0].amount;
       return s.observations.map((o) => Observation(
@@ -218,7 +218,7 @@ class History {
 
   // Remove any empty series values in the history
   History trim() {
-    allSeries.removeWhere((s) => s.observations.isEmpty);
+    series.removeWhere((s) => s.observations.isEmpty);
     return this;
   }
 }

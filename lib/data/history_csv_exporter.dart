@@ -36,7 +36,7 @@ extension on History {
     List<List<dynamic>> rows = [];
     var seriesId = 0;
 
-    for (final series in allSeries) {
+    for (final series in series) {
       for (final obs in series.observations) {
         rows.add(obs.toCsvList(upc, seriesId, headers));
       }

@@ -16,12 +16,12 @@ class Evaluator {
   bool get trained => _trained;
 
   int get _baseTimestamp {
-    if (history.allSeries.isEmpty) {
+    if (history.series.isEmpty) {
       return 0;
     }
 
-    for (int i = history.allSeries.length - 1; i >= 0; i--) {
-      final series = history.allSeries[i];
+    for (int i = history.series.length - 1; i >= 0; i--) {
+      final series = history.series[i];
 
       if (series.observations.isNotEmpty) {
         return series.observations.first.timestamp.toInt();
@@ -32,12 +32,12 @@ class Evaluator {
   }
 
   double get _baseAmount {
-    if (history.allSeries.isEmpty) {
+    if (history.series.isEmpty) {
       return 0;
     }
 
-    for (int i = history.allSeries.length - 1; i >= 0; i--) {
-      final series = history.allSeries[i];
+    for (int i = history.series.length - 1; i >= 0; i--) {
+      final series = history.series[i];
 
       if (series.observations.isNotEmpty) {
         return series.observations.first.amount;
@@ -70,7 +70,7 @@ class Evaluator {
 
     // If there is any series with a length greater than one
     // then the best regressor should not be an EmptyRegressor
-    if (history.allSeries.any((s) => s.observations.length > 1)) {
+    if (history.series.any((s) => s.observations.length > 1)) {
       assert(_best.type != 'Empty' && _best.type != 'SinglePoint');
     }
 
@@ -109,12 +109,12 @@ class Evaluator {
   }
 
   void train(History history) {
-    if (history.allSeries.isEmpty) {
+    if (history.series.isEmpty) {
       return;
     }
 
     int seriesId = 0;
-    for (final series in history.allSeries) {
+    for (final series in history.series) {
       var regressorList = _generateRegressors(series);
 
       for (final regressor in regressorList) {
