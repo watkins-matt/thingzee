@@ -10,7 +10,10 @@ part 'history.g.dart';
 class History {
   String upc = '';
   List<HistorySeries> allSeries = [];
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
   late Evaluator evaluator;
+
   History() {
     evaluator = Evaluator(this);
   }

@@ -1,12 +1,17 @@
 import 'package:intl/intl.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:quiver/core.dart';
 import 'package:repository/extension/duration.dart';
 import 'package:repository/ml/history.dart';
 import 'package:stats/double.dart';
 
+part 'inventory.g.dart';
+
+@JsonSerializable(explicitToJson: true)
 class Inventory {
   double amount = 0;
   int unitCount = 1;
+  @OptDateTimeSerializer()
   Optional<DateTime> lastUpdate = const Optional.absent();
   List<DateTime> expirationDates = <DateTime>[];
   List<String> locations = <String>[];
@@ -15,10 +20,11 @@ class Inventory {
   String upc = '';
   String iuid = '';
   Inventory();
+  factory Inventory.fromJson(Map<String, dynamic> json) => _$InventoryFromJson(json);
+
   Inventory.withUPC(this.upc) {
     history.upc = upc;
   }
-
   bool get canPredict {
     return history.canPredict;
   }
@@ -129,4 +135,18 @@ class Inventory {
   double get usageSpeedMinutes {
     return history.regressor.hasSlope ? (1 / history.regressor.slope.abs()) / 1000 / 60 : 0;
   }
+
+  Map<String, dynamic> toJson() => _$InventoryToJson(this);
+}
+
+class OptDateTimeSerializer implements JsonConverter<Optional<DateTime>, int> {
+  const OptDateTimeSerializer();
+
+  @override
+  Optional<DateTime> fromJson(int json) =>
+      json == 0 ? const Optional.absent() : Optional.of(DateTime.fromMillisecondsSinceEpoch(json));
+
+  @override
+  int toJson(Optional<DateTime> dateTime) =>
+      dateTime.isPresent ? dateTime.value.millisecondsSinceEpoch : 0;
 }
