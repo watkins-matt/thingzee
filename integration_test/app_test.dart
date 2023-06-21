@@ -13,7 +13,7 @@ void main() async {
   assert(App.repo.ready);
 
   group('General App Tests', () {
-    testWidgets('Test for any exceptions', (WidgetTester tester) async {
+    testWidgets('Test for exceptions while tapping bottom bar icons.', (WidgetTester tester) async {
       FlutterExceptionHandler? oldOnError = FlutterError.onError;
       FlutterErrorDetails? errorDetails;
       FlutterError.onError = (details) {
