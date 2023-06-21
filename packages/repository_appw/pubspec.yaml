@@ -9,9 +9,10 @@ environment:
 
 dependencies:
   appwrite: ^9.0.0
+  collection: ^1.17.2
   path: ^1.8.3
   path_provider: ^2.0.15
   repository:
     path: ../repository
 
-dev_dependencies:
+dev_dependencies: null
