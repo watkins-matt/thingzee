@@ -9,6 +9,12 @@ import 'package:repository/ml/ols_regressor.dart';
 
 class EmptyRegressor implements Regressor {
   @override
+  InitialXOffset offset = InitialXOffset();
+
+  @override
+  YScaleFactor scaleFactor = YScaleFactor();
+
+  @override
   bool get hasSlope => false;
 
   @override
@@ -27,12 +33,6 @@ class EmptyRegressor implements Regressor {
   double predict(int x) {
     return 0;
   }
-
-  @override
-  InitialXOffset offset = InitialXOffset();
-
-  @override
-  YScaleFactor scaleFactor = YScaleFactor();
 }
 
 class HoltLinearRegressor extends Regressor {
@@ -105,6 +105,10 @@ class HoltLinearRegressor extends Regressor {
 
     return _HoltLinearResult(level, trend);
   }
+}
+
+class InitialXOffset {
+  int value = 0;
 }
 
 class MLLinearRegressor implements Regressor {
@@ -343,14 +347,6 @@ abstract class Regressor {
 class Scale {
   int initialXValue = 0;
   double yScaleFactor = 1;
-}
-
-class InitialXOffset {
-  int value = 0;
-}
-
-class YScaleFactor {
-  double value = 1;
 }
 
 class ShiftedInterceptLinearRegressor implements Regressor {
@@ -625,12 +621,12 @@ class TwoPointLinearRegressor implements Regressor {
 
   @override
   YScaleFactor scaleFactor = YScaleFactor();
-
   TwoPointLinearRegressor(this._slope, this._intercept);
 
   TwoPointLinearRegressor.fromPoints(int x1, double y1, int x2, double y2)
       : _slope = (y2 - y1) / (x2 - x1),
         _intercept = y1 - (y2 - y1) / (x2 - x1) * x1;
+
   @override
   bool get hasSlope => true;
 
@@ -648,11 +644,11 @@ class TwoPointLinearRegressor implements Regressor {
     return (-_intercept / slope).round();
   }
 
-  double get yIntercept => _intercept;
+  double get yIntercept => _intercept * scaleFactor.value;
 
   @override
   double predict(int x) {
-    return slope * (x - offset.value) + _intercept;
+    return slope * (x - offset.value) + yIntercept;
   }
 }
 
@@ -716,6 +712,10 @@ class WeightedLeastSquaresLinearRegressor implements Regressor {
   double predict(int x) {
     return _slope * x + _intercept;
   }
+}
+
+class YScaleFactor {
+  double value = 1;
 }
 
 class _HoltLinearResult {
