@@ -108,14 +108,7 @@ class EditableItem extends StateNotifier<EditableItemState> {
     state = EditableItemState(item, inv, state.changedFields);
   }
 
-  String get predictedAmount {
-    if (state.inventory.history.canPredict) {
-      final amount = state.inventory.history.predict(DateTime.now().millisecondsSinceEpoch);
-      return amount.toStringNoZero(2);
-    }
-
-    return amount.toStringNoZero(2);
-  }
+  String get predictedAmount => state.inventory.predictedAmount.toStringNoZero(2);
 
   double get amount => state.inventory.amount;
   set amount(double amount) {
