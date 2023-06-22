@@ -56,9 +56,23 @@ void main() {
       // Check slope
       expect(regressor.slope, closeTo(-6.853684714986369e-10, 1e-20));
 
-      // Predict y-value for Jun 19, 2023 7:25 PM
-      var prediction = regressor.predict(1698039900000);
-      expect(prediction, closeTo(0.02, 1e-2));
+      var prediction = regressor.predict(1687355062307);
+      expect(prediction, closeTo(0, 1e-2));
+      expect(regressor.xIntercept, closeTo(1687355062307, 1e-2));
+
+      // Test shifting everything by this amount
+      const offsetShiftAmount = 1687360000000;
+      // Relative out offset is the amount of time in ms for the
+      // amount to go to 0
+      final relativeOutOffset = offsetShiftAmount - normalizer.minTime;
+      // New outage timestamp is the time in ms for the amount to go to 0
+      // if we shift the offset by 1687360000000
+      final newOutageTimestamp = offsetShiftAmount + relativeOutOffset;
+
+      regressor.offset.value = offsetShiftAmount;
+      prediction = regressor.predict(newOutageTimestamp);
+      expect(prediction, closeTo(0, 1e-2));
+      expect(regressor.xIntercept, closeTo(newOutageTimestamp, 1e-2));
     });
 
     test('Unormalized: calculate slope and predict y-values correctly', () {
@@ -75,9 +89,9 @@ void main() {
       // Check slope
       expect(regressor.slope, closeTo(-6.853684714986369e-10, 1e-20));
 
-      // Predict y-value for Jun 19, 2023 7:25 PM
-      var prediction = regressor.predict(1698039900000);
-      expect(prediction, closeTo(0.02, 1e-2));
+      var prediction = regressor.predict(1687355062307);
+      expect(prediction, closeTo(0, 1e-2));
+      expect(regressor.xIntercept, closeTo(1687355062307, 1e-2));
     });
   });
 }
