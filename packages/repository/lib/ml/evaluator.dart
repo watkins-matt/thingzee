@@ -102,6 +102,10 @@ class Evaluator {
       throw Exception('Evaluator has not been trained. Train before predicting.');
     }
 
+    if (best is TwoPointLinearRegressor) {
+      return best.predict(timestamp);
+    }
+
     var normTimestamp = timestamp - _baseTimestamp;
     var normAmount = _baseAmount;
 
@@ -148,7 +152,11 @@ class Evaluator {
         var x2 = points.keys.elementAt(1);
         var y2 = points.values.elementAt(1);
 
-        return [TwoPointLinearRegressor.fromPoints(x1, y1, x2, y2)];
+        final regressor = TwoPointLinearRegressor.fromPoints(x1, y1, x2, y2)
+          ..offset = history.initialXOffset
+          ..scaleFactor.value = normalizer.maxAmount;
+
+        return [regressor];
       default:
         var points = series.toPoints();
         MapNormalizer normalizer = MapNormalizer(points);

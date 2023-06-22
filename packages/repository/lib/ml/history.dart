@@ -18,6 +18,26 @@ class History {
     evaluator = Evaluator(this);
   }
 
+  InitialXOffset get initialXOffset {
+    if (series.isEmpty) {
+      return InitialXOffset();
+    }
+
+    int value = 0;
+
+    for (int i = series.length - 1; i >= 0; i--) {
+      final individualSeries = series[i];
+
+      if (individualSeries.observations.isNotEmpty) {
+        final observation = individualSeries.observations.first;
+        value = observation.timestamp.toInt();
+        break;
+      }
+    }
+
+    return InitialXOffset()..value = value;
+  }
+
   Scale get scale {
     if (series.isEmpty) {
       return Scale();

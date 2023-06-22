@@ -9,9 +9,6 @@ import 'package:repository/ml/ols_regressor.dart';
 
 class EmptyRegressor implements Regressor {
   @override
-  Scale scale = Scale();
-
-  @override
   bool get hasSlope => false;
 
   @override
@@ -30,6 +27,12 @@ class EmptyRegressor implements Regressor {
   double predict(int x) {
     return 0;
   }
+
+  @override
+  InitialXOffset offset = InitialXOffset();
+
+  @override
+  YScaleFactor scaleFactor = YScaleFactor();
 }
 
 class HoltLinearRegressor extends Regressor {
@@ -109,7 +112,10 @@ class MLLinearRegressor implements Regressor {
   final DataFrameNormalizer normalizer;
 
   @override
-  Scale scale = Scale();
+  InitialXOffset offset = InitialXOffset();
+
+  @override
+  YScaleFactor scaleFactor = YScaleFactor();
 
   MLLinearRegressor(this.regressor, this.normalizer);
 
@@ -221,7 +227,10 @@ class NaiveRegressor implements Regressor {
   final int unitDuration;
 
   @override
-  Scale scale = Scale();
+  InitialXOffset offset = InitialXOffset();
+
+  @override
+  YScaleFactor scaleFactor = YScaleFactor();
 
   NaiveRegressor(this.data, {this.unitDuration = Duration.millisecondsPerDay});
 
@@ -289,7 +298,10 @@ class NormalizedRegressor implements Regressor {
   int baseTimestamp;
 
   @override
-  Scale scale = Scale();
+  InitialXOffset offset = InitialXOffset();
+
+  @override
+  YScaleFactor scaleFactor = YScaleFactor();
 
   NormalizedRegressor(this.normalizer, this.regressor) : baseTimestamp = normalizer.minTime;
   NormalizedRegressor.withBase(this.normalizer, this.regressor, this.baseTimestamp);
@@ -318,7 +330,8 @@ class NormalizedRegressor implements Regressor {
 }
 
 abstract class Regressor {
-  Scale scale = Scale();
+  InitialXOffset offset = InitialXOffset();
+  YScaleFactor scaleFactor = YScaleFactor();
   bool get hasSlope;
   bool get hasXIntercept;
   double get slope;
@@ -332,12 +345,23 @@ class Scale {
   double yScaleFactor = 1;
 }
 
+class InitialXOffset {
+  int value = 0;
+}
+
+class YScaleFactor {
+  double value = 1;
+}
+
 class ShiftedInterceptLinearRegressor implements Regressor {
   late double _intercept;
   late double _slope;
 
   @override
-  Scale scale = Scale();
+  InitialXOffset offset = InitialXOffset();
+
+  @override
+  YScaleFactor scaleFactor = YScaleFactor();
 
   ShiftedInterceptLinearRegressor(Map<int, double> dataPoints) {
     final xValues = dataPoints.keys.toList();
@@ -394,7 +418,10 @@ class SimpleLinearRegressor implements Regressor {
   late double _slope;
 
   @override
-  Scale scale = Scale();
+  InitialXOffset offset = InitialXOffset();
+
+  @override
+  YScaleFactor scaleFactor = YScaleFactor();
 
   SimpleLinearRegressor(Map<int, double> dataPoints) {
     final xValues = dataPoints.keys.toList();
@@ -445,7 +472,10 @@ class SimpleOLSRegressor implements Regressor {
   final DataFrameNormalizer normalizer;
 
   @override
-  Scale scale = Scale();
+  InitialXOffset offset = InitialXOffset();
+
+  @override
+  YScaleFactor scaleFactor = YScaleFactor();
 
   SimpleOLSRegressor(this.regressor, this.normalizer);
 
@@ -557,9 +587,11 @@ class SimpleOLSRegressor implements Regressor {
 
 class SingleDataPointLinearRegressor implements Regressor {
   final double intercept;
+  @override
+  InitialXOffset offset = InitialXOffset();
 
   @override
-  Scale scale = Scale();
+  YScaleFactor scaleFactor = YScaleFactor();
 
   SingleDataPointLinearRegressor(this.intercept);
 
@@ -589,7 +621,10 @@ class TwoPointLinearRegressor implements Regressor {
   final double _intercept;
 
   @override
-  Scale scale = Scale();
+  InitialXOffset offset = InitialXOffset();
+
+  @override
+  YScaleFactor scaleFactor = YScaleFactor();
 
   TwoPointLinearRegressor(this._slope, this._intercept);
 
@@ -603,21 +638,21 @@ class TwoPointLinearRegressor implements Regressor {
   bool get hasXIntercept => true;
 
   @override
-  double get slope => _slope;
+  double get slope => _slope * scaleFactor.value;
 
   @override
   String get type => 'TwoPoint';
 
   @override
   int get xIntercept {
-    return (-_intercept / _slope).round();
+    return (-_intercept / slope).round();
   }
 
   double get yIntercept => _intercept;
 
   @override
   double predict(int x) {
-    return _slope * x + _intercept;
+    return slope * (x - offset.value) + _intercept;
   }
 }
 
@@ -626,7 +661,10 @@ class WeightedLeastSquaresLinearRegressor implements Regressor {
   late double _slope;
 
   @override
-  Scale scale = Scale();
+  InitialXOffset offset = InitialXOffset();
+
+  @override
+  YScaleFactor scaleFactor = YScaleFactor();
 
   WeightedLeastSquaresLinearRegressor(Map<int, double> dataPoints) {
     final xValues = dataPoints.keys.toList();
