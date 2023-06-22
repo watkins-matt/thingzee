@@ -31,7 +31,7 @@ void main() {
   });
 
   group('TwoPointLinearRegressor and MapNormalizer', () {
-    test('calculate slope and predict y-values correctly', () {
+    test('Calculate slope and predict y-values correctly', () {
       // Initialize data
       var data = {
         1686625527727: 0.5, // Jun 12, 2023 8:05 PM
@@ -51,12 +51,32 @@ void main() {
       // Calculate slope and intercept
       var regressor = TwoPointLinearRegressor.fromPoints(x1, y1, x2, y2);
       regressor.scaleFactor.value = normalizer.maxAmount;
+      regressor.offset.value = normalizer.minTime;
 
       // Check slope
       expect(regressor.slope, closeTo(-6.853684714986369e-10, 1e-20));
 
       // Predict y-value for Jun 19, 2023 7:25 PM
-      var prediction = regressor.predict(1698039900000 - normalizer.minTime);
+      var prediction = regressor.predict(1698039900000);
+      expect(prediction, closeTo(0.02, 1e-2));
+    });
+
+    test('Unormalized: calculate slope and predict y-values correctly', () {
+      // Initialize data
+      var data = {
+        1686625527727: 0.5, // Jun 12, 2023 8:05 PM
+        1686844388101: 0.35, // Jun 15, 2023 8:53 AM
+      };
+
+      // Calculate slope and intercept using unnormalized data
+      var regressor = TwoPointLinearRegressor.fromPoints(data.keys.elementAt(0),
+          data.values.elementAt(0), data.keys.elementAt(1), data.values.elementAt(1));
+
+      // Check slope
+      expect(regressor.slope, closeTo(-6.853684714986369e-10, 1e-20));
+
+      // Predict y-value for Jun 19, 2023 7:25 PM
+      var prediction = regressor.predict(1698039900000);
       expect(prediction, closeTo(0.02, 1e-2));
     });
   });
