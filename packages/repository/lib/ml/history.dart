@@ -18,9 +18,9 @@ class History {
     evaluator = Evaluator(this);
   }
 
-  InitialXOffset get initialXOffset {
+  int get baseTimestamp {
     if (series.isEmpty) {
-      return InitialXOffset();
+      return 0;
     }
 
     int value = 0;
@@ -35,7 +35,7 @@ class History {
       }
     }
 
-    return InitialXOffset()..value = value;
+    return value;
   }
 
   factory History.fromJson(Map<String, dynamic> json) => _$HistoryFromJson(json);

@@ -152,9 +152,7 @@ class Evaluator {
         var x2 = points.keys.elementAt(1);
         var y2 = points.values.elementAt(1);
 
-        final regressor = TwoPointLinearRegressor.fromPoints(x1, y1, x2, y2)
-          ..offset = history.initialXOffset
-          ..scaleFactor.value = normalizer.maxAmount;
+        final regressor = TwoPointLinearRegressor.fromPoints(x1, y1, x2, y2);
 
         return [regressor];
       default:
