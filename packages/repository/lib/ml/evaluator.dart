@@ -15,38 +15,6 @@ class Evaluator {
 
   bool get trained => _trained;
 
-  int get _baseTimestamp {
-    if (history.series.isEmpty) {
-      return 0;
-    }
-
-    for (int i = history.series.length - 1; i >= 0; i--) {
-      final series = history.series[i];
-
-      if (series.observations.isNotEmpty) {
-        return series.observations.first.timestamp.toInt();
-      }
-    }
-
-    return 0;
-  }
-
-  double get _baseAmount {
-    if (history.series.isEmpty) {
-      return 0;
-    }
-
-    for (int i = history.series.length - 1; i >= 0; i--) {
-      final series = history.series[i];
-
-      if (series.observations.isNotEmpty) {
-        return series.observations.first.amount;
-      }
-    }
-
-    return 0;
-  }
-
   Map<String, double> allPredictions(int timestamp) {
     if (!_trained) {
       throw Exception('Evaluator has not been trained. Train before predicting.');
@@ -102,14 +70,7 @@ class Evaluator {
       throw Exception('Evaluator has not been trained. Train before predicting.');
     }
 
-    if (best is TwoPointLinearRegressor) {
-      return best.predict(timestamp);
-    }
-
-    var normTimestamp = timestamp - _baseTimestamp;
-    var normAmount = _baseAmount;
-
-    return best.predict(normTimestamp) * normAmount;
+    return best.predict(timestamp);
   }
 
   void train(History history) {
@@ -154,7 +115,7 @@ class Evaluator {
 
         final regressor = TwoPointLinearRegressor.fromPoints(x1, y1, x2, y2);
 
-        return [regressor];
+        return [NormalizedRegressor.withBase(normalizer, regressor, history.baseTimestamp)];
       default:
         var points = series.toPoints();
         MapNormalizer normalizer = MapNormalizer(points);
@@ -166,11 +127,11 @@ class Evaluator {
         final shifted = ShiftedInterceptLinearRegressor(points);
         final weighted = WeightedLeastSquaresLinearRegressor(points);
 
-        regressors.add(simple);
-        regressors.add(naive);
-        regressors.add(holt);
-        regressors.add(shifted);
-        regressors.add(weighted);
+        regressors.add(NormalizedRegressor.withBase(normalizer, simple, history.baseTimestamp));
+        regressors.add(NormalizedRegressor.withBase(normalizer, naive, history.baseTimestamp));
+        regressors.add(NormalizedRegressor.withBase(normalizer, holt, history.baseTimestamp));
+        regressors.add(NormalizedRegressor.withBase(normalizer, shifted, history.baseTimestamp));
+        regressors.add(NormalizedRegressor.withBase(normalizer, weighted, history.baseTimestamp));
 
       // final dataFrame = series.toDataFrame();
       // final dataFrameNormalizer = DataFrameNormalizer(dataFrame, 'amount');
