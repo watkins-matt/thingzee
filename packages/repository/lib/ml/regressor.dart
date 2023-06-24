@@ -344,11 +344,6 @@ abstract class Regressor {
   double predict(int x);
 }
 
-class Scale {
-  int initialXValue = 0;
-  double yScaleFactor = 1;
-}
-
 class ShiftedInterceptLinearRegressor implements Regressor {
   late double _intercept;
   late double _slope;
@@ -641,7 +636,7 @@ class TwoPointLinearRegressor implements Regressor {
 
   @override
   int get xIntercept {
-    return (-_intercept / slope).round();
+    return (-_intercept / slope).round() + offset.value;
   }
 
   double get yIntercept => _intercept * scaleFactor.value;

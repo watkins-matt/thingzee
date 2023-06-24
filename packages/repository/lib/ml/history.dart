@@ -38,30 +38,6 @@ class History {
     return InitialXOffset()..value = value;
   }
 
-  Scale get scale {
-    if (series.isEmpty) {
-      return Scale();
-    }
-
-    int initialXValue = 0;
-    double yScalefactor = 1;
-
-    for (int i = series.length - 1; i >= 0; i--) {
-      final individualSeries = series[i];
-
-      if (individualSeries.observations.isNotEmpty) {
-        final observation = individualSeries.observations.first;
-        initialXValue = observation.timestamp.toInt();
-        yScalefactor = observation.amount;
-        break;
-      }
-    }
-
-    return Scale()
-      ..initialXValue = initialXValue
-      ..yScaleFactor = yScalefactor;
-  }
-
   factory History.fromJson(Map<String, dynamic> json) => _$HistoryFromJson(json);
   Map<String, dynamic> toJson() => _$HistoryToJson(this);
 
@@ -84,7 +60,7 @@ class History {
   }
 
   int get predictedOutageTimestamp {
-    return scale.initialXValue + regressor.xIntercept;
+    return regressor.xIntercept;
   }
 
   HistorySeries get previous {
@@ -181,7 +157,7 @@ class History {
       else if (observation.amount < lastObservation.amount) {
         // If the new observation's amount is zero and the predicted outage timestamp is earlier than the new timestamp,
         // add a zero amount observation
-        if (observation.amount == 0 && predictedOutageTimestamp < timestamp) {
+        if (observation.amount == 0 && canPredict && predictedOutageTimestamp < timestamp) {
           current.observations.add(Observation(
             timestamp: predictedOutageTimestamp.toDouble(),
             amount: 0,
