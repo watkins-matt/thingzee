@@ -295,7 +295,7 @@ class NormalizedRegressor implements Regressor {
   String get type => regressor.type;
 
   @override
-  int get xIntercept => normalizer.denormalizeTime(regressor.xIntercept);
+  int get xIntercept => regressor.xIntercept + baseTimestamp;
 
   @override
   double predict(int x) {
