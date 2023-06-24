@@ -52,17 +52,15 @@ void main() {
       var tpRegressor = TwoPointLinearRegressor.fromPoints(x1, y1, x2, y2);
       var regressor = NormalizedRegressor(normalizer, tpRegressor);
       // Check slope
-      print(tpRegressor.slope);
-      print(regressor.slope);
       expect(regressor.slope, closeTo(-6.853684714986369e-10, 1e-2));
-      print(regressor.slope - -6.853684714986369e-10);
 
-      // var prediction = regressor.predict(1687355062307);
-      // expect(prediction, closeTo(0, 1e-2));
-      // expect(regressor.xIntercept, closeTo(1687355062307, 1e-2));
+      var prediction = regressor.predict(1687355062307);
+      expect(prediction, closeTo(0, 1e-2));
+      expect(regressor.xIntercept, closeTo(1687355062307, 1e-2));
 
       // Test shifting everything by this amount
       // const offsetShiftAmount = 1687360000000;
+      // regressor = NormalizedRegressor.withBase(normalizer, regressor, offsetShiftAmount);
       // // Relative out offset is the amount of time in ms for the
       // // amount to go to 0
       // final relativeOutOffset = offsetShiftAmount - normalizer.minTime;

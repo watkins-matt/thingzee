@@ -31,9 +31,7 @@ class MapNormalizer {
   }
 
   double denormalizeSlope(double slope) {
-    var xRange = maxTime - minTime;
-    var yRange = maxAmount - minAmount;
-    return slope * (yRange / xRange);
+    return slope * maxAmount;
   }
 
   Map<int, double> get dataPoints {
