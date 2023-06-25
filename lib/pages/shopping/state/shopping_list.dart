@@ -76,10 +76,18 @@ class ShoppingList extends StateNotifier<ShoppingListState> {
   }
 
   void _populateList() {
-    List<JoinedItem> outs = db.outs();
+    List<JoinedItem> databaseOuts = db.outs();
     List<JoinedItem> predictedOuts = db.predictedOuts(repo.hist);
 
-    outs.addAll(predictedOuts);
+    Map<String, JoinedItem> combinedOuts = {for (final out in databaseOuts) out.item.upc: out};
+
+    for (final out in predictedOuts) {
+      if (!combinedOuts.containsKey(out.item.upc)) {
+        combinedOuts[out.item.upc] = out;
+      }
+    }
+
+    List<JoinedItem> outs = combinedOuts.values.toList();
     sortItems(outs);
 
     state = state.copyWith(
