@@ -14,7 +14,7 @@ class ShoppingList extends StateNotifier<ShoppingListState> {
   ShoppingList(this.repo)
       : db = JoinedItemDatabase(repo.items, repo.inv),
         super(ShoppingListState([], {})) {
-    _populateList();
+    refresh();
   }
 
   void check(int index, bool value) {
@@ -75,7 +75,7 @@ class ShoppingList extends StateNotifier<ShoppingListState> {
     });
   }
 
-  void _populateList() {
+  void refresh() {
     List<JoinedItem> databaseOuts = db.outs();
     List<JoinedItem> predictedOuts = db.predictedOuts(repo.hist);
 
