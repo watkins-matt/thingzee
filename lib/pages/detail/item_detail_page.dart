@@ -12,6 +12,7 @@ import 'package:thingzee/pages/detail/widget/labeled_text.dart';
 import 'package:thingzee/pages/history/widget/history_list_view.dart';
 import 'package:thingzee/pages/inventory/state/inventory_view.dart';
 import 'package:thingzee/pages/inventory/state/item_thumbnail_cache.dart';
+import 'package:thingzee/pages/shopping/state/shopping_list.dart';
 
 extension SelectAllExtension on TextEditingController {
   void selectAll() {
@@ -53,6 +54,9 @@ class ItemDetailPage extends HookConsumerWidget {
 
     final view = ref.read(inventoryProvider.notifier);
     await view.refresh();
+
+    final shoppingList = ref.read(shoppingListProvider.notifier);
+    shoppingList.refresh();
 
     if (context.mounted) {
       Navigator.pop(context);
