@@ -25,5 +25,20 @@ void main() {
       expect(weighted.predict(1686280709794), closeTo(2.5, 0.1));
       expect(weightedSecond.predict(0), closeTo(1, 0.1));
     });
+    test('WLS should work with 3 values.', () async {
+      final Map<int, double> points = {1687068097311: 0.05, 1687227951884: 0.02, 1687567689462: 0};
+
+      MapNormalizer normalizer = MapNormalizer(points);
+      final weighted = WeightedLeastSquaresLinearRegressor(normalizer.dataPoints);
+      var regressor = NormalizedRegressor(normalizer, weighted);
+
+      expect(regressor.predict(1687567689462), closeTo(0, 0.1));
+
+      const baseTimestamp = 1687655897475;
+      const timestampToPredict = 1687661141416;
+      regressor = NormalizedRegressor.withBase(normalizer, regressor, baseTimestamp);
+
+      print(regressor.predict(timestampToPredict));
+    });
   });
 }
