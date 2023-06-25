@@ -33,12 +33,20 @@ void main() {
       var regressor = NormalizedRegressor(normalizer, weighted);
 
       expect(regressor.predict(1687567689462), closeTo(0, 0.1));
+      expect(regressor.slope, closeTo(-9.363299158029206e-11, 0.1));
 
       const baseTimestamp = 1687655897475;
-      const timestampToPredict = 1687661141416;
-      regressor = NormalizedRegressor.withBase(normalizer, regressor, baseTimestamp);
+      regressor = NormalizedRegressor.withBase(normalizer, weighted, baseTimestamp, yShift: 1);
 
-      print(regressor.predict(timestampToPredict));
+      // Slope should be the same regardless of the yShift.
+      expect(regressor.slope, closeTo(-9.363299158029206e-11, 0.1));
+
+      const firstRelativeTimestamp = baseTimestamp + 159854573;
+      const secondRelativeTimestamp = baseTimestamp + 499592151;
+
+      expect(regressor.predict(baseTimestamp), closeTo(2, 0.4));
+      expect(regressor.predict(firstRelativeTimestamp), closeTo(0.8, 0.4));
+      expect(regressor.predict(secondRelativeTimestamp), closeTo(0, 0.4));
     });
   });
 }
