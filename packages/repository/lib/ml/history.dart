@@ -186,6 +186,16 @@ class History {
       else {
         s.observations.removeWhere((o) => o.timestamp == 0);
       }
+
+      // Remove any duplicate observations
+      int i = 0;
+      while (i < s.observations.length - 1) {
+        if (s.observations[i].amount == s.observations[i + 1].amount) {
+          s.observations.removeAt(i + 1);
+        } else {
+          i++; // Only move forward if we did not remove an item
+        }
+      }
     }
 
     trim();

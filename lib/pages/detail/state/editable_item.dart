@@ -132,6 +132,14 @@ class EditableItem extends StateNotifier<EditableItemState> {
 
   double get totalUnitCount => state.inventory.units;
 
+  void cleanUpHistory(Repository repo) {
+    final inv = state.inventory;
+    inv.history = inv.history.clean();
+    repo.hist.put(inv.history);
+
+    state = EditableItemState(state.item, inv, state.changedFields);
+  }
+
   void save(Repository repo) {
     repo.items.put(state.item);
 
