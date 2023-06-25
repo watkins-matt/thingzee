@@ -18,6 +18,26 @@ class History {
     evaluator = Evaluator(this);
   }
 
+  double get baseAmount {
+    if (series.isEmpty) {
+      return 0;
+    }
+
+    double value = 0;
+
+    for (int i = series.length - 1; i >= 0; i--) {
+      final individualSeries = series[i];
+
+      if (individualSeries.observations.isNotEmpty) {
+        final observation = individualSeries.observations.first;
+        value = observation.amount;
+        break;
+      }
+    }
+
+    return value;
+  }
+
   int get baseTimestamp {
     if (series.isEmpty) {
       return 0;

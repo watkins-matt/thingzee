@@ -278,9 +278,12 @@ class NormalizedRegressor implements Regressor {
   MapNormalizer normalizer;
   Regressor regressor;
   int baseTimestamp;
+  double yShift;
 
-  NormalizedRegressor(this.normalizer, this.regressor) : baseTimestamp = normalizer.minTime;
-  NormalizedRegressor.withBase(this.normalizer, this.regressor, this.baseTimestamp);
+  NormalizedRegressor(this.normalizer, this.regressor, {this.yShift = 0.0})
+      : baseTimestamp = normalizer.minTime;
+  NormalizedRegressor.withBase(this.normalizer, this.regressor, this.baseTimestamp,
+      {this.yShift = 0.0});
 
   @override
   bool get hasSlope => regressor.hasSlope;
@@ -295,13 +298,26 @@ class NormalizedRegressor implements Regressor {
   String get type => regressor.type;
 
   @override
-  int get xIntercept => regressor.xIntercept + baseTimestamp;
+  int get xIntercept {
+    if (yShift == 0) {
+      return regressor.xIntercept + baseTimestamp;
+    } else {
+      final yInterceptShifted = normalizer.normalizeAmount(yShift);
+      return ((-yInterceptShifted / regressor.slope) + baseTimestamp).round();
+    }
+  }
 
   @override
   double predict(int x) {
     var normalizedX = x - baseTimestamp;
     var normalizedPrediction = regressor.predict(normalizedX);
-    return normalizer.denormalizeAmount(normalizedPrediction);
+
+    if (yShift == 0) {
+      return normalizer.denormalizeAmount(normalizedPrediction);
+    } else {
+      final scaleFactor = normalizer.normalizeAmount(yShift);
+      return normalizer.denormalizeAmount(normalizedPrediction) * scaleFactor;
+    }
   }
 }
 

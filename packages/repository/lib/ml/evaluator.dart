@@ -115,7 +115,10 @@ class Evaluator {
 
         final regressor = TwoPointLinearRegressor.fromPoints(x1, y1, x2, y2);
 
-        return [NormalizedRegressor.withBase(normalizer, regressor, history.baseTimestamp)];
+        return [
+          NormalizedRegressor.withBase(normalizer, regressor, history.baseTimestamp,
+              yShift: history.baseAmount)
+        ];
       default:
         var points = series.toPoints();
         MapNormalizer normalizer = MapNormalizer(points);
@@ -127,11 +130,16 @@ class Evaluator {
         final shifted = ShiftedInterceptLinearRegressor(points);
         final weighted = WeightedLeastSquaresLinearRegressor(points);
 
-        regressors.add(NormalizedRegressor.withBase(normalizer, simple, history.baseTimestamp));
-        regressors.add(NormalizedRegressor.withBase(normalizer, naive, history.baseTimestamp));
-        regressors.add(NormalizedRegressor.withBase(normalizer, holt, history.baseTimestamp));
-        regressors.add(NormalizedRegressor.withBase(normalizer, shifted, history.baseTimestamp));
-        regressors.add(NormalizedRegressor.withBase(normalizer, weighted, history.baseTimestamp));
+        regressors.add(NormalizedRegressor.withBase(normalizer, simple, history.baseTimestamp,
+            yShift: history.baseAmount));
+        regressors.add(NormalizedRegressor.withBase(normalizer, naive, history.baseTimestamp,
+            yShift: history.baseAmount));
+        regressors.add(NormalizedRegressor.withBase(normalizer, holt, history.baseTimestamp,
+            yShift: history.baseAmount));
+        regressors.add(NormalizedRegressor.withBase(normalizer, shifted, history.baseTimestamp,
+            yShift: history.baseAmount));
+        regressors.add(NormalizedRegressor.withBase(normalizer, weighted, history.baseTimestamp,
+            yShift: history.baseAmount));
 
       // final dataFrame = series.toDataFrame();
       // final dataFrameNormalizer = DataFrameNormalizer(dataFrame, 'amount');
