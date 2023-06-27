@@ -18,7 +18,10 @@ class AppwriteInventoryDatabase extends InventoryDatabase {
     this._database,
     this.databaseId,
     this.collectionId,
-  );
+  ) {
+    sync();
+    scheduleMicrotask(_processQueue);
+  }
 
   @override
   List<Inventory> all() => _inventory.values.toList();
@@ -94,7 +97,7 @@ class AppwriteInventoryDatabase extends InventoryDatabase {
     scheduleMicrotask(_processQueue);
   }
 
-  Future<void> refresh() async {
+  Future<void> sync() async {
     try {
       DocumentList response =
           await _database.listDocuments(databaseId: databaseId, collectionId: collectionId);

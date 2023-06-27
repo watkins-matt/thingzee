@@ -17,7 +17,7 @@ class AppwriteItemDatabase extends ItemDatabase {
   final _items = <String, Item>{};
 
   AppwriteItemDatabase(this._database, this.databaseId, this.collectionId) {
-    refresh();
+    sync();
     scheduleMicrotask(_processQueue);
   }
 
@@ -98,7 +98,7 @@ class AppwriteItemDatabase extends ItemDatabase {
     scheduleMicrotask(_processQueue);
   }
 
-  Future<void> refresh() async {
+  Future<void> sync() async {
     try {
       DocumentList response =
           await _database.listDocuments(databaseId: databaseId, collectionId: collectionId);
