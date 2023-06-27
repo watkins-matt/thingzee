@@ -1,6 +1,7 @@
 import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/models.dart';
 import 'package:repository/repository.dart';
+import 'package:repository_appw/database/inventory_db.dart';
 import 'package:repository_appw/database/item_db.dart';
 
 class AppwriteRepository extends SharedRepository {
@@ -17,12 +18,13 @@ class AppwriteRepository extends SharedRepository {
 
   void _init() {
     _client = Client();
-    _client.setEndpoint(appwriteEndpoint).setProject(projectId).setSelfSigned(status: true);
+    _client.setEndpoint(appwriteEndpoint).setProject(projectId);
 
     _account = Account(_client);
     _databases = Databases(_client);
 
-    items = AppwriteItemDatabase(_databases, 'production', 'items');
+    items = AppwriteItemDatabase(_databases, 'test', 'item');
+    inv = AppwriteInventoryDatabase(_databases, 'test', 'inventory');
   }
 
   @override
