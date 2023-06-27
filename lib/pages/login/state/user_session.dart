@@ -3,6 +3,10 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:repository/repository.dart';
 import 'package:thingzee/app.dart';
 
+final userSessionProvider = StateNotifierProvider<UserSession, SessionState>((ref) {
+  return UserSession(App.repo);
+});
+
 class UserSession extends StateNotifier<SessionState> {
   final Repository _repo;
 
@@ -11,6 +15,7 @@ class UserSession extends StateNotifier<SessionState> {
   Future<void> login(String email, String password) async {
     if (!_repo.isMultiUser || _repo is! SharedRepository) {
       debugPrint('Login not supported for this repository.');
+      return;
     }
 
     final repo = _repo as SharedRepository;
@@ -27,6 +32,7 @@ class UserSession extends StateNotifier<SessionState> {
   Future<void> register(String username, String email, String password) async {
     if (!_repo.isMultiUser || _repo is! SharedRepository) {
       debugPrint('Registration not supported for this repository.');
+      return;
     }
 
     final repo = _repo as SharedRepository;
@@ -41,6 +47,7 @@ class UserSession extends StateNotifier<SessionState> {
   }
 
   Future<void> logout() async {
+    assert(_repo.isMultiUser);
     state = SessionState.initial();
   }
 }
@@ -64,7 +71,3 @@ class SessionState {
 
   factory SessionState.error(String message) => SessionState(errorMessage: message);
 }
-
-final userSessionProvider = StateNotifierProvider<UserSession, SessionState>((ref) {
-  return UserSession(App.repo);
-});

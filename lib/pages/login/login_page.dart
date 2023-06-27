@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_login/flutter_login.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:thingzee/pages/login/state/user_profile.dart';
+import 'package:thingzee/pages/login/state/user_session.dart';
 
 class LoginPage extends ConsumerWidget {
   const LoginPage({super.key});
@@ -12,14 +14,43 @@ class LoginPage extends ConsumerWidget {
     );
   }
 
-  Future<String?> _authenticate(LoginData data) async {
+  Future<String?> _login(WidgetRef ref, LoginData data) async {
     debugPrint('Email: ${data.name}, Password: ${data.password}');
-    return null;
+    final userSession = ref.read(userSessionProvider.notifier);
+    final sessionState = ref.read(userSessionProvider);
+
+    await userSession.login(data.name, data.password);
+
+    if (sessionState.isAuthenticated) {
+      final userProfile = ref.read(userProfileProvider.notifier);
+      userProfile.email = data.name;
+      return null;
+    }
+
+    return 'Unable to login. Username or password is incorrect or does not exist.';
   }
 
-  Future<String?> _register(SignupData data) async {
+  Future<String?> _register(WidgetRef ref, SignupData data) async {
     debugPrint('Registration Email: ${data.name}, Password: ${data.password}');
-    return null;
+    final userProfile = ref.read(userProfileProvider.notifier);
+    final userSession = ref.read(userSessionProvider.notifier);
+
+    if (data.name == null || data.name!.isEmpty) {
+      return 'Email address is required.';
+    }
+
+    if (data.password == null || data.password!.isEmpty) {
+      return 'Password is required.';
+    }
+
+    await userSession.register(data.name!, data.name!, data.password!);
+
+    if (ref.read(userSessionProvider).isAuthenticated) {
+      userProfile.email = data.name!;
+      return null;
+    }
+
+    return 'Unable to register. Please choose an email address that is not already registered.';
   }
 
   Future<String> _recoverPassword(String name) async {
@@ -32,13 +63,15 @@ class LoginPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return FlutterLogin(
         title: 'Thingzee',
-        onLogin: _authenticate,
-        onSignup: _register,
+        onLogin: (data) => _login(ref, data),
+        onSignup: (data) => _register(ref, data),
         onSubmitAnimationCompleted: () async {
           if (context.mounted) {
             Navigator.pop(context);
           }
         },
+        messages: LoginMessages(
+            recoverPasswordDescription: 'We will send you an email to reset your password.'),
         onRecoverPassword: _recoverPassword);
   }
 }
