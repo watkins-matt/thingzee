@@ -15,4 +15,4 @@ dependencies:
   repository:
     path: ../repository
 
-dev_dependencies: null
+dev_dependencies:

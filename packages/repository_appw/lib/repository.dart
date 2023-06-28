@@ -34,6 +34,7 @@ class AppwriteRepository extends SharedRepository {
   Future<void> registerUser(String username, String email, String password) async {
     try {
       await _account.create(userId: username, email: email, password: password);
+      await _account.createVerification(url: 'https://thingzee.net/verify');
     } catch (e) {
       throw Exception('Failed to register user: $e');
     }
