@@ -33,10 +33,10 @@ class AppwriteItemDatabase extends ItemDatabase {
 
   @override
   void deleteAll() {
-    _items.clear();
     for (final item in _items.values.toList()) {
       delete(item);
     }
+    _items.clear();
   }
 
   @override
