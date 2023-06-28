@@ -43,7 +43,11 @@ class LoginPage extends ConsumerWidget {
       return 'Password is required.';
     }
 
-    await userSession.register(data.name!, data.name!, data.password!);
+    try {
+      await userSession.register(data.name!, data.name!, data.password!);
+    } catch (e) {
+      return e.toString();
+    }
 
     if (ref.read(userSessionProvider).isAuthenticated) {
       userProfile.email = data.name!;
