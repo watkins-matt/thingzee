@@ -1,6 +1,7 @@
 import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/models.dart';
 import 'package:repository/repository.dart';
+import 'package:repository_appw/database/history_db.dart';
 import 'package:repository_appw/database/inventory_db.dart';
 import 'package:repository_appw/database/item_db.dart';
 
@@ -25,6 +26,7 @@ class AppwriteRepository extends SharedRepository {
 
     items = AppwriteItemDatabase(_databases, 'test', 'item');
     inv = AppwriteInventoryDatabase(_databases, 'test', 'inventory');
+    hist = AppwriteHistoryDatabase(_databases, 'test', 'history');
     ready = true;
   }
 
