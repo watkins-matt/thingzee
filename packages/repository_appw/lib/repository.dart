@@ -25,6 +25,7 @@ class AppwriteRepository extends SharedRepository {
 
     items = AppwriteItemDatabase(_databases, 'test', 'item');
     inv = AppwriteInventoryDatabase(_databases, 'test', 'inventory');
+    ready = true;
   }
 
   @override
