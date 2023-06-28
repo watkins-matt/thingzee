@@ -4,6 +4,7 @@ import 'package:repository/model/inventory.dart';
 
 abstract class HistoryDatabase {
   List<History> all();
+  void delete(History history);
   void deleteAll();
   Optional<History> get(String upc);
 

@@ -18,6 +18,18 @@ class ObjectBoxHistoryDatabase extends HistoryDatabase {
   }
 
   @override
+  void delete(History history) {
+    assert(history.upc.isNotEmpty);
+    final query = box.query(ObjectBoxHistory_.upc.equals(history.upc)).build();
+    final result = query.findFirst();
+    query.close();
+
+    if (result != null) {
+      box.remove(result.id);
+    }
+  }
+
+  @override
   void deleteAll() {
     box.removeAll();
   }
