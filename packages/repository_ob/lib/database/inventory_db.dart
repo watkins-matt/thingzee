@@ -19,6 +19,7 @@ class ObjectBoxInventoryDatabase extends InventoryDatabase {
 
   @override
   void delete(Inventory inv) {
+    assert(inv.upc.isNotEmpty);
     final query = box.query(ObjectBoxInventory_.upc.equals(inv.upc)).build();
     final result = query.findFirst();
     query.close();
@@ -35,6 +36,7 @@ class ObjectBoxInventoryDatabase extends InventoryDatabase {
 
   @override
   Optional<Inventory> get(String upc) {
+    assert(upc.isNotEmpty);
     final query = box.query(ObjectBoxInventory_.upc.equals(upc)).build();
     var result = Optional.fromNullable(query.findFirst()?.toInventory());
     query.close();
@@ -44,6 +46,10 @@ class ObjectBoxInventoryDatabase extends InventoryDatabase {
 
   @override
   List<Inventory> getAll(List<String> upcs) {
+    if (upcs.isEmpty) {
+      return [];
+    }
+
     final query = box.query(ObjectBoxInventory_.upc.oneOf(upcs)).build();
     final results = query.find();
     query.close();
