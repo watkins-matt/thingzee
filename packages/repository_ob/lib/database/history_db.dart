@@ -1,7 +1,6 @@
 import 'package:quiver/core.dart';
 import 'package:repository/database/history_database.dart';
 import 'package:repository/ml/history.dart';
-import 'package:repository/model/inventory.dart';
 import 'package:repository_ob/model_custom/history_ob.dart';
 import 'package:repository_ob/objectbox.g.dart';
 
@@ -34,35 +33,6 @@ class ObjectBoxHistoryDatabase extends HistoryDatabase {
   }
 
   @override
-  Map<String, Inventory> join(Map<String, Inventory> inventoryMap) {
-    final allHistory = map();
-
-    for (final inventory in inventoryMap.values) {
-      if (inventory.upc.isNotEmpty && allHistory.containsKey(inventory.upc)) {
-        final history = allHistory[inventory.upc]!;
-        assert(history.upc.isNotEmpty && history.upc == inventory.upc);
-        inventory.history = history;
-      }
-    }
-    return inventoryMap;
-  }
-
-  @override
-  List<Inventory> joinList(List<Inventory> inventoryList) {
-    final allHistory = map();
-
-    for (final inventory in inventoryList) {
-      if (inventory.upc.isNotEmpty && allHistory.containsKey(inventory.upc)) {
-        final history = allHistory[inventory.upc]!;
-        assert(history.upc.isNotEmpty && history.upc == inventory.upc);
-        inventory.history = history;
-      }
-    }
-
-    return inventoryList;
-  }
-
-  @override
   Map<String, History> map() {
     Map<String, History> map = {};
     final allHistory = all();
@@ -72,24 +42,6 @@ class ObjectBoxHistoryDatabase extends HistoryDatabase {
     }
 
     return map;
-  }
-
-  @override
-  Set<String> predictedOuts(int days) {
-    final allHistory = all();
-    Set<String> predictedOuts = {};
-    final futureDate = DateTime.now().add(const Duration(days: 12));
-
-    for (final history in allHistory) {
-      if (history.canPredict) {
-        final outTime = DateTime.fromMillisecondsSinceEpoch(history.predictedOutageTimestamp);
-        if (outTime.isBefore(futureDate)) {
-          predictedOuts.add(history.upc);
-        }
-      }
-    }
-
-    return predictedOuts;
   }
 
   @override

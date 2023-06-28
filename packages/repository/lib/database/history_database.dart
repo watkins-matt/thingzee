@@ -6,9 +6,52 @@ abstract class HistoryDatabase {
   List<History> all();
   void deleteAll();
   Optional<History> get(String upc);
-  Map<String, Inventory> join(Map<String, Inventory> inventoryMap);
-  List<Inventory> joinList(List<Inventory> inventoryList);
+
+  Map<String, Inventory> join(Map<String, Inventory> inventoryMap) {
+    final allHistory = map();
+
+    for (final inventory in inventoryMap.values) {
+      if (inventory.upc.isNotEmpty && allHistory.containsKey(inventory.upc)) {
+        final history = allHistory[inventory.upc]!;
+        assert(history.upc.isNotEmpty && history.upc == inventory.upc);
+        inventory.history = history;
+      }
+    }
+    return inventoryMap;
+  }
+
+  List<Inventory> joinList(List<Inventory> inventoryList) {
+    final allHistory = map();
+
+    for (final inventory in inventoryList) {
+      if (inventory.upc.isNotEmpty && allHistory.containsKey(inventory.upc)) {
+        final history = allHistory[inventory.upc]!;
+        assert(history.upc.isNotEmpty && history.upc == inventory.upc);
+        inventory.history = history;
+      }
+    }
+
+    return inventoryList;
+  }
+
   Map<String, History> map();
-  Set<String> predictedOuts(int days);
+
+  Set<String> predictedOuts({int days = 12}) {
+    final allHistory = all();
+    Set<String> predictedOuts = {};
+    final futureDate = DateTime.now().add(Duration(days: days));
+
+    for (final history in allHistory) {
+      if (history.canPredict) {
+        final outTime = DateTime.fromMillisecondsSinceEpoch(history.predictedOutageTimestamp);
+        if (outTime.isBefore(futureDate)) {
+          predictedOuts.add(history.upc);
+        }
+      }
+    }
+
+    return predictedOuts;
+  }
+
   void put(History history);
 }

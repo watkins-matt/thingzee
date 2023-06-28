@@ -105,7 +105,7 @@ class JoinedItemDatabase {
   }
 
   List<JoinedItem> predictedOuts(HistoryDatabase historyDb, {int days = 12}) {
-    Set<String> predicted = historyDb.predictedOuts(days);
+    Set<String> predicted = historyDb.predictedOuts(days: days);
     return getAll(predicted.toList());
   }
 
