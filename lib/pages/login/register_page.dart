@@ -150,25 +150,6 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                   children: <Widget>[
                     TextFormField(
                       onChanged: (value) {
-                        _markFieldTouched('email');
-                        ref.read(registerStateProvider.notifier).setEmail(value);
-                        _formKey.currentState!.validate();
-                      },
-                      validator: (val) {
-                        if (!_fieldTouched('email')) {
-                          return null;
-                        }
-                        if (val!.isEmpty) {
-                          return 'Email address cannot be empty.';
-                        } else {
-                          return null;
-                        }
-                      },
-                      decoration: InputDecoration(hintText: 'Email', fillColor: Colors.grey[200]),
-                    ),
-                    const SizedBox(height: 20),
-                    TextFormField(
-                      onChanged: (value) {
                         _markFieldTouched('username');
                         ref.read(registerStateProvider.notifier).setUsername(value);
                         _formKey.currentState!.validate();
@@ -185,6 +166,25 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                       },
                       decoration:
                           InputDecoration(hintText: 'Username', fillColor: Colors.grey[200]),
+                    ),
+                    const SizedBox(height: 20),
+                    TextFormField(
+                      onChanged: (value) {
+                        _markFieldTouched('email');
+                        ref.read(registerStateProvider.notifier).setEmail(value);
+                        _formKey.currentState!.validate();
+                      },
+                      validator: (val) {
+                        if (!_fieldTouched('email')) {
+                          return null;
+                        }
+                        if (val!.isEmpty) {
+                          return 'Email address cannot be empty.';
+                        } else {
+                          return null;
+                        }
+                      },
+                      decoration: InputDecoration(hintText: 'Email', fillColor: Colors.grey[200]),
                     ),
                     const SizedBox(height: 20),
                     TextFormField(
