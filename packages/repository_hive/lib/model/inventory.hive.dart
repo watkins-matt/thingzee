@@ -4,7 +4,6 @@ import 'package:hive/hive.dart';
 import 'package:quiver/core.dart';
 import 'package:repository/ml/history.dart';
 import 'package:repository/model/inventory.dart';
-
 @HiveType(typeId: 0)
 class HiveInventory extends HiveObject {
   @HiveField(0)
@@ -50,6 +49,15 @@ class HiveInventory extends HiveObject {
       ..restock = restock
       ..upc = upc
       ..iuid = iuid
-      ..units = units;
+      ..units = units
+    ;
+  }
+}
+@HiveType(typeId: 1)
+class HiveOptDateTimeSerializer extends HiveObject {
+  HiveOptDateTimeSerializer();
+  OptDateTimeSerializer toOptDateTimeSerializer() {
+    return OptDateTimeSerializer()
+    ;
   }
 }
