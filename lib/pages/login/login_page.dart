@@ -20,42 +20,54 @@ class LoginState {
   String email = '';
   String password = '';
   String loginError = '';
+  bool loading = false;
 
-  LoginState({this.email = '', this.password = '', this.loginError = ''});
+  LoginState({this.email = '', this.password = '', this.loginError = '', this.loading = false});
 }
 
 class LoginStateNotifier extends StateNotifier<LoginState> {
   LoginStateNotifier() : super(LoginState());
 
   void setEmail(String value) {
-    state = LoginState(email: value, password: state.password, loginError: state.loginError);
+    state = LoginState(
+        email: value,
+        password: state.password,
+        loginError: state.loginError,
+        loading: state.loading);
   }
 
   void setPassword(String value) {
-    state = LoginState(email: state.email, password: value, loginError: state.loginError);
+    state = LoginState(
+        email: state.email, password: value, loginError: state.loginError, loading: state.loading);
   }
 
   Future<void> login(WidgetRef ref) async {
     final userSession = ref.read(userSessionProvider.notifier);
     final sessionState = ref.read(userSessionProvider);
 
+    state = LoginState(email: state.email, password: state.password, loginError: '', loading: true);
+
     try {
       await userSession.login(state.email, state.password);
     } catch (e) {
-      state = LoginState(email: state.email, password: state.password, loginError: e.toString());
+      state = LoginState(
+          email: state.email, password: state.password, loginError: e.toString(), loading: false);
       return;
     }
 
     if (sessionState.isAuthenticated) {
       final userProfile = ref.read(userProfileProvider.notifier);
       userProfile.email = state.email;
+      state =
+          LoginState(email: state.email, password: state.password, loginError: '', loading: false);
       return;
     }
 
     state = LoginState(
         email: state.email,
         password: state.password,
-        loginError: 'Unable to login. Username or password is incorrect or does not exist.');
+        loginError: 'Unable to login. Username or password is incorrect or does not exist.',
+        loading: false);
   }
 }
 
@@ -148,8 +160,18 @@ class LoginPage extends ConsumerWidget {
                         elevation: 5,
                         padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
                       ),
-                      child: const Text('Login'),
-                      onPressed: () {},
+                      child: ref.watch(loginStateProvider).loading
+                          ? const CircularProgressIndicator(
+                              color: Colors.white,
+                              backgroundColor: Colors.blue,
+                            )
+                          : const Text('Login'),
+                      onPressed: () async {
+                        if (!ref.read(loginStateProvider).loading &&
+                            _formKey.currentState!.validate()) {
+                          await ref.read(loginStateProvider.notifier).login(ref);
+                        }
+                      },
                     ),
                     const SizedBox(height: 20),
                     Row(
