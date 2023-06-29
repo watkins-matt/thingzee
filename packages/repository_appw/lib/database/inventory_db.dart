@@ -13,14 +13,24 @@ class AppwriteInventoryDatabase extends InventoryDatabase {
   final String collectionId;
   final _taskQueue = <_QueueTask>[];
   final _inventory = <String, Inventory>{};
+  bool _online = false;
 
   AppwriteInventoryDatabase(
     this._database,
     this.databaseId,
     this.collectionId,
-  ) {
-    sync();
-    scheduleMicrotask(_processQueue);
+  );
+
+  bool get online => _online;
+
+  set online(bool value) {
+    _online = value;
+    if (_online) {
+      sync();
+      scheduleMicrotask(_processQueue);
+    } else {
+      _taskQueue.clear();
+    }
   }
 
   @override

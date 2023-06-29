@@ -13,10 +13,20 @@ class AppwriteHistoryDatabase extends HistoryDatabase {
   final String collectionId;
   final _taskQueue = <_QueueTask>[];
   final _history = <String, History>{};
+  bool _online = false;
 
-  AppwriteHistoryDatabase(this._database, this.databaseId, this.collectionId) {
-    sync();
-    scheduleMicrotask(_processQueue);
+  AppwriteHistoryDatabase(this._database, this.databaseId, this.collectionId);
+
+  bool get online => _online;
+
+  set online(bool value) {
+    _online = value;
+    if (_online) {
+      sync();
+      scheduleMicrotask(_processQueue);
+    } else {
+      _taskQueue.clear();
+    }
   }
 
   @override

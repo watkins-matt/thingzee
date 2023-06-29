@@ -15,10 +15,20 @@ class AppwriteItemDatabase extends ItemDatabase {
   final String collectionId;
   final _taskQueue = <_QueueTask>[];
   final _items = <String, Item>{};
+  bool _online = false;
 
-  AppwriteItemDatabase(this._database, this.databaseId, this.collectionId) {
-    sync();
-    scheduleMicrotask(_processQueue);
+  AppwriteItemDatabase(this._database, this.databaseId, this.collectionId);
+
+  bool get online => _online;
+
+  set online(bool value) {
+    _online = value;
+    if (_online) {
+      sync();
+      scheduleMicrotask(_processQueue);
+    } else {
+      _taskQueue.clear();
+    }
   }
 
   @override
@@ -98,6 +108,11 @@ class AppwriteItemDatabase extends ItemDatabase {
     scheduleMicrotask(_processQueue);
   }
 
+  @override
+  List<Item> search(String string) {
+    return _items.values.where((item) => item.name.contains(string)).toList();
+  }
+
   Future<void> sync() async {
     try {
       DocumentList response =
@@ -110,11 +125,6 @@ class AppwriteItemDatabase extends ItemDatabase {
     } on AppwriteException catch (e) {
       print(e);
     }
-  }
-
-  @override
-  List<Item> search(String string) {
-    return _items.values.where((item) => item.name.contains(string)).toList();
   }
 
   List<Item> _documentsToList(DocumentList documentList) {
