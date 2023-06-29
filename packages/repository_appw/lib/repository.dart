@@ -33,6 +33,17 @@ class AppwriteRepository extends SharedRepository {
   @override
   bool get isMultiUser => true;
 
+  bool sync() {
+    if (!loggedIn) {
+      return false;
+    }
+
+    (items as AppwriteItemDatabase).online = true;
+    (inv as AppwriteInventoryDatabase).online = true;
+    (hist as AppwriteHistoryDatabase).online = true;
+    return true;
+  }
+
   @override
   Future<void> registerUser(String username, String email, String password) async {
     try {
