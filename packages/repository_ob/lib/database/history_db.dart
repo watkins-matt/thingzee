@@ -14,7 +14,7 @@ class ObjectBoxHistoryDatabase extends HistoryDatabase {
   @override
   List<History> all() {
     final all = box.getAll();
-    return all.map((objBoxHist) => objBoxHist.toMLHistory()).toList();
+    return all.map((objBoxHist) => objBoxHist.toHistory()).toList();
   }
 
   @override
@@ -38,7 +38,7 @@ class ObjectBoxHistoryDatabase extends HistoryDatabase {
   Optional<History> get(String upc) {
     assert(upc.isNotEmpty);
     final query = box.query(ObjectBoxHistory_.upc.equals(upc)).build();
-    final result = Optional.fromNullable(query.findFirst()?.toMLHistory());
+    final result = Optional.fromNullable(query.findFirst()?.toHistory());
     query.close();
 
     return result;

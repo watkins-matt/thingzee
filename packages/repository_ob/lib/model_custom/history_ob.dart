@@ -18,7 +18,7 @@ class ObjectBoxHistory {
     history = original;
     upc = original.upc;
   }
-  History toMLHistory() {
+  History toHistory() {
     return history;
   }
 
