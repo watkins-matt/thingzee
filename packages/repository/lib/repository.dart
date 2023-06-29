@@ -17,7 +17,7 @@ abstract class SharedRepository extends Repository {
   bool get loggedIn;
 
   Future<void> registerUser(String username, String email, String password);
-  Future<void> loginUser(String username, String password);
+  Future<void> loginUser(String email, String password);
 }
 
 class SynchronizedRepository extends SharedRepository {
@@ -38,7 +38,7 @@ class SynchronizedRepository extends SharedRepository {
   }
 
   @override
-  Future<void> loginUser(String username, String password) async {
-    await remote.loginUser(username, password);
+  Future<void> loginUser(String email, String password) async {
+    await remote.loginUser(email, password);
   }
 }
