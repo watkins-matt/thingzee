@@ -121,6 +121,13 @@ class LoginPage extends ConsumerWidget {
                       onChanged: (value) {
                         ref.read(loginStateProvider.notifier).setEmail(value);
                       },
+                      validator: (val) {
+                        if (val!.isEmpty) {
+                          return 'Email cannot be empty.';
+                        } else {
+                          return null;
+                        }
+                      },
                       decoration: InputDecoration(
                         prefixIcon: const Icon(Icons.email_outlined),
                         labelText: 'Email',
@@ -137,6 +144,13 @@ class LoginPage extends ConsumerWidget {
                       obscureText: true,
                       onChanged: (value) {
                         ref.read(loginStateProvider.notifier).setPassword(value);
+                      },
+                      validator: (val) {
+                        if (val!.isEmpty) {
+                          return 'Password cannot be empty.';
+                        } else {
+                          return null;
+                        }
                       },
                       decoration: InputDecoration(
                         prefixIcon: const Icon(Icons.lock_outline),
