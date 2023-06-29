@@ -1,81 +1,192 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_login/flutter_login.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:thingzee/pages/login/register_page.dart';
 import 'package:thingzee/pages/login/state/user_profile.dart';
 import 'package:thingzee/pages/login/state/user_session.dart';
 
+class NoAnimationRoute<T> extends PageRouteBuilder<T> {
+  final Widget child;
+  NoAnimationRoute({required this.child})
+      : super(
+          pageBuilder: (BuildContext context, Animation<double> animation,
+              Animation<double> secondaryAnimation) {
+            return child;
+          },
+          transitionDuration: Duration.zero,
+        );
+}
+
+class LoginState {
+  String email = '';
+  String password = '';
+  String loginError = '';
+
+  LoginState({this.email = '', this.password = '', this.loginError = ''});
+}
+
+class LoginStateNotifier extends StateNotifier<LoginState> {
+  LoginStateNotifier() : super(LoginState());
+
+  void setEmail(String value) {
+    state = LoginState(email: value, password: state.password, loginError: state.loginError);
+  }
+
+  void setPassword(String value) {
+    state = LoginState(email: state.email, password: value, loginError: state.loginError);
+  }
+
+  Future<void> login(WidgetRef ref) async {
+    final userSession = ref.read(userSessionProvider.notifier);
+    final sessionState = ref.read(userSessionProvider);
+
+    try {
+      await userSession.login(state.email, state.password);
+    } catch (e) {
+      state = LoginState(email: state.email, password: state.password, loginError: e.toString());
+      return;
+    }
+
+    if (sessionState.isAuthenticated) {
+      final userProfile = ref.read(userProfileProvider.notifier);
+      userProfile.email = state.email;
+      return;
+    }
+
+    state = LoginState(
+        email: state.email,
+        password: state.password,
+        loginError: 'Unable to login. Username or password is incorrect or does not exist.');
+  }
+}
+
+final loginStateProvider = StateNotifierProvider<LoginStateNotifier, LoginState>((ref) {
+  return LoginStateNotifier();
+});
+
 class LoginPage extends ConsumerWidget {
-  const LoginPage({super.key});
+  LoginPage({Key? key}) : super(key: key);
+
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   static Future<void> push(BuildContext context) async {
     await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const LoginPage()),
+      MaterialPageRoute(builder: (context) => LoginPage()),
     );
-  }
-
-  Future<String?> _login(WidgetRef ref, LoginData data) async {
-    debugPrint('Email: ${data.name}, Password: ${data.password}');
-    final userSession = ref.read(userSessionProvider.notifier);
-    final sessionState = ref.read(userSessionProvider);
-
-    await userSession.login(data.name, data.password);
-
-    if (sessionState.isAuthenticated) {
-      final userProfile = ref.read(userProfileProvider.notifier);
-      userProfile.email = data.name;
-      return null;
-    }
-
-    return 'Unable to login. Username or password is incorrect or does not exist.';
-  }
-
-  Future<String?> _register(WidgetRef ref, SignupData data) async {
-    debugPrint('Registration Email: ${data.name}, Password: ${data.password}');
-    final userProfile = ref.read(userProfileProvider.notifier);
-    final userSession = ref.read(userSessionProvider.notifier);
-
-    if (data.name == null || data.name!.isEmpty) {
-      return 'Email address is required.';
-    }
-
-    if (data.password == null || data.password!.isEmpty) {
-      return 'Password is required.';
-    }
-
-    try {
-      await userSession.register(data.name!, data.name!, data.password!);
-    } catch (e) {
-      return e.toString();
-    }
-
-    if (ref.read(userSessionProvider).isAuthenticated) {
-      userProfile.email = data.name!;
-      return null;
-    }
-
-    return 'Unable to register. Please choose an email address that is not already registered.';
-  }
-
-  Future<String> _recoverPassword(String name) async {
-    debugPrint('Name: $name');
-
-    return '';
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return FlutterLogin(
-        title: 'Thingzee',
-        onLogin: (data) => _login(ref, data),
-        onSignup: (data) => _register(ref, data),
-        onSubmitAnimationCompleted: () async {
-          if (context.mounted) {
-            Navigator.pop(context);
-          }
-        },
-        messages: LoginMessages(
-            recoverPasswordDescription: 'We will send you an email to reset your password.'),
-        onRecoverPassword: _recoverPassword);
+    return Scaffold(
+      backgroundColor: Colors.blue,
+      body: Center(
+        child: Card(
+          color: Colors.white,
+          shadowColor: Colors.black,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          child: Container(
+            width: 300,
+            padding: const EdgeInsets.all(20),
+            child: SingleChildScrollView(
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    const Text(
+                      'Login',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 36,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: .5,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    TextFormField(
+                      onChanged: (value) {
+                        ref.read(loginStateProvider.notifier).setEmail(value);
+                      },
+                      decoration: InputDecoration(
+                        prefixIcon: const Icon(Icons.email_outlined),
+                        labelText: 'Email',
+                        filled: true,
+                        fillColor: Colors.blue[75],
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    TextFormField(
+                      obscureText: true,
+                      onChanged: (value) {
+                        ref.read(loginStateProvider.notifier).setPassword(value);
+                      },
+                      decoration: InputDecoration(
+                        prefixIcon: const Icon(Icons.lock_outline),
+                        labelText: 'Password',
+                        filled: true,
+                        fillColor: Colors.blue[75],
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        backgroundColor: Colors.blue,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        elevation: 5,
+                        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
+                      ),
+                      child: const Text('Login'),
+                      onPressed: () {},
+                    ),
+                    const SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        TextButton(
+                          onPressed: () {
+                            // Navigate to Forgot Password page
+                          },
+                          child: const Text(
+                            'Forgot Password?',
+                            style: TextStyle(
+                              color: Colors.blue,
+                            ),
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pushReplacement(
+                                context, NoAnimationRoute(child: const RegisterPage()));
+                          },
+                          child: const Text(
+                            'Register',
+                            style: TextStyle(
+                              color: Colors.blue,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
