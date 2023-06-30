@@ -6,13 +6,18 @@ builders:
     auto_apply: all_packages
     build_to: source
 
+global_options:
+  repository_hive|hive_builder:
+    runs_before:
+      - hive_generator|hive_generator
+
 targets:
   $default:
     builders:
       repository_hive|hive_builder:
         enabled: true
         generate_for:
-          - lib/model/product.dart
-          - lib/model/Item.dart
-          - lib/model/manufacturer.dart
           - lib/model/inventory.dart
+          - lib/model/item.dart
+          - lib/model/manufacturer.dart
+          - lib/model/product.dart
