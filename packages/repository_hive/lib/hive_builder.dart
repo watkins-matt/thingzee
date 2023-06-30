@@ -5,6 +5,7 @@ Builder hiveBuilder(BuilderOptions options) => HiveBuilder();
 
 class HiveBuilder implements Builder {
   final Map<String, String> packageReplace = {'repository_hive': 'repository'};
+  static int typeIdCounter = 0;
 
   @override
   final buildExtensions = const {
@@ -52,8 +53,10 @@ class HiveBuilder implements Builder {
       }
     }
 
-    // Initialize the typeId counter.
-    var typeIdCounter = 0;
+    // Generate the part statement
+    var generatedFile = buildStep.inputId.path.split('/').last;
+    generatedFile = generatedFile.replaceFirst('.dart', '.hive.g.dart');
+    buffer.writeln("part '$generatedFile';");
 
     // Iterate over all the classes in the input library.
     for (final originalClass in library.definingCompilationUnit.classes) {
@@ -88,8 +91,11 @@ class HiveBuilder implements Builder {
       fieldIndex++;
     }
 
+    // Write an unnamed constructor
+    buffer.writeln('  Hive${originalClass.name}();');
+
     // Write a constructor that takes an instance of the original class.
-    buffer.writeln('  Hive${originalClass.name}(${originalClass.name} original) {');
+    buffer.writeln('  Hive${originalClass.name}.from(${originalClass.name} original) {');
     for (final field in originalClass.fields) {
       if (field.setter != null) {
         buffer.writeln('    ${field.name} = original.${field.name};');
