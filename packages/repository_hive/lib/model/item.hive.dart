@@ -2,7 +2,9 @@ import 'dart:core';
 
 import 'package:hive/hive.dart';
 import 'package:repository/model/item.dart';
-@HiveType(typeId: 0)
+
+part 'item.hive.g.dart';
+@HiveType(typeId: 2)
 class HiveItem extends HiveObject {
   @HiveField(0)
   late String upc;
@@ -30,7 +32,8 @@ class HiveItem extends HiveObject {
   late String languageCode;
   @HiveField(12)
   late List<ItemTranslation> translations;
-  HiveItem(Item original) {
+  HiveItem();
+  HiveItem.from(Item original) {
     upc = original.upc;
     iuid = original.iuid;
     name = original.name;
@@ -63,7 +66,7 @@ class HiveItem extends HiveObject {
     ;
   }
 }
-@HiveType(typeId: 1)
+@HiveType(typeId: 3)
 class HiveItemTranslation extends HiveObject {
   @HiveField(0)
   late String languageCode;
@@ -75,7 +78,8 @@ class HiveItemTranslation extends HiveObject {
   late String unitName;
   @HiveField(4)
   late String unitPlural;
-  HiveItemTranslation(ItemTranslation original) {
+  HiveItemTranslation();
+  HiveItemTranslation.from(ItemTranslation original) {
     languageCode = original.languageCode;
     name = original.name;
     variety = original.variety;

@@ -2,6 +2,8 @@ import 'dart:core';
 
 import 'package:hive/hive.dart';
 import 'package:repository/model/product.dart';
+
+part 'product.hive.g.dart';
 @HiveType(typeId: 0)
 class HiveProduct extends HiveObject {
   @HiveField(0)
@@ -16,7 +18,8 @@ class HiveProduct extends HiveObject {
   late String category;
   @HiveField(5)
   late List<String> upcs;
-  HiveProduct(Product original) {
+  HiveProduct();
+  HiveProduct.from(Product original) {
     name = original.name;
     puid = original.puid;
     manufacturer = original.manufacturer;

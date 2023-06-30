@@ -2,7 +2,9 @@ import 'dart:core';
 
 import 'package:hive/hive.dart';
 import 'package:repository/model/manufacturer.dart';
-@HiveType(typeId: 0)
+
+part 'manufacturer.hive.g.dart';
+@HiveType(typeId: 1)
 class HiveManufacturer extends HiveObject {
   @HiveField(0)
   late String name;
@@ -14,7 +16,8 @@ class HiveManufacturer extends HiveObject {
   late String parentName;
   @HiveField(4)
   late String parentMuid;
-  HiveManufacturer(Manufacturer original) {
+  HiveManufacturer();
+  HiveManufacturer.from(Manufacturer original) {
     name = original.name;
     website = original.website;
     muid = original.muid;
