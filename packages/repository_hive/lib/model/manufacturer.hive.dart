@@ -4,7 +4,7 @@ import 'package:hive/hive.dart';
 import 'package:repository/model/manufacturer.dart';
 
 part 'manufacturer.hive.g.dart';
-@HiveType(typeId: 1)
+@HiveType(typeId: 3)
 class HiveManufacturer extends HiveObject {
   @HiveField(0)
   late String name;

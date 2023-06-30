@@ -1,7 +1,6 @@
 import 'dart:core';
 
 import 'package:hive/hive.dart';
-import 'package:quiver/core.dart';
 import 'package:repository/ml/history.dart';
 import 'package:repository/model/inventory.dart';
 
@@ -13,7 +12,7 @@ class HiveInventory extends HiveObject {
   @HiveField(1)
   late int unitCount;
   @HiveField(2)
-  late Optional<DateTime> lastUpdate;
+  late DateTime? lastUpdate;
   @HiveField(3)
   late List<DateTime> expirationDates;
   @HiveField(4)

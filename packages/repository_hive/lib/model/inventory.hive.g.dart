@@ -19,7 +19,7 @@ class HiveInventoryAdapter extends TypeAdapter<HiveInventory> {
     return HiveInventory()
       ..amount = fields[0] as double
       ..unitCount = fields[1] as int
-      ..lastUpdate = (fields[2] as List).cast<DateTime>()
+      ..lastUpdate = fields[2] as DateTime?
       ..expirationDates = (fields[3] as List).cast<DateTime>()
       ..locations = (fields[4] as List).cast<String>()
       ..history = fields[5] as History
@@ -38,7 +38,7 @@ class HiveInventoryAdapter extends TypeAdapter<HiveInventory> {
       ..writeByte(1)
       ..write(obj.unitCount)
       ..writeByte(2)
-      ..write(obj.lastUpdate.toList())
+      ..write(obj.lastUpdate)
       ..writeByte(3)
       ..write(obj.expirationDates)
       ..writeByte(4)

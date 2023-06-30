@@ -1,5 +1,4 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:quiver/core.dart';
 import 'package:repository/database/joined_item_database.dart';
 import 'package:repository/repository.dart';
 import 'package:thingzee/app.dart';
@@ -48,7 +47,7 @@ class ShoppingCart extends StateNotifier<ShoppingCartState> {
       final now = DateTime.now();
       inventory.amount += 1;
       inventory.history.add(now.millisecondsSinceEpoch, inventory.amount, 2);
-      inventory.lastUpdate = Optional.of(now);
+      inventory.lastUpdate = now;
 
       repo.inv.put(inventory);
     }

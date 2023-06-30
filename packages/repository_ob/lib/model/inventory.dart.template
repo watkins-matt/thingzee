@@ -1,11 +1,11 @@
 int get dbLastUpdate {
-  return lastUpdate.isPresent ? lastUpdate.value.millisecondsSinceEpoch : 0;
+  return lastUpdate != null ? lastUpdate!.millisecondsSinceEpoch : 0;
 }
 
 set dbLastUpdate(int value) {
   lastUpdate = value != 0
-      ? Optional.of(DateTime.fromMillisecondsSinceEpoch(value))
-      : const Optional.absent();
+      ? DateTime.fromMillisecondsSinceEpoch(value)
+      : null;
 }
 
 List<String> get dbExpirationDates {

@@ -1,6 +1,5 @@
 import 'package:intl/intl.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'package:quiver/core.dart';
 import 'package:repository/extension/duration.dart';
 import 'package:repository/ml/history.dart';
 import 'package:stats/double.dart';
@@ -12,7 +11,7 @@ class Inventory {
   double amount = 0;
   int unitCount = 1;
   @OptDateTimeSerializer()
-  Optional<DateTime> lastUpdate = const Optional.absent();
+  DateTime? lastUpdate;
   List<DateTime> expirationDates = <DateTime>[];
   List<String> locations = <String>[];
   History history = History();
@@ -34,7 +33,7 @@ class Inventory {
   }
 
   String get lastUpdatedString {
-    return lastUpdate.isPresent ? DateFormat.yMMMd().format(lastUpdate.value) : 'Never';
+    return lastUpdate != null ? DateFormat.yMMMd().format(lastUpdate!) : 'Never';
   }
 
   String get minutesToReduceByOneString {
@@ -105,12 +104,12 @@ class Inventory {
   }
 
   Duration get timeSinceLastUpdate {
-    assert(lastUpdate.isPresent && lastUpdate.value != DateTime.fromMillisecondsSinceEpoch(0));
-    return DateTime.now().difference(lastUpdate.value);
+    assert(lastUpdate != null && lastUpdate != DateTime.fromMillisecondsSinceEpoch(0));
+    return DateTime.now().difference(lastUpdate!);
   }
 
   String get timeSinceLastUpdateString {
-    if (lastUpdate.isPresent && lastUpdate.value != DateTime.fromMillisecondsSinceEpoch(0)) {
+    if (lastUpdate != null && lastUpdate != DateTime.fromMillisecondsSinceEpoch(0)) {
       return 'Amount updated ${timeSinceLastUpdate.toHumanReadableString()} ago.';
     } else {
       return 'Amount not updated recently.';
@@ -139,14 +138,12 @@ class Inventory {
   Map<String, dynamic> toJson() => _$InventoryToJson(this);
 }
 
-class OptDateTimeSerializer implements JsonConverter<Optional<DateTime>, int> {
+class OptDateTimeSerializer implements JsonConverter<DateTime?, int> {
   const OptDateTimeSerializer();
 
   @override
-  Optional<DateTime> fromJson(int json) =>
-      json == 0 ? const Optional.absent() : Optional.of(DateTime.fromMillisecondsSinceEpoch(json));
+  DateTime? fromJson(int json) => json == 0 ? null : DateTime.fromMillisecondsSinceEpoch(json);
 
   @override
-  int toJson(Optional<DateTime> dateTime) =>
-      dateTime.isPresent ? dateTime.value.millisecondsSinceEpoch : 0;
+  int toJson(DateTime? dateTime) => dateTime != null ? dateTime.millisecondsSinceEpoch : 0;
 }

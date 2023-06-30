@@ -86,8 +86,7 @@ class HiveBuilder implements Builder {
       }
 
       buffer.writeln('  @HiveField($fieldIndex)');
-      buffer
-          .writeln('  late ${field.type.getDisplayString(withNullability: false)} ${field.name};');
+      buffer.writeln('  late ${field.type.getDisplayString(withNullability: true)} ${field.name};');
       fieldIndex++;
     }
 

@@ -1,4 +1,3 @@
-import 'package:quiver/core.dart';
 import 'package:repository/extension/string.dart';
 import 'package:repository/model/inventory.dart';
 import 'package:repository/model/item.dart';
@@ -13,7 +12,7 @@ class InventoryCsvRow {
   String unitName = 'Package';
   String unitPlural = 'Packages';
   double amount = 0;
-  Optional<DateTime> lastUpdate = const Optional.absent();
+  DateTime? lastUpdate;
   bool restock = false;
 
   void fromRow(List<dynamic> row, Map<String, int> columnIndex) {
@@ -34,7 +33,7 @@ class InventoryCsvRow {
           // If it's 0 assume it's a placeholder so ignore it
           // If it's below zero, the value is invalid
           if (lastUpdateTimestamp > 0) {
-            lastUpdate = Optional.of(DateTime.fromMillisecondsSinceEpoch(lastUpdateTimestamp));
+            lastUpdate = DateTime.fromMillisecondsSinceEpoch(lastUpdateTimestamp);
           }
         }
       },

@@ -94,7 +94,7 @@ class ObjectBoxBuilder implements Builder {
         buffer.writeln('  @Unique()');
       }
 
-      final type = field.type.getDisplayString(withNullability: false);
+      final type = field.type.getDisplayString(withNullability: true);
       // Must initialize empty lists
       if (type.contains('List<')) {
         buffer.writeln('  $type ${field.name} = [];');
@@ -103,6 +103,12 @@ class ObjectBoxBuilder implements Builder {
       else if (type.contains('Optional<')) {
         buffer.writeln('  $type ${field.name} = const Optional.absent();');
       }
+
+      // Check for null suffix
+      // else if (field.type.nullabilitySuffix == NullabilitySuffix.question) {
+      //   buffer.writeln('  $type ${field.name}?;');
+      // }
+
       // Initialize transient fields
       else if (transientFields.contains(field.name)) {
         buffer.writeln('  $type ${field.name} = $type();');

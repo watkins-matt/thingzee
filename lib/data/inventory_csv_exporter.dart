@@ -18,7 +18,7 @@ extension on Inventory {
       'upc': upc.normalizeUPC(),
       'name': item.name,
       'quantity': amount,
-      'update_date': lastUpdate.isPresent ? lastUpdate.value.millisecondsSinceEpoch : '',
+      'update_date': lastUpdate != null ? lastUpdate!.millisecondsSinceEpoch : '',
       'consumable': item.consumable ? 1 : 0,
       'unit_count': item.unitCount,
       'category': item.category,
