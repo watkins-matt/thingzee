@@ -9,8 +9,8 @@ part of 'inventory.dart';
 Inventory _$InventoryFromJson(Map<String, dynamic> json) => Inventory()
   ..amount = (json['amount'] as num).toDouble()
   ..unitCount = json['unitCount'] as int
-  ..lastUpdate =
-      const OptDateTimeSerializer().fromJson(json['lastUpdate'] as int)
+  ..lastUpdate = _$JsonConverterFromJson<int, DateTime?>(
+      json['lastUpdate'], const OptDateTimeSerializer().fromJson)
   ..expirationDates = (json['expirationDates'] as List<dynamic>)
       .map((e) => DateTime.parse(e as String))
       .toList()
@@ -35,3 +35,9 @@ Map<String, dynamic> _$InventoryToJson(Inventory instance) => <String, dynamic>{
       'iuid': instance.iuid,
       'units': instance.units,
     };
+
+Value? _$JsonConverterFromJson<Json, Value>(
+  Object? json,
+  Value? Function(Json json) fromJson,
+) =>
+    json == null ? null : fromJson(json as Json);
