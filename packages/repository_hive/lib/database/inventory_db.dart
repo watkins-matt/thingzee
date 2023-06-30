@@ -63,7 +63,7 @@ class HiveInventoryDatabase extends InventoryDatabase {
   @override
   void put(Inventory inv) {
     assert(inv.upc.isNotEmpty);
-    final hiveInventory = HiveInventory(inv);
+    final hiveInventory = HiveInventory.from(inv);
     box.put(inv.upc, hiveInventory);
   }
 }

@@ -64,7 +64,7 @@ class HiveItemDatabase extends ItemDatabase {
   @override
   void put(Item item) {
     assert(item.upc.isNotEmpty && item.name.isNotEmpty);
-    final hiveItem = HiveItem(item);
+    final hiveItem = HiveItem.from(item);
     box.put(item.upc, hiveItem);
   }
 
