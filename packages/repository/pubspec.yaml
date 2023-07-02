@@ -15,6 +15,7 @@ dependencies:
   ml_dataframe: ^1.6.0
   ml_linalg: ^13.11.31
   quiver: ^3.0.1
+  shared_preferences: ^2.2.0
   stats:
     path: ../stats
 

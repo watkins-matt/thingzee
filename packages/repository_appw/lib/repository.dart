@@ -1,5 +1,6 @@
 import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/models.dart';
+import 'package:repository/database/preferences.dart';
 import 'package:repository/repository.dart';
 import 'package:repository_appw/database/history_db.dart';
 import 'package:repository_appw/database/inventory_db.dart';
@@ -24,6 +25,7 @@ class AppwriteRepository extends SharedRepository {
     _account = Account(_client);
     _databases = Databases(_client);
 
+    prefs = DefaultSharedPreferences();
     items = AppwriteItemDatabase(_databases, 'test', 'item');
     inv = AppwriteInventoryDatabase(_databases, 'test', 'inventory');
     hist = AppwriteHistoryDatabase(_databases, 'test', 'history');
