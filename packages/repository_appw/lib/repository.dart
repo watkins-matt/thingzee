@@ -43,15 +43,30 @@ class AppwriteRepository extends SharedRepository {
   }
 
   @override
+  Future<void> logoutUser() async {
+    if (_session != null) {
+      await _account.deleteSession(sessionId: _session!.$id);
+      _session = null;
+
+      await prefs.remove('appwrite_session_id');
+      await prefs.remove('appwrite_session_expire');
+    }
+  }
+
+  @override
   Future<void> registerUser(String username, String email, String password) async {
+    // Try to create the user
     try {
       await _account.create(userId: username, email: email, password: password);
     } catch (e) {
       throw Exception('Failed to register user: $e');
     }
 
+    // Should login immediately after registering
+    await loginUser(email, password);
+
+    // Send the verification email
     try {
-      _session = await _account.createEmailSession(email: username, password: password);
       await _account.createVerification(url: 'https://appwrite.thingzee.net/verify');
     } catch (e) {
       throw Exception('Failed to send verification email: $e');
