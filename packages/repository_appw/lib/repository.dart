@@ -64,6 +64,7 @@ class AppwriteRepository extends SharedRepository {
   Future<void> loginUser(String email, String password) async {
     try {
       _session = await _account.createEmailSession(email: email, password: password);
+      sync();
     } catch (e) {
       throw Exception('Failed to login user: $e');
     }
