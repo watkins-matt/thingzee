@@ -4,6 +4,7 @@ abstract class Preferences {
   Future<void> setString(String key, String value);
   String? getString(String key);
   bool containsKey(String key);
+  Future<bool> remove(String key);
 }
 
 class DefaultSharedPreferences implements Preferences {
@@ -30,5 +31,10 @@ class DefaultSharedPreferences implements Preferences {
   @override
   bool containsKey(String key) {
     return _prefs.containsKey(key);
+  }
+
+  @override
+  Future<bool> remove(String key) async {
+    return await _prefs.remove(key);
   }
 }
