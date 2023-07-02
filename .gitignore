@@ -2,6 +2,9 @@
 migrate_working_dir/
 custom_lint-*.log
 
+# Do not include package pubspec.lock files in the git repo
+packages/**/pubspec.lock
+
 # Miscellaneous
 *.class
 *.log
