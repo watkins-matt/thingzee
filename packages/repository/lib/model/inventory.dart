@@ -18,8 +18,10 @@ class Inventory {
   bool restock = true;
   String upc = '';
   String iuid = '';
+
   Inventory();
   factory Inventory.fromJson(Map<String, dynamic> json) => _$InventoryFromJson(json);
+  Map<String, dynamic> toJson() => _$InventoryToJson(this);
 
   Inventory.withUPC(this.upc) {
     history.upc = upc;
@@ -134,8 +136,6 @@ class Inventory {
   double get usageSpeedMinutes {
     return history.regressor.hasSlope ? (1 / history.regressor.slope.abs()) / 1000 / 60 : 0;
   }
-
-  Map<String, dynamic> toJson() => _$InventoryToJson(this);
 }
 
 class OptDateTimeSerializer implements JsonConverter<DateTime?, int> {
