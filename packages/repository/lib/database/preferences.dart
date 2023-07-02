@@ -2,8 +2,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 abstract class Preferences {
   Future<void> setString(String key, String value);
-  Future<String?> getString(String key);
-  Future<bool> containsKey(String key);
+  String? getString(String key);
+  bool containsKey(String key);
 }
 
 class DefaultSharedPreferences implements Preferences {
@@ -23,12 +23,12 @@ class DefaultSharedPreferences implements Preferences {
   }
 
   @override
-  Future<String?> getString(String key) async {
+  String? getString(String key) {
     return _prefs.getString(key);
   }
 
   @override
-  Future<bool> containsKey(String key) async {
+  bool containsKey(String key) {
     return _prefs.containsKey(key);
   }
 }
