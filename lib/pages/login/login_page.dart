@@ -41,7 +41,7 @@ class LoginStateNotifier extends StateNotifier<LoginState> {
         email: state.email, password: value, loginError: state.loginError, loading: state.loading);
   }
 
-  Future<void> login(WidgetRef ref) async {
+  Future<bool> login(WidgetRef ref) async {
     final userSession = ref.read(userSessionProvider.notifier);
     final sessionState = ref.read(userSessionProvider);
 
@@ -52,7 +52,7 @@ class LoginStateNotifier extends StateNotifier<LoginState> {
     } catch (e) {
       state = LoginState(
           email: state.email, password: state.password, loginError: e.toString(), loading: false);
-      return;
+      return false;
     }
 
     if (sessionState.isAuthenticated) {
@@ -60,7 +60,7 @@ class LoginStateNotifier extends StateNotifier<LoginState> {
       userProfile.email = state.email;
       state =
           LoginState(email: state.email, password: state.password, loginError: '', loading: false);
-      return;
+      return true;
     }
 
     state = LoginState(
@@ -68,6 +68,7 @@ class LoginStateNotifier extends StateNotifier<LoginState> {
         password: state.password,
         loginError: 'Unable to login. Username or password is incorrect or does not exist.',
         loading: false);
+    return false;
   }
 }
 
@@ -183,7 +184,16 @@ class LoginPage extends ConsumerWidget {
                       onPressed: () async {
                         if (!ref.read(loginStateProvider).loading &&
                             _formKey.currentState!.validate()) {
-                          await ref.read(loginStateProvider.notifier).login(ref);
+                          bool success = await ref.read(loginStateProvider.notifier).login(ref);
+                          if (success && context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Logged in successfully.'),
+                                duration: Duration(seconds: 1),
+                              ),
+                            );
+                            Navigator.pop(context);
+                          }
                         }
                       },
                     ),
