@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/models.dart';
@@ -114,6 +115,8 @@ class AppwriteItemDatabase extends ItemDatabase {
   }
 
   Future<void> sync() async {
+    Stopwatch stopwatch = Stopwatch()..start();
+
     try {
       DocumentList response =
           await _database.listDocuments(databaseId: databaseId, collectionId: collectionId);
@@ -125,6 +128,10 @@ class AppwriteItemDatabase extends ItemDatabase {
     } on AppwriteException catch (e) {
       print(e);
     }
+
+    stopwatch.stop();
+    final elapsed = stopwatch.elapsed.inMilliseconds;
+    log('Item sync completed in ${elapsed / 1000} seconds.');
   }
 
   List<Item> _documentsToList(DocumentList documentList) {

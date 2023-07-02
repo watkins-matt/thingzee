@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/models.dart';
@@ -108,6 +109,8 @@ class AppwriteInventoryDatabase extends InventoryDatabase {
   }
 
   Future<void> sync() async {
+    Stopwatch stopwatch = Stopwatch()..start();
+
     try {
       DocumentList response =
           await _database.listDocuments(databaseId: databaseId, collectionId: collectionId);
@@ -119,6 +122,10 @@ class AppwriteInventoryDatabase extends InventoryDatabase {
     } on AppwriteException catch (e) {
       print(e);
     }
+
+    stopwatch.stop();
+    final elapsed = stopwatch.elapsed.inMilliseconds;
+    log('Inventory sync completed in ${elapsed / 1000} seconds.');
   }
 
   List<Inventory> _documentsToList(DocumentList documentList) {

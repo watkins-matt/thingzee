@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/models.dart';
@@ -99,6 +100,8 @@ class AppwriteHistoryDatabase extends HistoryDatabase {
   }
 
   Future<void> sync() async {
+    Stopwatch stopwatch = Stopwatch()..start();
+
     try {
       DocumentList response =
           await _database.listDocuments(databaseId: databaseId, collectionId: collectionId);
@@ -110,6 +113,10 @@ class AppwriteHistoryDatabase extends HistoryDatabase {
     } on AppwriteException catch (e) {
       print(e);
     }
+
+    stopwatch.stop();
+    final elapsed = stopwatch.elapsed.inMilliseconds;
+    log('History sync completed in ${elapsed / 1000} seconds.');
   }
 
   List<History> _documentsToList(DocumentList documentList) {
