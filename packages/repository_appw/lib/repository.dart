@@ -108,6 +108,11 @@ class AppwriteRepository extends SharedRepository {
   }
 
   Future<void> _loadSession() async {
+    // Don't do anything if we have a session already
+    if (_session != null) {
+      return;
+    }
+
     if (prefs.containsKey('appwrite_session_id') && prefs.containsKey('appwrite_session_expire')) {
       String sessionId = prefs.getString('appwrite_session_id')!;
       String expiration = prefs.getString('appwrite_session_expire')!;
