@@ -18,10 +18,7 @@ Item _$ItemFromJson(Map<String, dynamic> json) => Item()
   ..unitPlural = json['unitPlural'] as String
   ..imageUrl = json['imageUrl'] as String
   ..consumable = json['consumable'] as bool
-  ..languageCode = json['languageCode'] as String
-  ..translations = (json['translations'] as List<dynamic>)
-      .map((e) => ItemTranslation.fromJson(e as Map<String, dynamic>))
-      .toList();
+  ..languageCode = json['languageCode'] as String;
 
 Map<String, dynamic> _$ItemToJson(Item instance) => <String, dynamic>{
       'upc': instance.upc,
@@ -36,11 +33,11 @@ Map<String, dynamic> _$ItemToJson(Item instance) => <String, dynamic>{
       'imageUrl': instance.imageUrl,
       'consumable': instance.consumable,
       'languageCode': instance.languageCode,
-      'translations': instance.translations.map((e) => e.toJson()).toList(),
     };
 
 ItemTranslation _$ItemTranslationFromJson(Map<String, dynamic> json) =>
     ItemTranslation()
+      ..upc = json['upc'] as String
       ..languageCode = json['languageCode'] as String
       ..name = json['name'] as String
       ..variety = json['variety'] as String
@@ -49,6 +46,7 @@ ItemTranslation _$ItemTranslationFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$ItemTranslationToJson(ItemTranslation instance) =>
     <String, dynamic>{
+      'upc': instance.upc,
       'languageCode': instance.languageCode,
       'name': instance.name,
       'variety': instance.variety,

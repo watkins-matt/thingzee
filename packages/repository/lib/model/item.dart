@@ -21,7 +21,6 @@ class Item implements Comparable<Item> {
 
   bool consumable = true;
   String languageCode = 'en';
-  List<ItemTranslation> translations = <ItemTranslation>[];
 
   @override
   int compareTo(Item other) {
@@ -35,6 +34,7 @@ class Item implements Comparable<Item> {
 
 @JsonSerializable(explicitToJson: true)
 class ItemTranslation {
+  String upc = '';
   String languageCode = 'en';
   String name = '';
   String variety = '';
