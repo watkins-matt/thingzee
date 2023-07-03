@@ -17,7 +17,6 @@ class ObjectBoxItem {
   late String imageUrl;
   late bool consumable;
   late String languageCode;
-  List<ItemTranslation> translations = [];
   @Id()
   int id = 0;
   ObjectBoxItem();
@@ -34,7 +33,6 @@ class ObjectBoxItem {
     imageUrl = original.imageUrl;
     consumable = original.consumable;
     languageCode = original.languageCode;
-    translations = original.translations;
   }
   Item toItem() {
     return Item()
@@ -50,12 +48,13 @@ class ObjectBoxItem {
       ..imageUrl = imageUrl
       ..consumable = consumable
       ..languageCode = languageCode
-      ..translations = translations
     ;
   }
 }
 @Entity()
 class ObjectBoxItemTranslation {
+  @Unique()
+  late String upc;
   late String languageCode;
   late String name;
   late String variety;
@@ -65,6 +64,7 @@ class ObjectBoxItemTranslation {
   int id = 0;
   ObjectBoxItemTranslation();
   ObjectBoxItemTranslation.from(ItemTranslation original) {
+    upc = original.upc;
     languageCode = original.languageCode;
     name = original.name;
     variety = original.variety;
@@ -73,6 +73,7 @@ class ObjectBoxItemTranslation {
   }
   ItemTranslation toItemTranslation() {
     return ItemTranslation()
+      ..upc = upc
       ..languageCode = languageCode
       ..name = name
       ..variety = variety

@@ -3,7 +3,6 @@ import 'dart:core';
 import 'package:objectbox/objectbox.dart';
 import 'package:repository/ml/history.dart';
 import 'package:repository/model/inventory.dart';
-
 @Entity()
 class ObjectBoxInventory {
   late double amount;
@@ -34,8 +33,8 @@ class ObjectBoxInventory {
     units = original.units;
   }
   Inventory toInventory() {
-    // Ensure history is in a consistent state
-    history.upc = upc;
+      // Ensure history is in a consistent state
+      history.upc = upc;
     return Inventory()
       ..amount = amount
       ..unitCount = unitCount
@@ -46,39 +45,41 @@ class ObjectBoxInventory {
       ..restock = restock
       ..upc = upc
       ..iuid = iuid
-      ..units = units;
+      ..units = units
+    ;
+  }
+int get dbLastUpdate {
+  return lastUpdate != null ? lastUpdate!.millisecondsSinceEpoch : 0;
+}
+
+set dbLastUpdate(int value) {
+  lastUpdate = value != 0
+      ? DateTime.fromMillisecondsSinceEpoch(value)
+      : null;
+}
+
+List<String> get dbExpirationDates {
+  List<String> dates = [];
+  for (final exp in expirationDates) {
+    dates.add(exp.millisecondsSinceEpoch.toString());
   }
 
-  int get dbLastUpdate {
-    return lastUpdate != null ? lastUpdate!.millisecondsSinceEpoch : 0;
-  }
+  return dates;
+}
 
-  set dbLastUpdate(int value) {
-    lastUpdate = value != 0 ? DateTime.fromMillisecondsSinceEpoch(value) : null;
-  }
+set dbExpirationDates(List<String> dates) {
+  expirationDates.clear();
 
-  List<String> get dbExpirationDates {
-    List<String> dates = [];
-    for (final exp in expirationDates) {
-      dates.add(exp.millisecondsSinceEpoch.toString());
-    }
+  for (final date in dates) {
+    int? timestamp = int.tryParse(date);
 
-    return dates;
-  }
-
-  set dbExpirationDates(List<String> dates) {
-    expirationDates.clear();
-
-    for (final date in dates) {
-      int? timestamp = int.tryParse(date);
-
-      if (timestamp != null) {
-        expirationDates.add(DateTime.fromMillisecondsSinceEpoch(timestamp));
-      }
+    if (timestamp != null) {
+      expirationDates.add(DateTime.fromMillisecondsSinceEpoch(timestamp));
     }
   }
 }
 
+}
 @Entity()
 class ObjectBoxOptDateTimeSerializer {
   @Id()
@@ -86,6 +87,7 @@ class ObjectBoxOptDateTimeSerializer {
   ObjectBoxOptDateTimeSerializer();
   ObjectBoxOptDateTimeSerializer.from();
   OptDateTimeSerializer toOptDateTimeSerializer() {
-    return OptDateTimeSerializer();
+    return OptDateTimeSerializer()
+    ;
   }
 }

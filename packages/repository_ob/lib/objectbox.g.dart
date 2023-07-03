@@ -184,7 +184,7 @@ final _entities = <ModelEntity>[
   ModelEntity(
       id: const IdUid(5, 2251611335733283142),
       name: 'ObjectBoxItemTranslation',
-      lastPropertyId: const IdUid(6, 1103960621444936317),
+      lastPropertyId: const IdUid(7, 5207382650981158992),
       flags: 0,
       properties: <ModelProperty>[
         ModelProperty(
@@ -216,7 +216,13 @@ final _entities = <ModelEntity>[
             id: const IdUid(6, 1103960621444936317),
             name: 'id',
             type: 6,
-            flags: 1)
+            flags: 1),
+        ModelProperty(
+            id: const IdUid(7, 5207382650981158992),
+            name: 'upc',
+            type: 9,
+            flags: 2080,
+            indexId: const IdUid(6, 2162817961615772067))
       ],
       relations: <ModelRelation>[],
       backlinks: <ModelBacklink>[]),
@@ -347,7 +353,7 @@ ModelDefinition getObjectBoxModel() {
   final model = ModelInfo(
       entities: _entities,
       lastEntityId: const IdUid(15, 9026109327750919290),
-      lastIndexId: const IdUid(5, 3019641394831653558),
+      lastIndexId: const IdUid(6, 2162817961615772067),
       lastRelationId: const IdUid(0, 0),
       lastSequenceId: const IdUid(0, 0),
       retiredEntityUids: const [
@@ -581,13 +587,15 @@ ModelDefinition getObjectBoxModel() {
           final varietyOffset = fbb.writeString(object.variety);
           final unitNameOffset = fbb.writeString(object.unitName);
           final unitPluralOffset = fbb.writeString(object.unitPlural);
-          fbb.startTable(7);
+          final upcOffset = fbb.writeString(object.upc);
+          fbb.startTable(8);
           fbb.addOffset(0, languageCodeOffset);
           fbb.addOffset(1, nameOffset);
           fbb.addOffset(2, varietyOffset);
           fbb.addOffset(3, unitNameOffset);
           fbb.addOffset(4, unitPluralOffset);
           fbb.addInt64(5, object.id);
+          fbb.addOffset(6, upcOffset);
           fbb.finish(fbb.endTable());
           return object.id;
         },
@@ -606,7 +614,9 @@ ModelDefinition getObjectBoxModel() {
                 .vTableGet(buffer, rootOffset, 10, '')
             ..unitPlural = const fb.StringReader(asciiOptimization: true)
                 .vTableGet(buffer, rootOffset, 12, '')
-            ..id = const fb.Int64Reader().vTableGet(buffer, rootOffset, 14, 0);
+            ..id = const fb.Int64Reader().vTableGet(buffer, rootOffset, 14, 0)
+            ..upc = const fb.StringReader(asciiOptimization: true)
+                .vTableGet(buffer, rootOffset, 16, '');
 
           return object;
         }),
@@ -874,6 +884,10 @@ class ObjectBoxItemTranslation_ {
   /// see [ObjectBoxItemTranslation.id]
   static final id = QueryIntegerProperty<ObjectBoxItemTranslation>(
       _entities[3].properties[5]);
+
+  /// see [ObjectBoxItemTranslation.upc]
+  static final upc =
+      QueryStringProperty<ObjectBoxItemTranslation>(_entities[3].properties[6]);
 }
 
 /// [ObjectBoxHistory] entity fields to define ObjectBox queries.

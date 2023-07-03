@@ -30,8 +30,6 @@ class HiveItem extends HiveObject {
   late bool consumable;
   @HiveField(11)
   late String languageCode;
-  @HiveField(12)
-  late List<ItemTranslation> translations;
   HiveItem();
   HiveItem.from(Item original) {
     upc = original.upc;
@@ -46,7 +44,6 @@ class HiveItem extends HiveObject {
     imageUrl = original.imageUrl;
     consumable = original.consumable;
     languageCode = original.languageCode;
-    translations = original.translations;
   }
   Item toItem() {
     return Item()
@@ -62,24 +59,26 @@ class HiveItem extends HiveObject {
       ..imageUrl = imageUrl
       ..consumable = consumable
       ..languageCode = languageCode
-      ..translations = translations
     ;
   }
 }
 @HiveType(typeId: 2)
 class HiveItemTranslation extends HiveObject {
   @HiveField(0)
-  late String languageCode;
+  late String upc;
   @HiveField(1)
-  late String name;
+  late String languageCode;
   @HiveField(2)
-  late String variety;
+  late String name;
   @HiveField(3)
-  late String unitName;
+  late String variety;
   @HiveField(4)
+  late String unitName;
+  @HiveField(5)
   late String unitPlural;
   HiveItemTranslation();
   HiveItemTranslation.from(ItemTranslation original) {
+    upc = original.upc;
     languageCode = original.languageCode;
     name = original.name;
     variety = original.variety;
@@ -88,6 +87,7 @@ class HiveItemTranslation extends HiveObject {
   }
   ItemTranslation toItemTranslation() {
     return ItemTranslation()
+      ..upc = upc
       ..languageCode = languageCode
       ..name = name
       ..variety = variety

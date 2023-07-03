@@ -164,7 +164,7 @@
     },
     {
       "id": "5:2251611335733283142",
-      "lastPropertyId": "6:1103960621444936317",
+      "lastPropertyId": "7:5207382650981158992",
       "name": "ObjectBoxItemTranslation",
       "properties": [
         {
@@ -197,6 +197,13 @@
           "name": "id",
           "type": 6,
           "flags": 1
+        },
+        {
+          "id": "7:5207382650981158992",
+          "name": "upc",
+          "type": 9,
+          "flags": 2080,
+          "indexId": "6:2162817961615772067"
         }
       ],
       "relations": []
@@ -309,7 +316,7 @@
     }
   ],
   "lastEntityId": "15:9026109327750919290",
-  "lastIndexId": "5:3019641394831653558",
+  "lastIndexId": "6:2162817961615772067",
   "lastRelationId": "0:0",
   "lastSequenceId": "0:0",
   "modelVersion": 5,

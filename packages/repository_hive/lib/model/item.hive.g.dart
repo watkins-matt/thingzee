@@ -28,14 +28,13 @@ class HiveItemAdapter extends TypeAdapter<HiveItem> {
       ..unitPlural = fields[8] as String
       ..imageUrl = fields[9] as String
       ..consumable = fields[10] as bool
-      ..languageCode = fields[11] as String
-      ..translations = (fields[12] as List).cast<ItemTranslation>();
+      ..languageCode = fields[11] as String;
   }
 
   @override
   void write(BinaryWriter writer, HiveItem obj) {
     writer
-      ..writeByte(13)
+      ..writeByte(12)
       ..writeByte(0)
       ..write(obj.upc)
       ..writeByte(1)
@@ -59,9 +58,7 @@ class HiveItemAdapter extends TypeAdapter<HiveItem> {
       ..writeByte(10)
       ..write(obj.consumable)
       ..writeByte(11)
-      ..write(obj.languageCode)
-      ..writeByte(12)
-      ..write(obj.translations);
+      ..write(obj.languageCode);
   }
 
   @override
@@ -86,26 +83,29 @@ class HiveItemTranslationAdapter extends TypeAdapter<HiveItemTranslation> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return HiveItemTranslation()
-      ..languageCode = fields[0] as String
-      ..name = fields[1] as String
-      ..variety = fields[2] as String
-      ..unitName = fields[3] as String
-      ..unitPlural = fields[4] as String;
+      ..upc = fields[0] as String
+      ..languageCode = fields[1] as String
+      ..name = fields[2] as String
+      ..variety = fields[3] as String
+      ..unitName = fields[4] as String
+      ..unitPlural = fields[5] as String;
   }
 
   @override
   void write(BinaryWriter writer, HiveItemTranslation obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(6)
       ..writeByte(0)
-      ..write(obj.languageCode)
+      ..write(obj.upc)
       ..writeByte(1)
-      ..write(obj.name)
+      ..write(obj.languageCode)
       ..writeByte(2)
-      ..write(obj.variety)
+      ..write(obj.name)
       ..writeByte(3)
-      ..write(obj.unitName)
+      ..write(obj.variety)
       ..writeByte(4)
+      ..write(obj.unitName)
+      ..writeByte(5)
       ..write(obj.unitPlural);
   }
 
