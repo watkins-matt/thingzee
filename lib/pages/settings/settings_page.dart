@@ -1,7 +1,6 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:quiver/core.dart';
 import 'package:settings_ui/settings_ui.dart';
 import 'package:thingzee/app.dart';
 import 'package:thingzee/data/csv_export_service.dart';
@@ -31,15 +30,9 @@ class SettingsPage extends ConsumerStatefulWidget {
 }
 
 class _SettingsPageState extends ConsumerState<SettingsPage> {
-  Future<Optional<String>> pickFilePath() async {
+  Future<String?> pickFilePath() async {
     FilePickerResult? filePickerResult = await FilePicker.platform.pickFiles();
-    Optional<String> chosenPath = const Optional.absent();
-
-    if (filePickerResult != null) {
-      chosenPath = Optional.fromNullable(filePickerResult.files.single.path);
-    }
-
-    return chosenPath;
+    return filePickerResult?.files.single.path;
   }
 
   Future<void> onExportButtonPressed(BuildContext context) async {

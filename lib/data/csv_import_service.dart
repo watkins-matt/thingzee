@@ -5,7 +5,6 @@ import 'package:archive/archive_io.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
-import 'package:quiver/core.dart';
 import 'package:repository/repository.dart';
 import 'package:thingzee/data/history_csv_importer.dart';
 import 'package:thingzee/data/inventory_csv_importer.dart';
@@ -21,11 +20,10 @@ class CsvImportService {
       'inventory.csv': InventoryCsvImporter().import,
     };
 
-    Optional<String> chosenFilePath = await pickFilePath();
+    String? chosenFilePath = await pickFilePath();
 
-    if (chosenFilePath.isPresent) {
-      String zipFilePath = chosenFilePath.value;
-      List<String> csvFiles = await _extractFilesFromZip(zipFilePath);
+    if (chosenFilePath != null) {
+      List<String> csvFiles = await _extractFilesFromZip(chosenFilePath);
 
       // Try to import each csv file mentioned in importMethods
       for (final entry in importMethods.entries) {
@@ -43,22 +41,22 @@ class CsvImportService {
     }
   }
 
-  Future<Optional<String>> pickFilePath() async {
+  Future<String?> pickFilePath() async {
     FilePickerResult? filePickerResult = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['zip'],
     );
 
-    Optional<String> chosenPath = const Optional.absent();
-
     if (filePickerResult != null) {
       String filePath = filePickerResult.files.single.path!;
+
+      // Only allow .zip files
       if (filePath.endsWith('.zip')) {
-        chosenPath = Optional.of(filePath);
+        return filePath;
       }
     }
 
-    return chosenPath;
+    return null;
   }
 
   Future<List<String>> _extractFilesFromZip(String zipFilePath) async {

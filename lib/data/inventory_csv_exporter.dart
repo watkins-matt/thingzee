@@ -1,5 +1,4 @@
 import 'package:csv/csv.dart';
-import 'package:quiver/core.dart';
 import 'package:repository/extension/string.dart';
 import 'package:repository/model/inventory.dart';
 import 'package:repository/model/item.dart';
@@ -7,12 +6,10 @@ import 'package:repository/repository.dart';
 import 'package:thingzee/data/csv_exporter.dart';
 
 extension on Inventory {
-  List<dynamic> toCsvList(Optional<Item> optionalItem, List<String> headers) {
-    if (!optionalItem.isPresent) {
+  List<dynamic> toCsvList(Item? item, List<String> headers) {
+    if (item == null) {
       return [];
     }
-
-    Item item = optionalItem.value;
 
     Map<String, dynamic> map = {
       'upc': upc.normalizeUPC(),
@@ -54,7 +51,7 @@ class InventoryCsvExporter implements CsvExporter {
     List<Inventory> allInventory = r.inv.all();
 
     for (final inventory in allInventory) {
-      rows.add(inventory.toCsvList(r.items.get(inventory.upc), headers));
+      rows.add(inventory.toCsvList(r.items.get(inventory.upc).value, headers));
     }
 
     // Important: we sort the rows by the second column (name)
