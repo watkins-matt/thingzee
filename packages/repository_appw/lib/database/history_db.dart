@@ -6,6 +6,7 @@ import 'package:appwrite/models.dart';
 import 'package:quiver/core.dart';
 import 'package:repository/database/history_database.dart';
 import 'package:repository/ml/history.dart';
+import 'package:uuid/uuid.dart';
 
 class AppwriteHistoryDatabase extends HistoryDatabase {
   static const maxRetries = 3;
@@ -78,15 +79,15 @@ class AppwriteHistoryDatabase extends HistoryDatabase {
           await _database.updateDocument(
               databaseId: databaseId,
               collectionId: collectionId,
-              documentId: history.upc,
-              data: history.toJson());
+              documentId: uniqueDocumentId(history.upc),
+              data: history.toJson()..['user_id'] = userId);
         } else {
           // If document does not exist, create it
           await _database.createDocument(
               databaseId: databaseId,
               collectionId: collectionId,
-              documentId: history.upc,
-              data: history.toJson());
+              documentId: uniqueDocumentId(history.upc),
+              data: history.toJson()..['user_id'] = userId);
         }
       } catch (e) {
         print('Failed to put history: $e');
@@ -121,6 +122,15 @@ class AppwriteHistoryDatabase extends HistoryDatabase {
     stopwatch.stop();
     final elapsed = stopwatch.elapsed.inMilliseconds;
     log('History sync completed in ${elapsed / 1000} seconds.');
+  }
+
+  String uniqueDocumentId(String upc) {
+    if (userId.isEmpty) {
+      throw Exception('User ID is empty, cannot generate unique document ID');
+    }
+
+    final uuid = Uuid();
+    return uuid.v5(userId, upc);
   }
 
   List<History> _documentsToList(DocumentList documentList) {

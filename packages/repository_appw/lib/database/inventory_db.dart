@@ -6,6 +6,7 @@ import 'package:appwrite/models.dart';
 import 'package:quiver/core.dart';
 import 'package:repository/database/inventory_database.dart';
 import 'package:repository/model/inventory.dart';
+import 'package:uuid/uuid.dart';
 
 class AppwriteInventoryDatabase extends InventoryDatabase {
   static const maxRetries = 3;
@@ -93,15 +94,15 @@ class AppwriteInventoryDatabase extends InventoryDatabase {
         await _database.updateDocument(
           databaseId: databaseId,
           collectionId: collectionId,
-          documentId: inv.upc,
-          data: inv.toJson(),
+          documentId: uniqueDocumentId(inv.upc),
+          data: inv.toJson()..['user_id'] = userId,
         );
       } else {
         await _database.createDocument(
           databaseId: databaseId,
           collectionId: collectionId,
-          documentId: inv.upc,
-          data: inv.toJson(),
+          documentId: uniqueDocumentId(inv.upc),
+          data: inv.toJson()..['user_id'] = userId,
         );
       }
     });
@@ -130,6 +131,15 @@ class AppwriteInventoryDatabase extends InventoryDatabase {
     stopwatch.stop();
     final elapsed = stopwatch.elapsed.inMilliseconds;
     log('Inventory sync completed in ${elapsed / 1000} seconds.');
+  }
+
+  String uniqueDocumentId(String upc) {
+    if (userId.isEmpty) {
+      throw Exception('User ID is empty, cannot generate unique document ID');
+    }
+
+    final uuid = Uuid();
+    return uuid.v5(userId, upc);
   }
 
   List<Inventory> _documentsToList(DocumentList documentList) {

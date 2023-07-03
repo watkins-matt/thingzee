@@ -8,6 +8,7 @@ import 'package:quiver/core.dart';
 import 'package:repository/database/item_database.dart';
 import 'package:repository/model/filter.dart';
 import 'package:repository/model/item.dart';
+import 'package:uuid/uuid.dart';
 
 class AppwriteItemDatabase extends ItemDatabase {
   static const maxRetries = 3;
@@ -88,15 +89,15 @@ class AppwriteItemDatabase extends ItemDatabase {
           await _database.updateDocument(
               databaseId: databaseId,
               collectionId: collectionId,
-              documentId: item.upc,
-              data: item.toJson());
+              documentId: uniqueDocumentId(item.upc),
+              data: item.toJson()..['user_id'] = userId);
         } else {
           // If document does not exist, create it
           await _database.createDocument(
               databaseId: databaseId,
               collectionId: collectionId,
-              documentId: item.upc,
-              data: item.toJson());
+              documentId: uniqueDocumentId(item.upc),
+              data: item.toJson()..['user_id'] = userId);
         }
       } catch (e) {
         print('Failed to put item: $e');
@@ -136,6 +137,15 @@ class AppwriteItemDatabase extends ItemDatabase {
     stopwatch.stop();
     final elapsed = stopwatch.elapsed.inMilliseconds;
     log('Item sync completed in ${elapsed / 1000} seconds.');
+  }
+
+  String uniqueDocumentId(String upc) {
+    if (userId.isEmpty) {
+      throw Exception('User ID is empty, cannot generate unique document ID');
+    }
+
+    final uuid = Uuid();
+    return uuid.v5(userId, upc);
   }
 
   List<Item> _documentsToList(DocumentList documentList) {
