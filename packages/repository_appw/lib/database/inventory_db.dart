@@ -15,6 +15,7 @@ class AppwriteInventoryDatabase extends InventoryDatabase {
   final _taskQueue = <_QueueTask>[];
   final _inventory = <String, Inventory>{};
   bool _online = false;
+  String userId = '';
 
   AppwriteInventoryDatabase(
     this._database,
@@ -23,16 +24,6 @@ class AppwriteInventoryDatabase extends InventoryDatabase {
   );
 
   bool get online => _online;
-
-  set online(bool value) {
-    _online = value;
-    if (_online) {
-      sync();
-      scheduleMicrotask(_processQueue);
-    } else {
-      _taskQueue.clear();
-    }
-  }
 
   @override
   List<Inventory> all() => _inventory.values.toList();
@@ -65,6 +56,19 @@ class AppwriteInventoryDatabase extends InventoryDatabase {
       .where((entry) => upcs.contains(entry.key))
       .map((entry) => entry.value)
       .toList();
+
+  void handleConnectionChange(bool online, Session session) {
+    if (online) {
+      _online = true;
+      userId = session.userId;
+      sync();
+      scheduleMicrotask(_processQueue);
+    } else {
+      _online = false;
+      userId = '';
+      _taskQueue.clear();
+    }
+  }
 
   @override
   Map<String, Inventory> map() => Map.unmodifiable(_inventory);

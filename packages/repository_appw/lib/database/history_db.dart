@@ -15,20 +15,11 @@ class AppwriteHistoryDatabase extends HistoryDatabase {
   final _taskQueue = <_QueueTask>[];
   final _history = <String, History>{};
   bool _online = false;
+  String userId = '';
 
   AppwriteHistoryDatabase(this._database, this.databaseId, this.collectionId);
 
   bool get online => _online;
-
-  set online(bool value) {
-    _online = value;
-    if (_online) {
-      sync();
-      scheduleMicrotask(_processQueue);
-    } else {
-      _taskQueue.clear();
-    }
-  }
 
   @override
   List<History> all() => _history.values.toList();
@@ -51,6 +42,19 @@ class AppwriteHistoryDatabase extends HistoryDatabase {
   @override
   Optional<History> get(String upc) {
     return Optional.fromNullable(_history[upc]);
+  }
+
+  void handleConnectionChange(bool online, Session session) {
+    if (online) {
+      _online = true;
+      userId = session.userId;
+      sync();
+      scheduleMicrotask(_processQueue);
+    } else {
+      _online = false;
+      userId = '';
+      _taskQueue.clear();
+    }
   }
 
   @override

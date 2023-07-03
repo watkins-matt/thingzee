@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/models.dart';
 import 'package:repository/database/preferences.dart';
@@ -16,6 +18,7 @@ class AppwriteRepository extends SharedRepository {
 
   AppwriteRepository() : super() {
     _init();
+    scheduleMicrotask(_loadSession);
   }
 
   @override
@@ -33,6 +36,7 @@ class AppwriteRepository extends SharedRepository {
       // If no valid session, then login
       if (_session == null) {
         _session = await _account.createEmailSession(email: email, password: password);
+
         await prefs.setString('appwrite_session_id', _session!.$id);
         await prefs.setString('appwrite_session_expire', _session!.expire);
         sync();
@@ -78,9 +82,14 @@ class AppwriteRepository extends SharedRepository {
       return false;
     }
 
-    (items as AppwriteItemDatabase).online = true;
-    (inv as AppwriteInventoryDatabase).online = true;
-    (hist as AppwriteHistoryDatabase).online = true;
+    final items = this.items as AppwriteItemDatabase;
+    final inv = this.inv as AppwriteInventoryDatabase;
+    final hist = this.hist as AppwriteHistoryDatabase;
+
+    items.handleConnectionChange(true, _session!);
+    inv.handleConnectionChange(true, _session!);
+    hist.handleConnectionChange(true, _session!);
+
     return true;
   }
 

@@ -11,26 +11,17 @@ import 'package:repository/model/item.dart';
 
 class AppwriteItemDatabase extends ItemDatabase {
   static const maxRetries = 3;
-  final Databases _database;
-  final String databaseId;
-  final String collectionId;
-  final _taskQueue = <_QueueTask>[];
-  final _items = <String, Item>{};
   bool _online = false;
+  final _items = <String, Item>{};
+  final _taskQueue = <_QueueTask>[];
+  final Databases _database;
+  final String collectionId;
+  final String databaseId;
+  String userId = '';
 
   AppwriteItemDatabase(this._database, this.databaseId, this.collectionId);
 
   bool get online => _online;
-
-  set online(bool value) {
-    _online = value;
-    if (_online) {
-      sync();
-      scheduleMicrotask(_processQueue);
-    } else {
-      _taskQueue.clear();
-    }
-  }
 
   @override
   List<Item> all() => _items.values.toList();
@@ -66,6 +57,19 @@ class AppwriteItemDatabase extends ItemDatabase {
   @override
   List<Item> getAll(List<String> upcs) {
     return upcs.map((upc) => _items[upc]).whereNotNull().toList();
+  }
+
+  void handleConnectionChange(bool online, Session session) {
+    if (online) {
+      _online = true;
+      userId = session.userId;
+      sync();
+      scheduleMicrotask(_processQueue);
+    } else {
+      _online = false;
+      userId = '';
+      _taskQueue.clear();
+    }
   }
 
   @override
