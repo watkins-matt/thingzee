@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:thingzee/pages/home/home_page.dart';
 import 'package:thingzee/pages/login/register_page.dart';
 import 'package:thingzee/pages/login/state/user_profile.dart';
 import 'package:thingzee/pages/login/state/user_session.dart';
@@ -192,7 +193,10 @@ class LoginPage extends ConsumerWidget {
                                 duration: Duration(seconds: 1),
                               ),
                             );
-                            Navigator.pop(context);
+                            await Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(builder: (context) => const HomePage()),
+                            );
                           }
                         }
                       },
