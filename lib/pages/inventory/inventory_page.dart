@@ -71,7 +71,7 @@ class _InventoryPageState extends ConsumerState<InventoryPage> {
             onSelected: (String value) async {
               if (value == 'Login/Register') {
                 await LoginPage.push(context);
-              } else if (value == 'Login') {
+              } else if (value == 'Logout') {
                 if (App.repo.isMultiUser && App.repo is SharedRepository) {
                   final repository = App.repo as SharedRepository;
                   await repository.logoutUser();
