@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:material_floating_search_bar_2/material_floating_search_bar_2.dart';
+import 'package:repository/repository.dart';
+import 'package:thingzee/app.dart';
 import 'package:thingzee/icon_library.dart';
 import 'package:thingzee/pages/barcode/barcode_scanner_page.dart';
 import 'package:thingzee/pages/inventory/filter_dialog.dart';
@@ -69,12 +71,26 @@ class _InventoryPageState extends ConsumerState<InventoryPage> {
             onSelected: (String value) async {
               if (value == 'Login/Register') {
                 await LoginPage.push(context);
+              } else if (value == 'Login') {
+                if (App.repo.isMultiUser && App.repo is SharedRepository) {
+                  final repository = App.repo as SharedRepository;
+                  await repository.logoutUser();
+
+                  // Show logged out snackbar message
+                  if (!mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                    content: Text('Logged out successfully.'),
+                  ));
+                }
               } else if (value == 'Settings') {
                 await SettingsPage.push(context);
               }
             },
             itemBuilder: (BuildContext context) {
-              return {'Manually Add Item', 'Login/Register', 'Settings'}.map((String choice) {
+              final loggedIn = App.repo.loggedIn;
+
+              return {'Manually Add Item', loggedIn ? 'Logout' : 'Login/Register', 'Settings'}
+                  .map((String choice) {
                 return PopupMenuItem<String>(
                   value: choice,
                   child: Text(choice),
