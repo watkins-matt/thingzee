@@ -49,6 +49,7 @@ class UserSession extends StateNotifier<SessionState> {
   Future<void> logout() async {
     assert(_repo.isMultiUser);
     state = SessionState.initial();
+    await (_repo as SharedRepository).logoutUser();
   }
 }
 

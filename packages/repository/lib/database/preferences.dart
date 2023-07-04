@@ -8,14 +8,13 @@ abstract class Preferences {
 }
 
 class DefaultSharedPreferences implements Preferences {
-  late SharedPreferences _prefs;
+  late final SharedPreferences _prefs;
 
-  DefaultSharedPreferences() {
-    _init();
-  }
+  DefaultSharedPreferences._internal(this._prefs);
 
-  Future<void> _init() async {
-    _prefs = await SharedPreferences.getInstance();
+  static Future<DefaultSharedPreferences> getInstance() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return DefaultSharedPreferences._internal(prefs);
   }
 
   @override

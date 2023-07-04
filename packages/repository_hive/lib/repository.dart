@@ -19,7 +19,7 @@ class HiveRepository extends Repository {
     // Register type adapter for History
     Hive.registerAdapter(HistoryAdapter());
 
-    prefs = DefaultSharedPreferences();
+    prefs = await DefaultSharedPreferences.getInstance();
     items = HiveItemDatabase();
     hist = HiveHistoryDatabase();
 

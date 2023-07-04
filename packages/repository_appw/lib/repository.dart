@@ -93,14 +93,14 @@ class AppwriteRepository extends SharedRepository {
     return true;
   }
 
-  void _init() {
+  Future<void> _init() async {
     _client = Client();
     _client.setEndpoint(appwriteEndpoint).setProject(projectId);
 
     _account = Account(_client);
     _databases = Databases(_client);
 
-    prefs = DefaultSharedPreferences();
+    prefs = await DefaultSharedPreferences.getInstance();
     items = AppwriteItemDatabase(_databases, 'test', 'user_item');
     inv = AppwriteInventoryDatabase(_databases, 'test', 'user_inventory');
     hist = AppwriteHistoryDatabase(_databases, 'test', 'user_history');
