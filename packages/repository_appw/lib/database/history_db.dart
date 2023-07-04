@@ -40,6 +40,10 @@ class AppwriteHistoryDatabase extends HistoryDatabase {
     _history.clear();
   }
 
+  History deserializeHistory(Map<String, dynamic> serialized) {
+    return History.fromJson(serialized['json']);
+  }
+
   @override
   Optional<History> get(String upc) {
     return Optional.fromNullable(_history[upc]);
@@ -80,14 +84,14 @@ class AppwriteHistoryDatabase extends HistoryDatabase {
               databaseId: databaseId,
               collectionId: collectionId,
               documentId: uniqueDocumentId(history.upc),
-              data: history.toJson()..['user_id'] = userId);
+              data: serializeHistory(history));
         } else {
           // If document does not exist, create it
           await _database.createDocument(
               databaseId: databaseId,
               collectionId: collectionId,
               documentId: uniqueDocumentId(history.upc),
-              data: history.toJson()..['user_id'] = userId);
+              data: serializeHistory(history));
         }
       } catch (e) {
         print('Failed to put history: $e');
@@ -102,6 +106,16 @@ class AppwriteHistoryDatabase extends HistoryDatabase {
   void queueTask(Future<void> Function() operation) {
     _taskQueue.add(_QueueTask(operation));
     scheduleMicrotask(_processQueue);
+  }
+
+  Map<String, dynamic> serializeHistory(History history) {
+    Map<String, dynamic> serialized = {
+      'user_id': userId,
+      'upc': history.upc,
+      'json': history.toJson()
+    };
+
+    return serialized;
   }
 
   Future<void> sync() async {
@@ -135,7 +149,7 @@ class AppwriteHistoryDatabase extends HistoryDatabase {
 
   List<History> _documentsToList(DocumentList documentList) {
     return documentList.documents.map((doc) {
-      return History.fromJson(doc.data);
+      return deserializeHistory(doc.data);
     }).toList();
   }
 
