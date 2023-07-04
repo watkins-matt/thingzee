@@ -6,7 +6,6 @@ import 'package:appwrite/models.dart';
 import 'package:quiver/core.dart';
 import 'package:repository/database/history_database.dart';
 import 'package:repository/ml/history.dart';
-import 'package:uuid/uuid.dart';
 
 class AppwriteHistoryDatabase extends HistoryDatabase {
   static const maxRetries = 3;
@@ -143,8 +142,7 @@ class AppwriteHistoryDatabase extends HistoryDatabase {
       throw Exception('User ID is empty, cannot generate unique document ID');
     }
 
-    final uuid = Uuid();
-    return uuid.v5(userId, upc);
+    return '$userId-$upc';
   }
 
   List<History> _documentsToList(DocumentList documentList) {

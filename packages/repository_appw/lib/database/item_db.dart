@@ -8,7 +8,6 @@ import 'package:quiver/core.dart';
 import 'package:repository/database/item_database.dart';
 import 'package:repository/model/filter.dart';
 import 'package:repository/model/item.dart';
-import 'package:uuid/uuid.dart';
 
 class AppwriteItemDatabase extends ItemDatabase {
   static const maxRetries = 3;
@@ -144,8 +143,7 @@ class AppwriteItemDatabase extends ItemDatabase {
       throw Exception('User ID is empty, cannot generate unique document ID');
     }
 
-    final uuid = Uuid();
-    return uuid.v5(userId, upc);
+    return '$userId-$upc';
   }
 
   List<Item> _documentsToList(DocumentList documentList) {

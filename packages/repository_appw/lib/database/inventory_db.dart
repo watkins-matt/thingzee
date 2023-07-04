@@ -6,7 +6,6 @@ import 'package:appwrite/models.dart';
 import 'package:quiver/core.dart';
 import 'package:repository/database/inventory_database.dart';
 import 'package:repository/model/inventory.dart';
-import 'package:uuid/uuid.dart';
 
 class AppwriteInventoryDatabase extends InventoryDatabase {
   static const maxRetries = 3;
@@ -138,8 +137,7 @@ class AppwriteInventoryDatabase extends InventoryDatabase {
       throw Exception('User ID is empty, cannot generate unique document ID');
     }
 
-    final uuid = Uuid();
-    return uuid.v5(userId, upc);
+    return '$userId-$upc';
   }
 
   List<Inventory> _documentsToList(DocumentList documentList) {
