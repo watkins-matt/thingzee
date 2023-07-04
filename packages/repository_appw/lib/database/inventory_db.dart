@@ -94,14 +94,14 @@ class AppwriteInventoryDatabase extends InventoryDatabase {
           databaseId: databaseId,
           collectionId: collectionId,
           documentId: uniqueDocumentId(inv.upc),
-          data: inv.toJson()..['user_id'] = userId,
+          data: serializeInventory(inv),
         );
       } else {
         await _database.createDocument(
           databaseId: databaseId,
           collectionId: collectionId,
           documentId: uniqueDocumentId(inv.upc),
-          data: inv.toJson()..['user_id'] = userId,
+          data: serializeInventory(inv),
         );
       }
     });
@@ -110,6 +110,15 @@ class AppwriteInventoryDatabase extends InventoryDatabase {
   void queueTask(Future<void> Function() operation) {
     _taskQueue.add(_QueueTask(operation));
     scheduleMicrotask(_processQueue);
+  }
+
+  Map<String, dynamic> serializeInventory(Inventory inv) {
+    var json = inv.toJson();
+    json['user_id'] = userId;
+    json.remove('history');
+    json.remove('units');
+
+    return json;
   }
 
   Future<void> sync() async {
