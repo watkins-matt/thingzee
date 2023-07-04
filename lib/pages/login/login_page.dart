@@ -188,17 +188,19 @@ class LoginPage extends ConsumerWidget {
                         onPressed: () async {
                           if (!ref.read(loginStateProvider).loading &&
                               _formKey.currentState!.validate()) {
+                            final scaffoldMessenger = ScaffoldMessenger.of(context);
+
                             bool success = await ref.read(loginStateProvider.notifier).login(ref);
                             if (success && context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
+                              await Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(builder: (context) => const HomePage()),
+                              );
+                              scaffoldMessenger.showSnackBar(
                                 const SnackBar(
                                   content: Text('Logged in successfully.'),
                                   duration: Duration(seconds: 1),
                                 ),
-                              );
-                              await Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(builder: (context) => const HomePage()),
                               );
                             }
                           }
