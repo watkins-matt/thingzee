@@ -102,8 +102,8 @@ class AppwriteRepository extends SharedRepository {
 
     prefs = DefaultSharedPreferences();
     items = AppwriteItemDatabase(_databases, 'test', 'user_item');
-    inv = AppwriteInventoryDatabase(_databases, 'test', 'inventory');
-    hist = AppwriteHistoryDatabase(_databases, 'test', 'history');
+    inv = AppwriteInventoryDatabase(_databases, 'test', 'user_inventory');
+    hist = AppwriteHistoryDatabase(_databases, 'test', 'user_history');
     ready = true;
   }
 
