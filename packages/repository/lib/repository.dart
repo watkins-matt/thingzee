@@ -6,6 +6,7 @@ import 'package:repository/database/preferences.dart';
 abstract class Repository {
   bool ready = false;
   bool get isMultiUser => false;
+  bool get loggedIn => false;
 
   late ItemDatabase items;
   late InventoryDatabase inv;
@@ -16,7 +17,6 @@ abstract class Repository {
 abstract class SharedRepository extends Repository {
   @override
   bool get isMultiUser => true;
-  bool get loggedIn;
 
   Future<void> registerUser(String username, String email, String password);
   Future<void> loginUser(String email, String password);
