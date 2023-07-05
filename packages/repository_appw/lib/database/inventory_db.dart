@@ -64,11 +64,11 @@ class AppwriteInventoryDatabase extends InventoryDatabase {
         .toList();
   }
 
-  void handleConnectionChange(bool online, Session session) {
+  Future<void> handleConnectionChange(bool online, Session session) async {
     if (online) {
       _online = true;
       userId = session.userId;
-      sync();
+      await sync();
       scheduleMicrotask(_processQueue);
     } else {
       _online = false;
@@ -129,6 +129,11 @@ class AppwriteInventoryDatabase extends InventoryDatabase {
   }
 
   Future<void> sync() async {
+    // Can't sync when offline
+    if (!_online) {
+      return;
+    }
+
     Stopwatch stopwatch = Stopwatch()..start();
 
     try {

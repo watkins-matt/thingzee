@@ -48,11 +48,11 @@ class AppwriteHistoryDatabase extends HistoryDatabase {
     return _history[upc];
   }
 
-  void handleConnectionChange(bool online, Session session) {
+  Future<void> handleConnectionChange(bool online, Session session) async {
     if (online) {
       _online = true;
       userId = session.userId;
-      sync();
+      await sync();
       scheduleMicrotask(_processQueue);
     } else {
       _online = false;
@@ -118,6 +118,11 @@ class AppwriteHistoryDatabase extends HistoryDatabase {
   }
 
   Future<void> sync() async {
+    // Can't sync when offline
+    if (!_online) {
+      return;
+    }
+
     Stopwatch stopwatch = Stopwatch()..start();
 
     try {

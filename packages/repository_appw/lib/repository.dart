@@ -39,7 +39,7 @@ class AppwriteRepository extends CloudRepository {
 
         await prefs.setString('appwrite_session_id', _session!.$id);
         await prefs.setString('appwrite_session_expire', _session!.expire);
-        sync();
+        await sync();
       }
     } catch (e) {
       throw Exception('Failed to login user: $e');
@@ -77,7 +77,8 @@ class AppwriteRepository extends CloudRepository {
     }
   }
 
-  bool sync() {
+  @override
+  Future<bool> sync() async {
     if (!loggedIn) {
       return false;
     }
@@ -86,9 +87,9 @@ class AppwriteRepository extends CloudRepository {
     final inv = this.inv as AppwriteInventoryDatabase;
     final hist = this.hist as AppwriteHistoryDatabase;
 
-    items.handleConnectionChange(true, _session!);
-    inv.handleConnectionChange(true, _session!);
-    hist.handleConnectionChange(true, _session!);
+    await items.handleConnectionChange(true, _session!);
+    await inv.handleConnectionChange(true, _session!);
+    await hist.handleConnectionChange(true, _session!);
 
     return true;
   }
@@ -120,7 +121,7 @@ class AppwriteRepository extends CloudRepository {
 
       if (DateTime.now().isBefore(expireDate)) {
         _session = await _account.getSession(sessionId: sessionId);
-        sync();
+        await sync();
       }
 
       // Just remove the preferences if the session is expired
