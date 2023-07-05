@@ -14,7 +14,7 @@ abstract class Repository {
   late Preferences prefs;
 }
 
-abstract class SharedRepository extends Repository {
+abstract class CloudRepository extends Repository {
   @override
   bool get isMultiUser => true;
 
@@ -23,9 +23,9 @@ abstract class SharedRepository extends Repository {
   Future<void> logoutUser();
 }
 
-class SynchronizedRepository extends SharedRepository {
+class SynchronizedRepository extends CloudRepository {
   final Repository local;
-  final SharedRepository remote;
+  final CloudRepository remote;
 
   SynchronizedRepository(this.local, this.remote);
 

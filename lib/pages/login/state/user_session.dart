@@ -13,12 +13,12 @@ class UserSession extends StateNotifier<SessionState> {
   UserSession(this._repo) : super(SessionState.initial());
 
   Future<void> login(String email, String password) async {
-    if (!_repo.isMultiUser || _repo is! SharedRepository) {
+    if (!_repo.isMultiUser || _repo is! CloudRepository) {
       debugPrint('Login not supported for this repository.');
       return;
     }
 
-    final repo = _repo as SharedRepository;
+    final repo = _repo as CloudRepository;
 
     try {
       state = SessionState.loading();
@@ -30,12 +30,12 @@ class UserSession extends StateNotifier<SessionState> {
   }
 
   Future<void> register(String username, String email, String password) async {
-    if (!_repo.isMultiUser || _repo is! SharedRepository) {
+    if (!_repo.isMultiUser || _repo is! CloudRepository) {
       debugPrint('Registration not supported for this repository.');
       return;
     }
 
-    final repo = _repo as SharedRepository;
+    final repo = _repo as CloudRepository;
 
     try {
       state = SessionState.loading();
@@ -49,7 +49,7 @@ class UserSession extends StateNotifier<SessionState> {
   Future<void> logout() async {
     assert(_repo.isMultiUser);
     state = SessionState.initial();
-    await (_repo as SharedRepository).logoutUser();
+    await (_repo as CloudRepository).logoutUser();
   }
 }
 

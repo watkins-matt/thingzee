@@ -8,7 +8,7 @@ import 'package:repository_appw/database/history_db.dart';
 import 'package:repository_appw/database/inventory_db.dart';
 import 'package:repository_appw/database/item_db.dart';
 
-class AppwriteRepository extends SharedRepository {
+class AppwriteRepository extends CloudRepository {
   late Client _client;
   late Account _account;
   late Databases _databases;

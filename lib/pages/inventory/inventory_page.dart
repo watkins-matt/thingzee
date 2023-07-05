@@ -72,8 +72,8 @@ class _InventoryPageState extends ConsumerState<InventoryPage> {
               if (value == 'Login/Register') {
                 await LoginPage.push(context);
               } else if (value == 'Logout') {
-                if (App.repo.isMultiUser && App.repo is SharedRepository) {
-                  final repository = App.repo as SharedRepository;
+                if (App.repo.isMultiUser && App.repo is CloudRepository) {
+                  final repository = App.repo as CloudRepository;
                   await repository.logoutUser();
 
                   // Show logged out snackbar message
