@@ -242,6 +242,49 @@ class History {
     return this;
   }
 
+  History merge(History other) {
+    assert(upc == other.upc);
+
+    // Create a new merged History instance
+    History merged = History();
+    merged.upc = upc;
+
+    // Create a map of all the history series from both History instances,
+    // using the HistorySeries minTimestamp as the key
+    Map<int, HistorySeries> thisSeriesMap = {for (var s in series) s.minTimestamp: s};
+    Map<int, HistorySeries> otherSeriesMap = {for (var s in other.series) s.minTimestamp: s};
+
+    // Get all unique minTimestamp keys
+    Set<int> allKeys = {};
+    allKeys.addAll(thisSeriesMap.keys);
+    allKeys.addAll(otherSeriesMap.keys);
+
+    // For each unique key, merge the corresponding HistorySeries from both History instances
+    for (final key in allKeys) {
+      HistorySeries? thisSeries = thisSeriesMap[key];
+      HistorySeries? otherSeries = otherSeriesMap[key];
+
+      if (thisSeries != null && otherSeries != null) {
+        // If both History instances have a HistorySeries with this minTimestamp,
+        // choose the one with the higher maxTimestamp since it
+        // has been updated more recently
+        if (thisSeries.maxTimestamp > otherSeries.maxTimestamp) {
+          merged.series.add(thisSeries);
+        } else {
+          merged.series.add(otherSeries);
+        }
+      } else if (thisSeries != null) {
+        // If only this History instance has a HistorySeries with this minTimestamp, add it
+        merged.series.add(thisSeries);
+      } else if (otherSeries != null) {
+        // If only the other History instance has a HistorySeries with this minTimestamp, add it
+        merged.series.add(otherSeries);
+      }
+    }
+
+    return merged;
+  }
+
   double predict(int timestamp) {
     if (!evaluator.trained) {
       evaluator.train(this);
