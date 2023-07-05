@@ -7,6 +7,7 @@ abstract class ItemDatabase {
   void deleteAll();
   List<Item> filter(Filter filter);
   List<Item> getAll(List<String> upcs);
+  List<Item> getChanges(DateTime since);
   Item? get(String upc);
   void put(Item item);
   List<Item> search(String string);

@@ -17,6 +17,7 @@ class AppwriteItemDatabase extends ItemDatabase {
   final String collectionId;
   final String databaseId;
   String userId = '';
+  DateTime? lastSync;
 
   AppwriteItemDatabase(this._database, this.databaseId, this.collectionId);
 
@@ -58,6 +59,13 @@ class AppwriteItemDatabase extends ItemDatabase {
     return upcs.map((upc) => _items[upc]).whereNotNull().toList();
   }
 
+  @override
+  List<Item> getChanges(DateTime since) {
+    return _items.values
+        .where((item) => item.lastUpdate != null && item.lastUpdate!.isAfter(since))
+        .toList();
+  }
+
   void handleConnectionChange(bool online, Session session) {
     if (online) {
       _online = true;
@@ -69,6 +77,30 @@ class AppwriteItemDatabase extends ItemDatabase {
       userId = '';
       _taskQueue.clear();
     }
+  }
+
+  Future<void> partialSync() async {
+    Stopwatch stopwatch = Stopwatch()..start();
+
+    try {
+      DocumentList response = await _database.listDocuments(
+          databaseId: databaseId,
+          collectionId: collectionId,
+          queries: [Query.greaterThan('lastUpdate', lastSync?.millisecondsSinceEpoch ?? 0)]);
+      var changedItems = _documentsToList(response);
+      for (final item in changedItems) {
+        final existingItem = _items[item.upc];
+        final mergedItem = existingItem?.merge(item) ?? item;
+        _items[item.upc] = mergedItem;
+      }
+    } on AppwriteException catch (e) {
+      print(e);
+    }
+
+    stopwatch.stop();
+    final elapsed = stopwatch.elapsed.inMilliseconds;
+    log('Partial sync completed in ${elapsed / 1000} seconds.');
+    lastSync = DateTime.now();
   }
 
   @override
@@ -135,6 +167,7 @@ class AppwriteItemDatabase extends ItemDatabase {
     stopwatch.stop();
     final elapsed = stopwatch.elapsed.inMilliseconds;
     log('Item sync completed in ${elapsed / 1000} seconds.');
+    lastSync = DateTime.now();
   }
 
   String uniqueDocumentId(String upc) {
