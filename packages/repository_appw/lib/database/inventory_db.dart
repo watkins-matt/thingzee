@@ -58,6 +58,13 @@ class AppwriteInventoryDatabase extends InventoryDatabase {
       .map((entry) => entry.value)
       .toList();
 
+  @override
+  List<Inventory> getChanges(DateTime since) {
+    return _inventory.values
+        .where((inventory) => inventory.lastUpdate != null && inventory.lastUpdate!.isAfter(since))
+        .toList();
+  }
+
   void handleConnectionChange(bool online, Session session) {
     if (online) {
       _online = true;

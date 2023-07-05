@@ -7,6 +7,7 @@ abstract class InventoryDatabase {
   void deleteAll();
   Optional<Inventory> get(String upc);
   List<Inventory> getAll(List<String> upcs);
+  List<Inventory> getChanges(DateTime since);
   Map<String, Inventory> map();
   List<Inventory> outs();
   void put(Inventory inv);

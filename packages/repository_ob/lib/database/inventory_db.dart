@@ -60,6 +60,14 @@ class ObjectBoxInventoryDatabase extends InventoryDatabase {
   }
 
   @override
+  List<Inventory> getChanges(DateTime since) {
+    final query =
+        box.query(ObjectBoxInventory_.lastUpdate.greaterThan(since.millisecondsSinceEpoch)).build();
+    final results = query.find();
+    return results.map((objBoxInv) => objBoxInv.toInventory()).toList();
+  }
+
+  @override
   Map<String, Inventory> map() {
     Map<String, Inventory> map = {};
     final allInventory = all();

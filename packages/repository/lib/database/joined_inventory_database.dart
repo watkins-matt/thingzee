@@ -51,6 +51,11 @@ class JoinedInventoryDatabase extends InventoryDatabase {
   }
 
   @override
+  List<Inventory> getChanges(DateTime since) {
+    return inventoryDatabase.getChanges(since);
+  }
+
+  @override
   Map<String, Inventory> map() {
     Map<String, Inventory> inventoryMap = inventoryDatabase.map();
     inventoryMap = historyDatabase.join(inventoryMap);
