@@ -16,6 +16,7 @@ class AppwriteHistoryDatabase extends HistoryDatabase {
   final _history = <String, History>{};
   bool _online = false;
   String userId = '';
+  DateTime? lastSync;
 
   AppwriteHistoryDatabase(this._database, this.databaseId, this.collectionId);
 
@@ -135,6 +136,7 @@ class AppwriteHistoryDatabase extends HistoryDatabase {
     stopwatch.stop();
     final elapsed = stopwatch.elapsed.inMilliseconds;
     log('History sync completed in ${elapsed / 1000} seconds.');
+    lastSync = DateTime.now();
   }
 
   String uniqueDocumentId(String upc) {

@@ -16,6 +16,7 @@ class AppwriteInventoryDatabase extends InventoryDatabase {
   final _inventory = <String, Inventory>{};
   bool _online = false;
   String userId = '';
+  DateTime? lastSync;
 
   AppwriteInventoryDatabase(
     this._database,
@@ -139,6 +140,7 @@ class AppwriteInventoryDatabase extends InventoryDatabase {
     stopwatch.stop();
     final elapsed = stopwatch.elapsed.inMilliseconds;
     log('Inventory sync completed in ${elapsed / 1000} seconds.');
+    lastSync = DateTime.now();
   }
 
   String uniqueDocumentId(String upc) {
