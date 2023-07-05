@@ -84,30 +84,6 @@ class AppwriteItemDatabase extends ItemDatabase {
     return Map.unmodifiable(_items);
   }
 
-  Future<void> partialSync() async {
-    Stopwatch stopwatch = Stopwatch()..start();
-
-    try {
-      DocumentList response = await _database.listDocuments(
-          databaseId: databaseId,
-          collectionId: collectionId,
-          queries: [Query.greaterThan('lastUpdate', lastSync?.millisecondsSinceEpoch ?? 0)]);
-      var changedItems = _documentsToList(response);
-      for (final item in changedItems) {
-        final existingItem = _items[item.upc];
-        final mergedItem = existingItem?.merge(item) ?? item;
-        _items[item.upc] = mergedItem;
-      }
-    } on AppwriteException catch (e) {
-      print(e);
-    }
-
-    stopwatch.stop();
-    final elapsed = stopwatch.elapsed.inMilliseconds;
-    log('Partial sync completed in ${elapsed / 1000} seconds.');
-    lastSync = DateTime.now();
-  }
-
   @override
   void put(Item item) {
     _items[item.upc] = item;
@@ -172,6 +148,30 @@ class AppwriteItemDatabase extends ItemDatabase {
     stopwatch.stop();
     final elapsed = stopwatch.elapsed.inMilliseconds;
     log('Item sync completed in ${elapsed / 1000} seconds.');
+    lastSync = DateTime.now();
+  }
+
+  Future<void> syncModified() async {
+    Stopwatch stopwatch = Stopwatch()..start();
+
+    try {
+      DocumentList response = await _database.listDocuments(
+          databaseId: databaseId,
+          collectionId: collectionId,
+          queries: [Query.greaterThan('lastUpdate', lastSync?.millisecondsSinceEpoch ?? 0)]);
+      var changedItems = _documentsToList(response);
+      for (final item in changedItems) {
+        final existingItem = _items[item.upc];
+        final mergedItem = existingItem?.merge(item) ?? item;
+        _items[item.upc] = mergedItem;
+      }
+    } on AppwriteException catch (e) {
+      print(e);
+    }
+
+    stopwatch.stop();
+    final elapsed = stopwatch.elapsed.inMilliseconds;
+    log('Modified sync completed in ${elapsed / 1000} seconds.');
     lastSync = DateTime.now();
   }
 
