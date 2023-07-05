@@ -1,10 +1,12 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:meta/meta.dart';
 import 'package:repository/ml/date_time.dart';
 import 'package:repository/ml/normalizer_df.dart';
 
 part 'observation.g.dart';
 
 @JsonSerializable()
+@immutable
 class Observation {
   final double timestamp;
   final double amount;
@@ -39,8 +41,28 @@ class Observation {
   factory Observation.fromJson(Map<String, dynamic> json) => _$ObservationFromJson(json);
   Map<String, dynamic> toJson() => _$ObservationToJson(this);
 
-  MapEntry<int, double> toPoint() {
-    return MapEntry(timestamp.toInt(), amount);
+  @override
+  int get hashCode {
+    return Object.hash(timestamp, amount, householdCount);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other.runtimeType != runtimeType) return false;
+    return other is Observation &&
+        other.timestamp == timestamp &&
+        other.amount == amount &&
+        other.householdCount == householdCount;
+  }
+
+  List<double> normalize(DataFrameNormalizer normalizer) {
+    return [
+      normalizer.normalizeValue('timestamp', timestamp),
+      amount,
+      // normalizer.normalizeValue('timeOfYear_sin', timeOfYearSin),
+      // normalizer.normalizeValue('timeOfYear_cos', timeOfYearCos),
+    ];
   }
 
   List<double> toList() {
@@ -58,12 +80,7 @@ class Observation {
     ];
   }
 
-  List<double> normalize(DataFrameNormalizer normalizer) {
-    return [
-      normalizer.normalizeValue('timestamp', timestamp),
-      amount,
-      // normalizer.normalizeValue('timeOfYear_sin', timeOfYearSin),
-      // normalizer.normalizeValue('timeOfYear_cos', timeOfYearCos),
-    ];
+  MapEntry<int, double> toPoint() {
+    return MapEntry(timestamp.toInt(), amount);
   }
 }
