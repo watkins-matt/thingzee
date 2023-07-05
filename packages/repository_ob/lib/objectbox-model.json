@@ -88,7 +88,7 @@
     },
     {
       "id": "4:4961829832959724808",
-      "lastPropertyId": "14:5421981205332139083",
+      "lastPropertyId": "15:5761433883833081952",
       "name": "ObjectBoxItem",
       "properties": [
         {
@@ -158,6 +158,11 @@
           "id": "14:5421981205332139083",
           "name": "imageUrl",
           "type": 9
+        },
+        {
+          "id": "15:5761433883833081952",
+          "name": "lastUpdate",
+          "type": 10
         }
       ],
       "relations": []

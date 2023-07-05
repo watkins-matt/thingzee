@@ -61,6 +61,14 @@ class ObjectBoxItemDatabase extends ItemDatabase {
     return itemList;
   }
 
+  @override
+  List<Item> getChanges(DateTime since) {
+    final query =
+        box.query(ObjectBoxItem_.lastUpdate.greaterThan(since.millisecondsSinceEpoch)).build();
+    final results = query.find();
+    return results.map((objBoxItem) => objBoxItem.toItem()).toList();
+  }
+
   // Find the product info and replace with our new info. We have to find the id of the old
   // object to update correctly.
   @override

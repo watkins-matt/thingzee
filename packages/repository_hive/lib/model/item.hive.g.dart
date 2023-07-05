@@ -8,7 +8,7 @@ part of 'item.hive.dart';
 
 class HiveItemAdapter extends TypeAdapter<HiveItem> {
   @override
-  final int typeId = 1;
+  final int typeId = 2;
 
   @override
   HiveItem read(BinaryReader reader) {
@@ -28,13 +28,14 @@ class HiveItemAdapter extends TypeAdapter<HiveItem> {
       ..unitPlural = fields[8] as String
       ..imageUrl = fields[9] as String
       ..consumable = fields[10] as bool
-      ..languageCode = fields[11] as String;
+      ..languageCode = fields[11] as String
+      ..lastUpdate = fields[12] as DateTime?;
   }
 
   @override
   void write(BinaryWriter writer, HiveItem obj) {
     writer
-      ..writeByte(12)
+      ..writeByte(13)
       ..writeByte(0)
       ..write(obj.upc)
       ..writeByte(1)
@@ -58,7 +59,9 @@ class HiveItemAdapter extends TypeAdapter<HiveItem> {
       ..writeByte(10)
       ..write(obj.consumable)
       ..writeByte(11)
-      ..write(obj.languageCode);
+      ..write(obj.languageCode)
+      ..writeByte(12)
+      ..write(obj.lastUpdate);
   }
 
   @override
@@ -74,7 +77,7 @@ class HiveItemAdapter extends TypeAdapter<HiveItem> {
 
 class HiveItemTranslationAdapter extends TypeAdapter<HiveItemTranslation> {
   @override
-  final int typeId = 2;
+  final int typeId = 3;
 
   @override
   HiveItemTranslation read(BinaryReader reader) {

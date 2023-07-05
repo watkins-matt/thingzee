@@ -4,6 +4,7 @@ import 'package:hive/hive.dart';
 import 'package:repository/model/item.dart';
 
 part 'item.hive.g.dart';
+
 @HiveType(typeId: 1)
 class HiveItem extends HiveObject {
   @HiveField(0)
@@ -30,6 +31,8 @@ class HiveItem extends HiveObject {
   late bool consumable;
   @HiveField(11)
   late String languageCode;
+  @HiveField(12)
+  late DateTime? lastUpdate;
   HiveItem();
   HiveItem.from(Item original) {
     upc = original.upc;
@@ -44,6 +47,7 @@ class HiveItem extends HiveObject {
     imageUrl = original.imageUrl;
     consumable = original.consumable;
     languageCode = original.languageCode;
+    lastUpdate = original.lastUpdate;
   }
   Item toItem() {
     return Item()
@@ -59,9 +63,10 @@ class HiveItem extends HiveObject {
       ..imageUrl = imageUrl
       ..consumable = consumable
       ..languageCode = languageCode
-    ;
+      ..lastUpdate = lastUpdate;
   }
 }
+
 @HiveType(typeId: 2)
 class HiveItemTranslation extends HiveObject {
   @HiveField(0)
@@ -92,7 +97,6 @@ class HiveItemTranslation extends HiveObject {
       ..name = name
       ..variety = variety
       ..unitName = unitName
-      ..unitPlural = unitPlural
-    ;
+      ..unitPlural = unitPlural;
   }
 }

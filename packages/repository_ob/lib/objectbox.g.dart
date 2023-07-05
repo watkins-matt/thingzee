@@ -109,7 +109,7 @@ final _entities = <ModelEntity>[
   ModelEntity(
       id: const IdUid(4, 4961829832959724808),
       name: 'ObjectBoxItem',
-      lastPropertyId: const IdUid(14, 5421981205332139083),
+      lastPropertyId: const IdUid(15, 5761433883833081952),
       flags: 0,
       properties: <ModelProperty>[
         ModelProperty(
@@ -177,6 +177,11 @@ final _entities = <ModelEntity>[
             id: const IdUid(14, 5421981205332139083),
             name: 'imageUrl',
             type: 9,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(15, 5761433883833081952),
+            name: 'lastUpdate',
+            type: 10,
             flags: 0)
       ],
       relations: <ModelRelation>[],
@@ -523,7 +528,7 @@ ModelDefinition getObjectBoxModel() {
           final categoryOffset = fbb.writeString(object.category);
           final typeOffset = fbb.writeString(object.type);
           final imageUrlOffset = fbb.writeString(object.imageUrl);
-          fbb.startTable(15);
+          fbb.startTable(16);
           fbb.addOffset(0, upcOffset);
           fbb.addOffset(2, nameOffset);
           fbb.addOffset(3, varietyOffset);
@@ -537,13 +542,15 @@ ModelDefinition getObjectBoxModel() {
           fbb.addOffset(11, categoryOffset);
           fbb.addOffset(12, typeOffset);
           fbb.addOffset(13, imageUrlOffset);
+          fbb.addInt64(14, object.lastUpdate?.millisecondsSinceEpoch);
           fbb.finish(fbb.endTable());
           return object.id;
         },
         objectFromFB: (Store store, ByteData fbData) {
           final buffer = fb.BufferContext(fbData);
           final rootOffset = buffer.derefObject(0);
-
+          final lastUpdateValue =
+              const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 32);
           final object = ObjectBoxItem()
             ..upc = const fb.StringReader(asciiOptimization: true)
                 .vTableGet(buffer, rootOffset, 4, '')
@@ -569,7 +576,10 @@ ModelDefinition getObjectBoxModel() {
             ..type = const fb.StringReader(asciiOptimization: true)
                 .vTableGet(buffer, rootOffset, 28, '')
             ..imageUrl = const fb.StringReader(asciiOptimization: true)
-                .vTableGet(buffer, rootOffset, 30, '');
+                .vTableGet(buffer, rootOffset, 30, '')
+            ..lastUpdate = lastUpdateValue == null
+                ? null
+                : DateTime.fromMillisecondsSinceEpoch(lastUpdateValue);
 
           return object;
         }),
@@ -857,6 +867,10 @@ class ObjectBoxItem_ {
   /// see [ObjectBoxItem.imageUrl]
   static final imageUrl =
       QueryStringProperty<ObjectBoxItem>(_entities[2].properties[12]);
+
+  /// see [ObjectBoxItem.lastUpdate]
+  static final lastUpdate =
+      QueryIntegerProperty<ObjectBoxItem>(_entities[2].properties[13]);
 }
 
 /// [ObjectBoxItemTranslation] entity fields to define ObjectBox queries.

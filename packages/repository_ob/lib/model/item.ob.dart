@@ -17,6 +17,7 @@ class ObjectBoxItem {
   late String imageUrl;
   late bool consumable;
   late String languageCode;
+  late DateTime? lastUpdate;
   @Id()
   int id = 0;
   ObjectBoxItem();
@@ -33,6 +34,7 @@ class ObjectBoxItem {
     imageUrl = original.imageUrl;
     consumable = original.consumable;
     languageCode = original.languageCode;
+    lastUpdate = original.lastUpdate;
   }
   Item toItem() {
     return Item()
@@ -48,6 +50,7 @@ class ObjectBoxItem {
       ..imageUrl = imageUrl
       ..consumable = consumable
       ..languageCode = languageCode
+      ..lastUpdate = lastUpdate
     ;
   }
 }
