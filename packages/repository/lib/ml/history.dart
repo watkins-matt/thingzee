@@ -18,6 +18,9 @@ class History {
     evaluator = Evaluator(this);
   }
 
+  factory History.fromJson(Map<String, dynamic> json) => _$HistoryFromJson(json);
+  Map<String, dynamic> toJson() => _$HistoryToJson(this);
+
   double get baseAmount {
     if (series.isEmpty) {
       return 0;
@@ -58,15 +61,8 @@ class History {
     return value;
   }
 
-  factory History.fromJson(Map<String, dynamic> json) => _$HistoryFromJson(json);
-  Map<String, dynamic> toJson() => _$HistoryToJson(this);
-
   bool get canPredict {
     return regressor.hasXIntercept;
-  }
-
-  Regressor get regressor {
-    return evaluator.best;
   }
 
   HistorySeries get current {
@@ -79,12 +75,36 @@ class History {
     return series.last;
   }
 
+  DateTime get lastTimestamp {
+    if (series.isEmpty) {
+      return DateTime.fromMillisecondsSinceEpoch(0);
+    }
+
+    return DateTime.fromMillisecondsSinceEpoch(series.last.observations.last.timestamp.toInt());
+  }
+
+  List<Observation> get normalizedObservations {
+    return series.expand((s) {
+      double initialTimestamp = s.observations[0].timestamp;
+      double initialAmount = s.observations[0].amount;
+      return s.observations.map((o) => Observation(
+            timestamp: o.timestamp - initialTimestamp,
+            amount: o.amount / initialAmount,
+            householdCount: o.householdCount,
+          ));
+    }).toList();
+  }
+
   int get predictedOutageTimestamp {
     return regressor.xIntercept;
   }
 
   HistorySeries get previous {
     return series.length > 1 ? series[series.length - 2] : current;
+  }
+
+  Regressor get regressor {
+    return evaluator.best;
   }
 
   int get totalPoints {
@@ -220,18 +240,6 @@ class History {
 
     trim();
     return this;
-  }
-
-  List<Observation> get normalizedObservations {
-    return series.expand((s) {
-      double initialTimestamp = s.observations[0].timestamp;
-      double initialAmount = s.observations[0].amount;
-      return s.observations.map((o) => Observation(
-            timestamp: o.timestamp - initialTimestamp,
-            amount: o.amount / initialAmount,
-            householdCount: o.householdCount,
-          ));
-    }).toList();
   }
 
   double predict(int timestamp) {
