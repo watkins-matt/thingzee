@@ -19,6 +19,7 @@ class MergeGenerator implements Builder {
   Future<void> build(BuildStep buildStep) async {
     var library = await buildStep.inputLibrary;
     var buffer = StringBuffer();
+    bool hasMergeable = false;
 
     // Add the "do not modify" warning.
     buffer.writeln('// GENERATED CODE - DO NOT MODIFY BY HAND');
@@ -33,12 +34,14 @@ class MergeGenerator implements Builder {
       if (originalClass.metadata
           .any((metadata) => metadata.element?.enclosingElement?.name == 'Mergeable')) {
         buffer.write(_generateMergeMethod(originalClass));
+        hasMergeable = true;
       }
     }
 
-    // Write out the new asset.
-    await buildStep.writeAsString(
-        buildStep.inputId.changeExtension('.merge.dart'), buffer.toString());
+    if (hasMergeable) {
+      await buildStep.writeAsString(
+          buildStep.inputId.changeExtension('.merge.dart'), buffer.toString());
+    }
   }
 
   String _generateMergeMethod(ClassElement originalClass) {
