@@ -1,5 +1,4 @@
 import 'package:hive/hive.dart';
-import 'package:quiver/core.dart';
 import 'package:repository/database/history_database.dart';
 import 'package:repository/ml/history.dart';
 import 'package:repository_hive/model_custom/history.hive.dart';
@@ -28,9 +27,9 @@ class HiveHistoryDatabase extends HistoryDatabase {
   }
 
   @override
-  Optional<History> get(String upc) {
+  History? get(String upc) {
     final existingHistory = box.get(upc);
-    return Optional.fromNullable(existingHistory?.toHistory());
+    return existingHistory?.toHistory();
   }
 
   @override

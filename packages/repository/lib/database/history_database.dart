@@ -1,4 +1,3 @@
-import 'package:quiver/core.dart';
 import 'package:repository/ml/history.dart';
 import 'package:repository/model/inventory.dart';
 
@@ -6,7 +5,7 @@ abstract class HistoryDatabase {
   List<History> all();
   void delete(History history);
   void deleteAll();
-  Optional<History> get(String upc);
+  History? get(String upc);
 
   Map<String, Inventory> join(Map<String, Inventory> inventoryMap) {
     final allHistory = map();

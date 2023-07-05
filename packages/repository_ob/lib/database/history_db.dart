@@ -35,10 +35,10 @@ class ObjectBoxHistoryDatabase extends HistoryDatabase {
   }
 
   @override
-  Optional<History> get(String upc) {
+  History? get(String upc) {
     assert(upc.isNotEmpty);
     final query = box.query(ObjectBoxHistory_.upc.equals(upc)).build();
-    final result = Optional.fromNullable(query.findFirst()?.toHistory());
+    final result = query.findFirst()?.toHistory();
     query.close();
 
     return result;

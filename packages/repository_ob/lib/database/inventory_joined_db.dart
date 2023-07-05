@@ -28,8 +28,8 @@ class ObjectBoxJoinedInventoryDatabase extends ObjectBoxInventoryDatabase {
       final history = historyDb.get(upc);
 
       // History exists, add to inventory
-      if (history.isPresent) {
-        inventory.value.history = history.value;
+      if (history != null) {
+        inventory.value.history = history;
 
         // Initialize a default history with the current upc
       } else {

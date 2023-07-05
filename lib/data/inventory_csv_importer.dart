@@ -30,8 +30,8 @@ class InventoryCsvImporter {
       // Pull the history before updating the inventory
       var inv = inventoryRow.toInventory();
       final historyResult = r.hist.get(inv.upc);
-      if (historyResult.isNotEmpty) {
-        inv.history = historyResult.value;
+      if (historyResult != null) {
+        inv.history = historyResult;
       }
 
       r.items.put(inventoryRow.toItem());

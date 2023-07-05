@@ -3,7 +3,6 @@ import 'dart:developer';
 
 import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/models.dart';
-import 'package:quiver/core.dart';
 import 'package:repository/database/history_database.dart';
 import 'package:repository/ml/history.dart';
 
@@ -45,8 +44,8 @@ class AppwriteHistoryDatabase extends HistoryDatabase {
   }
 
   @override
-  Optional<History> get(String upc) {
-    return Optional.fromNullable(_history[upc]);
+  History? get(String upc) {
+    return _history[upc];
   }
 
   void handleConnectionChange(bool online, Session session) {

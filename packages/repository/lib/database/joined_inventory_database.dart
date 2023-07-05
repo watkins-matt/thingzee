@@ -34,13 +34,10 @@ class JoinedInventoryDatabase extends InventoryDatabase {
     Optional<Inventory> inventory = inventoryDatabase.get(upc);
 
     if (inventory.isPresent) {
-      Optional<History> history = historyDatabase.get(upc);
+      final defaultHistory = History()..upc = upc;
+      final history = historyDatabase.get(upc);
 
-      if (history.isPresent) {
-        inventory.value.history = history.value;
-      } else {
-        inventory.value.history = History()..upc = upc;
-      }
+      inventory.value.history = history ?? defaultHistory;
     }
 
     return inventory;
