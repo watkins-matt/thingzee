@@ -7,6 +7,19 @@ abstract class HistoryDatabase {
   void deleteAll();
   History? get(String upc);
 
+  List<History> getChanges(DateTime since) {
+    final allHistory = all();
+    List<History> changes = [];
+
+    for (final history in allHistory) {
+      if (history.lastTimestamp.isAfter(since)) {
+        changes.add(history);
+      }
+    }
+
+    return changes;
+  }
+
   Map<String, Inventory> join(Map<String, Inventory> inventoryMap) {
     final allHistory = map();
 
