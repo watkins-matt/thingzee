@@ -17,6 +17,7 @@ class Inventory {
   DateTime? lastUpdate;
   List<DateTime> expirationDates = <DateTime>[];
   List<String> locations = <String>[];
+  @JsonKey(includeFromJson: false, includeToJson: false)
   History history = History();
   bool restock = true;
   String upc = '';
@@ -122,6 +123,7 @@ class Inventory {
     }
   }
 
+  @JsonKey(includeFromJson: false, includeToJson: false)
   double get units {
     return amount * unitCount;
   }

@@ -48,6 +48,11 @@ class AppwriteInventoryDatabase extends InventoryDatabase {
     _inventory.clear();
   }
 
+  Inventory deserializeInventory(Map<String, dynamic> json) {
+    json = json.remove('user_id');
+    return Inventory.fromJson(json);
+  }
+
   @override
   Inventory? get(String upc) => _inventory[upc];
 
@@ -164,7 +169,7 @@ class AppwriteInventoryDatabase extends InventoryDatabase {
 
   List<Inventory> _documentsToList(DocumentList documentList) {
     return documentList.documents.map((doc) {
-      return Inventory.fromJson(doc.data);
+      return deserializeInventory(doc.data);
     }).toList();
   }
 
