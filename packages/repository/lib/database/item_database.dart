@@ -9,6 +9,7 @@ abstract class ItemDatabase {
   List<Item> getAll(List<String> upcs);
   List<Item> getChanges(DateTime since);
   Item? get(String upc);
+  Map<String, Item> map();
   void put(Item item);
   List<Item> search(String string);
 }
