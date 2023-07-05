@@ -69,6 +69,12 @@ class HiveItemDatabase extends ItemDatabase {
   }
 
   @override
+  Map<String, Item> map() {
+    final all = box.values.toList();
+    return {for (var hiveItem in all) hiveItem.upc: hiveItem.toItem()};
+  }
+
+  @override
   void put(Item item) {
     assert(item.upc.isNotEmpty && item.name.isNotEmpty);
     final hiveItem = HiveItem.from(item);

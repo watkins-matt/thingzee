@@ -79,6 +79,11 @@ class AppwriteItemDatabase extends ItemDatabase {
     }
   }
 
+  @override
+  Map<String, Item> map() {
+    return Map.unmodifiable(_items);
+  }
+
   Future<void> partialSync() async {
     Stopwatch stopwatch = Stopwatch()..start();
 

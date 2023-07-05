@@ -69,6 +69,18 @@ class ObjectBoxItemDatabase extends ItemDatabase {
     return results.map((objBoxItem) => objBoxItem.toItem()).toList();
   }
 
+  @override
+  Map<String, Item> map() {
+    Map<String, Item> map = {};
+    final allItems = all();
+
+    for (final inv in allItems) {
+      map[inv.upc] = inv;
+    }
+
+    return map;
+  }
+
   // Find the product info and replace with our new info. We have to find the id of the old
   // object to update correctly.
   @override
