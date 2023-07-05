@@ -18,7 +18,10 @@ Item _$ItemFromJson(Map<String, dynamic> json) => Item()
   ..unitPlural = json['unitPlural'] as String
   ..imageUrl = json['imageUrl'] as String
   ..consumable = json['consumable'] as bool
-  ..languageCode = json['languageCode'] as String;
+  ..languageCode = json['languageCode'] as String
+  ..lastUpdate = json['lastUpdate'] == null
+      ? null
+      : DateTime.parse(json['lastUpdate'] as String);
 
 Map<String, dynamic> _$ItemToJson(Item instance) => <String, dynamic>{
       'upc': instance.upc,
@@ -33,6 +36,7 @@ Map<String, dynamic> _$ItemToJson(Item instance) => <String, dynamic>{
       'imageUrl': instance.imageUrl,
       'consumable': instance.consumable,
       'languageCode': instance.languageCode,
+      'lastUpdate': instance.lastUpdate?.toIso8601String(),
     };
 
 ItemTranslation _$ItemTranslationFromJson(Map<String, dynamic> json) =>

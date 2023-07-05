@@ -1,12 +1,15 @@
 import 'package:intl/intl.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:repository/extension/duration.dart';
+import 'package:repository/merge_generator.dart';
 import 'package:repository/ml/history.dart';
 import 'package:stats/double.dart';
 
 part 'inventory.g.dart';
+part 'inventory.merge.dart';
 
 @JsonSerializable(explicitToJson: true)
+@Mergeable()
 class Inventory {
   double amount = 0;
   int unitCount = 1;
@@ -22,6 +25,7 @@ class Inventory {
   Inventory();
   factory Inventory.fromJson(Map<String, dynamic> json) => _$InventoryFromJson(json);
   Map<String, dynamic> toJson() => _$InventoryToJson(this);
+  Inventory merge(Inventory other) => _$mergeInventory(this, other);
 
   Inventory.withUPC(this.upc) {
     history.upc = upc;

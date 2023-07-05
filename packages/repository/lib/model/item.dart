@@ -1,8 +1,11 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:repository/merge_generator.dart';
 
 part 'item.g.dart';
+part 'item.merge.dart';
 
 @JsonSerializable(explicitToJson: true)
+@Mergeable()
 class Item implements Comparable<Item> {
   String upc = '';
   String iuid = '';
@@ -21,6 +24,7 @@ class Item implements Comparable<Item> {
 
   bool consumable = true;
   String languageCode = 'en';
+  DateTime? lastUpdate;
 
   @override
   int compareTo(Item other) {
@@ -30,6 +34,7 @@ class Item implements Comparable<Item> {
   Item();
   factory Item.fromJson(Map<String, dynamic> json) => _$ItemFromJson(json);
   Map<String, dynamic> toJson() => _$ItemToJson(this);
+  Item merge(Item other) => _$mergeItem(this, other);
 }
 
 @JsonSerializable(explicitToJson: true)
