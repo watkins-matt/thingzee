@@ -31,8 +31,8 @@ class JoinedItemDatabase {
       final inventory = inventoryMap[key]!;
       final item = itemDatabase.get(key);
 
-      if (item.isPresent) {
-        joinedItems.add(JoinedItem(item.value, inventory));
+      if (item != null) {
+        joinedItems.add(JoinedItem(item, inventory));
       }
     }
 
@@ -64,8 +64,8 @@ class JoinedItemDatabase {
     final item = itemDatabase.get(upc);
     final inventory = inventoryDatabase.get(upc);
 
-    if (item.isPresent && inventory.isPresent) {
-      return Optional.of(JoinedItem(item.value, inventory.value));
+    if (item != null && inventory.isPresent) {
+      return Optional.of(JoinedItem(item, inventory.value));
     } else {
       return const Optional.absent();
     }
@@ -96,8 +96,8 @@ class JoinedItemDatabase {
     for (final inventory in inventoryOuts) {
       final item = itemDatabase.get(inventory.upc);
 
-      if (item.isPresent) {
-        joinedItems.add(JoinedItem(item.value, inventory));
+      if (item != null) {
+        joinedItems.add(JoinedItem(item, inventory));
       }
     }
 

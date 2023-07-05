@@ -1,5 +1,4 @@
 import 'package:hive/hive.dart';
-import 'package:quiver/core.dart';
 import 'package:repository/database/item_database.dart';
 import 'package:repository/model/filter.dart';
 import 'package:repository/model/item.dart';
@@ -42,9 +41,9 @@ class HiveItemDatabase extends ItemDatabase {
   }
 
   @override
-  Optional<Item> get(String upc) {
+  Item? get(String upc) {
     final result = box.get(upc);
-    return Optional.fromNullable(result?.toItem());
+    return result?.toItem();
   }
 
   @override
@@ -53,8 +52,8 @@ class HiveItemDatabase extends ItemDatabase {
 
     for (final upc in upcs) {
       final item = get(upc);
-      if (item.isPresent) {
-        items.add(item.value);
+      if (item != null) {
+        items.add(item);
       }
     }
 

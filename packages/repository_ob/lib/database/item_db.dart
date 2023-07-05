@@ -42,9 +42,9 @@ class ObjectBoxItemDatabase extends ItemDatabase {
   }
 
   @override
-  Optional<Item> get(String upc) {
+  Item? get(String upc) {
     final query = box.query(ObjectBoxItem_.upc.equals(upc)).build();
-    var result = Optional.fromNullable(query.findFirst()?.toItem());
+    var result = query.findFirst()?.toItem();
     query.close();
 
     return result;

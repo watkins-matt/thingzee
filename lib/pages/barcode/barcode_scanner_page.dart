@@ -105,16 +105,13 @@ class _BarcodeScannerPageState extends ConsumerState<BarcodeScannerPage> {
   }
 
   Future<void> loadItemDetail(BuildContext context, String barcode) async {
-    // First try to find the product in the product db
-    var item = App.repo.items.get(barcode);
+    final defaultItem = Item()
+      ..upc = barcode
+      ..name = 'Unknown Item'
+      ..category = 'Food & Beverage';
 
-    // No product found
-    if (item.isNotPresent) {
-      item = Optional.of(Item());
-      item.value.upc = barcode;
-      item.value.name = 'Unknown Item';
-      item.value.category = 'Food & Beverage';
-    }
+    // First try to find the product in the product db
+    Item item = App.repo.items.get(barcode) ?? defaultItem;
 
     var inv = App.repo.inv.get(barcode);
 
@@ -129,11 +126,10 @@ class _BarcodeScannerPageState extends ConsumerState<BarcodeScannerPage> {
     }
 
     final itemProv = ref.watch(editableItemProvider.notifier);
-    itemProv.copyFrom(
-        item.value, inv.value); // These are guaranteed to be valid (initialized above)
+    itemProv.copyFrom(item, inv.value); // These are guaranteed to be valid (initialized above)
     await Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => ItemDetailPage(item.value)),
+      MaterialPageRoute(builder: (context) => ItemDetailPage(item)),
     );
   }
 }

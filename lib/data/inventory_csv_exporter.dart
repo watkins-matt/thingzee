@@ -51,7 +51,7 @@ class InventoryCsvExporter implements CsvExporter {
     List<Inventory> allInventory = r.inv.all();
 
     for (final inventory in allInventory) {
-      rows.add(inventory.toCsvList(r.items.get(inventory.upc).value, headers));
+      rows.add(inventory.toCsvList(r.items.get(inventory.upc), headers));
     }
 
     // Important: we sort the rows by the second column (name)

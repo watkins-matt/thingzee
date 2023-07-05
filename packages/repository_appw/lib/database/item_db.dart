@@ -4,7 +4,6 @@ import 'dart:developer';
 import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/models.dart';
 import 'package:collection/collection.dart';
-import 'package:quiver/core.dart';
 import 'package:repository/database/item_database.dart';
 import 'package:repository/model/filter.dart';
 import 'package:repository/model/item.dart';
@@ -50,8 +49,8 @@ class AppwriteItemDatabase extends ItemDatabase {
   }
 
   @override
-  Optional<Item> get(String upc) {
-    return Optional.fromNullable(_items[upc]);
+  Item? get(String upc) {
+    return _items[upc];
   }
 
   @override
