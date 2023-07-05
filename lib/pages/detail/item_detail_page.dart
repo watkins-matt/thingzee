@@ -133,7 +133,7 @@ class ItemDetailPage extends HookConsumerWidget {
                               onTap: () async {
                                 // String result = await ImageBrowserPage.push(context, name.text.trim());
                                 // setState(() {
-                                //   imageUrl = Optional.fromNullable(result);
+                                //   imageUrl = result;
                                 // });
                               },
                               child: image,

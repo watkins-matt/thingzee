@@ -99,11 +99,6 @@ class ObjectBoxBuilder implements Builder {
       if (type.contains('List<')) {
         buffer.writeln('  $type ${field.name} = [];');
       }
-      // Optional values must be initialized
-      else if (type.contains('Optional<')) {
-        buffer.writeln('  $type ${field.name} = const Optional.absent();');
-      }
-
       // Check for null suffix
       // else if (field.type.nullabilitySuffix == NullabilitySuffix.question) {
       //   buffer.writeln('  $type ${field.name}?;');

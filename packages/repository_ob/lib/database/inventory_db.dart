@@ -1,4 +1,3 @@
-import 'package:quiver/core.dart';
 import 'package:repository/database/inventory_database.dart';
 import 'package:repository/model/inventory.dart';
 import 'package:repository_ob/model/inventory.ob.dart';
@@ -35,10 +34,10 @@ class ObjectBoxInventoryDatabase extends InventoryDatabase {
   }
 
   @override
-  Optional<Inventory> get(String upc) {
+  Inventory? get(String upc) {
     assert(upc.isNotEmpty);
     final query = box.query(ObjectBoxInventory_.upc.equals(upc)).build();
-    var result = Optional.fromNullable(query.findFirst()?.toInventory());
+    var result = query.findFirst()?.toInventory();
     query.close();
 
     return result;
@@ -102,11 +101,11 @@ class ObjectBoxInventoryDatabase extends InventoryDatabase {
     final invOb = ObjectBoxInventory.from(inv);
 
     final query = box.query(ObjectBoxInventory_.upc.equals(inv.upc)).build();
-    final exists = Optional.fromNullable(query.findFirst());
+    final exists = query.findFirst();
     query.close();
 
-    if (exists.isPresent && invOb.id != exists.value.id) {
-      invOb.id = exists.value.id;
+    if (exists != null && invOb.id != exists.id) {
+      invOb.id = exists.id;
     }
 
     box.put(invOb);

@@ -1,4 +1,3 @@
-import 'package:quiver/core.dart';
 import 'package:repository/database/history_database.dart';
 import 'package:repository/ml/history.dart';
 import 'package:repository_ob/model_custom/history_ob.dart';
@@ -69,13 +68,13 @@ class ObjectBoxHistoryDatabase extends HistoryDatabase {
 
     // Check if history already exists
     final query = box.query(ObjectBoxHistory_.upc.equals(history.upc)).build();
-    final exists = Optional.fromNullable(query.findFirst());
+    final exists = query.findFirst();
     query.close();
 
     // If history exists, update the ID to match the existing history
     // before we replace it
-    if (exists.isPresent && historyOb.id != exists.value.id) {
-      historyOb.id = exists.value.id;
+    if (exists != null && historyOb.id != exists.id) {
+      historyOb.id = exists.id;
     }
 
     assert(historyOb.upc.isNotEmpty && historyOb.history.upc.isNotEmpty);

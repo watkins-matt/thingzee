@@ -146,7 +146,7 @@ class EditableItem extends StateNotifier<EditableItemState> {
     // We will always save the inventory if it is greater than 0, or if
     // the inventory already exists in the database (because it was greater
     // than 0 at some point)
-    if (state.inventory.amount > 0 || repo.inv.get(state.inventory.upc).isNotEmpty) {
+    if (state.inventory.amount > 0 || repo.inv.get(state.inventory.upc) != null) {
       assert(state.inventory.upc == state.item.upc);
 
       if (state.changedFields.contains('amount')) {

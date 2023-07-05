@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:qr_mobile_vision/qr_camera.dart';
-import 'package:quiver/core.dart';
 import 'package:repository/ml/history.dart';
 import 'package:repository/model/inventory.dart';
 import 'package:repository/model/item.dart';
@@ -113,20 +112,16 @@ class _BarcodeScannerPageState extends ConsumerState<BarcodeScannerPage> {
     // First try to find the product in the product db
     Item item = App.repo.items.get(barcode) ?? defaultItem;
 
-    var inv = App.repo.inv.get(barcode);
-
-    if (inv.isNotPresent) {
-      // If there is no inventory present, assume we are adding the
-      // first one so the amount will be one
-      inv = Optional.of(Inventory());
-      inv.value.upc = barcode;
-      inv.value.amount = 1;
-      inv.value.history = History()..upc = barcode;
-      inv.value.lastUpdate = DateTime.now();
-    }
+    final defaultInventory = Inventory()
+      ..upc = barcode
+      ..amount = 1
+      ..history = History()
+      ..upc = barcode
+      ..lastUpdate = DateTime.now();
+    final inv = App.repo.inv.get(barcode) ?? defaultInventory;
 
     final itemProv = ref.watch(editableItemProvider.notifier);
-    itemProv.copyFrom(item, inv.value); // These are guaranteed to be valid (initialized above)
+    itemProv.copyFrom(item, inv); // These are guaranteed to be valid (initialized above)
     await Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => ItemDetailPage(item)),

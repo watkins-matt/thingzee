@@ -1,5 +1,4 @@
 import 'package:hive/hive.dart';
-import 'package:quiver/core.dart';
 import 'package:repository/database/inventory_database.dart';
 import 'package:repository/model/inventory.dart';
 import 'package:repository_hive/model/inventory.hive.dart';
@@ -28,9 +27,9 @@ class HiveInventoryDatabase extends InventoryDatabase {
   }
 
   @override
-  Optional<Inventory> get(String upc) {
+  Inventory? get(String upc) {
     final existingInventory = box.get(upc);
-    return Optional.fromNullable(existingInventory?.toInventory());
+    return existingInventory?.toInventory();
   }
 
   @override

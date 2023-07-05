@@ -32,9 +32,8 @@ class ShoppingCart extends StateNotifier<ShoppingCartState> {
 
   void completeTrip() {
     for (final item in state.items) {
-      // Pull the latest version from the database
-      var latestInventory = repo.inv.get(item.inventory.upc);
-      var inventory = latestInventory.orNull ?? item.inventory;
+      // Pull the latest version from the database if possible
+      var inventory = repo.inv.get(item.inventory.upc) ?? item.inventory;
 
       // User might not have updated the amount in a while.
       // Update the amount to the predicted amount before we increment

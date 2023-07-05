@@ -3,7 +3,6 @@ import 'dart:developer';
 
 import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/models.dart';
-import 'package:quiver/core.dart';
 import 'package:repository/database/inventory_database.dart';
 import 'package:repository/model/inventory.dart';
 
@@ -50,7 +49,7 @@ class AppwriteInventoryDatabase extends InventoryDatabase {
   }
 
   @override
-  Optional<Inventory> get(String upc) => Optional.fromNullable(_inventory[upc]);
+  Inventory? get(String upc) => _inventory[upc];
 
   @override
   List<Inventory> getAll(List<String> upcs) => _inventory.entries

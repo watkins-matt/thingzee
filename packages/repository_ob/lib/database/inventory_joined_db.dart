@@ -1,5 +1,4 @@
 import 'package:objectbox/objectbox.dart';
-import 'package:quiver/core.dart';
 import 'package:repository/database/history_database.dart';
 import 'package:repository/ml/history.dart';
 import 'package:repository/model/inventory.dart';
@@ -20,22 +19,15 @@ class ObjectBoxJoinedInventoryDatabase extends ObjectBoxInventoryDatabase {
   }
 
   @override
-  Optional<Inventory> get(String upc) {
+  Inventory? get(String upc) {
     final inventory = super.get(upc);
 
-    // If we found inventory, add the history from the database
-    if (inventory.isPresent) {
-      final history = historyDb.get(upc);
-
-      // History exists, add to inventory
-      if (history != null) {
-        inventory.value.history = history;
-
-        // Initialize a default history with the current upc
-      } else {
-        final newHistory = History()..upc = upc;
-        inventory.value.history = newHistory;
-      }
+    // If we found inventory, add the history from the database,
+    // or a default history if none is available
+    if (inventory != null) {
+      final defaultHistory = History()..upc = upc;
+      final history = historyDb.get(upc) ?? defaultHistory;
+      inventory.history = history;
     }
 
     return inventory;

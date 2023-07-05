@@ -1,4 +1,3 @@
-import 'package:quiver/core.dart';
 import 'package:repository/database/history_database.dart';
 import 'package:repository/database/inventory_database.dart';
 import 'package:repository/ml/history.dart';
@@ -30,14 +29,13 @@ class JoinedInventoryDatabase extends InventoryDatabase {
   }
 
   @override
-  Optional<Inventory> get(String upc) {
-    Optional<Inventory> inventory = inventoryDatabase.get(upc);
+  Inventory? get(String upc) {
+    final inventory = inventoryDatabase.get(upc);
 
-    if (inventory.isPresent) {
+    if (inventory != null) {
       final defaultHistory = History()..upc = upc;
       final history = historyDatabase.get(upc);
-
-      inventory.value.history = history ?? defaultHistory;
+      inventory.history = history ?? defaultHistory;
     }
 
     return inventory;

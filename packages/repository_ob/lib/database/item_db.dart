@@ -1,4 +1,3 @@
-import 'package:quiver/core.dart';
 import 'package:repository/database/item_database.dart';
 import 'package:repository/model/filter.dart';
 import 'package:repository/model/item.dart';
@@ -89,11 +88,11 @@ class ObjectBoxItemDatabase extends ItemDatabase {
     final itemOb = ObjectBoxItem.from(item);
 
     final query = box.query(ObjectBoxItem_.upc.equals(item.upc)).build();
-    final exists = Optional.fromNullable(query.findFirst());
+    final exists = query.findFirst();
     query.close();
 
-    if (exists.isPresent && itemOb.id != exists.value.id) {
-      itemOb.id = exists.value.id;
+    if (exists != null && itemOb.id != exists.id) {
+      itemOb.id = exists.id;
     }
 
     box.put(itemOb);

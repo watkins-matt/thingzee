@@ -1,4 +1,3 @@
-import 'package:quiver/core.dart';
 import 'package:repository/database/history_database.dart';
 import 'package:repository/database/inventory_database.dart';
 import 'package:repository/database/item_database.dart';
@@ -49,8 +48,8 @@ class JoinedItemDatabase {
     for (final item in results) {
       final inventory = inventoryDatabase.get(item.upc);
 
-      if (inventory.isPresent) {
-        joinedItems.add(JoinedItem(item, inventory.value));
+      if (inventory != null) {
+        joinedItems.add(JoinedItem(item, inventory));
       }
     }
 
@@ -60,14 +59,14 @@ class JoinedItemDatabase {
     return joinedItems;
   }
 
-  Optional<JoinedItem> get(String upc) {
+  JoinedItem? get(String upc) {
     final item = itemDatabase.get(upc);
     final inventory = inventoryDatabase.get(upc);
 
-    if (item != null && inventory.isPresent) {
-      return Optional.of(JoinedItem(item, inventory.value));
+    if (item != null && inventory != null) {
+      return JoinedItem(item, inventory);
     } else {
-      return const Optional.absent();
+      return null;
     }
   }
 
@@ -78,8 +77,8 @@ class JoinedItemDatabase {
     for (final item in results) {
       final inventory = inventoryDatabase.get(item.upc);
 
-      if (inventory.isPresent) {
-        joinedItems.add(JoinedItem(item, inventory.value));
+      if (inventory != null) {
+        joinedItems.add(JoinedItem(item, inventory));
       }
     }
 
