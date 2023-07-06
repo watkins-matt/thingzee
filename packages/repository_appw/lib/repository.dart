@@ -60,9 +60,9 @@ class AppwriteRepository extends CloudRepository {
       final inv = this.inv as AppwriteInventoryDatabase;
       final hist = this.hist as AppwriteHistoryDatabase;
 
-      await items.handleConnectionChange(false, _session!);
-      await inv.handleConnectionChange(false, _session!);
-      await hist.handleConnectionChange(false, _session!);
+      await items.handleConnectionChange(false, null);
+      await inv.handleConnectionChange(false, null);
+      await hist.handleConnectionChange(false, null);
     }
   }
 

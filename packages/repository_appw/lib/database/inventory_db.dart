@@ -69,8 +69,8 @@ class AppwriteInventoryDatabase extends InventoryDatabase {
         .toList();
   }
 
-  Future<void> handleConnectionChange(bool online, Session session) async {
-    if (online) {
+  Future<void> handleConnectionChange(bool online, Session? session) async {
+    if (online && session != null) {
       _online = true;
       userId = session.userId;
       await sync();
