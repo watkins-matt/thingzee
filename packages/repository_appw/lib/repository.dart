@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/models.dart';
+import 'package:repository/database/joined_inventory_database.dart';
 import 'package:repository/database/preferences.dart';
 import 'package:repository/repository.dart';
 import 'package:repository_appw/database/history_db.dart';
@@ -111,8 +112,12 @@ class AppwriteRepository extends CloudRepository {
 
     prefs = await DefaultSharedPreferences.getInstance();
     items = AppwriteItemDatabase(_databases, 'test', 'user_item');
-    inv = AppwriteInventoryDatabase(_databases, 'test', 'user_inventory');
     hist = AppwriteHistoryDatabase(_databases, 'test', 'user_history');
+
+    // Create joined inventory database
+    final inventory = AppwriteInventoryDatabase(_databases, 'test', 'user_inventory');
+    inv = JoinedInventoryDatabase(inventory, hist);
+
     ready = true;
   }
 
