@@ -140,13 +140,35 @@ class AppwriteItemDatabase extends ItemDatabase {
     }
 
     Stopwatch stopwatch = Stopwatch()..start();
+    String? cursor;
+    List<Item> allHistory = [];
 
     try {
-      DocumentList response =
-          await _database.listDocuments(databaseId: databaseId, collectionId: collectionId);
-      var newItems = _documentsToList(response);
+      DocumentList response;
+
+      do {
+        List<String> queries = [Query.limit(100)];
+
+        if (cursor != null) {
+          queries.add(Query.cursorAfter(cursor));
+        }
+
+        response = await _database.listDocuments(
+          databaseId: databaseId,
+          collectionId: collectionId,
+          queries: queries,
+        );
+
+        final items = _documentsToList(response);
+        allHistory.addAll(items);
+
+        if (response.documents.isNotEmpty) {
+          cursor = response.documents.last.$id;
+        }
+      } while (response.documents.isNotEmpty);
+
       _items.clear();
-      for (final item in newItems) {
+      for (final item in allHistory) {
         _items[item.upc] = item;
       }
     } on AppwriteException catch (e) {

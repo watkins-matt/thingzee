@@ -145,13 +145,35 @@ class AppwriteInventoryDatabase extends InventoryDatabase {
     }
 
     Stopwatch stopwatch = Stopwatch()..start();
+    String? cursor;
+    List<Inventory> allInventory = [];
 
     try {
-      DocumentList response =
-          await _database.listDocuments(databaseId: databaseId, collectionId: collectionId);
-      var newItems = _documentsToList(response);
+      DocumentList response;
+
+      do {
+        List<String> queries = [Query.limit(100)];
+
+        if (cursor != null) {
+          queries.add(Query.cursorAfter(cursor));
+        }
+
+        response = await _database.listDocuments(
+          databaseId: databaseId,
+          collectionId: collectionId,
+          queries: queries,
+        );
+
+        final items = _documentsToList(response);
+        allInventory.addAll(items);
+
+        if (response.documents.isNotEmpty) {
+          cursor = response.documents.last.$id;
+        }
+      } while (response.documents.isNotEmpty);
+
       _inventory.clear();
-      for (final item in newItems) {
+      for (final item in allInventory) {
         _inventory[item.upc] = item;
       }
     } on AppwriteException catch (e) {

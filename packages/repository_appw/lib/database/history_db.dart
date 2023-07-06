@@ -128,14 +128,36 @@ class AppwriteHistoryDatabase extends HistoryDatabase {
     }
 
     Stopwatch stopwatch = Stopwatch()..start();
+    String? cursor;
+    List<History> allHistory = [];
 
     try {
-      DocumentList response =
-          await _database.listDocuments(databaseId: databaseId, collectionId: collectionId);
-      var newHistories = _documentsToList(response);
+      DocumentList response;
+
+      do {
+        List<String> queries = [Query.limit(100)];
+
+        if (cursor != null) {
+          queries.add(Query.cursorAfter(cursor));
+        }
+
+        response = await _database.listDocuments(
+          databaseId: databaseId,
+          collectionId: collectionId,
+          queries: queries,
+        );
+
+        final items = _documentsToList(response);
+        allHistory.addAll(items);
+
+        if (response.documents.isNotEmpty) {
+          cursor = response.documents.last.$id;
+        }
+      } while (response.documents.isNotEmpty);
+
       _history.clear();
-      for (final history in newHistories) {
-        _history[history.upc] = history;
+      for (final item in allHistory) {
+        _history[item.upc] = item;
       }
     } on AppwriteException catch (e) {
       print(e);
