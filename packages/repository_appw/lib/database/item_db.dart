@@ -141,7 +141,7 @@ class AppwriteItemDatabase extends ItemDatabase {
 
     Stopwatch stopwatch = Stopwatch()..start();
     String? cursor;
-    List<Item> allHistory = [];
+    List<Item> allItems = [];
 
     try {
       DocumentList response;
@@ -160,7 +160,7 @@ class AppwriteItemDatabase extends ItemDatabase {
         );
 
         final items = _documentsToList(response);
-        allHistory.addAll(items);
+        allItems.addAll(items);
 
         if (response.documents.isNotEmpty) {
           cursor = response.documents.last.$id;
@@ -168,7 +168,7 @@ class AppwriteItemDatabase extends ItemDatabase {
       } while (response.documents.isNotEmpty);
 
       _items.clear();
-      for (final item in allHistory) {
+      for (final item in allItems) {
         _items[item.upc] = item;
       }
     } on AppwriteException catch (e) {

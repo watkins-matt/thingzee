@@ -173,8 +173,8 @@ class AppwriteInventoryDatabase extends InventoryDatabase {
       } while (response.documents.isNotEmpty);
 
       _inventory.clear();
-      for (final item in allInventory) {
-        _inventory[item.upc] = item;
+      for (final inventory in allInventory) {
+        _inventory[inventory.upc] = inventory;
       }
     } on AppwriteException catch (e) {
       print(e);

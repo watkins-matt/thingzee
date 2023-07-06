@@ -156,8 +156,8 @@ class AppwriteHistoryDatabase extends HistoryDatabase {
       } while (response.documents.isNotEmpty);
 
       _history.clear();
-      for (final item in allHistory) {
-        _history[item.upc] = item;
+      for (final history in allHistory) {
+        _history[history.upc] = history;
       }
     } on AppwriteException catch (e) {
       print(e);
