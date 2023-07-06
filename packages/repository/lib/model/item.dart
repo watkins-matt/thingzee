@@ -1,5 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:repository/merge_generator.dart';
+import 'package:repository/model/inventory.dart';
 
 part 'item.g.dart';
 part 'item.merge.dart';
@@ -24,6 +25,8 @@ class Item implements Comparable<Item> {
 
   bool consumable = true;
   String languageCode = 'en';
+
+  @NullableDateTimeSerializer()
   DateTime? lastUpdate;
 
   @override

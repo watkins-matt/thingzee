@@ -19,9 +19,8 @@ Item _$ItemFromJson(Map<String, dynamic> json) => Item()
   ..imageUrl = json['imageUrl'] as String
   ..consumable = json['consumable'] as bool
   ..languageCode = json['languageCode'] as String
-  ..lastUpdate = json['lastUpdate'] == null
-      ? null
-      : DateTime.parse(json['lastUpdate'] as String);
+  ..lastUpdate = _$JsonConverterFromJson<int, DateTime?>(
+      json['lastUpdate'], const NullableDateTimeSerializer().fromJson);
 
 Map<String, dynamic> _$ItemToJson(Item instance) => <String, dynamic>{
       'upc': instance.upc,
@@ -36,8 +35,15 @@ Map<String, dynamic> _$ItemToJson(Item instance) => <String, dynamic>{
       'imageUrl': instance.imageUrl,
       'consumable': instance.consumable,
       'languageCode': instance.languageCode,
-      'lastUpdate': instance.lastUpdate?.toIso8601String(),
+      'lastUpdate':
+          const NullableDateTimeSerializer().toJson(instance.lastUpdate),
     };
+
+Value? _$JsonConverterFromJson<Json, Value>(
+  Object? json,
+  Value? Function(Json json) fromJson,
+) =>
+    json == null ? null : fromJson(json as Json);
 
 ItemTranslation _$ItemTranslationFromJson(Map<String, dynamic> json) =>
     ItemTranslation()
