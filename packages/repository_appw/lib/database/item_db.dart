@@ -11,6 +11,7 @@ import 'package:repository/model/item.dart';
 class AppwriteItemDatabase extends ItemDatabase {
   static const maxRetries = 3;
   bool _online = false;
+  bool _processingQueue = false;
   final _items = <String, Item>{};
   final _taskQueue = <_QueueTask>[];
   final Databases _database;
@@ -92,32 +93,31 @@ class AppwriteItemDatabase extends ItemDatabase {
 
     queueTask(() async {
       try {
-        final documents = await _database
-            .listDocuments(databaseId: databaseId, collectionId: collectionId, queries: [
-          Query.equal('upc', [item.upc]),
-        ]);
-
-        if (documents.total > 0) {
-          // If document exists, update it
+        await _database.updateDocument(
+            databaseId: databaseId,
+            collectionId: collectionId,
+            documentId: uniqueDocumentId(item.upc),
+            data: item.toJson()..['user_id'] = userId);
+      } on AppwriteException catch (e) {
+        if (e.code == 404) {
+          await _database.createDocument(
+              databaseId: databaseId,
+              collectionId: collectionId,
+              documentId: uniqueDocumentId(item.upc),
+              data: item.toJson()..['user_id'] = userId);
+        } else if (e.code == 409) {
           await _database.updateDocument(
               databaseId: databaseId,
               collectionId: collectionId,
               documentId: uniqueDocumentId(item.upc),
               data: item.toJson()..['user_id'] = userId);
         } else {
-          // If document does not exist, create it
-          await _database.createDocument(
-              databaseId: databaseId,
-              collectionId: collectionId,
-              documentId: uniqueDocumentId(item.upc),
-              data: item.toJson()..['user_id'] = userId);
+          print('Failed to put inventory: $e');
+          // Removing the inventory from local cache since we
+          // failed to add it to the database
+          _items.remove(item.upc);
+          rethrow;
         }
-      } catch (e) {
-        print('Failed to put item: $e');
-        // Removing the item from local cache since we
-        // failed to add it to the database
-        _items.remove(item.upc);
-        rethrow;
       }
     });
   }
@@ -202,23 +202,31 @@ class AppwriteItemDatabase extends ItemDatabase {
   }
 
   Future<void> _processQueue() async {
+    if (_processingQueue) {
+      return;
+    }
+    _processingQueue = true;
+
     while (_taskQueue.isNotEmpty) {
-      _QueueTask task = _taskQueue.first;
+      _QueueTask task = _taskQueue.removeAt(0);
 
       if (task.retries >= maxRetries) {
-        print('Failed to execute task after $maxRetries attempts, removing from queue');
-        _taskQueue.removeAt(0);
+        print('Failed to execute task after $maxRetries attempts.');
         continue;
       }
 
       try {
         await task.operation();
-        _taskQueue.removeAt(0); // Successfully completed the task, so we remove it.
-      } catch (e) {
-        print('Failed to execute task: $e. Retry attempt ${task.retries + 1}');
-        task.retries += 1;
+      } on AppwriteException catch (e) {
+        if (e.code != 404 && e.code != 409) {
+          print('Failed to execute task: $e. Retry attempt ${task.retries + 1}');
+          task.retries += 1;
+          _taskQueue.add(task);
+        }
       }
     }
+
+    _processingQueue = true;
   }
 }
 

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:appwrite/appwrite.dart';
@@ -14,6 +15,7 @@ class AppwriteHistoryDatabase extends HistoryDatabase {
   final _taskQueue = <_QueueTask>[];
   final _history = <String, History>{};
   bool _online = false;
+  bool _processingQueue = false;
   String userId = '';
   DateTime? lastSync;
 
@@ -42,7 +44,7 @@ class AppwriteHistoryDatabase extends HistoryDatabase {
   }
 
   History deserializeHistory(Map<String, dynamic> serialized) {
-    return History.fromJson(serialized['json']);
+    return History.fromJson(jsonDecode(serialized['json']));
   }
 
   @override
@@ -74,32 +76,31 @@ class AppwriteHistoryDatabase extends HistoryDatabase {
 
     queueTask(() async {
       try {
-        final documents = await _database
-            .listDocuments(databaseId: databaseId, collectionId: collectionId, queries: [
-          Query.equal('upc', [history.upc]),
-        ]);
-
-        if (documents.total > 0) {
-          // If document exists, update it
+        await _database.updateDocument(
+            databaseId: databaseId,
+            collectionId: collectionId,
+            documentId: uniqueDocumentId(history.upc),
+            data: serializeHistory(history));
+      } on AppwriteException catch (e) {
+        if (e.code == 404) {
+          await _database.createDocument(
+              databaseId: databaseId,
+              collectionId: collectionId,
+              documentId: uniqueDocumentId(history.upc),
+              data: serializeHistory(history));
+        } else if (e.code == 409) {
           await _database.updateDocument(
               databaseId: databaseId,
               collectionId: collectionId,
               documentId: uniqueDocumentId(history.upc),
               data: serializeHistory(history));
         } else {
-          // If document does not exist, create it
-          await _database.createDocument(
-              databaseId: databaseId,
-              collectionId: collectionId,
-              documentId: uniqueDocumentId(history.upc),
-              data: serializeHistory(history));
+          print('Failed to put history: $e');
+          // Removing the history from local cache since we
+          // failed to add it to the database
+          _history.remove(history.upc);
+          rethrow;
         }
-      } catch (e) {
-        print('Failed to put history: $e');
-        // Removing the history from local cache since we
-        // failed to add it to the database
-        _history.remove(history.upc);
-        rethrow;
       }
     });
   }
@@ -113,7 +114,7 @@ class AppwriteHistoryDatabase extends HistoryDatabase {
     Map<String, dynamic> serialized = {
       'user_id': userId,
       'upc': history.upc,
-      'json': history.toJson()
+      'json': jsonEncode(history.toJson())
     };
 
     return serialized;
@@ -160,23 +161,31 @@ class AppwriteHistoryDatabase extends HistoryDatabase {
   }
 
   Future<void> _processQueue() async {
+    if (_processingQueue) {
+      return;
+    }
+    _processingQueue = true;
+
     while (_taskQueue.isNotEmpty) {
-      _QueueTask task = _taskQueue.first;
+      _QueueTask task = _taskQueue.removeAt(0);
 
       if (task.retries >= maxRetries) {
-        print('Failed to execute task after $maxRetries attempts, removing from queue');
-        _taskQueue.removeAt(0);
+        print('Failed to execute task after $maxRetries attempts.');
         continue;
       }
 
       try {
         await task.operation();
-        _taskQueue.removeAt(0); // Successfully completed the task, so we remove it.
-      } catch (e) {
-        print('Failed to execute task: $e. Retry attempt ${task.retries + 1}');
-        task.retries += 1;
+      } on AppwriteException catch (e) {
+        if (e.code != 404 && e.code != 409) {
+          print('Failed to execute task: $e. Retry attempt ${task.retries + 1}');
+          task.retries += 1;
+          _taskQueue.add(task);
+        }
       }
     }
+
+    _processingQueue = false;
   }
 }
 

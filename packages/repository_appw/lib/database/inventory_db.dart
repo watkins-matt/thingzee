@@ -14,6 +14,7 @@ class AppwriteInventoryDatabase extends InventoryDatabase {
   final _taskQueue = <_QueueTask>[];
   final _inventory = <String, Inventory>{};
   bool _online = false;
+  bool _processingQueue = false;
   String userId = '';
   DateTime? lastSync;
 
@@ -92,28 +93,32 @@ class AppwriteInventoryDatabase extends InventoryDatabase {
     _inventory[inv.upc] = inv;
 
     queueTask(() async {
-      final documents = await _database.listDocuments(
-        databaseId: databaseId,
-        collectionId: collectionId,
-        queries: [
-          Query.equal('upc', [inv.upc]),
-        ],
-      );
-
-      if (documents.total > 0) {
+      try {
         await _database.updateDocument(
-          databaseId: databaseId,
-          collectionId: collectionId,
-          documentId: uniqueDocumentId(inv.upc),
-          data: serializeInventory(inv),
-        );
-      } else {
-        await _database.createDocument(
-          databaseId: databaseId,
-          collectionId: collectionId,
-          documentId: uniqueDocumentId(inv.upc),
-          data: serializeInventory(inv),
-        );
+            databaseId: databaseId,
+            collectionId: collectionId,
+            documentId: uniqueDocumentId(inv.upc),
+            data: serializeInventory(inv));
+      } on AppwriteException catch (e) {
+        if (e.code == 404) {
+          await _database.createDocument(
+              databaseId: databaseId,
+              collectionId: collectionId,
+              documentId: uniqueDocumentId(inv.upc),
+              data: serializeInventory(inv));
+        } else if (e.code == 409) {
+          await _database.updateDocument(
+              databaseId: databaseId,
+              collectionId: collectionId,
+              documentId: uniqueDocumentId(inv.upc),
+              data: serializeInventory(inv));
+        } else {
+          print('Failed to put inventory: $e');
+          // Removing the inventory from local cache since we
+          // failed to add it to the database
+          _inventory.remove(inv.upc);
+          rethrow;
+        }
       }
     });
   }
@@ -172,29 +177,38 @@ class AppwriteInventoryDatabase extends InventoryDatabase {
     }).toList();
   }
 
-  void _processQueue() {
-    if (_taskQueue.isEmpty) {
+  Future<void> _processQueue() async {
+    if (_processingQueue) {
       return;
     }
+    _processingQueue = true;
 
-    final task = _taskQueue.removeAt(0);
+    while (_taskQueue.isNotEmpty) {
+      _QueueTask task = _taskQueue.removeAt(0);
 
-    task.operation().then((_) {
-      task.retryCount = 0;
-      _processQueue();
-    }).catchError((e) {
-      if (task.retryCount < maxRetries) {
-        task.retryCount++;
-        _taskQueue.insert(0, task); // Requeue the task at the front
+      if (task.retries >= maxRetries) {
+        print('Failed to execute task after $maxRetries attempts.');
+        continue;
       }
-      _processQueue();
-    });
+
+      try {
+        await task.operation();
+      } on AppwriteException catch (e) {
+        if (e.code != 404 && e.code != 409) {
+          print('Failed to execute task: $e. Retry attempt ${task.retries + 1}');
+          task.retries += 1;
+          _taskQueue.add(task);
+        }
+      }
+    }
+
+    _processingQueue = false;
   }
 }
 
 class _QueueTask {
   final Future<void> Function() operation;
-  int retryCount = 0;
+  int retries = 0;
 
   _QueueTask(this.operation);
 }
