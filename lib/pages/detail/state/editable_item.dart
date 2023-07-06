@@ -140,6 +140,8 @@ class EditableItem extends StateNotifier<EditableItemState> {
   }
 
   void save(Repository repo) {
+    final saveTimestamp = DateTime.now();
+    state.item.lastUpdate = saveTimestamp;
     repo.items.put(state.item);
 
     // We want to avoid saving useless inventory information if the amount is 0.
@@ -155,7 +157,7 @@ class EditableItem extends StateNotifier<EditableItemState> {
       }
 
       // Make sure we update the last updated time
-      state.inventory.lastUpdate = DateTime.now();
+      state.inventory.lastUpdate = saveTimestamp;
 
       repo.inv.put(state.inventory);
     }
