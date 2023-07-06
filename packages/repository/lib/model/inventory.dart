@@ -13,7 +13,7 @@ part 'inventory.merge.dart';
 class Inventory {
   double amount = 0;
   int unitCount = 1;
-  @OptDateTimeSerializer()
+  @NullableDateTimeSerializer()
   DateTime? lastUpdate;
   List<DateTime> expirationDates = <DateTime>[];
   List<String> locations = <String>[];
@@ -144,8 +144,8 @@ class Inventory {
   }
 }
 
-class OptDateTimeSerializer implements JsonConverter<DateTime?, int> {
-  const OptDateTimeSerializer();
+class NullableDateTimeSerializer implements JsonConverter<DateTime?, int> {
+  const NullableDateTimeSerializer();
 
   @override
   DateTime? fromJson(int json) => json == 0 ? null : DateTime.fromMillisecondsSinceEpoch(json);
