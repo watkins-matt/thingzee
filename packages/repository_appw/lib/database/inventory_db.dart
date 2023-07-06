@@ -87,7 +87,8 @@ class AppwriteInventoryDatabase extends InventoryDatabase {
   Map<String, Inventory> map() => Map.unmodifiable(_inventory);
 
   @override
-  List<Inventory> outs() => _inventory.values.where((inv) => inv.restock).toList();
+  List<Inventory> outs() =>
+      _inventory.values.where((inv) => inv.amount <= 0 && inv.restock).toList();
 
   @override
   void put(Inventory inv) {
