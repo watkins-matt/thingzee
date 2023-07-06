@@ -5,7 +5,14 @@ Builder hiveBuilder(BuilderOptions options) => HiveBuilder();
 
 class HiveBuilder implements Builder {
   final Map<String, String> packageReplace = {'repository_hive': 'repository'};
-  static int typeIdCounter = 0;
+  final Map<String, int> typeIds = {
+    'Inventory': 0,
+    'Item': 1,
+    'ItemTranslation': 2,
+    'Manufacturer': 3,
+    'Product': 4,
+    'History': 223
+  };
 
   @override
   final buildExtensions = const {
@@ -60,8 +67,7 @@ class HiveBuilder implements Builder {
 
     // Iterate over all the classes in the input library.
     for (final originalClass in library.definingCompilationUnit.classes) {
-      buffer.write(_generateHiveClass(originalClass, typeIdCounter));
-      typeIdCounter++;
+      buffer.write(_generateHiveClass(originalClass));
     }
 
     // Write out the new asset.
@@ -69,12 +75,20 @@ class HiveBuilder implements Builder {
         buildStep.inputId.changeExtension('.hive.dart'), buffer.toString());
   }
 
-  String _generateHiveClass(ClassElement originalClass, int typeIdCounter) {
+  String _generateHiveClass(ClassElement originalClass) {
     // This will hold the generated code for a single class.
     var buffer = StringBuffer();
 
+    // Don't generate code for classes that don't have a typeId.
+    if (!typeIds.containsKey(originalClass.name)) {
+      print('No typeId for ${originalClass.name}, not generating code...');
+      return '';
+    }
+
+    int typeId = typeIds[originalClass.name]!;
+
     // Write the Hive class declaration with the unique typeId.
-    buffer.writeln('@HiveType(typeId: $typeIdCounter)');
+    buffer.writeln('@HiveType(typeId: $typeId)');
     buffer.writeln('class Hive${originalClass.name} extends HiveObject {');
 
     // Write the Hive fields.
