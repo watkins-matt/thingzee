@@ -62,6 +62,7 @@ class AppwriteHistoryDatabase extends HistoryDatabase {
       _online = false;
       userId = '';
       _taskQueue.clear();
+      _history.clear();
     }
   }
 

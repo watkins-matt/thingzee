@@ -54,6 +54,14 @@ class AppwriteRepository extends CloudRepository {
 
       await prefs.remove('appwrite_session_id');
       await prefs.remove('appwrite_session_expire');
+
+      final items = this.items as AppwriteItemDatabase;
+      final inv = this.inv as AppwriteInventoryDatabase;
+      final hist = this.hist as AppwriteHistoryDatabase;
+
+      await items.handleConnectionChange(false, _session!);
+      await inv.handleConnectionChange(false, _session!);
+      await hist.handleConnectionChange(false, _session!);
     }
   }
 

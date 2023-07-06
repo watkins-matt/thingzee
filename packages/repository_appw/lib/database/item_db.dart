@@ -79,6 +79,7 @@ class AppwriteItemDatabase extends ItemDatabase {
       _online = false;
       userId = '';
       _taskQueue.clear();
+      _items.clear();
     }
   }
 

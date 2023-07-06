@@ -79,6 +79,7 @@ class AppwriteInventoryDatabase extends InventoryDatabase {
       _online = false;
       userId = '';
       _taskQueue.clear();
+      _inventory.clear();
     }
   }
 
