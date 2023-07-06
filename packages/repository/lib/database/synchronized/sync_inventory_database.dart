@@ -38,6 +38,11 @@ class SynchronizedInventoryDatabase extends InventoryDatabase {
   }
 
   @override
+  List<Inventory> getChanges(DateTime since) {
+    return local.getChanges(since);
+  }
+
+  @override
   Map<String, Inventory> map() {
     return local.map();
   }
@@ -113,10 +118,5 @@ class SynchronizedInventoryDatabase extends InventoryDatabase {
     }
 
     lastSync = DateTime.now();
-  }
-
-  @override
-  List<Inventory> getChanges(DateTime since) {
-    return local.getChanges(since);
   }
 }
