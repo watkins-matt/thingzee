@@ -5,7 +5,7 @@ import 'package:repository/ml/history.dart';
 import 'package:repository/model/inventory.dart';
 
 part 'inventory.hive.g.dart';
-@HiveType(typeId: 4)
+@HiveType(typeId: 0)
 class HiveInventory extends HiveObject {
   @HiveField(0)
   late double amount;
@@ -52,15 +52,6 @@ class HiveInventory extends HiveObject {
       ..upc = upc
       ..iuid = iuid
       ..units = units
-    ;
-  }
-}
-@HiveType(typeId: 5)
-class HiveOptDateTimeSerializer extends HiveObject {
-  HiveOptDateTimeSerializer();
-  HiveOptDateTimeSerializer.from();
-  OptDateTimeSerializer toOptDateTimeSerializer() {
-    return OptDateTimeSerializer()
     ;
   }
 }

@@ -8,7 +8,7 @@ part of 'product.hive.dart';
 
 class HiveProductAdapter extends TypeAdapter<HiveProduct> {
   @override
-  final int typeId = 0;
+  final int typeId = 4;
 
   @override
   HiveProduct read(BinaryReader reader) {

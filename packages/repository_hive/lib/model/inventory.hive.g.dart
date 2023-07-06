@@ -8,7 +8,7 @@ part of 'inventory.hive.dart';
 
 class HiveInventoryAdapter extends TypeAdapter<HiveInventory> {
   @override
-  final int typeId = 4;
+  final int typeId = 0;
 
   @override
   HiveInventory read(BinaryReader reader) {
@@ -62,32 +62,6 @@ class HiveInventoryAdapter extends TypeAdapter<HiveInventory> {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is HiveInventoryAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
-}
-
-class HiveOptDateTimeSerializerAdapter
-    extends TypeAdapter<HiveOptDateTimeSerializer> {
-  @override
-  final int typeId = 5;
-
-  @override
-  HiveOptDateTimeSerializer read(BinaryReader reader) {
-    return HiveOptDateTimeSerializer();
-  }
-
-  @override
-  void write(BinaryWriter writer, HiveOptDateTimeSerializer obj) {
-    writer.writeByte(0);
-  }
-
-  @override
-  int get hashCode => typeId.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is HiveOptDateTimeSerializerAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }
