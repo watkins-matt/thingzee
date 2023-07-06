@@ -35,7 +35,7 @@ class AppwriteInventoryDatabase extends InventoryDatabase {
       await _database.deleteDocument(
         databaseId: databaseId,
         collectionId: collectionId,
-        documentId: inv.upc,
+        documentId: uniqueDocumentId(inv.upc),
       );
     });
   }
@@ -49,7 +49,6 @@ class AppwriteInventoryDatabase extends InventoryDatabase {
   }
 
   Inventory deserializeInventory(Map<String, dynamic> json) {
-    json = json.remove('user_id');
     return Inventory.fromJson(json);
   }
 

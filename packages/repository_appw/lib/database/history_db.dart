@@ -28,7 +28,9 @@ class AppwriteHistoryDatabase extends HistoryDatabase {
   void delete(History history) {
     _history.remove(history.upc);
     queueTask(() async => await _database.deleteDocument(
-        databaseId: databaseId, collectionId: collectionId, documentId: history.upc));
+        databaseId: databaseId,
+        collectionId: collectionId,
+        documentId: uniqueDocumentId(history.upc)));
   }
 
   @override

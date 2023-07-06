@@ -30,7 +30,9 @@ class AppwriteItemDatabase extends ItemDatabase {
   void delete(Item item) {
     _items.remove(item.upc);
     queueTask(() async => await _database.deleteDocument(
-        databaseId: databaseId, collectionId: collectionId, documentId: item.upc));
+        databaseId: databaseId,
+        collectionId: collectionId,
+        documentId: uniqueDocumentId(item.upc)));
   }
 
   @override
