@@ -81,13 +81,13 @@ set dbExpirationDates(List<String> dates) {
 
 }
 @Entity()
-class ObjectBoxOptDateTimeSerializer {
+class ObjectBoxNullableDateTimeSerializer {
   @Id()
   int id = 0;
-  ObjectBoxOptDateTimeSerializer();
-  ObjectBoxOptDateTimeSerializer.from();
-  OptDateTimeSerializer toOptDateTimeSerializer() {
-    return OptDateTimeSerializer()
+  ObjectBoxNullableDateTimeSerializer();
+  ObjectBoxNullableDateTimeSerializer.from();
+  NullableDateTimeSerializer toNullableDateTimeSerializer() {
+    return NullableDateTimeSerializer()
     ;
   }
 }

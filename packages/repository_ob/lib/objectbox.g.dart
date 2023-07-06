@@ -322,13 +322,13 @@ final _entities = <ModelEntity>[
       relations: <ModelRelation>[],
       backlinks: <ModelBacklink>[]),
   ModelEntity(
-      id: const IdUid(15, 9026109327750919290),
-      name: 'ObjectBoxOptDateTimeSerializer',
-      lastPropertyId: const IdUid(1, 7786677029272803752),
+      id: const IdUid(16, 1611655272336628852),
+      name: 'ObjectBoxNullableDateTimeSerializer',
+      lastPropertyId: const IdUid(1, 6575382785729127895),
       flags: 0,
       properties: <ModelProperty>[
         ModelProperty(
-            id: const IdUid(1, 7786677029272803752),
+            id: const IdUid(1, 6575382785729127895),
             name: 'id',
             type: 6,
             flags: 1)
@@ -357,7 +357,7 @@ Future<Store> openStore(
 ModelDefinition getObjectBoxModel() {
   final model = ModelInfo(
       entities: _entities,
-      lastEntityId: const IdUid(15, 9026109327750919290),
+      lastEntityId: const IdUid(16, 1611655272336628852),
       lastIndexId: const IdUid(6, 2162817961615772067),
       lastRelationId: const IdUid(0, 0),
       lastSequenceId: const IdUid(0, 0),
@@ -369,7 +369,8 @@ ModelDefinition getObjectBoxModel() {
         2032575102652478660,
         5035609981372595064,
         3723209419512490517,
-        36458029675643691
+        36458029675643691,
+        9026109327750919290
       ],
       retiredIndexUids: const [],
       retiredPropertyUids: const [
@@ -408,7 +409,8 @@ ModelDefinition getObjectBoxModel() {
         6915659985871251568,
         5080861922992731976,
         1667797658952104342,
-        4642552144884560139
+        4642552144884560139,
+        7786677029272803752
       ],
       retiredRelationUids: const [],
       modelVersion: 5,
@@ -727,30 +729,32 @@ ModelDefinition getObjectBoxModel() {
 
           return object;
         }),
-    ObjectBoxOptDateTimeSerializer: EntityDefinition<
-            ObjectBoxOptDateTimeSerializer>(
-        model: _entities[6],
-        toOneRelations: (ObjectBoxOptDateTimeSerializer object) => [],
-        toManyRelations: (ObjectBoxOptDateTimeSerializer object) => {},
-        getId: (ObjectBoxOptDateTimeSerializer object) => object.id,
-        setId: (ObjectBoxOptDateTimeSerializer object, int id) {
-          object.id = id;
-        },
-        objectToFB: (ObjectBoxOptDateTimeSerializer object, fb.Builder fbb) {
-          fbb.startTable(2);
-          fbb.addInt64(0, object.id);
-          fbb.finish(fbb.endTable());
-          return object.id;
-        },
-        objectFromFB: (Store store, ByteData fbData) {
-          final buffer = fb.BufferContext(fbData);
-          final rootOffset = buffer.derefObject(0);
+    ObjectBoxNullableDateTimeSerializer:
+        EntityDefinition<ObjectBoxNullableDateTimeSerializer>(
+            model: _entities[6],
+            toOneRelations: (ObjectBoxNullableDateTimeSerializer object) => [],
+            toManyRelations: (ObjectBoxNullableDateTimeSerializer object) => {},
+            getId: (ObjectBoxNullableDateTimeSerializer object) => object.id,
+            setId: (ObjectBoxNullableDateTimeSerializer object, int id) {
+              object.id = id;
+            },
+            objectToFB:
+                (ObjectBoxNullableDateTimeSerializer object, fb.Builder fbb) {
+              fbb.startTable(2);
+              fbb.addInt64(0, object.id);
+              fbb.finish(fbb.endTable());
+              return object.id;
+            },
+            objectFromFB: (Store store, ByteData fbData) {
+              final buffer = fb.BufferContext(fbData);
+              final rootOffset = buffer.derefObject(0);
 
-          final object = ObjectBoxOptDateTimeSerializer()
-            ..id = const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0);
+              final object = ObjectBoxNullableDateTimeSerializer()
+                ..id =
+                    const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0);
 
-          return object;
-        })
+              return object;
+            })
   };
 
   return ModelDefinition(model, bindings);
@@ -967,9 +971,9 @@ class ObjectBoxInventory_ {
           _entities[5].properties[10]);
 }
 
-/// [ObjectBoxOptDateTimeSerializer] entity fields to define ObjectBox queries.
-class ObjectBoxOptDateTimeSerializer_ {
-  /// see [ObjectBoxOptDateTimeSerializer.id]
-  static final id = QueryIntegerProperty<ObjectBoxOptDateTimeSerializer>(
+/// [ObjectBoxNullableDateTimeSerializer] entity fields to define ObjectBox queries.
+class ObjectBoxNullableDateTimeSerializer_ {
+  /// see [ObjectBoxNullableDateTimeSerializer.id]
+  static final id = QueryIntegerProperty<ObjectBoxNullableDateTimeSerializer>(
       _entities[6].properties[0]);
 }
