@@ -17,9 +17,13 @@ class AppwriteRepository extends CloudRepository {
   final String projectId = 'thingzee';
   Session? _session;
 
-  AppwriteRepository() : super() {
-    _init();
-    scheduleMicrotask(_loadSession);
+  AppwriteRepository._() : super();
+
+  static Future<Repository> create() async {
+    final repo = AppwriteRepository._();
+    await repo._init();
+    await repo._loadSession();
+    return repo;
   }
 
   @override
@@ -110,7 +114,7 @@ class AppwriteRepository extends CloudRepository {
     _account = Account(_client);
     _databases = Databases(_client);
 
-    prefs = await DefaultSharedPreferences.getInstance();
+    prefs = await DefaultSharedPreferences.create();
     items = AppwriteItemDatabase(_databases, 'test', 'user_item');
     hist = AppwriteHistoryDatabase(_databases, 'test', 'user_history');
 

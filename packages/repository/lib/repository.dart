@@ -21,7 +21,6 @@ abstract class Repository {
   bool ready = false;
   late ItemDatabase items;
   late InventoryDatabase inv;
-
   late HistoryDatabase hist;
   late Preferences prefs;
   bool get isMultiUser => false;
@@ -32,13 +31,7 @@ class SynchronizedRepository extends CloudRepository {
   final Repository local;
   final CloudRepository remote;
 
-  SynchronizedRepository(this.local, this.remote) {
-    items = SynchronizedItemDatabase(local.items, remote.items);
-    hist = SynchronizedHistoryDatabase(local.hist, remote.hist);
-
-    final inventory = SynchronizedInventoryDatabase(local.inv, remote.inv);
-    inv = JoinedInventoryDatabase(inventory, hist);
-  }
+  SynchronizedRepository._(this.local, this.remote) : super();
 
   @override
   bool get isMultiUser => true;
@@ -64,5 +57,21 @@ class SynchronizedRepository extends CloudRepository {
   @override
   Future<bool> sync() async {
     return await remote.sync();
+  }
+
+  Future<void> _init() async {
+    prefs = await DefaultSharedPreferences.create();
+    items = SynchronizedItemDatabase(local.items, remote.items);
+    hist = SynchronizedHistoryDatabase(local.hist, remote.hist);
+
+    final inventory = SynchronizedInventoryDatabase(local.inv, remote.inv);
+    inv = JoinedInventoryDatabase(inventory, hist);
+    ready = true;
+  }
+
+  static Future<Repository> create(Repository local, CloudRepository remote) async {
+    final repo = SynchronizedRepository._(local, remote);
+    await repo._init();
+    return repo;
   }
 }

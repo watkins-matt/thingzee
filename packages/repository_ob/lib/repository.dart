@@ -25,7 +25,7 @@ class ObjectBoxRepository extends Repository {
 
     store = Store(getObjectBoxModel(), directory: dbPath);
 
-    prefs = await DefaultSharedPreferences.getInstance();
+    prefs = await DefaultSharedPreferences.create();
     items = ObjectBoxItemDatabase(store);
     hist = ObjectBoxHistoryDatabase(store);
     inv = ObjectBoxJoinedInventoryDatabase(store, hist);
