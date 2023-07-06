@@ -3,7 +3,7 @@ builders:
     import: "package:repository_hive/hive_builder.dart"
     builder_factories: ["hiveBuilder"]
     build_extensions: { ".dart": [".hive.dart"] }
-    auto_apply: all_packages
+    auto_apply: none
     build_to: source
 
 global_options:

@@ -3,7 +3,7 @@ builders:
     import: "package:repository_ob/object_box_builder.dart"
     builder_factories: ["objectBoxBuilder"]
     build_extensions: { ".dart": [".ob.dart"] }
-    auto_apply: all_packages
+    auto_apply: none
     build_to: source
 
 targets:
