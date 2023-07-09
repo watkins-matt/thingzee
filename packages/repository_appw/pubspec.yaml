@@ -16,3 +16,4 @@ dependencies:
     path: ../repository
 
 dev_dependencies:
+  test: ^1.24.3
