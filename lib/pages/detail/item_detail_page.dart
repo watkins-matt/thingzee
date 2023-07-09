@@ -8,6 +8,7 @@ import 'package:thingzee/app.dart';
 import 'package:thingzee/pages/detail/state/editable_item.dart';
 import 'package:thingzee/pages/detail/widget/item_header_widget.dart';
 import 'package:thingzee/pages/detail/widget/labeled_editable_text.dart';
+import 'package:thingzee/pages/detail/widget/labeled_switch_widget.dart';
 import 'package:thingzee/pages/detail/widget/labeled_text.dart';
 import 'package:thingzee/pages/detail/widget/material_card_widget.dart';
 import 'package:thingzee/pages/detail/widget/text_field_column_widget.dart';
@@ -71,7 +72,6 @@ class ItemDetailPage extends HookConsumerWidget {
           ],
         ),
         body: SingleChildScrollView(
-          // padding: const EdgeInsets.all(8),
           child: Form(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -90,10 +90,9 @@ class ItemDetailPage extends HookConsumerWidget {
                 ),
                 MaterialCardWidget(children: [
                   const TitleHeaderWidget(
-                    title: 'Identifiers',
-                  ),
-                  // actionButton: IconButton.outlined(
-                  //     onPressed: null, icon: Icon(Icons.add, color: Colors.blue))),
+                      title: 'Identifiers',
+                      actionButton:
+                          IconButton(onPressed: null, icon: Icon(Icons.add, color: Colors.blue))),
                   LabeledEditableText(
                     labelText: 'UPC',
                     keyboardType: TextInputType.number,
@@ -117,102 +116,115 @@ class ItemDetailPage extends HookConsumerWidget {
                     labelText: 'Last Updated',
                     value: ref.read(editableItemProvider).inventory.timeSinceLastUpdateString,
                   ),
+                  LabeledSwitchWidget(
+                      labelText: 'Consumable',
+                      value: ref.watch(editableItemProvider.notifier).consumable,
+                      onChanged: (value) {
+                        ref.read(editableItemProvider.notifier).consumable = value;
+                      }),
                 ]),
                 const SizedBox(
                   height: 8,
                 ),
                 MaterialCardWidget(children: [
-                  Padding(
-                    padding: const EdgeInsets.all(8),
-                    child: Visibility(
-                      visible: ref.read(editableItemProvider).inventory.canPredict,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          TextFieldColumnWidget(
-                            labelText: 'Predicted',
-                            controller: TextEditingController(
-                              text: ref.watch(editableItemProvider.notifier).predictedAmount,
-                            ),
-                            readOnly: true,
+                  const Padding(
+                    padding: EdgeInsets.only(bottom: 4),
+                    child: TitleHeaderWidget(title: 'Inventory'),
+                  ),
+                  Visibility(
+                    visible: ref.read(editableItemProvider).inventory.canPredict,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      crossAxisAlignment: CrossAxisAlignment.baseline,
+                      textBaseline: TextBaseline.alphabetic,
+                      children: [
+                        TextFieldColumnWidget(
+                          labelText: 'Predicted',
+                          controller: TextEditingController(
+                            text: ref.watch(editableItemProvider.notifier).predictedAmount,
                           ),
-                          TextFieldColumnWidget(
-                            labelText: 'Usage (Days)',
-                            controller: TextEditingController(
-                              text: ref
-                                  .watch(editableItemProvider)
-                                  .inventory
-                                  .usageSpeedDays
-                                  .roundTo(2)
-                                  .toString(),
-                            ),
-                            readOnly: true,
+                          readOnly: true,
+                        ),
+                        TextFieldColumnWidget(
+                          labelText: 'Usage (Days)',
+                          controller: TextEditingController(
+                            text: ref
+                                .watch(editableItemProvider)
+                                .inventory
+                                .usageSpeedDays
+                                .roundTo(2)
+                                .toString(),
                           ),
-                          TextFieldColumnWidget(
-                            labelText: 'Out Date',
-                            controller: TextEditingController(
-                              text:
-                                  ref.watch(editableItemProvider).inventory.predictedOutDateString,
-                            ),
-                            readOnly: true,
+                          readOnly: true,
+                        ),
+                        TextFieldColumnWidget(
+                          labelText: 'Out Date',
+                          controller: TextEditingController(
+                            text: ref.watch(editableItemProvider).inventory.predictedOutDateString,
                           ),
-                        ],
-                      ),
+                          readOnly: true,
+                        ),
+                      ],
                     ),
                   ),
-                  Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
-                    TextFieldColumnWidget(
-                      labelText: 'Quantity',
-                      controller: amountController,
-                      inputFormat: r'^\d*\.?\d*',
-                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                      onChanged: (value) {
-                        double? doubleValue = double.tryParse(value);
-                        if (doubleValue != null) {
-                          ref.read(editableItemProvider.notifier).amount = doubleValue;
+                  Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      crossAxisAlignment: CrossAxisAlignment.baseline,
+                      textBaseline: TextBaseline.alphabetic,
+                      children: [
+                        TextFieldColumnWidget(
+                          labelText: 'Quantity',
+                          controller: amountController,
+                          inputFormat: r'^\d*\.?\d*',
+                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                          onChanged: (value) {
+                            double? doubleValue = double.tryParse(value);
+                            if (doubleValue != null) {
+                              ref.read(editableItemProvider.notifier).amount = doubleValue;
 
-                          final editableItem = ref.read(editableItemProvider.notifier);
-                          totalUnitController.text = editableItem.totalUnitCount.toStringNoZero(2);
-                        }
-                      },
-                    ),
-                    TextFieldColumnWidget(
-                        labelText: 'Unit Count',
-                        controller: unitController,
-                        inputFormat: r'^\d*',
-                        keyboardType: TextInputType.number,
-                        onChanged: (value) {
-                          int? intValue = int.tryParse(value);
-                          if (intValue != null && intValue > 0) {
-                            // Update the unit count
-                            ref.read(editableItemProvider.notifier).unitCount = intValue;
+                              final editableItem = ref.read(editableItemProvider.notifier);
+                              totalUnitController.text =
+                                  editableItem.totalUnitCount.toStringNoZero(2);
+                            }
+                          },
+                        ),
+                        TextFieldColumnWidget(
+                            labelText: 'Unit Count',
+                            controller: unitController,
+                            inputFormat: r'^\d*',
+                            keyboardType: TextInputType.number,
+                            onChanged: (value) {
+                              int? intValue = int.tryParse(value);
+                              if (intValue != null && intValue > 0) {
+                                // Update the unit count
+                                ref.read(editableItemProvider.notifier).unitCount = intValue;
 
-                            // Update the total unit count
-                            final editableItem = ref.read(editableItemProvider.notifier);
-                            totalUnitController.text =
-                                editableItem.totalUnitCount.toStringNoZero(2);
-                          }
-                        }),
-                    TextFieldColumnWidget(
-                      labelText: 'Total Units',
-                      controller: totalUnitController,
-                      inputFormat: r'^\d*\.?\d*',
-                      keyboardType: TextInputType.number,
-                      onChanged: (value) {
-                        double? totalUnitDouble = double.tryParse(value);
+                                // Update the total unit count
+                                final editableItem = ref.read(editableItemProvider.notifier);
+                                totalUnitController.text =
+                                    editableItem.totalUnitCount.toStringNoZero(2);
+                              }
+                            }),
+                        TextFieldColumnWidget(
+                          labelText: 'Total Units',
+                          controller: totalUnitController,
+                          inputFormat: r'^\d*\.?\d*',
+                          keyboardType: TextInputType.number,
+                          onChanged: (value) {
+                            double? totalUnitDouble = double.tryParse(value);
 
-                        if (totalUnitDouble != null) {
-                          double unitCount =
-                              ref.read(editableItemProvider.notifier).unitCount.toDouble();
-                          double quantity = totalUnitDouble / unitCount;
-                          // Update the amount
-                          ref.read(editableItemProvider.notifier).amount = quantity;
-                          // Update the amount text field
-                          amountController.text = quantity.toStringNoZero(2);
-                        }
-                      },
-                    ),
-                  ]),
+                            if (totalUnitDouble != null) {
+                              double unitCount =
+                                  ref.read(editableItemProvider.notifier).unitCount.toDouble();
+                              double quantity = totalUnitDouble / unitCount;
+                              // Update the amount
+                              ref.read(editableItemProvider.notifier).amount = quantity;
+                              // Update the amount text field
+                              amountController.text = quantity.toStringNoZero(2);
+                            }
+                          },
+                        ),
+                      ]),
                 ]),
                 const SizedBox(
                   height: 8,

@@ -35,7 +35,7 @@ class TextFieldColumnWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(
-            style: const TextStyle(color: Colors.blue),
+            style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
             labelText,
           ),
           TextField(
