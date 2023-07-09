@@ -10,10 +10,15 @@ environment:
 dependencies:
   appwrite: ^9.0.0
   collection: ^1.17.1
+
   path: ^1.8.3
   path_provider: ^2.0.15
   repository:
     path: ../repository
+  shared_preferences: ^2.2.0
 
 dev_dependencies:
-  test: ^1.24.3
+  build_runner: ^2.4.4
+  integration_test:
+    sdk: flutter
+  mockito: ^5.4.2
