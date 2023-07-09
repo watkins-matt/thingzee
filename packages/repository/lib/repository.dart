@@ -56,7 +56,17 @@ class SynchronizedRepository extends CloudRepository {
 
   @override
   Future<bool> sync() async {
-    return await remote.sync();
+    await remote.sync();
+
+    final syncItems = items as SynchronizedItemDatabase;
+    final syncInv = inv as SynchronizedInventoryDatabase;
+    final syncHistory = hist as SynchronizedHistoryDatabase;
+
+    syncItems.syncDifferences();
+    syncInv.syncDifferences();
+    syncHistory.syncDifferences();
+
+    return true;
   }
 
   Future<void> _init() async {
