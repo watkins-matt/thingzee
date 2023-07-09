@@ -8,42 +8,98 @@ final editableItemProvider = StateNotifierProvider<EditableItem, EditableItemSta
   return EditableItem();
 });
 
-class EditableItemState {
-  Item item = Item();
-  Inventory inventory = Inventory();
-  Set<String> changedFields = {};
-
-  EditableItemState.empty();
-  EditableItemState(this.item, this.inventory, this.changedFields);
-}
-
 class EditableItem extends StateNotifier<EditableItemState> {
   EditableItem() : super(EditableItemState.empty());
+
+  List<MapEntry<int, double>> get allHistoryEntries {
+    final entries = <MapEntry<int, double>>[];
+    for (final eachSeries in state.inventory.history.series) {
+      final allEntries =
+          eachSeries.observations.map((o) => MapEntry(o.timestamp.toInt(), o.amount)).toList();
+      allEntries.sort((a, b) => a.key.compareTo(b.key));
+      entries.addAll(allEntries);
+    }
+    return entries;
+  }
+
+  double get amount => state.inventory.amount;
+
+  set amount(double amount) {
+    final inv = state.inventory;
+    inv.amount = amount;
+
+    state.changedFields.add('amount');
+    state = EditableItemState(state.item, inv, state.changedFields);
+  }
+
+  bool get consumable => state.item.consumable;
+
+  set consumable(bool consumable) {
+    final item = state.item;
+    item.consumable = consumable;
+
+    state.changedFields.add('consumable');
+    state = EditableItemState(item, state.inventory, state.changedFields);
+  }
+
+  String get name => state.item.name;
+
+  set name(String name) {
+    final item = state.item;
+    item.name = name;
+
+    state = EditableItemState(item, state.inventory, state.changedFields);
+  }
+
+  String get predictedAmount => state.inventory.predictedAmount.toStringNoZero(2);
+
+  double get totalUnitCount => state.inventory.units;
+  int get unitCount => state.inventory.unitCount;
+
+  set unitCount(int value) {
+    final inv = state.inventory;
+    inv.unitCount = value;
+
+    final item = state.item;
+    item.unitCount = value;
+
+    state = EditableItemState(item, inv, state.changedFields);
+  }
+
+  String get upc => state.item.upc;
+
+  set upc(String upc) {
+    final item = state.item;
+    item.upc = upc;
+
+    final inv = state.inventory;
+    inv.upc = upc;
+
+    final history = state.inventory.history;
+    history.upc = upc;
+
+    state = EditableItemState(item, inv, state.changedFields);
+  }
+
+  String get variety => state.item.variety;
+  set variety(String variety) {
+    final item = state.item;
+    item.variety = variety;
+
+    state = EditableItemState(item, state.inventory, state.changedFields);
+  }
+
+  void cleanUpHistory(Repository repo) {
+    final inv = state.inventory;
+    inv.history = inv.history.clean();
+    repo.hist.put(inv.history);
+
+    state = EditableItemState(state.item, inv, state.changedFields);
+  }
 
   void copyFrom(Item item, Inventory inv) {
     copyFromItem(item);
     copyFromInventory(inv);
-  }
-
-  void copyFromItem(Item item) {
-    Item copiedItem = Item();
-    copiedItem.name = item.name;
-    copiedItem.variety = item.variety;
-    copiedItem.upc = item.upc;
-    copiedItem.imageUrl = item.imageUrl;
-    copiedItem.category = item.category;
-    copiedItem.unitCount = item.unitCount;
-
-    // Make sure the upc is copied to the inventory
-    if (state.inventory.upc != copiedItem.upc) {
-      state.inventory.upc = copiedItem.upc;
-    }
-
-    if (state.inventory.history.upc != copiedItem.upc) {
-      state.inventory.history.upc = copiedItem.upc;
-    }
-
-    state = EditableItemState(copiedItem, state.inventory, state.changedFields);
   }
 
   void copyFromInventory(Inventory inv) {
@@ -66,77 +122,26 @@ class EditableItem extends StateNotifier<EditableItemState> {
     state = EditableItemState(state.item, copiedInv, state.changedFields);
   }
 
-  List<MapEntry<int, double>> get allHistoryEntries {
-    final entries = <MapEntry<int, double>>[];
-    for (final eachSeries in state.inventory.history.series) {
-      final allEntries =
-          eachSeries.observations.map((o) => MapEntry(o.timestamp.toInt(), o.amount)).toList();
-      allEntries.sort((a, b) => a.key.compareTo(b.key));
-      entries.addAll(allEntries);
+  void copyFromItem(Item item) {
+    Item copiedItem = Item();
+    copiedItem.name = item.name;
+    copiedItem.variety = item.variety;
+    copiedItem.upc = item.upc;
+    copiedItem.imageUrl = item.imageUrl;
+    copiedItem.category = item.category;
+    copiedItem.unitCount = item.unitCount;
+    copiedItem.consumable = item.consumable;
+
+    // Make sure the upc is copied to the inventory
+    if (state.inventory.upc != copiedItem.upc) {
+      state.inventory.upc = copiedItem.upc;
     }
-    return entries;
-  }
 
-  String get name => state.item.name;
-  set name(String name) {
-    final item = state.item;
-    item.name = name;
+    if (state.inventory.history.upc != copiedItem.upc) {
+      state.inventory.history.upc = copiedItem.upc;
+    }
 
-    state = EditableItemState(item, state.inventory, state.changedFields);
-  }
-
-  String get variety => state.item.variety;
-  set variety(String variety) {
-    final item = state.item;
-    item.variety = variety;
-
-    state = EditableItemState(item, state.inventory, state.changedFields);
-  }
-
-  String get upc => state.item.upc;
-  set upc(String upc) {
-    final item = state.item;
-    item.upc = upc;
-
-    final inv = state.inventory;
-    inv.upc = upc;
-
-    final history = state.inventory.history;
-    history.upc = upc;
-
-    state = EditableItemState(item, inv, state.changedFields);
-  }
-
-  String get predictedAmount => state.inventory.predictedAmount.toStringNoZero(2);
-
-  double get amount => state.inventory.amount;
-  set amount(double amount) {
-    final inv = state.inventory;
-    inv.amount = amount;
-
-    state.changedFields.add('amount');
-    state = EditableItemState(state.item, inv, state.changedFields);
-  }
-
-  int get unitCount => state.inventory.unitCount;
-  set unitCount(int value) {
-    final inv = state.inventory;
-    inv.unitCount = value;
-
-    final item = state.item;
-    item.unitCount = value;
-
-    state = EditableItemState(item, inv, state.changedFields);
-  }
-
-  double get totalUnitCount => state.inventory.units;
-
-  void cleanUpHistory(Repository repo) {
-    final inv = state.inventory;
-    inv.history = inv.history.clean();
-    repo.hist.put(inv.history);
-
-    state = EditableItemState(state.item, inv, state.changedFields);
+    state = EditableItemState(copiedItem, state.inventory, state.changedFields);
   }
 
   void save(Repository repo) {
@@ -162,4 +167,13 @@ class EditableItem extends StateNotifier<EditableItemState> {
       repo.inv.put(state.inventory);
     }
   }
+}
+
+class EditableItemState {
+  Item item = Item();
+  Inventory inventory = Inventory();
+  Set<String> changedFields = {};
+
+  EditableItemState(this.item, this.inventory, this.changedFields);
+  EditableItemState.empty();
 }
