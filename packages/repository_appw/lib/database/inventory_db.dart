@@ -2,7 +2,8 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:appwrite/appwrite.dart';
-import 'package:appwrite/models.dart';
+import 'package:appwrite/models.dart' hide Log;
+import 'package:log/log.dart';
 import 'package:repository/database/inventory_database.dart';
 import 'package:repository/model/inventory.dart';
 
@@ -115,7 +116,7 @@ class AppwriteInventoryDatabase extends InventoryDatabase {
               documentId: uniqueDocumentId(inv.upc),
               data: serializeInventory(inv));
         } else {
-          print('Failed to put inventory: $e');
+          Log.e('Failed to put inventory: $e');
           // Removing the inventory from local cache since we
           // failed to add it to the database
           _inventory.remove(inv.upc);
@@ -178,7 +179,7 @@ class AppwriteInventoryDatabase extends InventoryDatabase {
         _inventory[inventory.upc] = inventory;
       }
     } on AppwriteException catch (e) {
-      print(e);
+      Log.e(e);
     }
 
     stopwatch.stop();
@@ -211,7 +212,7 @@ class AppwriteInventoryDatabase extends InventoryDatabase {
       _QueueTask task = _taskQueue.removeAt(0);
 
       if (task.retries >= maxRetries) {
-        print('Failed to execute task after $maxRetries attempts.');
+        Log.e('Failed to execute task after $maxRetries attempts.');
         continue;
       }
 
@@ -219,7 +220,7 @@ class AppwriteInventoryDatabase extends InventoryDatabase {
         await task.operation();
       } on AppwriteException catch (e) {
         if (e.code != 404 && e.code != 409) {
-          print('Failed to execute task: $e. Retry attempt ${task.retries + 1}');
+          Log.e('Failed to execute task: $e. Retry attempt ${task.retries + 1}');
           task.retries += 1;
           _taskQueue.add(task);
         }

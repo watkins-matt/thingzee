@@ -2,8 +2,9 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:appwrite/appwrite.dart';
-import 'package:appwrite/models.dart';
+import 'package:appwrite/models.dart' hide Log;
 import 'package:collection/collection.dart';
+import 'package:log/log.dart';
 import 'package:repository/database/item_database.dart';
 import 'package:repository/model/filter.dart';
 import 'package:repository/model/item.dart';
@@ -113,7 +114,7 @@ class AppwriteItemDatabase extends ItemDatabase {
               documentId: uniqueDocumentId(item.upc),
               data: item.toJson()..['user_id'] = userId);
         } else {
-          print('Failed to put inventory: $e');
+          Log.e('Failed to put inventory: $e');
           // Removing the inventory from local cache since we
           // failed to add it to the database
           _items.remove(item.upc);
@@ -172,7 +173,7 @@ class AppwriteItemDatabase extends ItemDatabase {
         _items[item.upc] = item;
       }
     } on AppwriteException catch (e) {
-      print(e);
+      Log.e(e);
     }
 
     stopwatch.stop();
@@ -201,7 +202,7 @@ class AppwriteItemDatabase extends ItemDatabase {
         _items[item.upc] = mergedItem;
       }
     } on AppwriteException catch (e) {
-      print(e);
+      Log.e(e);
     }
 
     stopwatch.stop();
@@ -234,7 +235,7 @@ class AppwriteItemDatabase extends ItemDatabase {
       _QueueTask task = _taskQueue.removeAt(0);
 
       if (task.retries >= maxRetries) {
-        print('Failed to execute task after $maxRetries attempts.');
+        Log.e('Failed to execute task after $maxRetries attempts.');
         continue;
       }
 
@@ -242,7 +243,7 @@ class AppwriteItemDatabase extends ItemDatabase {
         await task.operation();
       } on AppwriteException catch (e) {
         if (e.code != 404 && e.code != 409) {
-          print('Failed to execute task: $e. Retry attempt ${task.retries + 1}');
+          Log.e('Failed to execute task: $e. Retry attempt ${task.retries + 1}');
           task.retries += 1;
           _taskQueue.add(task);
         }

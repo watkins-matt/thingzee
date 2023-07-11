@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:appwrite/appwrite.dart';
-import 'package:appwrite/models.dart';
+import 'package:appwrite/models.dart' hide Log;
 import 'package:repository/database/joined_inventory_database.dart';
 import 'package:repository/database/preferences.dart';
 import 'package:repository/repository.dart';
@@ -18,13 +18,6 @@ class AppwriteRepository extends CloudRepository {
   Session? _session;
 
   AppwriteRepository._() : super();
-
-  static Future<Repository> create() async {
-    final repo = AppwriteRepository._();
-    await repo._init();
-    await repo._loadSession();
-    return repo;
-  }
 
   @override
   bool get isMultiUser => true;
@@ -147,5 +140,12 @@ class AppwriteRepository extends CloudRepository {
         await prefs.remove('appwrite_session_expire');
       }
     }
+  }
+
+  static Future<Repository> create() async {
+    final repo = AppwriteRepository._();
+    await repo._init();
+    await repo._loadSession();
+    return repo;
   }
 }

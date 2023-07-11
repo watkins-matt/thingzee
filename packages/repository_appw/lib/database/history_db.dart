@@ -3,7 +3,8 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:appwrite/appwrite.dart';
-import 'package:appwrite/models.dart';
+import 'package:appwrite/models.dart' hide Log;
+import 'package:log/log.dart';
 import 'package:repository/database/history_database.dart';
 import 'package:repository/ml/history.dart';
 
@@ -96,7 +97,7 @@ class AppwriteHistoryDatabase extends HistoryDatabase {
               documentId: uniqueDocumentId(history.upc),
               data: serializeHistory(history));
         } else {
-          print('Failed to put history: $e');
+          Log.e('Failed to put history: $e');
           // Removing the history from local cache since we
           // failed to add it to the database
           _history.remove(history.upc);
@@ -160,7 +161,7 @@ class AppwriteHistoryDatabase extends HistoryDatabase {
         _history[history.upc] = history;
       }
     } on AppwriteException catch (e) {
-      print(e);
+      Log.e(e);
     }
 
     stopwatch.stop();
@@ -193,7 +194,7 @@ class AppwriteHistoryDatabase extends HistoryDatabase {
       _QueueTask task = _taskQueue.removeAt(0);
 
       if (task.retries >= maxRetries) {
-        print('Failed to execute task after $maxRetries attempts.');
+        Log.e('Failed to execute task after $maxRetries attempts.');
         continue;
       }
 
@@ -201,7 +202,7 @@ class AppwriteHistoryDatabase extends HistoryDatabase {
         await task.operation();
       } on AppwriteException catch (e) {
         if (e.code != 404 && e.code != 409) {
-          print('Failed to execute task: $e. Retry attempt ${task.retries + 1}');
+          Log.e('Failed to execute task: $e. Retry attempt ${task.retries + 1}');
           task.retries += 1;
           _taskQueue.add(task);
         }

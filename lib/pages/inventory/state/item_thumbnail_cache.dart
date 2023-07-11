@@ -2,9 +2,9 @@ import 'dart:io';
 
 import 'package:csv/csv.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:log/log.dart';
 import 'package:path_provider/path_provider.dart';
 
 final itemThumbnailCache =
@@ -17,44 +17,8 @@ class ItemThumbnailCache extends StateNotifier<Map<String, Image>> {
     _init();
   }
 
-  Future<void> _init() async {
-    await loadMapping();
-    await refresh();
-  }
-
-  Future<void> loadMapping() async {
-    final directory = await getApplicationDocumentsDirectory();
-    final mappingPath = '${directory.path}/image_file_map.csv';
-
-    if (File(mappingPath).existsSync()) {
-      final csvFile = await File(mappingPath).readAsString();
-      List<List<String>> csvData =
-          const CsvToListConverter().convert(csvFile, shouldParseNumbers: false);
-
-      for (final List<String> row in csvData) {
-        String upc = row[0];
-        String fileName = row[1];
-
-        // Skip the header row
-        if (upc == 'upc') {
-          continue;
-        }
-
-        fileNames[upc] = fileName;
-      }
-    }
-  }
-
-  Future<void> saveMapping() async {
-    final directory = await getApplicationDocumentsDirectory();
-    final mappingPath = '${directory.path}/image_file_map.csv';
-    final csvFile = File(mappingPath);
-
-    var rows = fileNames.entries.map((entry) => [entry.key, entry.value]).toList();
-    rows.insert(0, ['upc', 'file_name']); // Add a header row
-
-    final csvData = const ListToCsvConverter().convert(rows);
-    await csvFile.writeAsString(csvData);
+  bool cachedImageLoaded(String upc) {
+    return state.containsKey(upc);
   }
 
   Future<bool> downloadImage(String imageUrl, String upc) async {
@@ -92,9 +56,7 @@ class ItemThumbnailCache extends StateNotifier<Map<String, Image>> {
         fileExtension = '.png';
         break;
       default:
-        if (kDebugMode) {
-          print('Unknown image type: $contentType');
-        }
+        Log.w('Unknown image type [$contentType] while processing $upc:$imageUrl.');
         fileExtension = '.img';
     }
 
@@ -120,36 +82,6 @@ class ItemThumbnailCache extends StateNotifier<Map<String, Image>> {
 
   bool hasCacheOnDisk(String upc) {
     return fileNames.containsKey(upc);
-  }
-
-  bool cachedImageLoaded(String upc) {
-    return state.containsKey(upc);
-  }
-
-  Future<bool> loadImageIfExists(String upc) async {
-    if (cachedImageLoaded(upc)) {
-      return true;
-    } else if (hasCacheOnDisk(upc)) {
-      return await loadImage(upc);
-    }
-
-    return false;
-  }
-
-  Future<bool> loadImageFromUrl(String imageUrl, String upc) async {
-    if (cachedImageLoaded(upc)) {
-      return true;
-    } else if (hasCacheOnDisk(upc)) {
-      return await loadImage(upc);
-    } else {
-      return await downloadImage(imageUrl, upc);
-    }
-  }
-
-  Future<void> refresh() async {
-    for (final upc in fileNames.keys) {
-      await loadImageIfExists(upc);
-    }
   }
 
   Future<bool> loadImage(String upc) async {
@@ -188,5 +120,71 @@ class ItemThumbnailCache extends StateNotifier<Map<String, Image>> {
 
     // We were not able to load the image
     return false;
+  }
+
+  Future<bool> loadImageFromUrl(String imageUrl, String upc) async {
+    if (cachedImageLoaded(upc)) {
+      return true;
+    } else if (hasCacheOnDisk(upc)) {
+      return await loadImage(upc);
+    } else {
+      return await downloadImage(imageUrl, upc);
+    }
+  }
+
+  Future<bool> loadImageIfExists(String upc) async {
+    if (cachedImageLoaded(upc)) {
+      return true;
+    } else if (hasCacheOnDisk(upc)) {
+      return await loadImage(upc);
+    }
+
+    return false;
+  }
+
+  Future<void> loadMapping() async {
+    final directory = await getApplicationDocumentsDirectory();
+    final mappingPath = '${directory.path}/image_file_map.csv';
+
+    if (File(mappingPath).existsSync()) {
+      final csvFile = await File(mappingPath).readAsString();
+      List<List<String>> csvData =
+          const CsvToListConverter().convert(csvFile, shouldParseNumbers: false);
+
+      for (final List<String> row in csvData) {
+        String upc = row[0];
+        String fileName = row[1];
+
+        // Skip the header row
+        if (upc == 'upc') {
+          continue;
+        }
+
+        fileNames[upc] = fileName;
+      }
+    }
+  }
+
+  Future<void> refresh() async {
+    for (final upc in fileNames.keys) {
+      await loadImageIfExists(upc);
+    }
+  }
+
+  Future<void> saveMapping() async {
+    final directory = await getApplicationDocumentsDirectory();
+    final mappingPath = '${directory.path}/image_file_map.csv';
+    final csvFile = File(mappingPath);
+
+    var rows = fileNames.entries.map((entry) => [entry.key, entry.value]).toList();
+    rows.insert(0, ['upc', 'file_name']); // Add a header row
+
+    final csvData = const ListToCsvConverter().convert(rows);
+    await csvFile.writeAsString(csvData);
+  }
+
+  Future<void> _init() async {
+    await loadMapping();
+    await refresh();
   }
 }
