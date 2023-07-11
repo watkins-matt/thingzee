@@ -1,0 +1,15 @@
+name: log
+description: Provides a basic interface to the logging system.
+publish_to: "none"
+
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+dependencies:
+  intl: ^0.18.1
+  logger: ^1.3.0
+  path_provider: ^2.0.15
+
+dev_dependencies:
