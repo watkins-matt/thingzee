@@ -1,8 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:log/log.dart';
 import 'package:thingzee/pages/login/login_page.dart';
 import 'package:thingzee/pages/login/state/user_profile.dart';
 import 'package:thingzee/pages/login/state/user_session.dart';
+
+final registerStateProvider = StateNotifierProvider<RegisterStateNotifier, RegisterState>((ref) {
+  return RegisterStateNotifier();
+});
+
+class RegisterPage extends ConsumerStatefulWidget {
+  const RegisterPage({Key? key}) : super(key: key);
+
+  @override
+  ConsumerState<RegisterPage> createState() => _RegisterPageState();
+
+  static Future<void> push(BuildContext context) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const RegisterPage()),
+    );
+  }
+}
 
 class RegisterState {
   String email = '';
@@ -22,40 +41,7 @@ class RegisterState {
 class RegisterStateNotifier extends StateNotifier<RegisterState> {
   RegisterStateNotifier() : super(RegisterState());
 
-  void setEmail(String value) {
-    state = RegisterState(
-        email: value,
-        username: state.username,
-        password: state.password,
-        confirmPassword: state.confirmPassword,
-        errorText: state.errorText);
-  }
-
-  void setUsername(String value) {
-    state = RegisterState(
-        email: state.email,
-        username: value,
-        password: state.password,
-        confirmPassword: state.confirmPassword);
-  }
-
-  void setPassword(String value) {
-    state = RegisterState(
-        email: state.email,
-        username: state.username,
-        password: value,
-        confirmPassword: state.confirmPassword,
-        errorText: state.errorText);
-  }
-
-  void setConfirmPassword(String value) {
-    state = RegisterState(
-        email: state.email,
-        username: state.username,
-        password: state.password,
-        confirmPassword: value,
-        errorText: state.errorText);
-  }
+  bool get passwordsMatch => state.password == state.confirmPassword;
 
   Future<void> register(WidgetRef ref) async {
     final userProfile = ref.read(userProfileProvider.notifier);
@@ -78,24 +64,39 @@ class RegisterStateNotifier extends StateNotifier<RegisterState> {
     }
   }
 
-  bool get passwordsMatch => state.password == state.confirmPassword;
-}
+  void setConfirmPassword(String value) {
+    state = RegisterState(
+        email: state.email,
+        username: state.username,
+        password: state.password,
+        confirmPassword: value,
+        errorText: state.errorText);
+  }
 
-final registerStateProvider = StateNotifierProvider<RegisterStateNotifier, RegisterState>((ref) {
-  return RegisterStateNotifier();
-});
+  void setEmail(String value) {
+    state = RegisterState(
+        email: value,
+        username: state.username,
+        password: state.password,
+        confirmPassword: state.confirmPassword,
+        errorText: state.errorText);
+  }
 
-class RegisterPage extends ConsumerStatefulWidget {
-  const RegisterPage({Key? key}) : super(key: key);
+  void setPassword(String value) {
+    state = RegisterState(
+        email: state.email,
+        username: state.username,
+        password: value,
+        confirmPassword: state.confirmPassword,
+        errorText: state.errorText);
+  }
 
-  @override
-  ConsumerState<RegisterPage> createState() => _RegisterPageState();
-
-  static Future<void> push(BuildContext context) async {
-    await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const RegisterPage()),
-    );
+  void setUsername(String value) {
+    state = RegisterState(
+        email: state.email,
+        username: value,
+        password: state.password,
+        confirmPassword: state.confirmPassword);
   }
 }
 
@@ -105,26 +106,6 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
   bool _isPasswordHidden = true;
   bool _isConfirmPasswordHidden = true;
   final _touchedFields = <String>{};
-
-  bool _fieldTouched(String fieldName) {
-    return _touchedFields.contains(fieldName);
-  }
-
-  void _markFieldTouched(String fieldName) {
-    _touchedFields.add(fieldName);
-  }
-
-  void _togglePasswordVisibility() {
-    setState(() {
-      _isPasswordHidden = !_isPasswordHidden;
-    });
-  }
-
-  void _toggleConfirmPasswordVisibility() {
-    setState(() {
-      _isConfirmPasswordHidden = !_isConfirmPasswordHidden;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -260,9 +241,9 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                       child: const Text('Register'),
                       onPressed: () async {
                         if (_formKey.currentState!.validate()) {
-                          debugPrint('Email: ${registerState.email}');
-                          debugPrint('Username: ${registerState.username}');
-                          debugPrint('Password: ${registerState.password}');
+                          Log.d('Email: ${registerState.email}');
+                          Log.d('Username: ${registerState.username}');
+                          Log.d('Password: ${registerState.password}');
 
                           await ref.read(registerStateProvider.notifier).register(ref);
                         }
@@ -285,5 +266,25 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
         ),
       ),
     );
+  }
+
+  bool _fieldTouched(String fieldName) {
+    return _touchedFields.contains(fieldName);
+  }
+
+  void _markFieldTouched(String fieldName) {
+    _touchedFields.add(fieldName);
+  }
+
+  void _toggleConfirmPasswordVisibility() {
+    setState(() {
+      _isConfirmPasswordHidden = !_isConfirmPasswordHidden;
+    });
+  }
+
+  void _togglePasswordVisibility() {
+    setState(() {
+      _isPasswordHidden = !_isPasswordHidden;
+    });
   }
 }

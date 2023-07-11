@@ -1,5 +1,5 @@
 import 'package:csv/csv.dart';
-import 'package:flutter/widgets.dart';
+import 'package:log/log.dart';
 import 'package:repository/ml/history.dart';
 import 'package:repository/ml/history_series.dart';
 import 'package:repository/repository.dart';
@@ -19,7 +19,7 @@ class HistoryCsvImporter {
     List<dynamic> headerRow = csvData[0];
     bool headerRowIsValid = headerRow.every((value) => value is String);
     if (!headerRowIsValid) {
-      debugPrint('Header row is not valid. Import failed.');
+      Log.e('Header row is not valid. Import failed.');
       return false;
     }
 

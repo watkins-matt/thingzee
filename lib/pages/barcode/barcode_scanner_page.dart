@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:log/log.dart';
 import 'package:qr_mobile_vision/qr_camera.dart';
 import 'package:repository/ml/history.dart';
 import 'package:repository/model/inventory.dart';
@@ -9,8 +10,6 @@ import 'package:repository/model/item.dart';
 import 'package:thingzee/app.dart';
 import 'package:thingzee/pages/detail/item_detail_page.dart';
 import 'package:thingzee/pages/detail/state/editable_item.dart';
-
-enum BarcodeScannerMode { showItemDetail, addToShoppingList }
 
 String upceToA(String upce) {
   String manufacturer = upce.substring(1, 7);
@@ -31,11 +30,16 @@ String upceToA(String upce) {
   return '0$productCode';
 }
 
+enum BarcodeScannerMode { showItemDetail, addToShoppingList }
+
 class BarcodeScannerPage extends ConsumerStatefulWidget {
   final BarcodeScannerMode mode;
   final String location;
 
   const BarcodeScannerPage(this.mode, {Key? key, this.location = ''}) : super(key: key);
+
+  @override
+  ConsumerState<BarcodeScannerPage> createState() => _BarcodeScannerPageState();
 
   static Future<void> push(BuildContext context, BarcodeScannerMode mode) async {
     await Navigator.push(
@@ -43,9 +47,6 @@ class BarcodeScannerPage extends ConsumerStatefulWidget {
       MaterialPageRoute(builder: (context) => BarcodeScannerPage(mode)),
     );
   }
-
-  @override
-  ConsumerState<BarcodeScannerPage> createState() => _BarcodeScannerPageState();
 }
 
 class _BarcodeScannerPageState extends ConsumerState<BarcodeScannerPage> {
@@ -74,35 +75,6 @@ class _BarcodeScannerPageState extends ConsumerState<BarcodeScannerPage> {
         ));
   }
 
-  Future<void> onBarcodeScanned(BuildContext context, String? barcode) async {
-    if (barcode != null &&
-        (barcode.length == 12 ||
-            barcode.length == 13 ||
-            barcode.length == 7 ||
-            barcode.length == 8)) {
-      if (barcode.length == 7) {
-        barcode = upceToA(barcode);
-      }
-
-      if (barcode.length == 12 && upc.isEmpty) {
-        upc = barcode;
-        App.log.d('Scanned UPC: $upc');
-      } else if (barcode.length == 13 || barcode.length == 8 && ean.isEmpty) {
-        ean = barcode;
-        App.log.d('Scanned EAN: $ean');
-      }
-
-      if (timer == null || !timer!.isActive) {
-        timer = Timer(const Duration(milliseconds: 50), () async {
-          if (!finishedScanning) {
-            finishedScanning = true;
-            await loadItemDetail(context, upc.isEmpty ? ean : upc);
-          }
-        });
-      }
-    }
-  }
-
   Future<void> loadItemDetail(BuildContext context, String barcode) async {
     final defaultItem = Item()
       ..upc = barcode
@@ -126,5 +98,34 @@ class _BarcodeScannerPageState extends ConsumerState<BarcodeScannerPage> {
       context,
       MaterialPageRoute(builder: (context) => ItemDetailPage(item)),
     );
+  }
+
+  Future<void> onBarcodeScanned(BuildContext context, String? barcode) async {
+    if (barcode != null &&
+        (barcode.length == 12 ||
+            barcode.length == 13 ||
+            barcode.length == 7 ||
+            barcode.length == 8)) {
+      if (barcode.length == 7) {
+        barcode = upceToA(barcode);
+      }
+
+      if (barcode.length == 12 && upc.isEmpty) {
+        upc = barcode;
+        Log.i('Found UPC: $upc');
+      } else if (barcode.length == 13 || barcode.length == 8 && ean.isEmpty) {
+        ean = barcode;
+        Log.i('Found EAN: $ean');
+      }
+
+      if (timer == null || !timer!.isActive) {
+        timer = Timer(const Duration(milliseconds: 50), () async {
+          if (!finishedScanning) {
+            finishedScanning = true;
+            await loadItemDetail(context, upc.isEmpty ? ean : upc);
+          }
+        });
+      }
+    }
   }
 }
