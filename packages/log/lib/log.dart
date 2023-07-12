@@ -194,11 +194,11 @@ class TimeDisplaySimplePrinter extends SimplePrinter {
     final color = SimplePrinter.levelColors[event.level]!;
     final prefix = levelPrefixes[event.level]!;
 
-    final colorPrefix = color(prefix);
     final errorText = _errorText(event);
     final message = messageToString(event.message);
+    final result = color('$timeString $prefix $message $errorText'.trimRight());
 
-    return ['$timeString $colorPrefix $message $errorText'.trimRight()];
+    return [result];
   }
 
   String messageToString(dynamic message) {
