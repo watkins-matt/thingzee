@@ -196,7 +196,7 @@ class TimeDisplaySimplePrinter extends SimplePrinter {
 
     final errorText = _errorText(event);
     final message = messageToString(event.message);
-    final result = color('$timeString $prefix $message $errorText'.trimRight());
+    final result = timeString + color(' $prefix $message $errorText'.trimRight());
 
     return [result];
   }
