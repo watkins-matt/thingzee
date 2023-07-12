@@ -33,7 +33,7 @@ class AppwriteRepository extends CloudRepository {
     bool online = status == ConnectivityStatus.online;
 
     scheduleMicrotask(() async {
-      Log.i('Connectivity status change detected: online=$online');
+      Log.i('Appwrite: Connectivity status change detected: online=$online');
       final items = this.items as AppwriteItemDatabase;
       final joinedInv = this.inv as JoinedInventoryDatabase;
       final inv = joinedInv.inventoryDatabase as AppwriteInventoryDatabase;
@@ -42,7 +42,7 @@ class AppwriteRepository extends CloudRepository {
       await items.handleConnectionChange(online, _session!);
       await inv.handleConnectionChange(online, _session!);
       await hist.handleConnectionChange(online, _session!);
-      Log.i('Connectivity status handling completed.');
+      Log.i('Appwrite: Connectivity status handling completed.');
     });
   }
 

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:log/log.dart';
 import 'package:repository/database/history_database.dart';
 import 'package:repository/database/inventory_database.dart';
@@ -58,6 +60,14 @@ class SynchronizedRepository extends CloudRepository {
   @override
   void handleConnectivityChange(ConnectivityStatus status) {
     remote.handleConnectivityChange(status);
+
+    if (status == ConnectivityStatus.online) {
+      scheduleMicrotask(() async {
+        Log.i('SynchronizedRepository: Connectivity status change detected: online=true');
+        await sync();
+        Log.i('SynchronizedRepository: Connectivity status handling completed.');
+      });
+    }
   }
 
   @override
