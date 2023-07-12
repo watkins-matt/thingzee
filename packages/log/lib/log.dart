@@ -11,7 +11,7 @@ import 'package:path_provider/path_provider.dart';
 
 class Log {
   static final StoredLogOutput _output = StoredLogOutput(printMethod: PrintMethod.debugPrint);
-  static final Logger _logger = Logger(printer: SimplePrinter(printTime: true), output: _output);
+  static final Logger _logger = Logger(printer: TimeDisplaySimplePrinter(), output: _output);
   static List<OutputEvent> get logs => _output.logs;
   Log._();
 
@@ -172,5 +172,36 @@ class StoredLogOutput extends LogOutput {
       await _logFile!.writeAsString(logLines, mode: FileMode.append);
       logsToWrite.clear();
     }
+  }
+}
+
+class TimeDisplaySimplePrinter extends SimplePrinter {
+  static final levelPrefixes = {
+    Level.verbose: '[VER]',
+    Level.debug: '[DEB]',
+    Level.info: '[INF]',
+    Level.warning: '[WRN]',
+    Level.error: '[ERR]',
+    Level.wtf: '[WTF]',
+  };
+
+  @override
+  List<String> log(LogEvent event) {
+    // Create the time string as YYYY-MM-DD HH:MM:SS PM
+    final timeString = DateFormat('yyyy-MM-dd hh:mm:ss a').format(event.time);
+
+    final color = SimplePrinter.levelColors[event.level]!;
+    final prefix = levelPrefixes[event.level]!;
+
+    final colorPrefix = color(prefix);
+    final errorText = _errorText(event);
+
+    return ['$timeString $colorPrefix ${event.message} $errorText'.trimRight()];
+  }
+
+  String _errorText(LogEvent event) {
+    if (event.error == null) return '';
+    if (event.stackTrace == null) return event.error.toString();
+    return '${event.error}\n${event.stackTrace}';
   }
 }
