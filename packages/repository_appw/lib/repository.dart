@@ -40,8 +40,8 @@ class AppwriteRepository extends CloudRepository {
         await prefs.setString('appwrite_session_expire', _session!.expire);
         await sync();
       }
-    } catch (e) {
-      Log.w('Failed to login user: $e');
+    } catch (e, st) {
+      Log.w('Failed to login user:', e, st);
     }
   }
 
@@ -55,7 +55,8 @@ class AppwriteRepository extends CloudRepository {
       await prefs.remove('appwrite_session_expire');
 
       final items = this.items as AppwriteItemDatabase;
-      final inv = this.inv as AppwriteInventoryDatabase;
+      final joinedInv = this.inv as JoinedInventoryDatabase;
+      final inv = joinedInv.inventoryDatabase as AppwriteInventoryDatabase;
       final hist = this.hist as AppwriteHistoryDatabase;
 
       await items.handleConnectionChange(false, null);
@@ -92,15 +93,18 @@ class AppwriteRepository extends CloudRepository {
       return false;
     }
 
-    Log.i('Started Appwrite sync...');
+    final timer = Log.timerStart('Started Appwrite sync...');
 
     final items = this.items as AppwriteItemDatabase;
-    final inv = this.inv as AppwriteInventoryDatabase;
+    final joinedInv = this.inv as JoinedInventoryDatabase;
+    final inv = joinedInv.inventoryDatabase as AppwriteInventoryDatabase;
     final hist = this.hist as AppwriteHistoryDatabase;
 
     await items.handleConnectionChange(true, _session!);
     await inv.handleConnectionChange(true, _session!);
     await hist.handleConnectionChange(true, _session!);
+
+    Log.timerEnd(timer, 'Appwrite sync completed in \$seconds seconds.');
 
     return true;
   }
@@ -151,6 +155,8 @@ class AppwriteRepository extends CloudRepository {
         await prefs.remove('appwrite_session_id');
         await prefs.remove('appwrite_session_expire');
       }
+    } else {
+      Log.i('No session found. Log in required.');
     }
   }
 
