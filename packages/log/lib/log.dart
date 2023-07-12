@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:collection';
+import 'dart:convert';
 import 'dart:developer' as developer;
 import 'dart:io';
 
@@ -8,6 +9,7 @@ import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
+import 'package:stack_trace/stack_trace.dart';
 
 class Log {
   static final StoredLogOutput _output = StoredLogOutput(printMethod: PrintMethod.debugPrint);
@@ -187,7 +189,6 @@ class TimeDisplaySimplePrinter extends SimplePrinter {
 
   @override
   List<String> log(LogEvent event) {
-    // Create the time string as YYYY-MM-DD HH:MM:SS PM
     final timeString = DateFormat('yyyy-MM-dd hh:mm:ss a').format(event.time);
 
     final color = SimplePrinter.levelColors[event.level]!;
@@ -195,13 +196,30 @@ class TimeDisplaySimplePrinter extends SimplePrinter {
 
     final colorPrefix = color(prefix);
     final errorText = _errorText(event);
+    final message = messageToString(event.message);
 
-    return ['$timeString $colorPrefix ${event.message} $errorText'.trimRight()];
+    return ['$timeString $colorPrefix $message $errorText'.trimRight()];
+  }
+
+  String messageToString(dynamic message) {
+    if (message is Function) {
+      message = message();
+    }
+
+    if (message is Map || message is Iterable) {
+      return JsonEncoder.withIndent('  ').convert(message);
+    } else {
+      return message.toString();
+    }
   }
 
   String _errorText(LogEvent event) {
     if (event.error == null) return '';
     if (event.stackTrace == null) return event.error.toString();
-    return '${event.error}\n${event.stackTrace}';
+
+    final chain = Chain.forTrace(event.stackTrace!);
+    final terseChain = chain.terse;
+
+    return '${event.error}\n$terseChain';
   }
 }
