@@ -29,6 +29,7 @@ class AppwriteHistoryDatabase extends HistoryDatabase {
   @override
   void delete(History history) {
     _history.remove(history.upc);
+
     queueTask(() async => await _database.deleteDocument(
         databaseId: databaseId,
         collectionId: collectionId,
@@ -56,13 +57,12 @@ class AppwriteHistoryDatabase extends HistoryDatabase {
     if (online && session != null) {
       _online = true;
       userId = session.userId;
-      await sync();
+
       scheduleMicrotask(_processQueue);
+      await sync();
     } else {
       _online = false;
       userId = '';
-      _taskQueue.clear();
-      _history.clear();
     }
   }
 
@@ -182,7 +182,7 @@ class AppwriteHistoryDatabase extends HistoryDatabase {
   }
 
   Future<void> _processQueue() async {
-    if (_processingQueue) {
+    if (_processingQueue || !_online) {
       return;
     }
     _processingQueue = true;

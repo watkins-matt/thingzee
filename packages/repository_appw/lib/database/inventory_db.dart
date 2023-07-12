@@ -78,8 +78,6 @@ class AppwriteInventoryDatabase extends InventoryDatabase {
     } else {
       _online = false;
       userId = '';
-      _taskQueue.clear();
-      _inventory.clear();
     }
   }
 
@@ -200,7 +198,7 @@ class AppwriteInventoryDatabase extends InventoryDatabase {
   }
 
   Future<void> _processQueue() async {
-    if (_processingQueue) {
+    if (_processingQueue || !_online) {
       return;
     }
     _processingQueue = true;

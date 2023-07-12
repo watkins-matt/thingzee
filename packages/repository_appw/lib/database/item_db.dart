@@ -73,13 +73,12 @@ class AppwriteItemDatabase extends ItemDatabase {
     if (online && session != null) {
       _online = true;
       userId = session.userId;
-      await sync();
+
       scheduleMicrotask(_processQueue);
+      await sync();
     } else {
       _online = false;
       userId = '';
-      _taskQueue.clear();
-      _items.clear();
     }
   }
 
@@ -221,7 +220,7 @@ class AppwriteItemDatabase extends ItemDatabase {
   }
 
   Future<void> _processQueue() async {
-    if (_processingQueue) {
+    if (_processingQueue || !_online) {
       return;
     }
     _processingQueue = true;
