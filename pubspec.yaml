@@ -8,6 +8,7 @@ environment:
   sdk: ">=3.0.0 <4.0.0"
 
 dependencies:
+  appwrite: ^9.0.1
   archive: ^3.3.7
   csv: ^5.0.2
   cupertino_icons: ^1.0.2
@@ -29,6 +30,8 @@ dependencies:
   qr_mobile_vision: ^4.1.2
   repository:
     path: packages/repository
+  repository_appw:
+    path: packages/repository_appw
   repository_ob:
     path: packages/repository_ob
   riverpod_annotation: ^2.1.1

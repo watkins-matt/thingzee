@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:repository/repository.dart';
-import 'package:repository_ob/repository.dart';
+import 'package:repository_appw/repository.dart';
 import 'package:stack_trace/stack_trace.dart';
 import 'package:thingzee/app.dart';
-
-final repositoryProvider = Provider<Repository>((ref) {
-  return App.repo;
-});
 
 Future<void> main() async {
   // This line must be first
@@ -24,10 +20,14 @@ Future<void> main() async {
   };
 
   // Choose the backend and initialize the database
-  App.repo = await ObjectBoxRepository.create();
+  App.repo = await AppwriteRepository.create();
   assert(App.repo.ready);
 
   runApp(const ProviderScope(
     child: App(),
   ));
 }
+
+final repositoryProvider = Provider<Repository>((ref) {
+  return App.repo;
+});
