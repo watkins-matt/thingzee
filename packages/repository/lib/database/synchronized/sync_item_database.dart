@@ -1,3 +1,4 @@
+import 'package:log/log.dart';
 import 'package:repository/database/item_database.dart';
 import 'package:repository/model/filter.dart';
 import 'package:repository/model/item.dart';
@@ -65,6 +66,7 @@ class SynchronizedItemDatabase extends ItemDatabase {
   }
 
   void syncDifferences() {
+    Log.d('Looking for item differences...');
     final since = lastSync ?? DateTime.fromMillisecondsSinceEpoch(0);
 
     final remoteChanges = remote.getChanges(since);
@@ -77,12 +79,14 @@ class SynchronizedItemDatabase extends ItemDatabase {
       if (!localMap.containsKey(remoteItem.upc)) {
         // If the local database does not contain the remote item, add it
         local.put(remoteItem);
+        Log.d('Added remote item "${remoteItem.name}" to local database.');
       }
       // The item exists in both databases, merge and add to both
       else {
         final mergedItem = localMap[remoteItem.upc]!.merge(remoteItem);
         local.put(mergedItem);
         remote.put(mergedItem);
+        Log.d('Merged remote item "${remoteItem.name}" with local database.');
       }
     }
 
@@ -90,6 +94,7 @@ class SynchronizedItemDatabase extends ItemDatabase {
       if (!remoteMap.containsKey(localItem.upc)) {
         // If the remote database does not contain the local item, add it
         remote.put(localItem);
+        Log.d('Added local item "${localItem.name}" to remote database.');
       }
     }
   }
