@@ -13,6 +13,8 @@ dependencies:
   duration: ^3.0.12
   intl: ^0.18.1
   json_annotation: ^4.8.1
+  log:
+    path: ../log
   meta: ^1.9.1
   ml_algo: ^16.17.7
   ml_dataframe: ^1.6.0

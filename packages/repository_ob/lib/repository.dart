@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:log/log.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:repository/database/preferences.dart';
@@ -16,6 +17,7 @@ class ObjectBoxRepository extends Repository {
   ObjectBoxRepository._();
 
   Future<void> _init() async {
+    final timer = Log.timerStart();
     Directory directory = await getApplicationSupportDirectory();
     String dbPath = path.join(directory.path, 'objectbox');
 
@@ -30,6 +32,7 @@ class ObjectBoxRepository extends Repository {
     hist = ObjectBoxHistoryDatabase(store);
     inv = ObjectBoxJoinedInventoryDatabase(store, hist);
 
+    Log.timerEnd(timer, 'ObjectBox repository initialized in \$seconds seconds');
     ready = true;
   }
 

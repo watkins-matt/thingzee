@@ -34,8 +34,10 @@ class ItemThumbnailCache extends StateNotifier<Map<String, Image>> {
           await Dio().get<List<int>>(imageUrl, options: Options(responseType: ResponseType.bytes));
     } on DioException catch (e) {
       if (e.response?.statusCode == 404) {
+        Log.w('Image not found for $upc:$imageUrl.');
         return false;
       } else {
+        Log.e('Error while downloading image for $upc:$imageUrl.', e, e.stackTrace);
         rethrow;
       }
     }

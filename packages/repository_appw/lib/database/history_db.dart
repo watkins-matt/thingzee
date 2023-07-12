@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:developer';
 
 import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/models.dart' hide Log;
@@ -128,7 +127,7 @@ class AppwriteHistoryDatabase extends HistoryDatabase {
       return;
     }
 
-    Stopwatch stopwatch = Stopwatch()..start();
+    final timer = Log.timerStart();
     String? cursor;
     List<History> allHistory = [];
 
@@ -164,9 +163,7 @@ class AppwriteHistoryDatabase extends HistoryDatabase {
       Log.e(e);
     }
 
-    stopwatch.stop();
-    final elapsed = stopwatch.elapsed.inMilliseconds;
-    log('History sync completed in ${elapsed / 1000} seconds.');
+    Log.timerEnd(timer, 'Appwrite: History synced in \$seconds seconds.');
     lastSync = DateTime.now();
   }
 

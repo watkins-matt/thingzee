@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 
 import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/models.dart' hide Log;
@@ -114,7 +113,7 @@ class AppwriteItemDatabase extends ItemDatabase {
               documentId: uniqueDocumentId(item.upc),
               data: item.toJson()..['user_id'] = userId);
         } else {
-          Log.e('Failed to put inventory: $e');
+          Log.e('Failed to put inventory: ', e);
           // Removing the inventory from local cache since we
           // failed to add it to the database
           _items.remove(item.upc);
@@ -140,7 +139,7 @@ class AppwriteItemDatabase extends ItemDatabase {
       return;
     }
 
-    Stopwatch stopwatch = Stopwatch()..start();
+    final timer = Log.timerStart();
     String? cursor;
     List<Item> allItems = [];
 
@@ -176,9 +175,7 @@ class AppwriteItemDatabase extends ItemDatabase {
       Log.e(e);
     }
 
-    stopwatch.stop();
-    final elapsed = stopwatch.elapsed.inMilliseconds;
-    log('Item sync completed in ${elapsed / 1000} seconds.');
+    Log.timerEnd(timer, 'Appwrite: Items synced in \$seconds seconds.');
     lastSync = DateTime.now();
   }
 
@@ -188,7 +185,7 @@ class AppwriteItemDatabase extends ItemDatabase {
       return;
     }
 
-    Stopwatch stopwatch = Stopwatch()..start();
+    final timer = Log.timerStart();
 
     try {
       DocumentList response = await _database.listDocuments(
@@ -205,9 +202,7 @@ class AppwriteItemDatabase extends ItemDatabase {
       Log.e(e);
     }
 
-    stopwatch.stop();
-    final elapsed = stopwatch.elapsed.inMilliseconds;
-    log('Modified sync completed in ${elapsed / 1000} seconds.');
+    Log.timerEnd(timer, 'Appwrite: Modified item sync completed in \$seconds seconds.');
     lastSync = DateTime.now();
   }
 

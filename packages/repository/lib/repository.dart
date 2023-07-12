@@ -1,3 +1,4 @@
+import 'package:log/log.dart';
 import 'package:repository/database/history_database.dart';
 import 'package:repository/database/inventory_database.dart';
 import 'package:repository/database/item_database.dart';
@@ -56,15 +57,18 @@ class SynchronizedRepository extends CloudRepository {
 
   @override
   Future<bool> sync() async {
+    final timer = Log.timerStart('SynchronizedRepository: starting sync.');
     await remote.sync();
 
     final syncItems = items as SynchronizedItemDatabase;
     final syncInv = inv as SynchronizedInventoryDatabase;
     final syncHistory = hist as SynchronizedHistoryDatabase;
 
+    Log.i('SynchronizedRepository: syncing differences between remote and local.');
     syncItems.syncDifferences();
     syncInv.syncDifferences();
     syncHistory.syncDifferences();
+    Log.timerEnd(timer, 'SynchronizedRepository: finished sync in \$seconds seconds.');
 
     return true;
   }

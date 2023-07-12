@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 
 import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/models.dart' hide Log;
@@ -146,7 +145,7 @@ class AppwriteInventoryDatabase extends InventoryDatabase {
       return;
     }
 
-    Stopwatch stopwatch = Stopwatch()..start();
+    final timer = Log.timerStart();
     String? cursor;
     List<Inventory> allInventory = [];
 
@@ -182,9 +181,7 @@ class AppwriteInventoryDatabase extends InventoryDatabase {
       Log.e(e);
     }
 
-    stopwatch.stop();
-    final elapsed = stopwatch.elapsed.inMilliseconds;
-    log('Inventory sync completed in ${elapsed / 1000} seconds.');
+    Log.timerEnd(timer, 'Appwrite: Inventory synced in \$seconds seconds.');
     lastSync = DateTime.now();
   }
 

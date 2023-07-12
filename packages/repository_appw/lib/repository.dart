@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/models.dart' hide Log;
+import 'package:log/log.dart';
 import 'package:repository/database/joined_inventory_database.dart';
 import 'package:repository/database/preferences.dart';
 import 'package:repository/repository.dart';
@@ -40,7 +41,7 @@ class AppwriteRepository extends CloudRepository {
         await sync();
       }
     } catch (e) {
-      throw Exception('Failed to login user: $e');
+      Log.w('Failed to login user: $e');
     }
   }
 
@@ -60,6 +61,8 @@ class AppwriteRepository extends CloudRepository {
       await items.handleConnectionChange(false, null);
       await inv.handleConnectionChange(false, null);
       await hist.handleConnectionChange(false, null);
+
+      Log.i('Successfully logged out user.');
     }
   }
 
@@ -69,7 +72,7 @@ class AppwriteRepository extends CloudRepository {
     try {
       await _account.create(userId: username, email: email, password: password);
     } catch (e) {
-      throw Exception('Failed to register user: $e');
+      Log.e('Failed to register user: ', e);
     }
 
     // Should login immediately after registering
@@ -79,7 +82,7 @@ class AppwriteRepository extends CloudRepository {
     try {
       await _account.createVerification(url: 'https://appwrite.thingzee.net/verify');
     } catch (e) {
-      throw Exception('Failed to send verification email: $e');
+      Log.e('Failed to send verification email: ', e);
     }
   }
 
@@ -88,6 +91,8 @@ class AppwriteRepository extends CloudRepository {
     if (!loggedIn) {
       return false;
     }
+
+    Log.i('Started Appwrite sync...');
 
     final items = this.items as AppwriteItemDatabase;
     final inv = this.inv as AppwriteInventoryDatabase;
@@ -101,6 +106,8 @@ class AppwriteRepository extends CloudRepository {
   }
 
   Future<void> _init() async {
+    final timer = Log.timerStart();
+
     _client = Client();
     _client.setEndpoint(appwriteEndpoint).setProject(projectId);
 
@@ -115,10 +122,13 @@ class AppwriteRepository extends CloudRepository {
     final inventory = AppwriteInventoryDatabase(_databases, 'test', 'user_inventory');
     inv = JoinedInventoryDatabase(inventory, hist);
 
+    Log.timerEnd(timer, 'AppwriteRepository initialized in \$seconds seconds.');
     ready = true;
   }
 
   Future<void> _loadSession() async {
+    Log.i('Checking for existing session...');
+
     // Don't do anything if we have a session already
     if (_session != null) {
       return;
@@ -130,12 +140,14 @@ class AppwriteRepository extends CloudRepository {
       final expireDate = DateTime.parse(expiration);
 
       if (DateTime.now().isBefore(expireDate)) {
+        Log.i('Session found, loading...');
         _session = await _account.getSession(sessionId: sessionId);
         await sync();
       }
 
       // Just remove the preferences if the session is expired
       else {
+        Log.i('Session expired, deleting...');
         await prefs.remove('appwrite_session_id');
         await prefs.remove('appwrite_session_expire');
       }
