@@ -8,33 +8,41 @@ import 'package:repository_ob/repository.dart';
 import 'package:stack_trace/stack_trace.dart';
 import 'package:thingzee/app.dart';
 
-final repositoryProvider = Provider<Repository>((ref) {
-  return App.repo;
-});
-
 Future<void> main() async {
-  // This line must be first
-  WidgetsFlutterBinding.ensureInitialized();
+  await runZonedGuarded(() async {
+    // This line must be first
+    WidgetsFlutterBinding.ensureInitialized();
 
-  // Set demangleStackTrace to handle Riverpod stack traces
-  FlutterError.demangleStackTrace = (StackTrace stack) {
-    if (stack is Trace) {
-      return stack.vmTrace;
-    } else if (stack is Chain) {
-      return stack.toTrace().vmTrace;
-    }
-    return stack;
-  };
+    // Set demangleStackTrace to handle Riverpod stack traces
+    FlutterError.demangleStackTrace = (StackTrace stack) {
+      if (stack is Trace) {
+        return stack.vmTrace;
+      } else if (stack is Chain) {
+        return stack.toTrace().vmTrace;
+      }
+      return stack;
+    };
 
-  // Choose the backend and initialize the database
-  App.repo = await ObjectBoxRepository.create();
-  assert(App.repo.ready);
+    // Choose the backend and initialize the database
+    App.repo = await ObjectBoxRepository.create();
+    assert(App.repo.ready);
 
-  runZonedGuarded(() {
+    // Log any errors from Flutter
+    FlutterError.onError = (FlutterErrorDetails details) {
+      Log.e('Flutter error:', details.exception, details.stack);
+    };
+
     runApp(const ProviderScope(
       child: App(),
     ));
-  }, (error, stackTrace) {
+  },
+
+      // Log any other unhandled errors from within the zone
+      (error, stackTrace) {
     Log.e('Unhandled error:', error, stackTrace);
   });
 }
+
+final repositoryProvider = Provider<Repository>((ref) {
+  return App.repo;
+});
