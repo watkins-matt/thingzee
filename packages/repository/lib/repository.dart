@@ -7,11 +7,20 @@ import 'package:repository/database/preferences.dart';
 import 'package:repository/database/synchronized/sync_history_database.dart';
 import 'package:repository/database/synchronized/sync_inventory_database.dart';
 import 'package:repository/database/synchronized/sync_item_database.dart';
+import 'package:repository/network/connectivity_service.dart';
 
 abstract class CloudRepository extends Repository {
+  final ConnectivityService connectivity;
+
+  CloudRepository(this.connectivity) {
+    connectivity.addListener(handleConnectivityChange);
+  }
+
   @override
   bool get isMultiUser => true;
+  bool get isOnline => connectivity.status == ConnectivityStatus.online;
 
+  void handleConnectivityChange(ConnectivityStatus status);
   Future<void> loginUser(String email, String password);
   Future<void> logoutUser();
   Future<void> registerUser(String username, String email, String password);
@@ -32,13 +41,24 @@ class SynchronizedRepository extends CloudRepository {
   final Repository local;
   final CloudRepository remote;
 
-  SynchronizedRepository._(this.local, this.remote) : super();
+  SynchronizedRepository._(
+    this.local,
+    this.remote,
+  ) : super(remote.connectivity);
 
   @override
   bool get isMultiUser => true;
 
   @override
+  bool get isOnline => remote.isOnline;
+
+  @override
   bool get loggedIn => remote.loggedIn;
+
+  @override
+  void handleConnectivityChange(ConnectivityStatus status) {
+    remote.handleConnectivityChange(status);
+  }
 
   @override
   Future<void> loginUser(String email, String password) async {
@@ -57,6 +77,11 @@ class SynchronizedRepository extends CloudRepository {
 
   @override
   Future<bool> sync() async {
+    if (!remote.loggedIn) {
+      Log.w('SynchronizedRepository: not logged in, cannot sync.');
+      return false;
+    }
+
     final timer = Log.timerStart('SynchronizedRepository: starting sync.');
     await remote.sync();
 

@@ -5,6 +5,7 @@ import 'package:appwrite/models.dart' hide Log;
 import 'package:log/log.dart';
 import 'package:repository/database/joined_inventory_database.dart';
 import 'package:repository/database/preferences.dart';
+import 'package:repository/network/connectivity_service.dart';
 import 'package:repository/repository.dart';
 import 'package:repository_appw/database/history_db.dart';
 import 'package:repository_appw/database/inventory_db.dart';
@@ -18,7 +19,7 @@ class AppwriteRepository extends CloudRepository {
   final String projectId = 'thingzee';
   Session? _session;
 
-  AppwriteRepository._() : super();
+  AppwriteRepository._(ConnectivityService service) : super(service);
 
   @override
   bool get isMultiUser => true;
@@ -26,6 +27,24 @@ class AppwriteRepository extends CloudRepository {
   @override
   bool get loggedIn =>
       _session != null && DateTime.now().isBefore(DateTime.parse(_session!.expire));
+
+  @override
+  void handleConnectivityChange(ConnectivityStatus status) {
+    bool online = status == ConnectivityStatus.online;
+
+    scheduleMicrotask(() async {
+      Log.i('Connectivity status change detected: online=$online');
+      final items = this.items as AppwriteItemDatabase;
+      final joinedInv = this.inv as JoinedInventoryDatabase;
+      final inv = joinedInv.inventoryDatabase as AppwriteInventoryDatabase;
+      final hist = this.hist as AppwriteHistoryDatabase;
+
+      await items.handleConnectionChange(online, _session!);
+      await inv.handleConnectionChange(online, _session!);
+      await hist.handleConnectionChange(online, _session!);
+      Log.i('Connectivity status handling completed.');
+    });
+  }
 
   @override
   Future<void> loginUser(String email, String password) async {
@@ -160,8 +179,8 @@ class AppwriteRepository extends CloudRepository {
     }
   }
 
-  static Future<Repository> create() async {
-    final repo = AppwriteRepository._();
+  static Future<Repository> create(ConnectivityService service) async {
+    final repo = AppwriteRepository._(service);
     await repo._init();
     await repo._loadSession();
     return repo;
