@@ -7,6 +7,7 @@ import 'package:thingzee/data/csv_export_service.dart';
 import 'package:thingzee/data/csv_import_service.dart';
 import 'package:thingzee/pages/inventory/state/inventory_view.dart';
 import 'package:thingzee/pages/inventory/state/item_thumbnail_cache.dart';
+import 'package:thingzee/pages/log/log_viewer_page.dart';
 
 // Settings page
 // Features to include:
@@ -18,21 +19,52 @@ import 'package:thingzee/pages/inventory/state/item_thumbnail_cache.dart';
 class SettingsPage extends ConsumerStatefulWidget {
   const SettingsPage({Key? key}) : super(key: key);
 
+  @override
+  ConsumerState<SettingsPage> createState() => _SettingsPageState();
+
   static Future<void> push(BuildContext context) async {
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const SettingsPage()),
     );
   }
-
-  @override
-  ConsumerState<SettingsPage> createState() => _SettingsPageState();
 }
 
 class _SettingsPageState extends ConsumerState<SettingsPage> {
-  Future<String?> pickFilePath() async {
-    FilePickerResult? filePickerResult = await FilePicker.platform.pickFiles();
-    return filePickerResult?.files.single.path;
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Settings'),
+      ),
+      body: SettingsList(
+          contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 0),
+          lightTheme: SettingsThemeData(settingsListBackground: Theme.of(context).canvasColor),
+          sections: [
+            SettingsSection(
+              title: const Text('Backup & Restore'),
+              tiles: [
+                SettingsTile(
+                    title: const Text('Export Backup (Zipped CSV Archive)'),
+                    onPressed: onExportButtonPressed),
+                SettingsTile(
+                    title: const Text('Import Backup (Zipped CSV Archive)'),
+                    onPressed: onImportButtonPressed),
+              ],
+            ),
+            SettingsSection(
+              title: const Text('Debug'),
+              tiles: [
+                SettingsTile(
+                  title: const Text('Log Viewer'),
+                  onPressed: (context) async {
+                    await LogViewerPage.push(context);
+                  },
+                )
+              ],
+            ),
+          ]),
+    );
   }
 
   Future<void> onExportButtonPressed(BuildContext context) async {
@@ -51,6 +83,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     await _refreshPostImport(context);
   }
 
+  Future<String?> pickFilePath() async {
+    FilePickerResult? filePickerResult = await FilePicker.platform.pickFiles();
+    return filePickerResult?.files.single.path;
+  }
+
   Future<void> _refreshPostImport(BuildContext context) async {
     final view = ref.read(inventoryProvider.notifier);
     final imageCache = ref.read(itemThumbnailCache.notifier);
@@ -62,35 +99,5 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
       content: Text('Backup imported.'),
     ));
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Settings'),
-      ),
-      body: SettingsList(
-          contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 0),
-          lightTheme: SettingsThemeData(settingsListBackground: Theme.of(context).canvasColor),
-          sections: [
-            SettingsSection(
-              title: const Text('Backup'),
-              tiles: [
-                SettingsTile(
-                    title: const Text('Export Backup (Zipped CSV Archive)'),
-                    onPressed: onExportButtonPressed),
-              ],
-            ),
-            SettingsSection(
-              title: const Text('Restore'),
-              tiles: [
-                SettingsTile(
-                    title: const Text('Import Backup (Zipped CSV Archive)'),
-                    onPressed: onImportButtonPressed),
-              ],
-            ),
-          ]),
-    );
   }
 }
