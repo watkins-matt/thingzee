@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:log/log.dart';
 import 'package:repository/repository.dart';
 import 'package:repository_appw/repository.dart';
 import 'package:stack_trace/stack_trace.dart';
@@ -23,9 +26,13 @@ Future<void> main() async {
   App.repo = await AppwriteRepository.create();
   assert(App.repo.ready);
 
-  runApp(const ProviderScope(
-    child: App(),
-  ));
+  runZonedGuarded(() {
+    runApp(const ProviderScope(
+      child: App(),
+    ));
+  }, (error, stackTrace) {
+    Log.e('Unhandled error:', error, stackTrace);
+  });
 }
 
 final repositoryProvider = Provider<Repository>((ref) {
