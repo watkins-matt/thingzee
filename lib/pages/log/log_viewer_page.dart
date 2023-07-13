@@ -26,6 +26,10 @@ class _LogViewerPageState extends ConsumerState<LogViewerPage> {
   Widget build(BuildContext context) {
     final logs = ref.watch(logsProvider);
 
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scrollToBottom();
+    });
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Log Viewer'),
@@ -73,7 +77,6 @@ class _LogViewerPageState extends ConsumerState<LogViewerPage> {
 
   @override
   void dispose() {
-    _scrollController.removeListener(_scrollToBottom);
     _scrollController.dispose();
     super.dispose();
   }
@@ -81,7 +84,6 @@ class _LogViewerPageState extends ConsumerState<LogViewerPage> {
   @override
   void initState() {
     super.initState();
-    _scrollController.addListener(_scrollToBottom);
   }
 
   Color _getColor(Level level) {
@@ -112,7 +114,7 @@ class _LogViewerPageState extends ConsumerState<LogViewerPage> {
     if (_autoScroll && _scrollController.hasClients) {
       _scrollController.animateTo(
         _scrollController.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 500),
+        duration: const Duration(milliseconds: 200),
         curve: Curves.easeOut,
       );
     }
