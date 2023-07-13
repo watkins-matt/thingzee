@@ -7,7 +7,7 @@ class SynchronizedHistoryDatabase extends HistoryDatabase {
   DateTime? lastSync;
 
   SynchronizedHistoryDatabase(this.local, this.remote) {
-    syncDifferences();
+    synchronize();
   }
 
   @override
