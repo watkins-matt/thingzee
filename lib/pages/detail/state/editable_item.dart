@@ -149,23 +149,17 @@ class EditableItem extends StateNotifier<EditableItemState> {
     state.item.lastUpdate = saveTimestamp;
     repo.items.put(state.item);
 
-    // We want to avoid saving useless inventory information if the amount is 0.
-    // We will always save the inventory if it is greater than 0, or if
-    // the inventory already exists in the database (because it was greater
-    // than 0 at some point)
-    if (state.inventory.amount > 0 || repo.inv.get(state.inventory.upc) != null) {
-      assert(state.inventory.upc == state.item.upc);
-
-      if (state.changedFields.contains('amount')) {
-        state.inventory.history
-            .add(DateTime.now().millisecondsSinceEpoch, state.inventory.amount, 2);
-      }
-
-      // Make sure we update the last updated time
-      state.inventory.lastUpdate = saveTimestamp;
-
-      repo.inv.put(state.inventory);
+    // If the amount changed, add a new history entry
+    if (state.changedFields.contains('amount')) {
+      state.inventory.history.add(DateTime.now().millisecondsSinceEpoch, state.inventory.amount, 2);
     }
+
+    // Make sure we update the last updated time
+    state.inventory.lastUpdate = saveTimestamp;
+
+    // Save the inventory
+    assert(state.inventory.upc == state.item.upc);
+    repo.inv.put(state.inventory);
   }
 }
 
