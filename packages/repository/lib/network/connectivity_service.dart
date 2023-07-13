@@ -28,10 +28,16 @@ class ConnectivityService {
     _subscription = null;
   }
 
-  void ensureRunning() {
+  Future<void> ensureRunning() async {
+    await refresh();
     _subscription ??= Connectivity().onConnectivityChanged.listen((ConnectivityResult result) {
       _updateConnectionStatus(result);
     });
+  }
+
+  Future<void> refresh() async {
+    final connectivityResult = await Connectivity().checkConnectivity();
+    await _updateConnectionStatus(connectivityResult);
   }
 
   void removeListener(void Function(ConnectivityStatus) callback) {
@@ -39,6 +45,7 @@ class ConnectivityService {
   }
 
   void _notifyListeners(ConnectivityStatus status) {
+    this.status = status;
     for (final listener in _listeners) {
       listener(status);
     }
