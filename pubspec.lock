@@ -558,6 +558,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.5.0"
+  mealie_api:
+    dependency: "direct main"
+    description:
+      path: "packages/mealie_api"
+      relative: true
+    source: path
+    version: "1.0.0+1"
   meta:
     dependency: transitive
     description:
@@ -827,6 +834,14 @@ packages:
       relative: true
     source: path
     version: "1.0.0+1"
+  retrofit:
+    dependency: transitive
+    description:
+      name: retrofit
+      sha256: "5eedbd8f73697f190dabc88520e0bcf2d3b2d9b9ad5c837f1dbb3ee6172d7709"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.0.1"
   riverpod:
     dependency: transitive
     description:
