@@ -30,6 +30,11 @@ class AppwriteRepository extends CloudRepository {
 
   @override
   void handleConnectivityChange(ConnectivityStatus status) {
+    // Don't sync anything if we haven't initialized yet
+    if (!ready) {
+      return;
+    }
+
     bool online = status == ConnectivityStatus.online;
 
     scheduleMicrotask(() async {
@@ -108,7 +113,7 @@ class AppwriteRepository extends CloudRepository {
 
   @override
   Future<bool> sync() async {
-    if (!loggedIn || connectivity.status != ConnectivityStatus.online) {
+    if (!ready || !loggedIn || connectivity.status != ConnectivityStatus.online) {
       return false;
     }
 
