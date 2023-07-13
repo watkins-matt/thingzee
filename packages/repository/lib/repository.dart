@@ -96,7 +96,7 @@ class SynchronizedRepository extends CloudRepository {
     await remote.sync();
 
     final syncItems = items as SynchronizedItemDatabase;
-    final syncInv = inv as SynchronizedInventoryDatabase;
+    final syncInv = _getSyncDatabase(inv);
     final syncHistory = hist as SynchronizedHistoryDatabase;
 
     Log.i('SynchronizedRepository: syncing differences between remote and local.');
@@ -106,6 +106,21 @@ class SynchronizedRepository extends CloudRepository {
     Log.timerEnd(timer, 'SynchronizedRepository: finished sync in \$seconds seconds.');
 
     return true;
+  }
+
+  SynchronizedInventoryDatabase _getSyncDatabase(InventoryDatabase inv) {
+    if (inv is SynchronizedInventoryDatabase) {
+      return inv;
+    } else if (inv is JoinedInventoryDatabase) {
+      final joinedInv = inv.inventoryDatabase;
+      if (joinedInv is SynchronizedInventoryDatabase) {
+        return joinedInv;
+      } else {
+        throw Exception('Invalid inventory database type: ${joinedInv.runtimeType}');
+      }
+    } else {
+      throw Exception('Invalid inventory database type: ${inv.runtimeType}');
+    }
   }
 
   Future<void> _init() async {
