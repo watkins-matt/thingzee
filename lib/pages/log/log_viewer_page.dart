@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:log/log.dart';
 import 'package:logger/logger.dart';
+import 'package:thingzee/pages/log/state/log_notifier.dart';
 
 class LogViewerPage extends ConsumerStatefulWidget {
   const LogViewerPage({super.key});
@@ -21,6 +21,8 @@ class LogViewerPage extends ConsumerStatefulWidget {
 class _LogViewerPageState extends ConsumerState<LogViewerPage> {
   @override
   Widget build(BuildContext context) {
+    final logs = ref.watch(logsProvider);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Log Viewer'),
@@ -29,7 +31,7 @@ class _LogViewerPageState extends ConsumerState<LogViewerPage> {
         padding: const EdgeInsets.all(8),
         child: SelectableText.rich(
           TextSpan(
-            children: Log.logs.map((log) {
+            children: logs.map((log) {
               final timeString = DateFormat('yyyy-MM-dd hh:mm:ss a').format(log.origin.time);
               var message = _removeAnsiColorCodes(log.lines.join('\n'));
               message = message.replaceFirst(timeString, '').trim();
