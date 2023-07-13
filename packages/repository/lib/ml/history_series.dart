@@ -90,3 +90,14 @@ class HistorySeries {
     });
   }
 }
+
+extension HistoryList<T> on List<HistorySeries> {
+  bool equals(List<T> other) {
+    if (identical(this, other)) return true;
+    if (length != other.length) return false;
+    for (var i = 0; i < length; i++) {
+      if (this[i].equalTo(other)) return false;
+    }
+    return true;
+  }
+}
