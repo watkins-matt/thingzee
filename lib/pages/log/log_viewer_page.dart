@@ -42,6 +42,7 @@ class _LogViewerPageState extends ConsumerState<LogViewerPage> {
         ],
       ),
       body: SingleChildScrollView(
+        controller: _scrollController,
         padding: const EdgeInsets.all(8),
         child: SelectableText.rich(
           TextSpan(
@@ -109,7 +110,11 @@ class _LogViewerPageState extends ConsumerState<LogViewerPage> {
 
   void _scrollToBottom() {
     if (_autoScroll && _scrollController.hasClients) {
-      _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeOut,
+      );
     }
   }
 }
