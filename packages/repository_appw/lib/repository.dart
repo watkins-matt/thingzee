@@ -18,6 +18,8 @@ class AppwriteRepository extends CloudRepository {
   final String appwriteEndpoint = 'https://cloud.appwrite.io/v1';
   final String projectId = 'thingzee';
   Session? _session;
+  DateTime? _lastSync;
+  final int syncCooldown = 60;
 
   AppwriteRepository._(ConnectivityService service) : super(service);
 
@@ -38,6 +40,11 @@ class AppwriteRepository extends CloudRepository {
     bool online = status == ConnectivityStatus.online;
 
     scheduleMicrotask(() async {
+      if (_lastSync != null && DateTime.now().difference(_lastSync!).inSeconds < syncCooldown) {
+        Log.i('Appwrite: Cooldown period, skipping sync.');
+        return;
+      }
+
       Log.i('Appwrite: Connectivity status change detected: online=$online');
       final items = this.items as AppwriteItemDatabase;
       final joinedInv = this.inv as JoinedInventoryDatabase;
@@ -48,6 +55,7 @@ class AppwriteRepository extends CloudRepository {
       await inv.handleConnectionChange(online, _session);
       await hist.handleConnectionChange(online, _session);
       Log.i('Appwrite: Connectivity status handling completed.');
+      _lastSync = DateTime.now();
     });
   }
 
