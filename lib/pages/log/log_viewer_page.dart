@@ -19,6 +19,9 @@ class LogViewerPage extends ConsumerStatefulWidget {
 }
 
 class _LogViewerPageState extends ConsumerState<LogViewerPage> {
+  final ScrollController _scrollController = ScrollController();
+  bool _autoScroll = true;
+
   @override
   Widget build(BuildContext context) {
     final logs = ref.watch(logsProvider);
@@ -26,6 +29,17 @@ class _LogViewerPageState extends ConsumerState<LogViewerPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Log Viewer'),
+        actions: [
+          IconButton(
+            icon: Icon(_autoScroll ? Icons.pause : Icons.play_arrow),
+            onPressed: () {
+              setState(() {
+                _autoScroll = !_autoScroll;
+              });
+            },
+            tooltip: _autoScroll ? 'Pause Auto-Scroll' : 'Resume Auto-Scroll',
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(8),
@@ -56,6 +70,19 @@ class _LogViewerPageState extends ConsumerState<LogViewerPage> {
     );
   }
 
+  @override
+  void dispose() {
+    _scrollController.removeListener(_scrollToBottom);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_scrollToBottom);
+  }
+
   Color _getColor(Level level) {
     switch (level) {
       case Level.verbose:
@@ -78,5 +105,11 @@ class _LogViewerPageState extends ConsumerState<LogViewerPage> {
   String _removeAnsiColorCodes(String text) {
     final ansiColorCodeRegex = RegExp('\x1B\\[[0-?]*[ -/]*[@-~]');
     return text.replaceAll(ansiColorCodeRegex, '');
+  }
+
+  void _scrollToBottom() {
+    if (_autoScroll && _scrollController.hasClients) {
+      _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+    }
   }
 }

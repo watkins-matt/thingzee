@@ -17,6 +17,6 @@ class LogNotifier extends StateNotifier<List<OutputEvent>> {
   }
 
   void _updateLogs(OutputEvent event) {
-    state = Log.logs;
+    state = List.from(Log.logs);
   }
 }
