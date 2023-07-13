@@ -39,9 +39,9 @@ class AppwriteRepository extends CloudRepository {
       final inv = joinedInv.inventoryDatabase as AppwriteInventoryDatabase;
       final hist = this.hist as AppwriteHistoryDatabase;
 
-      await items.handleConnectionChange(online, _session!);
-      await inv.handleConnectionChange(online, _session!);
-      await hist.handleConnectionChange(online, _session!);
+      await items.handleConnectionChange(online, _session);
+      await inv.handleConnectionChange(online, _session);
+      await hist.handleConnectionChange(online, _session);
       Log.i('Appwrite: Connectivity status handling completed.');
     });
   }
@@ -108,7 +108,7 @@ class AppwriteRepository extends CloudRepository {
 
   @override
   Future<bool> sync() async {
-    if (!loggedIn) {
+    if (!loggedIn || connectivity.status != ConnectivityStatus.online) {
       return false;
     }
 
@@ -119,9 +119,9 @@ class AppwriteRepository extends CloudRepository {
     final inv = joinedInv.inventoryDatabase as AppwriteInventoryDatabase;
     final hist = this.hist as AppwriteHistoryDatabase;
 
-    await items.handleConnectionChange(true, _session!);
-    await inv.handleConnectionChange(true, _session!);
-    await hist.handleConnectionChange(true, _session!);
+    await items.handleConnectionChange(true, _session);
+    await inv.handleConnectionChange(true, _session);
+    await hist.handleConnectionChange(true, _session);
 
     Log.timerEnd(timer, 'Appwrite sync completed in \$seconds seconds.');
 
