@@ -157,8 +157,8 @@ class AppwriteRepository extends CloudRepository {
   Future<void> _loadSession() async {
     Log.i('Appwrite: Checking for existing session...');
 
-    // Don't do anything if we have a session already
-    if (_session != null) {
+    // Don't do anything if we have a session already or we are offline
+    if (_session != null || connectivity.status != ConnectivityStatus.online) {
       return;
     }
 
