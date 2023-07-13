@@ -7,7 +7,7 @@ class SynchronizedHistoryDatabase extends HistoryDatabase {
   DateTime? lastSync;
 
   SynchronizedHistoryDatabase(this.local, this.remote) {
-    synchronize();
+    syncDifferences();
   }
 
   @override
@@ -59,6 +59,11 @@ class SynchronizedHistoryDatabase extends HistoryDatabase {
       }
       // The history exists in both databases, merge and add to both
       else {
+        // If the remote history is the same as the local history, skip it
+        if (remoteHistory.equalTo(localMap[remoteHistory.upc]!)) {
+          continue;
+        }
+
         final mergedHistory = localMap[remoteHistory.upc]!.merge(remoteHistory);
         local.put(mergedHistory);
         remote.put(mergedHistory);
@@ -71,6 +76,9 @@ class SynchronizedHistoryDatabase extends HistoryDatabase {
         remote.put(localHistory);
       }
     }
+
+    lastSync = DateTime.now();
+    assert(local.all().length == remote.all().length);
   }
 
   void synchronize() {
@@ -87,6 +95,11 @@ class SynchronizedHistoryDatabase extends HistoryDatabase {
       }
       // The history exists in both databases
       else {
+        // If the remote history is the same as the local history, skip it
+        if (remoteHistory.equalTo(localHistories[remoteHistory.upc]!)) {
+          continue;
+        }
+
         final mergedHistory = localHistories[remoteHistory.upc]!.merge(remoteHistory);
         local.put(mergedHistory);
         remote.put(mergedHistory);
@@ -103,5 +116,6 @@ class SynchronizedHistoryDatabase extends HistoryDatabase {
     }
 
     lastSync = DateTime.now();
+    assert(local.all().length == remote.all().length);
   }
 }

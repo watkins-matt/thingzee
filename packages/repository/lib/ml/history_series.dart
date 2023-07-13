@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:json_annotation/json_annotation.dart';
 import 'package:ml_dataframe/ml_dataframe.dart';
+import 'package:repository/extension/list.dart';
 import 'package:repository/ml/observation.dart';
 
 part 'history_series.g.dart';
@@ -10,6 +11,36 @@ part 'history_series.g.dart';
 class HistorySeries {
   List<Observation> observations = [];
   HistorySeries();
+
+  factory HistorySeries.fromJson(Map<String, dynamic> json) => _$HistorySeriesFromJson(json);
+
+  double get maxAmount {
+    if (observations.isEmpty) {
+      return 0;
+    }
+    return observations.map((o) => o.amount).reduce(max);
+  }
+
+  int get maxTimestamp {
+    if (observations.isEmpty) {
+      return 0;
+    }
+    return observations.map((o) => o.timestamp.toInt()).reduce(max);
+  }
+
+  double get minAmount {
+    if (observations.isEmpty) {
+      return 0;
+    }
+    return observations.map((o) => o.amount).reduce(min);
+  }
+
+  int get minTimestamp {
+    if (observations.isEmpty) {
+      return 0;
+    }
+    return observations.map((o) => o.timestamp.toInt()).reduce(min);
+  }
 
   List<Observation> get normalizedObservations {
     if (observations.isEmpty) {
@@ -27,33 +58,11 @@ class HistorySeries {
         .toList();
   }
 
-  int get minTimestamp {
-    if (observations.isEmpty) {
-      return 0;
-    }
-    return observations.map((o) => o.timestamp.toInt()).reduce(min);
-  }
-
-  int get maxTimestamp {
-    if (observations.isEmpty) {
-      return 0;
-    }
-    return observations.map((o) => o.timestamp.toInt()).reduce(max);
-  }
-
-  double get minAmount {
-    if (observations.isEmpty) {
-      return 0;
-    }
-    return observations.map((o) => o.amount).reduce(min);
-  }
-
-  double get maxAmount {
-    if (observations.isEmpty) {
-      return 0;
-    }
-    return observations.map((o) => o.amount).reduce(max);
-  }
+  bool equalTo(Object other) =>
+      identical(this, other) ||
+      other is HistorySeries &&
+          runtimeType == other.runtimeType &&
+          observations.equals(other.observations);
 
   double getAbsoluteAmount(double relativeAmount) {
     return relativeAmount * maxAmount;
@@ -67,13 +76,12 @@ class HistorySeries {
     return (scaledTimestamp * (maxTimestamp - minTimestamp)).toInt();
   }
 
-  factory HistorySeries.fromJson(Map<String, dynamic> json) => _$HistorySeriesFromJson(json);
-  Map<String, dynamic> toJson() => _$HistorySeriesToJson(this);
-
   DataFrame toDataFrame() {
     final data = observations.map((o) => o.toList()).toList();
     return DataFrame(data, headerExists: false, header: Observation.header);
   }
+
+  Map<String, dynamic> toJson() => _$HistorySeriesToJson(this);
 
   Map<int, double> toPoints() {
     return observations.fold({}, (map, o) {

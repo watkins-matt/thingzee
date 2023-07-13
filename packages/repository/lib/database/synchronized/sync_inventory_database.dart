@@ -74,6 +74,11 @@ class SynchronizedInventoryDatabase extends InventoryDatabase {
       }
       // The inventory exists in both databases, merge and add to both
       else {
+        // Skip if the inventories are equal
+        if (remoteInventory.equalTo(localMap[remoteInventory.upc]!)) {
+          continue;
+        }
+
         final mergedInventory = localMap[remoteInventory.upc]!.merge(remoteInventory);
         local.put(mergedInventory);
         remote.put(mergedInventory);
@@ -86,6 +91,9 @@ class SynchronizedInventoryDatabase extends InventoryDatabase {
         remote.put(localInventory);
       }
     }
+
+    lastSync = DateTime.now();
+    assert(local.all().length == remote.all().length);
   }
 
   void synchronize() {
@@ -102,6 +110,11 @@ class SynchronizedInventoryDatabase extends InventoryDatabase {
       }
       // The inventory exists in both databases
       else {
+        // Skip if the inventories are equal
+        if (remoteInventory.equalTo(localInventories[remoteInventory.upc]!)) {
+          continue;
+        }
+
         final mergedInventory = localInventories[remoteInventory.upc]!.merge(remoteInventory);
         local.put(mergedInventory);
         remote.put(mergedInventory);
@@ -118,5 +131,6 @@ class SynchronizedInventoryDatabase extends InventoryDatabase {
     }
 
     lastSync = DateTime.now();
+    assert(local.all().length == remote.all().length);
   }
 }

@@ -1,6 +1,7 @@
 import 'package:intl/intl.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:repository/extension/duration.dart';
+import 'package:repository/extension/list.dart';
 import 'package:repository/merge_generator.dart';
 import 'package:repository/ml/history.dart';
 import 'package:stats/double.dart';
@@ -25,12 +26,10 @@ class Inventory {
 
   Inventory();
   factory Inventory.fromJson(Map<String, dynamic> json) => _$InventoryFromJson(json);
-  Map<String, dynamic> toJson() => _$InventoryToJson(this);
-  Inventory merge(Inventory other) => _$mergeInventory(this, other);
-
   Inventory.withUPC(this.upc) {
     history.upc = upc;
   }
+
   bool get canPredict {
     return history.canPredict;
   }
@@ -142,6 +141,20 @@ class Inventory {
   double get usageSpeedMinutes {
     return history.regressor.hasSlope ? (1 / history.regressor.slope.abs()) / 1000 / 60 : 0;
   }
+
+  bool equalTo(Inventory other) =>
+      identical(this, other) ||
+      amount == other.amount &&
+          unitCount == other.unitCount &&
+          expirationDates.equals(other.expirationDates) &&
+          locations.equals(other.locations) &&
+          history == other.history &&
+          restock == other.restock &&
+          upc == other.upc &&
+          iuid == other.iuid;
+
+  Inventory merge(Inventory other) => _$mergeInventory(this, other);
+  Map<String, dynamic> toJson() => _$InventoryToJson(this);
 }
 
 class NullableDateTimeSerializer implements JsonConverter<DateTime?, int> {

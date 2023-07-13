@@ -29,15 +29,32 @@ class Item implements Comparable<Item> {
   @NullableDateTimeSerializer()
   DateTime? lastUpdate;
 
+  Item();
+  factory Item.fromJson(Map<String, dynamic> json) => _$ItemFromJson(json);
+
   @override
   int compareTo(Item other) {
     return name.compareTo(other.name);
   }
 
-  Item();
-  factory Item.fromJson(Map<String, dynamic> json) => _$ItemFromJson(json);
-  Map<String, dynamic> toJson() => _$ItemToJson(this);
+  bool equalTo(Item other) =>
+      identical(this, other) ||
+      upc == other.upc &&
+          iuid == other.iuid &&
+          name == other.name &&
+          variety == other.variety &&
+          category == other.category &&
+          type == other.type &&
+          unitCount == other.unitCount &&
+          unitName == other.unitName &&
+          unitPlural == other.unitPlural &&
+          imageUrl == other.imageUrl &&
+          consumable == other.consumable &&
+          languageCode == other.languageCode &&
+          lastUpdate == other.lastUpdate;
+
   Item merge(Item other) => _$mergeItem(this, other);
+  Map<String, dynamic> toJson() => _$ItemToJson(this);
 }
 
 @JsonSerializable(explicitToJson: true)

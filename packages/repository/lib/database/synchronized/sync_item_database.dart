@@ -83,6 +83,11 @@ class SynchronizedItemDatabase extends ItemDatabase {
       }
       // The item exists in both databases, merge and add to both
       else {
+        // If the items are equal, skip
+        if (remoteItem.equalTo(localMap[remoteItem.upc]!)) {
+          continue;
+        }
+
         final mergedItem = localMap[remoteItem.upc]!.merge(remoteItem);
         local.put(mergedItem);
         remote.put(mergedItem);
@@ -113,7 +118,13 @@ class SynchronizedItemDatabase extends ItemDatabase {
       }
       // The item exists in both databases
       else {
+        // If the items are equal, skip
+        if (remoteItem.equalTo(localItems[remoteItem.upc]!)) {
+          continue;
+        }
+
         final mergedItem = localItems[remoteItem.upc]!.merge(remoteItem);
+
         local.put(mergedItem);
         remote.put(mergedItem);
       }
@@ -129,5 +140,6 @@ class SynchronizedItemDatabase extends ItemDatabase {
     }
 
     lastSync = DateTime.now();
+    assert(local.all().length == remote.all().length);
   }
 }

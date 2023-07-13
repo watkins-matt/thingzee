@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:repository/extension/list.dart';
 import 'package:repository/ml/evaluator.dart';
 import 'package:repository/ml/history_series.dart';
 import 'package:repository/ml/observation.dart';
@@ -19,7 +20,6 @@ class History {
   }
 
   factory History.fromJson(Map<String, dynamic> json) => _$HistoryFromJson(json);
-  Map<String, dynamic> toJson() => _$HistoryToJson(this);
 
   double get baseAmount {
     if (series.isEmpty) {
@@ -242,6 +242,9 @@ class History {
     return this;
   }
 
+  bool equalTo(History other) =>
+      identical(this, other) || upc == other.upc && series.equals(other.series);
+
   History merge(History other) {
     assert(upc == other.upc);
 
@@ -292,6 +295,8 @@ class History {
 
     return evaluator.predict(timestamp);
   }
+
+  Map<String, dynamic> toJson() => _$HistoryToJson(this);
 
   // Remove any empty series values in the history
   History trim() {
