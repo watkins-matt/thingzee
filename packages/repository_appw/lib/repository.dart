@@ -65,7 +65,7 @@ class AppwriteRepository extends CloudRepository {
         await sync();
       }
     } catch (e, st) {
-      Log.w('Failed to login user:', e, st);
+      Log.w('Appwrite: Failed to login user:', e, st);
     }
   }
 
@@ -87,7 +87,7 @@ class AppwriteRepository extends CloudRepository {
       await inv.handleConnectionChange(false, null);
       await hist.handleConnectionChange(false, null);
 
-      Log.i('Successfully logged out user.');
+      Log.i('Appwrite: Successfully logged out user.');
     }
   }
 
@@ -97,7 +97,7 @@ class AppwriteRepository extends CloudRepository {
     try {
       await _account.create(userId: username, email: email, password: password);
     } catch (e) {
-      Log.e('Failed to register user: ', e);
+      Log.e('Appwrite: Failed to register user: ', e);
     }
 
     // Should login immediately after registering
@@ -107,7 +107,7 @@ class AppwriteRepository extends CloudRepository {
     try {
       await _account.createVerification(url: 'https://appwrite.thingzee.net/verify');
     } catch (e) {
-      Log.e('Failed to send verification email: ', e);
+      Log.e('Appwrite: Failed to send verification email: ', e);
     }
   }
 
@@ -117,7 +117,7 @@ class AppwriteRepository extends CloudRepository {
       return false;
     }
 
-    final timer = Log.timerStart('Started Appwrite sync...');
+    final timer = Log.timerStart('Appwrite: Starting sync...');
 
     final items = this.items as AppwriteItemDatabase;
     final joinedInv = this.inv as JoinedInventoryDatabase;
@@ -128,7 +128,7 @@ class AppwriteRepository extends CloudRepository {
     await inv.handleConnectionChange(true, _session);
     await hist.handleConnectionChange(true, _session);
 
-    Log.timerEnd(timer, 'Appwrite sync completed in \$seconds seconds.');
+    Log.timerEnd(timer, 'Appwrite: Sync completed in \$seconds seconds.');
 
     return true;
   }
@@ -150,12 +150,12 @@ class AppwriteRepository extends CloudRepository {
     final inventory = AppwriteInventoryDatabase(_databases, 'test', 'user_inventory');
     inv = JoinedInventoryDatabase(inventory, hist);
 
-    Log.timerEnd(timer, 'AppwriteRepository initialized in \$seconds seconds.');
+    Log.timerEnd(timer, 'Appwrite: Repository initialized in \$seconds seconds.');
     ready = true;
   }
 
   Future<void> _loadSession() async {
-    Log.i('Checking for existing session...');
+    Log.i('Appwrite: Checking for existing session...');
 
     // Don't do anything if we have a session already
     if (_session != null) {
@@ -168,19 +168,19 @@ class AppwriteRepository extends CloudRepository {
       final expireDate = DateTime.parse(expiration);
 
       if (DateTime.now().isBefore(expireDate)) {
-        Log.i('Session found, loading...');
+        Log.i('Appwrite: Session found, loading...');
         _session = await _account.getSession(sessionId: sessionId);
         await sync();
       }
 
       // Just remove the preferences if the session is expired
       else {
-        Log.i('Session expired, deleting...');
+        Log.i('Appwrite: Session expired, deleting...');
         await prefs.remove('appwrite_session_id');
         await prefs.remove('appwrite_session_expire');
       }
     } else {
-      Log.i('No session found. Log in required.');
+      Log.i('Appwrite: No session found. Log in required.');
     }
   }
 

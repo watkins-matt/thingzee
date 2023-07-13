@@ -112,7 +112,7 @@ class AppwriteItemDatabase extends ItemDatabase {
               documentId: uniqueDocumentId(item.upc),
               data: item.toJson()..['user_id'] = userId);
         } else {
-          Log.e('Failed to put inventory: ', e);
+          Log.e('Failed to put item: ', e);
           // Removing the inventory from local cache since we
           // failed to add it to the database
           _items.remove(item.upc);
