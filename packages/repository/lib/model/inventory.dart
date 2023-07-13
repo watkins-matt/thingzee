@@ -148,7 +148,6 @@ class Inventory {
           unitCount == other.unitCount &&
           expirationDates.equals(other.expirationDates) &&
           locations.equals(other.locations) &&
-          history == other.history &&
           restock == other.restock &&
           upc == other.upc &&
           iuid == other.iuid;
