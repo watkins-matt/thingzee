@@ -17,6 +17,14 @@ class Log {
   static List<OutputEvent> get logs => _output.logs;
   Log._();
 
+  static void addLogListener(LogCallback callback) {
+    Logger.addLogListener(callback);
+  }
+
+  static void addOutputListener(OutputCallback callback) {
+    Logger.addOutputListener(callback);
+  }
+
   static void d(dynamic message, [dynamic error, StackTrace? stackTrace]) {
     _logger.d(message, error, stackTrace);
   }
@@ -27,6 +35,14 @@ class Log {
 
   static void i(dynamic message, [dynamic error, StackTrace? stackTrace]) {
     _logger.i(message, error, stackTrace);
+  }
+
+  static bool removeLogListener(LogCallback callback) {
+    return Logger.removeLogListener(callback);
+  }
+
+  static void removeOutputListener(OutputCallback callback) {
+    Logger.removeOutputListener(callback);
   }
 
   static void timerEnd(Stopwatch stopwatch, String message) {
