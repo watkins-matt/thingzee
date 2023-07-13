@@ -6,7 +6,7 @@ part of 'mealie_api.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-MealieRecipe _$RecipeFromJson(Map<String, dynamic> json) => MealieRecipe(
+MealieRecipe _$MealieRecipeFromJson(Map<String, dynamic> json) => MealieRecipe(
       id: json['id'] as String?,
       userId: json['userId'] as String?,
       groupId: json['groupId'] as String?,
@@ -19,42 +19,25 @@ MealieRecipe _$RecipeFromJson(Map<String, dynamic> json) => MealieRecipe(
       cookTime: json['cookTime'] as String?,
       performTime: json['performTime'] as String?,
       description: json['description'] as String?,
-      recipeCategory: (json['recipeCategory'] as List<dynamic>?)?.map((e) => e as String).toList(),
+      recipeCategory: (json['recipeCategory'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList(),
       tags: (json['tags'] as List<dynamic>?)?.map((e) => e as String).toList(),
-      tools: (json['tools'] as List<dynamic>?)?.map((e) => e as String).toList(),
+      tools:
+          (json['tools'] as List<dynamic>?)?.map((e) => e as String).toList(),
       rating: json['rating'] as int?,
       orgURL: json['orgURL'] as String?,
-      recipeIngredient:
-          (json['recipeIngredient'] as List<dynamic>?)?.map((e) => e as String).toList(),
+      recipeIngredient: (json['recipeIngredient'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList(),
       dateAdded: json['dateAdded'] as String?,
       dateUpdated: json['dateUpdated'] as String?,
       createdAt: json['createdAt'] as String?,
       updateAt: json['updateAt'] as String?,
     );
 
-MealieRecipeResponse _$RecipeResponseFromJson(Map<String, dynamic> json) => MealieRecipeResponse(
-      page: json['page'] as int?,
-      perPage: json['per_page'] as int?,
-      total: json['total'] as int?,
-      totalPages: json['total_pages'] as int?,
-      items: (json['items'] as List<dynamic>?)
-          ?.map((e) => MealieRecipe.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      next: json['next'] as String?,
-      previous: json['previous'] as String?,
-    );
-
-Map<String, dynamic> _$RecipeResponseToJson(MealieRecipeResponse instance) => <String, dynamic>{
-      'page': instance.page,
-      'per_page': instance.perPage,
-      'total': instance.total,
-      'total_pages': instance.totalPages,
-      'items': instance.items,
-      'next': instance.next,
-      'previous': instance.previous,
-    };
-
-Map<String, dynamic> _$RecipeToJson(MealieRecipe instance) => <String, dynamic>{
+Map<String, dynamic> _$MealieRecipeToJson(MealieRecipe instance) =>
+    <String, dynamic>{
       'id': instance.id,
       'userId': instance.userId,
       'groupId': instance.groupId,
@@ -79,6 +62,32 @@ Map<String, dynamic> _$RecipeToJson(MealieRecipe instance) => <String, dynamic>{
       'updateAt': instance.updateAt,
     };
 
+MealieRecipeResponse _$MealieRecipeResponseFromJson(
+        Map<String, dynamic> json) =>
+    MealieRecipeResponse(
+      page: json['page'] as int?,
+      perPage: json['perPage'] as int?,
+      total: json['total'] as int?,
+      totalPages: json['totalPages'] as int?,
+      items: (json['items'] as List<dynamic>?)
+          ?.map((e) => MealieRecipe.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      next: json['next'] as String?,
+      previous: json['previous'] as String?,
+    );
+
+Map<String, dynamic> _$MealieRecipeResponseToJson(
+        MealieRecipeResponse instance) =>
+    <String, dynamic>{
+      'page': instance.page,
+      'perPage': instance.perPage,
+      'total': instance.total,
+      'totalPages': instance.totalPages,
+      'items': instance.items,
+      'next': instance.next,
+      'previous': instance.previous,
+    };
+
 // **************************************************************************
 // RetrofitGenerator
 // **************************************************************************
@@ -86,14 +95,14 @@ Map<String, dynamic> _$RecipeToJson(MealieRecipe instance) => <String, dynamic>{
 // ignore_for_file: unnecessary_brace_in_string_interps,no_leading_underscores_for_local_identifiers
 
 class _MealieApiClient implements MealieApiClient {
-  final Dio _dio;
-
-  String? baseUrl;
-
   _MealieApiClient(
     this._dio, {
     this.baseUrl,
   });
+
+  final Dio _dio;
+
+  String? baseUrl;
 
   @override
   Future<MealieRecipeResponse> getRecipes({
@@ -140,8 +149,8 @@ class _MealieApiClient implements MealieApiClient {
     final _headers = <String, dynamic>{r'accept-language': acceptLanguage};
     _headers.removeWhere((k, v) => v == null);
     final Map<String, dynamic>? _data = null;
-    final _result =
-        await _dio.fetch<Map<String, dynamic>>(_setStreamType<MealieRecipeResponse>(Options(
+    final _result = await _dio.fetch<Map<String, dynamic>>(
+        _setStreamType<MealieRecipeResponse>(Options(
       method: 'GET',
       headers: _headers,
       extra: _extra,
@@ -161,6 +170,19 @@ class _MealieApiClient implements MealieApiClient {
     return value;
   }
 
+  RequestOptions _setStreamType<T>(RequestOptions requestOptions) {
+    if (T != dynamic &&
+        !(requestOptions.responseType == ResponseType.bytes ||
+            requestOptions.responseType == ResponseType.stream)) {
+      if (T == String) {
+        requestOptions.responseType = ResponseType.plain;
+      } else {
+        requestOptions.responseType = ResponseType.json;
+      }
+    }
+    return requestOptions;
+  }
+
   String _combineBaseUrls(
     String dioBaseUrl,
     String? baseUrl,
@@ -176,18 +198,5 @@ class _MealieApiClient implements MealieApiClient {
     }
 
     return Uri.parse(dioBaseUrl).resolveUri(url).toString();
-  }
-
-  RequestOptions _setStreamType<T>(RequestOptions requestOptions) {
-    if (T != dynamic &&
-        !(requestOptions.responseType == ResponseType.bytes ||
-            requestOptions.responseType == ResponseType.stream)) {
-      if (T == String) {
-        requestOptions.responseType = ResponseType.plain;
-      } else {
-        requestOptions.responseType = ResponseType.json;
-      }
-    }
-    return requestOptions;
   }
 }
