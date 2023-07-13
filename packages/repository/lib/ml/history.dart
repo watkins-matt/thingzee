@@ -1,5 +1,4 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:repository/extension/list.dart';
 import 'package:repository/ml/evaluator.dart';
 import 'package:repository/ml/history_series.dart';
 import 'package:repository/ml/observation.dart';
