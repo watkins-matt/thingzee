@@ -8,6 +8,7 @@ import 'package:thingzee/data/csv_import_service.dart';
 import 'package:thingzee/pages/inventory/state/inventory_view.dart';
 import 'package:thingzee/pages/inventory/state/item_thumbnail_cache.dart';
 import 'package:thingzee/pages/log/log_viewer_page.dart';
+import 'package:thingzee/pages/settings/widget/text_entry_dialog.dart';
 
 // Settings page
 // Features to include:
@@ -53,13 +54,25 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               ],
             ),
             SettingsSection(
+              title: const Text('Integrations'),
+              tiles: [
+                SettingsTile(
+                  title: const Text('Mealie URL'),
+                  value: const Text('https://mealie.example.com'),
+                  onPressed: onMealieUrlButtonPreseed,
+                ),
+                SettingsTile(
+                    title: const Text('Mealie API Key'),
+                    // value: const Text(''),
+                    onPressed: onMealieApiKeyButtonPreseed),
+              ],
+            ),
+            SettingsSection(
               title: const Text('Debug'),
               tiles: [
                 SettingsTile(
                   title: const Text('Log Viewer'),
-                  onPressed: (context) async {
-                    await LogViewerPage.push(context);
-                  },
+                  onPressed: onLogViewerButtonPressed,
                 )
               ],
             ),
@@ -81,6 +94,34 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 
     if (!mounted) return;
     await _refreshPostImport(context);
+  }
+
+  Future<void> onLogViewerButtonPressed(context) async {
+    await LogViewerPage.push(context);
+  }
+
+  Future<void> onMealieApiKeyButtonPreseed(BuildContext context) async {
+    final controller = TextEditingController();
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) => TextEntryDialog(
+        title: 'Enter Mealie API Key',
+        controller: controller,
+      ),
+    );
+    if (result != null) {}
+  }
+
+  Future<void> onMealieUrlButtonPreseed(BuildContext context) async {
+    final controller = TextEditingController();
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) => TextEntryDialog(
+        title: 'Enter Mealie URL',
+        controller: controller,
+      ),
+    );
+    if (result != null) {}
   }
 
   Future<String?> pickFilePath() async {
