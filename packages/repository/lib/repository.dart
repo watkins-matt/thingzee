@@ -6,6 +6,7 @@ import 'package:repository/database/inventory_database.dart';
 import 'package:repository/database/item_database.dart';
 import 'package:repository/database/joined_inventory_database.dart';
 import 'package:repository/database/preferences.dart';
+import 'package:repository/database/preferences_default.dart';
 import 'package:repository/database/synchronized/sync_history_database.dart';
 import 'package:repository/database/synchronized/sync_inventory_database.dart';
 import 'package:repository/database/synchronized/sync_item_database.dart';

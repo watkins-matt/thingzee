@@ -1,0 +1,43 @@
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:repository/database/preferences.dart';
+
+class SecurePreferences implements Preferences {
+  final FlutterSecureStorage _storage;
+  final Map<String, String> _cache = {};
+
+  SecurePreferences._internal(this._storage);
+
+  @override
+  bool containsKey(String key) {
+    return _cache.containsKey(key);
+  }
+
+  @override
+  String? getString(String key) {
+    return _cache[key];
+  }
+
+  @override
+  Future<bool> remove(String key) async {
+    await _storage.delete(key: key);
+    _cache.remove(key);
+    return true;
+  }
+
+  @override
+  Future<void> setString(String key, String value) async {
+    await _storage.write(key: key, value: value);
+    _cache[key] = value;
+  }
+
+  Future<void> _populateCache() async {
+    _cache.addAll(await _storage.readAll());
+  }
+
+  static Future<SecurePreferences> create() async {
+    FlutterSecureStorage storage = const FlutterSecureStorage();
+    SecurePreferences instance = SecurePreferences._internal(storage);
+    await instance._populateCache();
+    return instance;
+  }
+}

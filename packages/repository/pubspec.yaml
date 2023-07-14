@@ -12,6 +12,7 @@ dependencies:
   build: ^2.4.1
   connectivity_plus: ^4.0.1
   duration: ^3.0.12
+  flutter_secure_storage: ^8.0.0
   intl: ^0.18.1
   json_annotation: ^4.8.1
   log:

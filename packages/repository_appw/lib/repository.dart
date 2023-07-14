@@ -4,7 +4,7 @@ import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/models.dart' hide Log;
 import 'package:log/log.dart';
 import 'package:repository/database/joined_inventory_database.dart';
-import 'package:repository/database/preferences.dart';
+import 'package:repository/database/preferences_default.dart';
 import 'package:repository/network/connectivity_service.dart';
 import 'package:repository/repository.dart';
 import 'package:repository_appw/database/history_db.dart';
