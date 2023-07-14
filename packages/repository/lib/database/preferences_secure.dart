@@ -2,9 +2,10 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:repository/database/preferences.dart';
 
 class SecurePreferences implements Preferences {
+  static SecurePreferences? _instance;
   final FlutterSecureStorage _storage;
-  final Map<String, String> _cache = {};
 
+  final Map<String, String> _cache = {};
   SecurePreferences._internal(this._storage);
 
   @override
@@ -35,9 +36,12 @@ class SecurePreferences implements Preferences {
   }
 
   static Future<SecurePreferences> create() async {
-    FlutterSecureStorage storage = const FlutterSecureStorage();
-    SecurePreferences instance = SecurePreferences._internal(storage);
-    await instance._populateCache();
-    return instance;
+    if (_instance == null) {
+      FlutterSecureStorage storage = const FlutterSecureStorage();
+      SecurePreferences instance = SecurePreferences._internal(storage);
+      await instance._populateCache();
+      _instance = instance;
+    }
+    return _instance!;
   }
 }

@@ -2,6 +2,7 @@ import 'package:repository/database/preferences.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class DefaultSharedPreferences implements Preferences {
+  static DefaultSharedPreferences? _instance;
   late final SharedPreferences _prefs;
 
   DefaultSharedPreferences._internal(this._prefs);
@@ -27,7 +28,10 @@ class DefaultSharedPreferences implements Preferences {
   }
 
   static Future<DefaultSharedPreferences> create() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    return DefaultSharedPreferences._internal(prefs);
+    if (_instance == null) {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      _instance = DefaultSharedPreferences._internal(prefs);
+    }
+    return _instance!;
   }
 }
