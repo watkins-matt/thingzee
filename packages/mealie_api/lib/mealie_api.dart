@@ -95,8 +95,8 @@ class MealieRecipe {
     this.updateAt,
   });
 
-  factory MealieRecipe.fromJson(Map<String, dynamic> json) => _$RecipeFromJson(json);
-  Map<String, dynamic> toJson() => _$RecipeToJson(this);
+  factory MealieRecipe.fromJson(Map<String, dynamic> json) => _$MealieRecipeFromJson(json);
+  Map<String, dynamic> toJson() => _$MealieRecipeToJson(this);
 }
 
 @JsonSerializable()
@@ -120,6 +120,6 @@ class MealieRecipeResponse {
   });
 
   factory MealieRecipeResponse.fromJson(Map<String, dynamic> json) =>
-      _$RecipeResponseFromJson(json);
-  Map<String, dynamic> toJson() => _$RecipeResponseToJson(this);
+      _$MealieRecipeResponseFromJson(json);
+  Map<String, dynamic> toJson() => _$MealieRecipeResponseToJson(this);
 }
