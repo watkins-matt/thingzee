@@ -8,6 +8,8 @@ import 'package:thingzee/data/csv_import_service.dart';
 import 'package:thingzee/pages/inventory/state/inventory_view.dart';
 import 'package:thingzee/pages/inventory/state/item_thumbnail_cache.dart';
 import 'package:thingzee/pages/log/log_viewer_page.dart';
+import 'package:thingzee/pages/settings/state/preference_keys.dart';
+import 'package:thingzee/pages/settings/state/settings_state.dart';
 import 'package:thingzee/pages/settings/widget/text_entry_dialog.dart';
 
 // Settings page
@@ -34,6 +36,11 @@ class SettingsPage extends ConsumerStatefulWidget {
 class _SettingsPageState extends ConsumerState<SettingsPage> {
   @override
   Widget build(BuildContext context) {
+    final mealieUrlText =
+        ref.watch(settingsProvider.select((s) => s.settings[PreferenceKey.mealieURL]));
+    final mealieApiKeyText = ref
+        .watch(settingsProvider.select((s) => s.secureSettings[SecurePreferenceKey.mealieApiKey]));
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Settings'),
@@ -58,12 +65,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               tiles: [
                 SettingsTile(
                   title: const Text('Mealie URL'),
-                  value: const Text('https://mealie.example.com'),
+                  value: mealieUrlText != null ? Text(mealieUrlText) : const Text(''),
                   onPressed: onMealieUrlButtonPreseed,
                 ),
                 SettingsTile(
                     title: const Text('Mealie API Key'),
-                    // value: const Text(''),
+                    value: mealieApiKeyText != null ? const Text('Hidden') : const Text('Not Set'),
                     onPressed: onMealieApiKeyButtonPreseed),
               ],
             ),
