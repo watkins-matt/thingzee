@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:thingzee/pages/inventory/inventory_page.dart';
-import 'package:thingzee/pages/settings/settings_page.dart';
+import 'package:thingzee/pages/recipe_browser/recipe_browser.dart';
 import 'package:thingzee/pages/shopping/shopping_list_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -15,9 +15,20 @@ class _HomePageState extends State<HomePage> {
   List<Widget> pageList = [
     const InventoryPage(),
     Container(), // const LocationPage(),
+    const RecipeBrowser(),
     const ShoppingListPage(),
-    const SettingsPage()
   ];
+
+  Widget auditIcon() {
+    //   return Badge(
+    //       showBadge: manager.hasUncompleted,
+    //       toAnimate: false,
+    //       position: BadgePosition.topEnd(top: -15, end: -15),
+    //       badgeContent: Text(manager.uncompleted.toString()),
+    //       child: Icon(Icons.playlist_add_check));
+    // );
+    return const Icon(Icons.playlist_add_check);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,17 +50,6 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  Widget auditIcon() {
-    //   return Badge(
-    //       showBadge: manager.hasUncompleted,
-    //       toAnimate: false,
-    //       position: BadgePosition.topEnd(top: -15, end: -15),
-    //       badgeContent: Text(manager.uncompleted.toString()),
-    //       child: Icon(Icons.playlist_add_check));
-    // );
-    return const Icon(Icons.playlist_add_check);
-  }
-
   Widget _bottomNavBar() {
     return BottomNavigationBar(
         onTap: itemSelected,
@@ -58,8 +58,8 @@ class _HomePageState extends State<HomePage> {
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Inventory'),
           BottomNavigationBarItem(icon: Icon(Icons.folder), label: 'Locations'),
-          BottomNavigationBarItem(icon: Icon(Icons.shopping_cart), label: 'Shopping List'),
-          BottomNavigationBarItem(icon: Icon(Icons.portrait), label: 'Settings')
+          BottomNavigationBarItem(icon: Icon(Icons.restaurant_menu), label: 'Recipes'),
+          BottomNavigationBarItem(icon: Icon(Icons.shopping_cart), label: 'Shopping List')
         ]);
   }
 }
