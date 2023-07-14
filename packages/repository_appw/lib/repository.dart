@@ -5,6 +5,7 @@ import 'package:appwrite/models.dart' hide Log;
 import 'package:log/log.dart';
 import 'package:repository/database/joined_inventory_database.dart';
 import 'package:repository/database/preferences_default.dart';
+import 'package:repository/database/preferences_secure.dart';
 import 'package:repository/network/connectivity_service.dart';
 import 'package:repository/repository.dart';
 import 'package:repository_appw/database/history_db.dart';
@@ -151,6 +152,8 @@ class AppwriteRepository extends CloudRepository {
     _databases = Databases(_client);
 
     prefs = await DefaultSharedPreferences.create();
+    securePrefs = await SecurePreferences.create();
+
     items = AppwriteItemDatabase(_databases, 'test', 'user_item');
     hist = AppwriteHistoryDatabase(_databases, 'test', 'user_history');
 

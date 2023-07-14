@@ -4,6 +4,7 @@ import 'package:log/log.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:repository/database/preferences_default.dart';
+import 'package:repository/database/preferences_secure.dart';
 import 'package:repository/repository.dart';
 import 'package:repository_ob/database/history_db.dart';
 import 'package:repository_ob/database/inventory_joined_db.dart';
@@ -28,6 +29,8 @@ class ObjectBoxRepository extends Repository {
     store = Store(getObjectBoxModel(), directory: dbPath);
 
     prefs = await DefaultSharedPreferences.create();
+    securePrefs = await SecurePreferences.create();
+
     items = ObjectBoxItemDatabase(store);
     hist = ObjectBoxHistoryDatabase(store);
     inv = ObjectBoxJoinedInventoryDatabase(store, hist);

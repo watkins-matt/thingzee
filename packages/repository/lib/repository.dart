@@ -7,6 +7,7 @@ import 'package:repository/database/item_database.dart';
 import 'package:repository/database/joined_inventory_database.dart';
 import 'package:repository/database/preferences.dart';
 import 'package:repository/database/preferences_default.dart';
+import 'package:repository/database/preferences_secure.dart';
 import 'package:repository/database/synchronized/sync_history_database.dart';
 import 'package:repository/database/synchronized/sync_inventory_database.dart';
 import 'package:repository/database/synchronized/sync_item_database.dart';
@@ -36,6 +37,7 @@ abstract class Repository {
   late InventoryDatabase inv;
   late HistoryDatabase hist;
   late Preferences prefs;
+  late SecurePreferences securePrefs;
   bool get isMultiUser => false;
   bool get loggedIn => false;
 }
@@ -126,6 +128,8 @@ class SynchronizedRepository extends CloudRepository {
 
   Future<void> _init() async {
     prefs = await DefaultSharedPreferences.create();
+    securePrefs = await SecurePreferences.create();
+
     items = SynchronizedItemDatabase(local.items, remote.items);
     hist = SynchronizedHistoryDatabase(local.hist, remote.hist);
 
