@@ -10,12 +10,7 @@ class TextEntryDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Text(title),
-      content: TextField(
-        controller: controller,
-        decoration: const InputDecoration(
-          hintText: 'Enter text here',
-        ),
-      ),
+      content: TextField(controller: controller),
       actions: <Widget>[
         TextButton(
           child: const Text('Cancel'),
