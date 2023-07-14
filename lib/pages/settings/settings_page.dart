@@ -65,7 +65,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               tiles: [
                 SettingsTile(
                   title: const Text('Mealie URL'),
-                  value: mealieUrlText != null ? Text(mealieUrlText) : const Text(''),
+                  value: mealieUrlText != null ? Text(mealieUrlText) : const Text('Not Set'),
                   onPressed: onMealieUrlButtonPreseed,
                 ),
                 SettingsTile(
@@ -116,7 +116,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         controller: controller,
       ),
     );
-    if (result != null) {}
+    if (result != null) {
+      await ref
+          .read(settingsProvider.notifier)
+          .secureSetString(SecurePreferenceKey.mealieApiKey, result);
+    }
   }
 
   Future<void> onMealieUrlButtonPreseed(BuildContext context) async {
@@ -128,7 +132,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         controller: controller,
       ),
     );
-    if (result != null) {}
+    if (result != null) {
+      await ref.read(settingsProvider.notifier).setString(PreferenceKey.mealieURL, result);
+    }
   }
 
   Future<String?> pickFilePath() async {
