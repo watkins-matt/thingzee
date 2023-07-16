@@ -4,11 +4,12 @@ import 'package:repository/database/joined_item_database.dart';
 import 'package:repository/model/filter.dart';
 import 'package:repository/model/inventory.dart';
 import 'package:repository/repository.dart';
-import 'package:thingzee/app.dart';
+import 'package:thingzee/main.dart';
 import 'package:thingzee/pages/inventory/state/item_thumbnail_cache.dart';
 
 final inventoryProvider = StateNotifierProvider<InventoryView, List<JoinedItem>>((ref) {
-  return InventoryView(App.repo);
+  final repo = ref.watch(repositoryProvider);
+  return InventoryView(repo);
 });
 
 class InventoryView extends StateNotifier<List<JoinedItem>> {

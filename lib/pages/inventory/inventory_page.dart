@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:material_floating_search_bar_2/material_floating_search_bar_2.dart';
 import 'package:repository/repository.dart';
-import 'package:thingzee/app.dart';
 import 'package:thingzee/icon_library.dart';
+import 'package:thingzee/main.dart';
 import 'package:thingzee/pages/barcode/barcode_scanner_page.dart';
 import 'package:thingzee/pages/inventory/filter_dialog.dart';
 import 'package:thingzee/pages/inventory/state/inventory_view.dart';
@@ -11,6 +11,26 @@ import 'package:thingzee/pages/inventory/widget/inventory_view_widget.dart';
 import 'package:thingzee/pages/inventory/widget/user_profile_button.dart';
 import 'package:thingzee/pages/login/login_page.dart';
 import 'package:thingzee/pages/settings/settings_page.dart';
+
+class FilterButton extends ConsumerWidget {
+  const FilterButton({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return IconButton(
+        icon: const Icon(Icons.filter_list),
+        onPressed: () async {
+          final view = ref.read(inventoryProvider.notifier);
+
+          final filterResult = await FilterDialog.show(context, view.filter);
+          view.filter = filterResult;
+
+          await view.refresh();
+        });
+  }
+}
 
 class InventoryPage extends ConsumerStatefulWidget {
   const InventoryPage({Key? key}) : super(key: key);
@@ -23,12 +43,6 @@ class _InventoryPageState extends ConsumerState<InventoryPage> {
   late final FloatingSearchBarController _controller;
   bool gridView = false;
   bool hasQuery = false;
-
-  @override
-  void initState() {
-    _controller = FloatingSearchBarController();
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -69,11 +83,13 @@ class _InventoryPageState extends ConsumerState<InventoryPage> {
           UserProfileButton(
             imagePath: 'assets/images/account.png',
             onSelected: (String value) async {
+              final repo = ref.watch(repositoryProvider);
+
               if (value == 'Login/Register') {
                 await LoginPage.push(context);
               } else if (value == 'Logout') {
-                if (App.repo.isMultiUser && App.repo is CloudRepository) {
-                  final repository = App.repo as CloudRepository;
+                if (repo.isMultiUser && repo is CloudRepository) {
+                  CloudRepository repository = repo;
                   await repository.logoutUser();
 
                   // Show logged out snackbar message
@@ -87,7 +103,8 @@ class _InventoryPageState extends ConsumerState<InventoryPage> {
               }
             },
             itemBuilder: (BuildContext context) {
-              final loggedIn = App.repo.loggedIn;
+              final repo = ref.watch(repositoryProvider);
+              final loggedIn = repo.loggedIn;
 
               return {'Manually Add Item', loggedIn ? 'Logout' : 'Login/Register', 'Settings'}
                   .map((String choice) {
@@ -133,24 +150,10 @@ class _InventoryPageState extends ConsumerState<InventoryPage> {
       ),
     );
   }
-}
-
-class FilterButton extends ConsumerWidget {
-  const FilterButton({
-    Key? key,
-  }) : super(key: key);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return IconButton(
-        icon: const Icon(Icons.filter_list),
-        onPressed: () async {
-          final view = ref.read(inventoryProvider.notifier);
-
-          final filterResult = await FilterDialog.show(context, view.filter);
-          view.filter = filterResult;
-
-          await view.refresh();
-        });
+  void initState() {
+    _controller = FloatingSearchBarController();
+    super.initState();
   }
 }

@@ -1,10 +1,11 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:log/log.dart';
 import 'package:repository/repository.dart';
-import 'package:thingzee/app.dart';
+import 'package:thingzee/main.dart';
 
 final userSessionProvider = StateNotifierProvider<UserSession, SessionState>((ref) {
-  return UserSession(App.repo);
+  final repo = ref.watch(repositoryProvider);
+  return UserSession(repo);
 });
 
 class SessionState {

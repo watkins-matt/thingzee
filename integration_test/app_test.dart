@@ -3,14 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:repository_ob/repository.dart';
 import 'package:thingzee/app.dart';
 
 void main() async {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
-
-  App.repo = await ObjectBoxRepository.create();
-  assert(App.repo.ready);
 
   group('General App Tests', () {
     testWidgets('Test for exceptions while tapping bottom bar icons.', (WidgetTester tester) async {

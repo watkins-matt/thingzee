@@ -4,7 +4,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:repository/model/inventory.dart';
 import 'package:repository/model/item.dart';
 import 'package:stats/double.dart';
-import 'package:thingzee/app.dart';
+import 'package:thingzee/main.dart';
 import 'package:thingzee/pages/detail/state/editable_item.dart';
 import 'package:thingzee/pages/detail/widget/item_header_widget.dart';
 import 'package:thingzee/pages/detail/widget/labeled_editable_text.dart';
@@ -243,7 +243,7 @@ class ItemDetailPage extends HookConsumerWidget {
                 // ),
                 // TextButton(
                 //     onPressed: () async {
-                //       ref.read(editableItemProvider.notifier).cleanUpHistory(App.repo);
+                //       ref.read(editableItemProvider.notifier).cleanUpHistory(repo);
                 //       final view = ref.read(inventoryProvider.notifier);
                 //       await view.refresh();
                 //     },
@@ -266,7 +266,8 @@ class ItemDetailPage extends HookConsumerWidget {
 
   Future<void> onSaveButtonPressed(BuildContext context, WidgetRef ref) async {
     final editableItem = ref.read(editableItemProvider.notifier);
-    editableItem.save(App.repo);
+    final repo = ref.watch(repositoryProvider);
+    editableItem.save(repo);
 
     final view = ref.read(inventoryProvider.notifier);
     await view.refresh();

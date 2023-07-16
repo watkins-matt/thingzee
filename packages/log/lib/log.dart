@@ -238,7 +238,6 @@ class TimeDisplaySimplePrinter extends SimplePrinter {
 
     final frames = terseChain.traces.first.frames;
     final limitedFrames = frames.take(maxFrameCount);
-
     final limitedChain = Chain([Trace(limitedFrames)]);
 
     return '${event.error}\n$limitedChain';

@@ -2,9 +2,9 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:settings_ui/settings_ui.dart';
-import 'package:thingzee/app.dart';
 import 'package:thingzee/data/csv_export_service.dart';
 import 'package:thingzee/data/csv_import_service.dart';
+import 'package:thingzee/main.dart';
 import 'package:thingzee/pages/inventory/state/inventory_view.dart';
 import 'package:thingzee/pages/inventory/state/item_thumbnail_cache.dart';
 import 'package:thingzee/pages/log/log_viewer_page.dart';
@@ -88,7 +88,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   }
 
   Future<void> onExportButtonPressed(BuildContext context) async {
-    await CsvExportService().exportAllData(App.repo);
+    final repo = ref.watch(repositoryProvider);
+    await CsvExportService().exportAllData(repo);
 
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
@@ -97,7 +98,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   }
 
   Future<void> onImportButtonPressed(BuildContext context) async {
-    await CsvImportService().importAllData(App.repo);
+    final repo = ref.watch(repositoryProvider);
+    await CsvImportService().importAllData(repo);
 
     if (!mounted) return;
     await _refreshPostImport(context);

@@ -7,7 +7,7 @@ import 'package:qr_mobile_vision/qr_camera.dart';
 import 'package:repository/ml/history.dart';
 import 'package:repository/model/inventory.dart';
 import 'package:repository/model/item.dart';
-import 'package:thingzee/app.dart';
+import 'package:thingzee/main.dart';
 import 'package:thingzee/pages/detail/item_detail_page.dart';
 import 'package:thingzee/pages/detail/state/editable_item.dart';
 
@@ -76,13 +76,14 @@ class _BarcodeScannerPageState extends ConsumerState<BarcodeScannerPage> {
   }
 
   Future<void> loadItemDetail(BuildContext context, String barcode) async {
+    final repo = ref.read(repositoryProvider);
     final defaultItem = Item()
       ..upc = barcode
       ..name = 'Unknown Item'
       ..category = 'Food & Beverage';
 
     // First try to find the product in the product db
-    Item item = App.repo.items.get(barcode) ?? defaultItem;
+    Item item = repo.items.get(barcode) ?? defaultItem;
 
     final defaultHistory = History()..upc = barcode;
     final defaultInventory = Inventory()
@@ -90,7 +91,7 @@ class _BarcodeScannerPageState extends ConsumerState<BarcodeScannerPage> {
       ..amount = 1
       ..history = defaultHistory
       ..lastUpdate = DateTime.now();
-    final inv = App.repo.inv.get(barcode) ?? defaultInventory;
+    final inv = repo.inv.get(barcode) ?? defaultInventory;
 
     final itemProv = ref.watch(editableItemProvider.notifier);
     itemProv.copyFrom(item, inv); // These are guaranteed to be valid (initialized above)

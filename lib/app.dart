@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:repository/repository.dart';
 import 'package:thingzee/pages/home/home_page.dart';
 
 class App extends StatelessWidget {
-  static late Repository repo;
   const App({Key? key}) : super(key: key);
 
   @override

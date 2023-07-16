@@ -1,10 +1,11 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:repository/database/joined_item_database.dart';
 import 'package:repository/repository.dart';
-import 'package:thingzee/app.dart';
+import 'package:thingzee/main.dart';
 
 final shoppingListProvider = StateNotifierProvider<ShoppingList, ShoppingListState>((ref) {
-  return ShoppingList(App.repo);
+  final repo = ref.watch(repositoryProvider);
+  return ShoppingList(repo);
 });
 
 class ShoppingList extends StateNotifier<ShoppingListState> {
@@ -42,6 +43,26 @@ class ShoppingList extends StateNotifier<ShoppingListState> {
     return state.checked.contains(item.upc);
   }
 
+  void refresh() {
+    List<JoinedItem> databaseOuts = db.outs();
+    List<JoinedItem> predictedOuts = db.predictedOuts(repo.hist);
+
+    Map<String, JoinedItem> combinedOuts = {for (final out in databaseOuts) out.item.upc: out};
+
+    for (final out in predictedOuts) {
+      if (!combinedOuts.containsKey(out.item.upc)) {
+        combinedOuts[out.item.upc] = out;
+      }
+    }
+
+    List<JoinedItem> outs = combinedOuts.values.toList();
+    sortItems(outs);
+
+    state = state.copyWith(
+      items: outs,
+    );
+  }
+
   void removeAt(int index) {
     var items = state.items;
     assert(index < items.length);
@@ -73,26 +94,6 @@ class ShoppingList extends StateNotifier<ShoppingListState> {
         return -1;
       }
     });
-  }
-
-  void refresh() {
-    List<JoinedItem> databaseOuts = db.outs();
-    List<JoinedItem> predictedOuts = db.predictedOuts(repo.hist);
-
-    Map<String, JoinedItem> combinedOuts = {for (final out in databaseOuts) out.item.upc: out};
-
-    for (final out in predictedOuts) {
-      if (!combinedOuts.containsKey(out.item.upc)) {
-        combinedOuts[out.item.upc] = out;
-      }
-    }
-
-    List<JoinedItem> outs = combinedOuts.values.toList();
-    sortItems(outs);
-
-    state = state.copyWith(
-      items: outs,
-    );
   }
 }
 

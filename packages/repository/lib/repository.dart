@@ -37,7 +37,7 @@ abstract class Repository {
   late InventoryDatabase inv;
   late HistoryDatabase hist;
   late Preferences prefs;
-  late SecurePreferences securePrefs;
+  late Preferences securePrefs;
   bool get isMultiUser => false;
   bool get loggedIn => false;
 }

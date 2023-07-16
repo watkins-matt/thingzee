@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:log/log.dart';
+import 'package:repository/database/mock/repository.dart';
 import 'package:repository/network/connectivity_service.dart';
 import 'package:repository/repository.dart';
 import 'package:repository_appw/repository.dart';
@@ -15,13 +16,6 @@ Future<void> main() async {
     // This line must be first
     WidgetsFlutterBinding.ensureInitialized();
 
-    // Ensure the connectivity checker is running
-    final connectivity = ConnectivityService();
-    await connectivity.ensureRunning();
-    connectivity.addListener((status) {
-      Log.d('Connectivity changed: $status');
-    });
-
     // Set demangleStackTrace to handle Riverpod stack traces
     FlutterError.demangleStackTrace = (StackTrace stack) {
       if (stack is Trace) {
@@ -31,12 +25,6 @@ Future<void> main() async {
       }
       return stack;
     };
-
-    // Choose the backend and initialize the database
-    final appwrite = await AppwriteRepository.create(connectivity) as AppwriteRepository;
-    final objectbox = await ObjectBoxRepository.create();
-    App.repo = await SynchronizedRepository.create(objectbox, appwrite);
-    assert(App.repo.ready);
 
     // Log any errors from Flutter
     FlutterError.onError = (FlutterErrorDetails details) {
@@ -54,6 +42,46 @@ Future<void> main() async {
   });
 }
 
+final initializationProvider = FutureProvider<Repository>((ref) async {
+  final offlineDbState = ref.watch(offlineDatabaseProvider);
+
+  // If the offline database is not yet ready,
+  // we cannot initialize the full repository
+  if (offlineDbState is! AsyncData<Repository>) {
+    throw UnimplementedError('Database is not ready.');
+  }
+
+  final connectivity = ConnectivityService();
+  await connectivity.ensureRunning();
+  connectivity.addListener((status) {
+    Log.d('Connectivity changed: $status');
+  });
+
+  final objectbox = offlineDbState.value;
+  final appwrite = await AppwriteRepository.create(connectivity) as AppwriteRepository;
+  final repo = await SynchronizedRepository.create(objectbox, appwrite);
+
+  assert(repo.ready);
+  return repo;
+});
+
+final offlineDatabaseProvider = FutureProvider<Repository>((ref) async {
+  final objectbox = await ObjectBoxRepository.create();
+  return objectbox;
+});
+
 final repositoryProvider = Provider<Repository>((ref) {
-  return App.repo;
+  final offlineDbState = ref.watch(offlineDatabaseProvider);
+  final initDbState = ref.watch(initializationProvider);
+
+  if (initDbState is AsyncData<Repository>) {
+    // Full repository is ready, return it
+    return initDbState.value;
+  } else if (offlineDbState is AsyncData<Repository>) {
+    // Only offline database is ready, return it
+    return offlineDbState.value;
+  } else {
+    // Nothing is ready, return the MockRepository
+    return MockRepository();
+  }
 });

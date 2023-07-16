@@ -1,10 +1,11 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:repository/database/joined_item_database.dart';
 import 'package:repository/repository.dart';
-import 'package:thingzee/app.dart';
+import 'package:thingzee/main.dart';
 
 final shoppingCartProvider = StateNotifierProvider<ShoppingCart, ShoppingCartState>((ref) {
-  return ShoppingCart(App.repo);
+  final repo = ref.watch(repositoryProvider);
+  return ShoppingCart(repo);
 });
 
 class ShoppingCart extends StateNotifier<ShoppingCartState> {
@@ -15,18 +16,6 @@ class ShoppingCart extends StateNotifier<ShoppingCartState> {
   void add(JoinedItem item) {
     state = state.copyWith(
       items: [...state.items, item],
-    );
-  }
-
-  void remove(JoinedItem item) {
-    state = state.copyWith(
-      items: state.items..remove(item),
-    );
-  }
-
-  void removeAt(int index) {
-    state = state.copyWith(
-      items: state.items..removeAt(index),
     );
   }
 
@@ -53,6 +42,18 @@ class ShoppingCart extends StateNotifier<ShoppingCartState> {
 
     state = state.copyWith(
       items: [],
+    );
+  }
+
+  void remove(JoinedItem item) {
+    state = state.copyWith(
+      items: state.items..remove(item),
+    );
+  }
+
+  void removeAt(int index) {
+    state = state.copyWith(
+      items: state.items..removeAt(index),
     );
   }
 }
