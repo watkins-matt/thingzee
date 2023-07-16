@@ -41,14 +41,7 @@ class RecipeListView extends ConsumerWidget {
                   )
                 : null,
             title: Text(recipe.name),
-            onTap: () {
-              // Navigator.push(
-              //   context,
-              //   MaterialPageRoute(
-              //     builder: (context) => RecipeDetail(recipe: recipe),
-              //   ),
-              // );
-            },
+            onTap: () {},
           ),
         );
       },
