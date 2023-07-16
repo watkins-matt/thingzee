@@ -31,6 +31,7 @@ Future<void> main() async {
       Log.e('Flutter error:', details.exception, details.stack);
     };
 
+    App.offlineDb = await ObjectBoxRepository.create();
     runApp(const ProviderScope(
       child: App(),
     ));
@@ -43,21 +44,17 @@ Future<void> main() async {
 }
 
 final initializationProvider = FutureProvider<Repository>((ref) async {
-  final offlineDbState = ref.watch(offlineDatabaseProvider);
-
-  // If the offline database is not yet ready,
-  // we cannot initialize the full repository
-  if (offlineDbState is! AsyncData<Repository>) {
-    throw UnimplementedError('Database is not ready.');
-  }
-
   final connectivity = ConnectivityService();
   await connectivity.ensureRunning();
   connectivity.addListener((status) {
     Log.d('Connectivity changed: $status');
   });
 
-  final objectbox = offlineDbState.value;
+  final objectbox = ref.watch(offlineDatabaseProvider);
+  if (objectbox is MockRepository) {
+    throw Exception('Offline database is not ready yet.');
+  }
+
   final appwrite = await AppwriteRepository.create(connectivity) as AppwriteRepository;
   final repo = await SynchronizedRepository.create(objectbox, appwrite);
 
@@ -65,9 +62,10 @@ final initializationProvider = FutureProvider<Repository>((ref) async {
   return repo;
 });
 
-final offlineDatabaseProvider = FutureProvider<Repository>((ref) async {
-  final objectbox = await ObjectBoxRepository.create();
-  return objectbox;
+final offlineDatabaseProvider = Provider<Repository>((ref) {
+  // Note that App.offlineDb is initialized in main, so that it is
+  // ready before the UI is created
+  return App.offlineDb ?? MockRepository();
 });
 
 final repositoryProvider = Provider<Repository>((ref) {
@@ -77,11 +75,8 @@ final repositoryProvider = Provider<Repository>((ref) {
   if (initDbState is AsyncData<Repository>) {
     // Full repository is ready, return it
     return initDbState.value;
-  } else if (offlineDbState is AsyncData<Repository>) {
-    // Only offline database is ready, return it
-    return offlineDbState.value;
   } else {
-    // Nothing is ready, return the MockRepository
-    return MockRepository();
+    // Full repository is not ready, return offline database
+    return offlineDbState;
   }
 });

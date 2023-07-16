@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:repository/repository.dart';
 import 'package:thingzee/pages/home/home_page.dart';
 
 class App extends StatelessWidget {
+  static Repository? offlineDb;
+
   const App({Key? key}) : super(key: key);
 
   @override
