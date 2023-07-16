@@ -105,8 +105,8 @@ class AppwriteRepository extends CloudRepository {
     // Try to create the user
     try {
       await _account.create(userId: username, email: email, password: password);
-    } catch (e) {
-      Log.e('Appwrite: Failed to register user: ', e);
+    } on AppwriteException catch (e) {
+      Log.e('Appwrite: Failed to register user: [AppwriteException]', e.message);
     }
 
     // Should login immediately after registering
@@ -115,8 +115,8 @@ class AppwriteRepository extends CloudRepository {
     // Send the verification email
     try {
       await _account.createVerification(url: 'https://appwrite.thingzee.net/verify');
-    } catch (e) {
-      Log.e('Appwrite: Failed to send verification email: ', e);
+    } on AppwriteException catch (e) {
+      Log.e('Appwrite: Failed to send verification email: [AppwriteException]', e.message);
     }
   }
 

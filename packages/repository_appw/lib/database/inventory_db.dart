@@ -113,7 +113,7 @@ class AppwriteInventoryDatabase extends InventoryDatabase {
               documentId: uniqueDocumentId(inv.upc),
               data: serializeInventory(inv));
         } else {
-          Log.e('Failed to put inventory: ', e);
+          Log.e('Failed to put inventory: [AppwriteException]', e.message);
           // Removing the inventory from local cache since we
           // failed to add it to the database
           _inventory.remove(inv.upc);
@@ -176,7 +176,7 @@ class AppwriteInventoryDatabase extends InventoryDatabase {
         _inventory[inventory.upc] = inventory;
       }
     } on AppwriteException catch (e) {
-      Log.e(e);
+      Log.e('Failed to sync inventory: [AppwriteException]', e.message);
     }
 
     Log.timerEnd(timer, 'Appwrite: Inventory synced in \$seconds seconds.');
@@ -216,7 +216,8 @@ class AppwriteInventoryDatabase extends InventoryDatabase {
           await task.operation();
         } on AppwriteException catch (e) {
           if (e.code != 404 && e.code != 409) {
-            Log.e('Failed to execute task: $e. Retry attempt ${task.retries + 1}');
+            Log.e(
+                'Failed to execute task: [AppwriteException] ${e.message}. Retry attempt ${task.retries + 1}');
             task.retries += 1;
             _taskQueue.add(task);
           }

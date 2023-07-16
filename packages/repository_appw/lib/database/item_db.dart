@@ -112,7 +112,7 @@ class AppwriteItemDatabase extends ItemDatabase {
               documentId: uniqueDocumentId(item.upc),
               data: item.toJson()..['user_id'] = userId);
         } else {
-          Log.e('Failed to put item: ', e);
+          Log.e('Failed to put item: [AppwriteException]', e.message);
           // Removing the inventory from local cache since we
           // failed to add it to the database
           _items.remove(item.upc);
@@ -238,7 +238,8 @@ class AppwriteItemDatabase extends ItemDatabase {
           await task.operation();
         } on AppwriteException catch (e) {
           if (e.code != 404 && e.code != 409) {
-            Log.e('Failed to execute task: $e. Retry attempt ${task.retries + 1}');
+            Log.e(
+                'Failed to execute task: [AppwriteException] ${e.message}. Retry attempt ${task.retries + 1}');
             task.retries += 1;
             _taskQueue.add(task);
           }

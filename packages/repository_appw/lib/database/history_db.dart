@@ -96,7 +96,7 @@ class AppwriteHistoryDatabase extends HistoryDatabase {
               documentId: uniqueDocumentId(history.upc),
               data: serializeHistory(history));
         } else {
-          Log.e('Failed to put history: ', e);
+          Log.e('Failed to put history: [AppwriteException]', e.message);
           // Removing the history from local cache since we
           // failed to add it to the database
           _history.remove(history.upc);
@@ -160,7 +160,7 @@ class AppwriteHistoryDatabase extends HistoryDatabase {
         _history[history.upc] = history;
       }
     } on AppwriteException catch (e) {
-      Log.e(e);
+      Log.e('Failed to sync history: [AppwriteException]', e.message);
     }
 
     Log.timerEnd(timer, 'Appwrite: History synced in \$seconds seconds.');
@@ -200,7 +200,8 @@ class AppwriteHistoryDatabase extends HistoryDatabase {
           await task.operation();
         } on AppwriteException catch (e) {
           if (e.code != 404 && e.code != 409) {
-            Log.e('Failed to execute task: $e. Retry attempt ${task.retries + 1}');
+            Log.e(
+                'Failed to execute task: [AppwriteException] ${e.message}. Retry attempt ${task.retries + 1}');
             task.retries += 1;
             _taskQueue.add(task);
           }
