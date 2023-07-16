@@ -13,20 +13,33 @@ class RecipeListView extends ConsumerWidget {
       itemCount: recipes.length,
       itemBuilder: (context, index) {
         final recipe = recipes[index];
+        bool isValidUrl = false;
+        try {
+          Uri.parse(recipe.imageUrl);
+          isValidUrl = true;
+        } catch (e) {
+          isValidUrl = false;
+        }
         return Card(
-          margin: const EdgeInsets.all(8),
           surfaceTintColor: Colors.white,
           elevation: 3,
+          margin: const EdgeInsets.all(8),
           child: ListTile(
-            leading: Image.network(
-              recipe.imageUrl,
-              errorBuilder: (BuildContext context, Object exception, StackTrace? stackTrace) {
-                return Container();
-              },
-              width: 50,
-              height: 50,
-              fit: BoxFit.cover,
-            ),
+            leading: isValidUrl
+                ? SizedBox(
+                    height: 50,
+                    width: 50,
+                    child: Image.network(
+                      recipe.imageUrl,
+                      errorBuilder:
+                          (BuildContext context, Object exception, StackTrace? stackTrace) {
+                        // The recipe does not have an associated image
+                        return Container();
+                      },
+                      fit: BoxFit.cover,
+                    ),
+                  )
+                : null,
             title: Text(recipe.name),
             onTap: () {
               // Navigator.push(
