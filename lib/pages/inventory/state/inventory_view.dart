@@ -57,7 +57,7 @@ class InventoryView extends StateNotifier<List<JoinedItem>> {
 
     Stopwatch stopwatch = Log.timerStart();
     state = joinedItemDb.filter(filter);
-    Log.timerEnd(stopwatch, 'Loaded initial inventory view in \$seconds seconds.');
+    Log.timerEnd(stopwatch, 'Loaded inventory view in \$seconds seconds.');
   }
 
   Future<void> search(String value) async {
