@@ -2,6 +2,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:repository/database/preferences.dart';
 import 'package:repository/database/preferences_secure.dart';
 import 'package:thingzee/app.dart';
+import 'package:thingzee/pages/settings/state/preference_keys.dart';
 
 final settingsProvider = StateNotifierProvider<SettingsNotifier, SettingsState>((ref) {
   return SettingsNotifier(App.repo.prefs, App.repo.securePrefs);
@@ -10,8 +11,18 @@ final settingsProvider = StateNotifierProvider<SettingsNotifier, SettingsState>(
 class SettingsNotifier extends StateNotifier<SettingsState> {
   final Preferences _prefs;
   final SecurePreferences _securePrefs;
+  final Set<String> _monitored = {PreferenceKey.mealieURL};
+  final Set<String> _monitoredSecure = {SecurePreferenceKey.mealieApiKey};
 
-  SettingsNotifier(this._prefs, this._securePrefs) : super(SettingsState());
+  SettingsNotifier(this._prefs, this._securePrefs) : super(SettingsState()) {
+    for (final key in _monitored) {
+      getString(key);
+    }
+
+    for (final key in _monitoredSecure) {
+      secureGetString(key);
+    }
+  }
 
   String? getString(String key) {
     final value = _prefs.getString(key);
