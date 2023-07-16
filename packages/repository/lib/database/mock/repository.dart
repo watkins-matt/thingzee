@@ -10,6 +10,7 @@ class MockRepository extends Repository {
     inv = MockInventoryDatabase();
     hist = MockHistoryDatabase();
     prefs = MockPreferences();
+    securePrefs = MockPreferences();
     ready = true;
   }
 }
