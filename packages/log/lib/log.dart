@@ -229,13 +229,18 @@ class TimeDisplaySimplePrinter extends SimplePrinter {
     }
   }
 
-  String _errorText(LogEvent event) {
+  String _errorText(LogEvent event, {int maxFrameCount = 5}) {
     if (event.error == null) return '';
     if (event.stackTrace == null) return event.error.toString();
 
     final chain = Chain.forTrace(event.stackTrace!);
     final terseChain = chain.terse;
 
-    return '${event.error}\n$terseChain';
+    final frames = terseChain.traces.first.frames;
+    final limitedFrames = frames.take(maxFrameCount);
+
+    final limitedChain = Chain([Trace(limitedFrames)]);
+
+    return '${event.error}\n$limitedChain';
   }
 }
