@@ -28,7 +28,8 @@ MealieRecipe _$MealieRecipeFromJson(Map<String, dynamic> json) => MealieRecipe(
       rating: json['rating'] as int?,
       orgURL: json['orgURL'] as String?,
       recipeIngredient: (json['recipeIngredient'] as List<dynamic>?)
-          ?.map((e) => e as String)
+          ?.map(
+              (e) => MealieRecipeIngredient.fromJson(e as Map<String, dynamic>))
           .toList(),
       dateAdded: json['dateAdded'] as String?,
       dateUpdated: json['dateUpdated'] as String?,
@@ -55,11 +56,38 @@ Map<String, dynamic> _$MealieRecipeToJson(MealieRecipe instance) =>
       'tools': instance.tools,
       'rating': instance.rating,
       'orgURL': instance.orgURL,
-      'recipeIngredient': instance.recipeIngredient,
+      'recipeIngredient':
+          instance.recipeIngredient?.map((e) => e.toJson()).toList(),
       'dateAdded': instance.dateAdded,
       'dateUpdated': instance.dateUpdated,
       'createdAt': instance.createdAt,
       'updateAt': instance.updateAt,
+    };
+
+MealieRecipeIngredient _$MealieRecipeIngredientFromJson(
+        Map<String, dynamic> json) =>
+    MealieRecipeIngredient(
+      title: json['title'] as String?,
+      note: json['note'] as String?,
+      unit: json['unit'] as String?,
+      food: json['food'] as String?,
+      disableAmount: json['disableAmount'] as bool?,
+      quantity: (json['quantity'] as num?)?.toDouble(),
+      originalText: json['originalText'] as String?,
+      referenceId: json['referenceId'] as String?,
+    );
+
+Map<String, dynamic> _$MealieRecipeIngredientToJson(
+        MealieRecipeIngredient instance) =>
+    <String, dynamic>{
+      'title': instance.title,
+      'note': instance.note,
+      'unit': instance.unit,
+      'food': instance.food,
+      'disableAmount': instance.disableAmount,
+      'quantity': instance.quantity,
+      'originalText': instance.originalText,
+      'referenceId': instance.referenceId,
     };
 
 MealieRecipeResponse _$MealieRecipeResponseFromJson(
@@ -83,7 +111,7 @@ Map<String, dynamic> _$MealieRecipeResponseToJson(
       'perPage': instance.perPage,
       'total': instance.total,
       'totalPages': instance.totalPages,
-      'items': instance.items,
+      'items': instance.items?.map((e) => e.toJson()).toList(),
       'next': instance.next,
       'previous': instance.previous,
     };

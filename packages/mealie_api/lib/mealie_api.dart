@@ -45,7 +45,7 @@ abstract class MealieApiClient {
   });
 }
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class MealieRecipe {
   String? id;
   String? userId;
@@ -64,7 +64,7 @@ class MealieRecipe {
   List<String>? tools;
   int? rating;
   String? orgURL;
-  List<String>? recipeIngredient;
+  List<MealieRecipeIngredient>? recipeIngredient;
   String? dateAdded;
   String? dateUpdated;
   String? createdAt;
@@ -99,7 +99,34 @@ class MealieRecipe {
   Map<String, dynamic> toJson() => _$MealieRecipeToJson(this);
 }
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
+class MealieRecipeIngredient {
+  String? title;
+  String? note;
+  String? unit;
+  String? food;
+  bool? disableAmount;
+  double? quantity;
+  String? originalText;
+  String? referenceId;
+
+  MealieRecipeIngredient({
+    this.title,
+    this.note,
+    this.unit,
+    this.food,
+    this.disableAmount,
+    this.quantity,
+    this.originalText,
+    this.referenceId,
+  });
+
+  factory MealieRecipeIngredient.fromJson(Map<String, dynamic> json) =>
+      _$MealieRecipeIngredientFromJson(json);
+  Map<String, dynamic> toJson() => _$MealieRecipeIngredientToJson(this);
+}
+
+@JsonSerializable(explicitToJson: true)
 class MealieRecipeResponse {
   int? page;
   int? perPage;
