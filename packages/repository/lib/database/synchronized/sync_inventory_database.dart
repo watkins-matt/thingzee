@@ -16,7 +16,7 @@ class SynchronizedInventoryDatabase extends InventoryDatabase {
       lastSync = DateTime.fromMillisecondsSinceEpoch(lastSyncMillis);
     }
 
-    synchronize();
+    syncDifferences();
   }
 
   @override

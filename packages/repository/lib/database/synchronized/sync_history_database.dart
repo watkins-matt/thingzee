@@ -15,7 +15,7 @@ class SynchronizedHistoryDatabase extends HistoryDatabase {
     if (lastSyncMillis != null) {
       lastSync = DateTime.fromMillisecondsSinceEpoch(lastSyncMillis);
     }
-    synchronize();
+    syncDifferences();
   }
 
   @override
