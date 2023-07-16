@@ -13,7 +13,13 @@ Future<List<MealieRecipe>> fetchAllRecipes(MealieApiClient client) async {
     response = await client.getRecipes(page: page, perPage: 50);
     allRecipes.addAll(response.items ?? []);
     page++;
-  } while (response.page! < response.totalPages!);
+  } while (response.page! < (response.totalPages ?? 1));
+
+  // Add the base url to all recipes
+  final baseUrl = (client as _MealieApiClient).baseUrl;
+  for (final recipe in allRecipes) {
+    recipe.image = '$baseUrl${recipe.image}';
+  }
 
   return allRecipes;
 }
@@ -59,9 +65,9 @@ class MealieRecipe {
   String? cookTime;
   String? performTime;
   String? description;
-  List<String>? recipeCategory;
-  List<String>? tags;
-  List<String>? tools;
+  List<MealieRecipeCategory>? recipeCategory;
+  List<MealieRecipeTag>? tags;
+  List<MealieRecipeTool>? tools;
   int? rating;
   String? orgURL;
   List<MealieRecipeIngredient>? recipeIngredient;
@@ -95,8 +101,29 @@ class MealieRecipe {
     this.updateAt,
   });
 
-  factory MealieRecipe.fromJson(Map<String, dynamic> json) => _$MealieRecipeFromJson(json);
+  factory MealieRecipe.fromJson(Map<String, dynamic> json) {
+    json['image'] = '/api/media/recipes/${json['id']}/images/min-original.webp';
+    return _$MealieRecipeFromJson(json);
+  }
+
   Map<String, dynamic> toJson() => _$MealieRecipeToJson(this);
+}
+
+@JsonSerializable(explicitToJson: true)
+class MealieRecipeCategory {
+  String? id;
+  String? name;
+  String? slug;
+
+  MealieRecipeCategory({
+    this.id,
+    this.name,
+    this.slug,
+  });
+
+  factory MealieRecipeCategory.fromJson(Map<String, dynamic> json) =>
+      _$MealieRecipeCategoryFromJson(json);
+  Map<String, dynamic> toJson() => _$MealieRecipeCategoryToJson(this);
 }
 
 @JsonSerializable(explicitToJson: true)
@@ -149,4 +176,38 @@ class MealieRecipeResponse {
   factory MealieRecipeResponse.fromJson(Map<String, dynamic> json) =>
       _$MealieRecipeResponseFromJson(json);
   Map<String, dynamic> toJson() => _$MealieRecipeResponseToJson(this);
+}
+
+@JsonSerializable(explicitToJson: true)
+class MealieRecipeTag {
+  String? id;
+  String? name;
+  String? slug;
+
+  MealieRecipeTag({
+    this.id,
+    this.name,
+    this.slug,
+  });
+
+  factory MealieRecipeTag.fromJson(Map<String, dynamic> json) => _$MealieRecipeTagFromJson(json);
+  Map<String, dynamic> toJson() => _$MealieRecipeTagToJson(this);
+}
+
+@JsonSerializable(explicitToJson: true)
+class MealieRecipeTool {
+  String? id;
+  String? name;
+  String? slug;
+  bool? onHand;
+
+  MealieRecipeTool({
+    this.id,
+    this.name,
+    this.slug,
+    this.onHand,
+  });
+
+  factory MealieRecipeTool.fromJson(Map<String, dynamic> json) => _$MealieRecipeToolFromJson(json);
+  Map<String, dynamic> toJson() => _$MealieRecipeToolToJson(this);
 }

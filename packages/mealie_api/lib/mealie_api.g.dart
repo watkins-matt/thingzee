@@ -20,11 +20,14 @@ MealieRecipe _$MealieRecipeFromJson(Map<String, dynamic> json) => MealieRecipe(
       performTime: json['performTime'] as String?,
       description: json['description'] as String?,
       recipeCategory: (json['recipeCategory'] as List<dynamic>?)
-          ?.map((e) => e as String)
+          ?.map((e) => MealieRecipeCategory.fromJson(e as Map<String, dynamic>))
           .toList(),
-      tags: (json['tags'] as List<dynamic>?)?.map((e) => e as String).toList(),
-      tools:
-          (json['tools'] as List<dynamic>?)?.map((e) => e as String).toList(),
+      tags: (json['tags'] as List<dynamic>?)
+          ?.map((e) => MealieRecipeTag.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      tools: (json['tools'] as List<dynamic>?)
+          ?.map((e) => MealieRecipeTool.fromJson(e as Map<String, dynamic>))
+          .toList(),
       rating: json['rating'] as int?,
       orgURL: json['orgURL'] as String?,
       recipeIngredient: (json['recipeIngredient'] as List<dynamic>?)
@@ -51,9 +54,10 @@ Map<String, dynamic> _$MealieRecipeToJson(MealieRecipe instance) =>
       'cookTime': instance.cookTime,
       'performTime': instance.performTime,
       'description': instance.description,
-      'recipeCategory': instance.recipeCategory,
-      'tags': instance.tags,
-      'tools': instance.tools,
+      'recipeCategory':
+          instance.recipeCategory?.map((e) => e.toJson()).toList(),
+      'tags': instance.tags?.map((e) => e.toJson()).toList(),
+      'tools': instance.tools?.map((e) => e.toJson()).toList(),
       'rating': instance.rating,
       'orgURL': instance.orgURL,
       'recipeIngredient':
@@ -62,6 +66,22 @@ Map<String, dynamic> _$MealieRecipeToJson(MealieRecipe instance) =>
       'dateUpdated': instance.dateUpdated,
       'createdAt': instance.createdAt,
       'updateAt': instance.updateAt,
+    };
+
+MealieRecipeCategory _$MealieRecipeCategoryFromJson(
+        Map<String, dynamic> json) =>
+    MealieRecipeCategory(
+      id: json['id'] as String?,
+      name: json['name'] as String?,
+      slug: json['slug'] as String?,
+    );
+
+Map<String, dynamic> _$MealieRecipeCategoryToJson(
+        MealieRecipeCategory instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'name': instance.name,
+      'slug': instance.slug,
     };
 
 MealieRecipeIngredient _$MealieRecipeIngredientFromJson(
@@ -114,6 +134,36 @@ Map<String, dynamic> _$MealieRecipeResponseToJson(
       'items': instance.items?.map((e) => e.toJson()).toList(),
       'next': instance.next,
       'previous': instance.previous,
+    };
+
+MealieRecipeTag _$MealieRecipeTagFromJson(Map<String, dynamic> json) =>
+    MealieRecipeTag(
+      id: json['id'] as String?,
+      name: json['name'] as String?,
+      slug: json['slug'] as String?,
+    );
+
+Map<String, dynamic> _$MealieRecipeTagToJson(MealieRecipeTag instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'name': instance.name,
+      'slug': instance.slug,
+    };
+
+MealieRecipeTool _$MealieRecipeToolFromJson(Map<String, dynamic> json) =>
+    MealieRecipeTool(
+      id: json['id'] as String?,
+      name: json['name'] as String?,
+      slug: json['slug'] as String?,
+      onHand: json['onHand'] as bool?,
+    );
+
+Map<String, dynamic> _$MealieRecipeToolToJson(MealieRecipeTool instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'name': instance.name,
+      'slug': instance.slug,
+      'onHand': instance.onHand,
     };
 
 // **************************************************************************
