@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:appwrite/appwrite.dart';
-import 'package:appwrite/models.dart' hide Log;
+import 'package:appwrite/models.dart' hide Log, Preferences;
 import 'package:log/log.dart';
 import 'package:repository/database/joined_inventory_database.dart';
 import 'package:repository/database/preferences_default.dart';
@@ -154,11 +154,11 @@ class AppwriteRepository extends CloudRepository {
     prefs = await DefaultSharedPreferences.create();
     securePrefs = await SecurePreferences.create();
 
-    items = AppwriteItemDatabase(_databases, 'test', 'user_item');
-    hist = AppwriteHistoryDatabase(_databases, 'test', 'user_history');
+    items = AppwriteItemDatabase(prefs, _databases, 'test', 'user_item');
+    hist = AppwriteHistoryDatabase(prefs, _databases, 'test', 'user_history');
 
     // Create joined inventory database
-    final inventory = AppwriteInventoryDatabase(_databases, 'test', 'user_inventory');
+    final inventory = AppwriteInventoryDatabase(prefs, _databases, 'test', 'user_inventory');
     inv = JoinedInventoryDatabase(inventory, hist);
 
     Log.timerEnd(timer, 'Appwrite: Repository initialized in \$seconds seconds.');

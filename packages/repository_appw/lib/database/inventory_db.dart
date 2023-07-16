@@ -1,28 +1,37 @@
 import 'dart:async';
 
 import 'package:appwrite/appwrite.dart';
-import 'package:appwrite/models.dart' hide Log;
+import 'package:appwrite/models.dart' hide Log, Preferences;
 import 'package:log/log.dart';
 import 'package:repository/database/inventory_database.dart';
+import 'package:repository/database/preferences.dart';
 import 'package:repository/model/inventory.dart';
 
 class AppwriteInventoryDatabase extends InventoryDatabase {
   static const maxRetries = 3;
-  final Databases _database;
-  final String databaseId;
-  final String collectionId;
-  final _taskQueue = <_QueueTask>[];
-  final _inventory = <String, Inventory>{};
   bool _online = false;
   bool _processingQueue = false;
-  String userId = '';
   DateTime? lastSync;
+  String lastSyncKey = 'AppwriteInventoryDatabase.lastSync';
+  final _inventory = <String, Inventory>{};
+  final _taskQueue = <_QueueTask>[];
+  final Databases _database;
+  final Preferences prefs;
+  final String collectionId;
+  final String databaseId;
+  String userId = '';
 
   AppwriteInventoryDatabase(
+    this.prefs,
     this._database,
     this.databaseId,
     this.collectionId,
-  );
+  ) {
+    int? lastSyncMillis = prefs.getInt(lastSyncKey);
+    if (lastSyncMillis != null) {
+      lastSync = DateTime.fromMillisecondsSinceEpoch(lastSyncMillis);
+    }
+  }
 
   bool get online => _online;
 
@@ -180,7 +189,7 @@ class AppwriteInventoryDatabase extends InventoryDatabase {
     }
 
     Log.timerEnd(timer, 'Appwrite: Inventory synced in \$seconds seconds.');
-    lastSync = DateTime.now();
+    _updateSyncTime();
   }
 
   String uniqueDocumentId(String upc) {
@@ -226,6 +235,11 @@ class AppwriteInventoryDatabase extends InventoryDatabase {
     } finally {
       _processingQueue = false;
     }
+  }
+
+  void _updateSyncTime() {
+    lastSync = DateTime.now();
+    prefs.setInt(lastSyncKey, lastSync!.millisecondsSinceEpoch);
   }
 }
 

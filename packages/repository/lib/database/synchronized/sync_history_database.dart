@@ -1,13 +1,20 @@
 import 'package:log/log.dart';
 import 'package:repository/database/history_database.dart';
+import 'package:repository/database/preferences.dart';
 import 'package:repository/ml/history.dart';
 
 class SynchronizedHistoryDatabase extends HistoryDatabase {
   final HistoryDatabase local;
   final HistoryDatabase remote;
+  final Preferences prefs;
+  final String lastSyncKey = 'SynchronizedHistoryDatabase.lastSync';
   DateTime? lastSync;
 
-  SynchronizedHistoryDatabase(this.local, this.remote) {
+  SynchronizedHistoryDatabase(this.local, this.remote, this.prefs) {
+    int? lastSyncMillis = prefs.getInt(lastSyncKey);
+    if (lastSyncMillis != null) {
+      lastSync = DateTime.fromMillisecondsSinceEpoch(lastSyncMillis);
+    }
     synchronize();
   }
 
@@ -88,7 +95,7 @@ class SynchronizedHistoryDatabase extends HistoryDatabase {
       Log.d('InventoryDatabase: No synchronization necessary, everything up to date.');
     }
 
-    lastSync = DateTime.now();
+    _updateSyncTime();
     assert(local.all().length == remote.all().length);
   }
 
@@ -126,7 +133,12 @@ class SynchronizedHistoryDatabase extends HistoryDatabase {
       }
     }
 
-    lastSync = DateTime.now();
+    _updateSyncTime();
     assert(local.all().length == remote.all().length);
+  }
+
+  void _updateSyncTime() {
+    lastSync = DateTime.now();
+    prefs.setInt(lastSyncKey, lastSync!.millisecondsSinceEpoch);
   }
 }

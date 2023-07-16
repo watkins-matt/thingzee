@@ -1,14 +1,22 @@
 import 'package:log/log.dart';
 import 'package:repository/database/item_database.dart';
+import 'package:repository/database/preferences.dart';
 import 'package:repository/model/filter.dart';
 import 'package:repository/model/item.dart';
 
 class SynchronizedItemDatabase extends ItemDatabase {
   final ItemDatabase local;
   final ItemDatabase remote;
+  final Preferences prefs;
+  final String lastSyncKey = 'SynchronizedItemDatabase.lastSync';
   DateTime? lastSync;
 
-  SynchronizedItemDatabase(this.local, this.remote) {
+  SynchronizedItemDatabase(this.local, this.remote, this.prefs) {
+    int? lastSyncMillis = prefs.getInt(lastSyncKey);
+    if (lastSyncMillis != null) {
+      lastSync = DateTime.fromMillisecondsSinceEpoch(lastSyncMillis);
+    }
+
     syncDifferences();
   }
 
@@ -113,7 +121,7 @@ class SynchronizedItemDatabase extends ItemDatabase {
       Log.d('ItemDatabase: No synchronization necessary, everything up to date.');
     }
 
-    lastSync = DateTime.now();
+    _updateSyncTime();
     assert(local.all().length == remote.all().length);
   }
 
@@ -152,7 +160,12 @@ class SynchronizedItemDatabase extends ItemDatabase {
       }
     }
 
-    lastSync = DateTime.now();
+    _updateSyncTime();
     assert(local.all().length == remote.all().length);
+  }
+
+  void _updateSyncTime() {
+    lastSync = DateTime.now();
+    prefs.setInt(lastSyncKey, lastSync!.millisecondsSinceEpoch);
   }
 }

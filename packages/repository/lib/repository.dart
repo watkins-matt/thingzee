@@ -130,10 +130,10 @@ class SynchronizedRepository extends CloudRepository {
     prefs = await DefaultSharedPreferences.create();
     securePrefs = await SecurePreferences.create();
 
-    items = SynchronizedItemDatabase(local.items, remote.items);
-    hist = SynchronizedHistoryDatabase(local.hist, remote.hist);
+    items = SynchronizedItemDatabase(local.items, remote.items, prefs);
+    hist = SynchronizedHistoryDatabase(local.hist, remote.hist, prefs);
 
-    final inventory = SynchronizedInventoryDatabase(local.inv, remote.inv);
+    final inventory = SynchronizedInventoryDatabase(local.inv, remote.inv, prefs);
     inv = JoinedInventoryDatabase(inventory, hist);
     ready = true;
   }

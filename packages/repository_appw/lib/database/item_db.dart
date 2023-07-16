@@ -1,10 +1,11 @@
 import 'dart:async';
 
 import 'package:appwrite/appwrite.dart';
-import 'package:appwrite/models.dart' hide Log;
+import 'package:appwrite/models.dart' hide Log, Preferences;
 import 'package:collection/collection.dart';
 import 'package:log/log.dart';
 import 'package:repository/database/item_database.dart';
+import 'package:repository/database/preferences.dart';
 import 'package:repository/model/filter.dart';
 import 'package:repository/model/item.dart';
 
@@ -12,15 +13,27 @@ class AppwriteItemDatabase extends ItemDatabase {
   static const maxRetries = 3;
   bool _online = false;
   bool _processingQueue = false;
+  DateTime? lastSync;
+  String lastSyncKey = 'AppwriteItemDatabase.lastSync';
   final _items = <String, Item>{};
   final _taskQueue = <_QueueTask>[];
   final Databases _database;
+  final Preferences prefs;
   final String collectionId;
   final String databaseId;
   String userId = '';
-  DateTime? lastSync;
 
-  AppwriteItemDatabase(this._database, this.databaseId, this.collectionId);
+  AppwriteItemDatabase(
+    this.prefs,
+    this._database,
+    this.databaseId,
+    this.collectionId,
+  ) {
+    int? lastSyncMillis = prefs.getInt(lastSyncKey);
+    if (lastSyncMillis != null) {
+      lastSync = DateTime.fromMillisecondsSinceEpoch(lastSyncMillis);
+    }
+  }
 
   bool get online => _online;
 
@@ -175,7 +188,7 @@ class AppwriteItemDatabase extends ItemDatabase {
     }
 
     Log.timerEnd(timer, 'Appwrite: Items synced in \$seconds seconds.');
-    lastSync = DateTime.now();
+    _updateSyncTime();
   }
 
   Future<void> syncModified() async {
@@ -202,7 +215,7 @@ class AppwriteItemDatabase extends ItemDatabase {
     }
 
     Log.timerEnd(timer, 'Appwrite: Modified item sync completed in \$seconds seconds.');
-    lastSync = DateTime.now();
+    _updateSyncTime();
   }
 
   String uniqueDocumentId(String upc) {
@@ -248,6 +261,11 @@ class AppwriteItemDatabase extends ItemDatabase {
     } finally {
       _processingQueue = false;
     }
+  }
+
+  void _updateSyncTime() {
+    lastSync = DateTime.now();
+    prefs.setInt(lastSyncKey, lastSync!.millisecondsSinceEpoch);
   }
 }
 
