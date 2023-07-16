@@ -1,93 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:thingzee/pages/home/home_page.dart';
 import 'package:thingzee/pages/login/register_page.dart';
-import 'package:thingzee/pages/login/state/user_profile.dart';
-import 'package:thingzee/pages/login/state/user_session.dart';
-
-class NoAnimationRoute<T> extends PageRouteBuilder<T> {
-  final Widget child;
-  NoAnimationRoute({required this.child})
-      : super(
-          pageBuilder: (BuildContext context, Animation<double> animation,
-              Animation<double> secondaryAnimation) {
-            return child;
-          },
-          transitionDuration: Duration.zero,
-        );
-}
-
-class LoginState {
-  String email = '';
-  String password = '';
-  String loginError = '';
-  bool loading = false;
-
-  LoginState({this.email = '', this.password = '', this.loginError = '', this.loading = false});
-}
-
-class LoginStateNotifier extends StateNotifier<LoginState> {
-  LoginStateNotifier() : super(LoginState());
-
-  void setEmail(String value) {
-    state = LoginState(
-        email: value,
-        password: state.password,
-        loginError: state.loginError,
-        loading: state.loading);
-  }
-
-  void setPassword(String value) {
-    state = LoginState(
-        email: state.email, password: value, loginError: state.loginError, loading: state.loading);
-  }
-
-  Future<bool> login(WidgetRef ref) async {
-    final userSession = ref.read(userSessionProvider.notifier);
-    final sessionState = ref.read(userSessionProvider);
-
-    state = LoginState(email: state.email, password: state.password, loginError: '', loading: true);
-
-    try {
-      await userSession.login(state.email, state.password);
-    } catch (e) {
-      state = LoginState(
-          email: state.email, password: state.password, loginError: e.toString(), loading: false);
-      return false;
-    }
-
-    if (sessionState.isAuthenticated) {
-      final userProfile = ref.read(userProfileProvider.notifier);
-      userProfile.email = state.email;
-      state =
-          LoginState(email: state.email, password: state.password, loginError: '', loading: false);
-      return true;
-    }
-
-    state = LoginState(
-        email: state.email,
-        password: state.password,
-        loginError: 'Unable to login. Username or password is incorrect or does not exist.',
-        loading: false);
-    return false;
-  }
-}
-
-final loginStateProvider = StateNotifierProvider<LoginStateNotifier, LoginState>((ref) {
-  return LoginStateNotifier();
-});
+import 'package:thingzee/pages/login/state/login_state.dart';
 
 class LoginPage extends ConsumerWidget {
-  LoginPage({Key? key}) : super(key: key);
-
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  static Future<void> push(BuildContext context) async {
-    await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => LoginPage()),
-    );
-  }
+  LoginPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -192,10 +111,7 @@ class LoginPage extends ConsumerWidget {
 
                             bool success = await ref.read(loginStateProvider.notifier).login(ref);
                             if (success && context.mounted) {
-                              await Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(builder: (context) => const HomePage()),
-                              );
+                              Navigator.pop(context);
                               scaffoldMessenger.showSnackBar(
                                 const SnackBar(
                                   content: Text('Logged in successfully.'),
@@ -245,4 +161,23 @@ class LoginPage extends ConsumerWidget {
       ),
     );
   }
+
+  static Future<void> push(BuildContext context) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => LoginPage()),
+    );
+  }
+}
+
+class NoAnimationRoute<T> extends PageRouteBuilder<T> {
+  final Widget child;
+  NoAnimationRoute({required this.child})
+      : super(
+          pageBuilder: (BuildContext context, Animation<double> animation,
+              Animation<double> secondaryAnimation) {
+            return child;
+          },
+          transitionDuration: Duration.zero,
+        );
 }
