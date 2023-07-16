@@ -13,17 +13,30 @@ class RecipeListView extends ConsumerWidget {
       itemCount: recipes.length,
       itemBuilder: (context, index) {
         final recipe = recipes[index];
-        return ListTile(
-          leading: Image.network(recipe.imageUrl),
-          title: Text(recipe.name),
-          onTap: () {
-            //   Navigator.push(
-            //     context,
-            //     MaterialPageRoute(
-            //         builder: (context) => RecipeDetail(recipe: recipe),
-            //         ),
-            //   );
-          },
+        return Card(
+          margin: const EdgeInsets.all(8),
+          surfaceTintColor: Colors.white,
+          elevation: 3,
+          child: ListTile(
+            leading: Image.network(
+              recipe.imageUrl,
+              errorBuilder: (BuildContext context, Object exception, StackTrace? stackTrace) {
+                return Container();
+              },
+              width: 50,
+              height: 50,
+              fit: BoxFit.cover,
+            ),
+            title: Text(recipe.name),
+            onTap: () {
+              // Navigator.push(
+              //   context,
+              //   MaterialPageRoute(
+              //     builder: (context) => RecipeDetail(recipe: recipe),
+              //   ),
+              // );
+            },
+          ),
         );
       },
     );
