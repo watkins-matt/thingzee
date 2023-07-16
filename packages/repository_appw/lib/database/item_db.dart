@@ -225,26 +225,28 @@ class AppwriteItemDatabase extends ItemDatabase {
     }
     _processingQueue = true;
 
-    while (_taskQueue.isNotEmpty) {
-      _QueueTask task = _taskQueue.removeAt(0);
+    try {
+      while (_taskQueue.isNotEmpty) {
+        _QueueTask task = _taskQueue.removeAt(0);
 
-      if (task.retries >= maxRetries) {
-        Log.e('Failed to execute task after $maxRetries attempts.');
-        continue;
-      }
+        if (task.retries >= maxRetries) {
+          Log.e('Failed to execute task after $maxRetries attempts.');
+          continue;
+        }
 
-      try {
-        await task.operation();
-      } on AppwriteException catch (e) {
-        if (e.code != 404 && e.code != 409) {
-          Log.e('Failed to execute task: $e. Retry attempt ${task.retries + 1}');
-          task.retries += 1;
-          _taskQueue.add(task);
+        try {
+          await task.operation();
+        } on AppwriteException catch (e) {
+          if (e.code != 404 && e.code != 409) {
+            Log.e('Failed to execute task: $e. Retry attempt ${task.retries + 1}');
+            task.retries += 1;
+            _taskQueue.add(task);
+          }
         }
       }
+    } finally {
+      _processingQueue = false;
     }
-
-    _processingQueue = true;
   }
 }
 
