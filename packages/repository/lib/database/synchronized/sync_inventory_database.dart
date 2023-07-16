@@ -1,3 +1,4 @@
+import 'package:log/log.dart';
 import 'package:repository/database/inventory_database.dart';
 import 'package:repository/model/inventory.dart';
 
@@ -66,11 +67,13 @@ class SynchronizedInventoryDatabase extends InventoryDatabase {
 
     final remoteMap = {for (var inventory in remoteChanges) inventory.upc: inventory};
     final localMap = {for (var inventory in localChanges) inventory.upc: inventory};
+    int changes = 0;
 
     for (final remoteInventory in remoteChanges) {
       if (!localMap.containsKey(remoteInventory.upc)) {
         // If the local database does not contain the remote inventory, add it
         local.put(remoteInventory);
+        changes++;
       }
       // The inventory exists in both databases, merge and add to both
       else {
@@ -82,6 +85,7 @@ class SynchronizedInventoryDatabase extends InventoryDatabase {
         final mergedInventory = localMap[remoteInventory.upc]!.merge(remoteInventory);
         local.put(mergedInventory);
         remote.put(mergedInventory);
+        changes++;
       }
     }
 
@@ -89,7 +93,14 @@ class SynchronizedInventoryDatabase extends InventoryDatabase {
       if (!remoteMap.containsKey(localInventory.upc)) {
         // If the remote database does not contain the local inventory, add it
         remote.put(localInventory);
+        changes++;
       }
+    }
+
+    if (changes > 0) {
+      Log.d('InventoryDatabase: Synchronized $changes items.');
+    } else {
+      Log.d('InventoryDatabase: No synchronization necessary, everything up to date.');
     }
 
     lastSync = DateTime.now();

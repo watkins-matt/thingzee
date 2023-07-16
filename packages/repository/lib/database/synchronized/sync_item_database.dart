@@ -9,7 +9,7 @@ class SynchronizedItemDatabase extends ItemDatabase {
   DateTime? lastSync;
 
   SynchronizedItemDatabase(this.local, this.remote) {
-    synchronize();
+    syncDifferences();
   }
 
   @override
@@ -74,11 +74,13 @@ class SynchronizedItemDatabase extends ItemDatabase {
 
     final remoteMap = {for (var item in remoteChanges) item.upc: item};
     final localMap = {for (var item in localChanges) item.upc: item};
+    int changes = 0;
 
     for (final remoteItem in remoteChanges) {
       if (!localMap.containsKey(remoteItem.upc)) {
         // If the local database does not contain the remote item, add it
         local.put(remoteItem);
+        changes++;
         Log.d('Added remote item "${remoteItem.name}" to local database.');
       }
       // The item exists in both databases, merge and add to both
@@ -91,6 +93,7 @@ class SynchronizedItemDatabase extends ItemDatabase {
         final mergedItem = localMap[remoteItem.upc]!.merge(remoteItem);
         local.put(mergedItem);
         remote.put(mergedItem);
+        changes++;
         Log.d('Merged remote item "${remoteItem.name}" with local database.');
       }
     }
@@ -99,9 +102,19 @@ class SynchronizedItemDatabase extends ItemDatabase {
       if (!remoteMap.containsKey(localItem.upc)) {
         // If the remote database does not contain the local item, add it
         remote.put(localItem);
+        changes++;
         Log.d('Added local item "${localItem.name}" to remote database.');
       }
     }
+
+    if (changes > 0) {
+      Log.d('ItemDatabase: Synchronized $changes items.');
+    } else {
+      Log.d('ItemDatabase: No synchronization necessary, everything up to date.');
+    }
+
+    lastSync = DateTime.now();
+    assert(local.all().length == remote.all().length);
   }
 
   void synchronize() {

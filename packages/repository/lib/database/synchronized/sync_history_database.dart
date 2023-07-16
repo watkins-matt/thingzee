@@ -1,3 +1,4 @@
+import 'package:log/log.dart';
 import 'package:repository/database/history_database.dart';
 import 'package:repository/ml/history.dart';
 
@@ -51,11 +52,13 @@ class SynchronizedHistoryDatabase extends HistoryDatabase {
 
     final remoteMap = {for (var history in remoteChanges) history.upc: history};
     final localMap = {for (var history in localChanges) history.upc: history};
+    int changes = 0;
 
     for (final remoteHistory in remoteChanges) {
       if (!localMap.containsKey(remoteHistory.upc)) {
         // If the local database does not contain the remote history, add it
         local.put(remoteHistory);
+        changes++;
       }
       // The history exists in both databases, merge and add to both
       else {
@@ -67,6 +70,7 @@ class SynchronizedHistoryDatabase extends HistoryDatabase {
         final mergedHistory = localMap[remoteHistory.upc]!.merge(remoteHistory);
         local.put(mergedHistory);
         remote.put(mergedHistory);
+        changes++;
       }
     }
 
@@ -74,7 +78,14 @@ class SynchronizedHistoryDatabase extends HistoryDatabase {
       if (!remoteMap.containsKey(localHistory.upc)) {
         // If the remote database does not contain the local history, add it
         remote.put(localHistory);
+        changes++;
       }
+    }
+
+    if (changes > 0) {
+      Log.d('HistoryDatabase: Synchronized $changes items.');
+    } else {
+      Log.d('InventoryDatabase: No synchronization necessary, everything up to date.');
     }
 
     lastSync = DateTime.now();
