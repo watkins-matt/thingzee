@@ -14,6 +14,11 @@ class SecurePreferences implements Preferences {
   }
 
   @override
+  int? getInt(String key) {
+    return int.tryParse(_cache[key] ?? '');
+  }
+
+  @override
   String? getString(String key) {
     return _cache[key];
   }
@@ -23,6 +28,12 @@ class SecurePreferences implements Preferences {
     await _storage.delete(key: key);
     _cache.remove(key);
     return true;
+  }
+
+  @override
+  Future<void> setInt(String key, int value) async {
+    await setString(key, value.toString());
+    _cache[key] = value.toString();
   }
 
   @override

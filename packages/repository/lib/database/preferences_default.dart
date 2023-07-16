@@ -13,6 +13,11 @@ class DefaultSharedPreferences implements Preferences {
   }
 
   @override
+  int? getInt(String key) {
+    return _prefs.getInt(key);
+  }
+
+  @override
   String? getString(String key) {
     return _prefs.getString(key);
   }
@@ -20,6 +25,11 @@ class DefaultSharedPreferences implements Preferences {
   @override
   Future<bool> remove(String key) async {
     return await _prefs.remove(key);
+  }
+
+  @override
+  Future<void> setInt(String key, int value) async {
+    await _prefs.setInt(key, value);
   }
 
   @override
