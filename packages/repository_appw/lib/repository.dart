@@ -18,14 +18,19 @@ class AppwriteRepository extends CloudRepository {
   late Databases _databases;
   final String appwriteEndpoint = 'https://cloud.appwrite.io/v1';
   final String projectId = 'thingzee';
+  final String verificationEndpoint = 'https://verify.thingzee.net';
   Session? _session;
   DateTime? _lastSync;
   final int syncCooldown = 60;
+  bool _verified = false;
 
   AppwriteRepository._(ConnectivityService service) : super(service);
 
   @override
   bool get isMultiUser => true;
+
+  @override
+  bool get isUserVerified => _verified;
 
   @override
   bool get loggedIn =>
@@ -114,7 +119,16 @@ class AppwriteRepository extends CloudRepository {
 
     // Send the verification email
     try {
-      await _account.createVerification(url: 'https://appwrite.thingzee.net/verify');
+      await _account.createVerification(url: verificationEndpoint);
+    } on AppwriteException catch (e) {
+      Log.e('Appwrite: Failed to send verification email: [AppwriteException]', e.message);
+    }
+  }
+
+  @override
+  Future<void> sendVerificationEmail(String email) async {
+    try {
+      await _account.createVerification(url: verificationEndpoint);
     } on AppwriteException catch (e) {
       Log.e('Appwrite: Failed to send verification email: [AppwriteException]', e.message);
     }
@@ -127,6 +141,9 @@ class AppwriteRepository extends CloudRepository {
     }
 
     final timer = Log.timerStart('Appwrite: Starting sync...');
+
+    // Recheck verification status on each sync
+    await _updateVerificationStatus();
 
     final items = this.items as AppwriteItemDatabase;
     final joinedInv = this.inv as JoinedInventoryDatabase;
@@ -193,6 +210,14 @@ class AppwriteRepository extends CloudRepository {
     } else {
       Log.i('Appwrite: No session found. Log in required.');
     }
+  }
+
+  Future<void> _updateVerificationStatus() async {
+    // Users will never become unverified, so only check once
+    if (_verified) return;
+
+    final userInfo = await _account.get();
+    _verified = userInfo.emailVerification;
   }
 
   static Future<Repository> create(ConnectivityService service) async {

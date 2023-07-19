@@ -23,11 +23,13 @@ abstract class CloudRepository extends Repository {
   @override
   bool get isMultiUser => true;
   bool get isOnline => connectivity.status == ConnectivityStatus.online;
+  bool get isUserVerified;
 
   void handleConnectivityChange(ConnectivityStatus status);
   Future<void> loginUser(String email, String password);
   Future<void> logoutUser();
   Future<void> registerUser(String username, String email, String password);
+  Future<void> sendVerificationEmail(String email);
   Future<bool> sync();
 }
 
@@ -58,6 +60,9 @@ class SynchronizedRepository extends CloudRepository {
   bool get isOnline => remote.isOnline;
 
   @override
+  bool get isUserVerified => remote.isUserVerified;
+
+  @override
   bool get loggedIn => remote.loggedIn;
 
   @override
@@ -86,6 +91,11 @@ class SynchronizedRepository extends CloudRepository {
   @override
   Future<void> registerUser(String username, String email, String password) async {
     await remote.registerUser(username, email, password);
+  }
+
+  @override
+  Future<void> sendVerificationEmail(String email) async {
+    await remote.sendVerificationEmail(email);
   }
 
   @override
