@@ -26,7 +26,7 @@ class RegisterStateNotifier extends StateNotifier<RegisterState> {
 
   bool get passwordsMatch => state.password == state.confirmPassword;
 
-  Future<void> register(WidgetRef ref) async {
+  Future<bool> register(WidgetRef ref) async {
     final userProfile = ref.read(userProfileProvider.notifier);
     final userSession = ref.read(userSessionProvider.notifier);
 
@@ -39,12 +39,14 @@ class RegisterStateNotifier extends StateNotifier<RegisterState> {
           password: state.password,
           confirmPassword: state.confirmPassword,
           errorText: e.toString());
-      return;
+      return false;
     }
 
     if (ref.read(userSessionProvider).isAuthenticated) {
       userProfile.email = state.email;
     }
+
+    return true;
   }
 
   void setConfirmPassword(String value) {

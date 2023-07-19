@@ -163,10 +163,34 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                           Log.d('Username: ${registerState.username}');
                           Log.d('Password: ${registerState.password}');
 
-                          await ref.read(registerStateProvider.notifier).register(ref);
+                          final scaffoldMessenger = ScaffoldMessenger.of(context);
+                          bool success =
+                              await ref.read(registerStateProvider.notifier).register(ref);
+
+                          // Registration was successful
+                          if (success && context.mounted) {
+                            Navigator.pop(context);
+                            scaffoldMessenger.showSnackBar(
+                              const SnackBar(
+                                content: Text('Registration successful.'),
+                                duration: Duration(seconds: 1),
+                              ),
+                            );
+                          }
                         }
                       },
                     ),
+                    Visibility(
+                        visible: registerState.errorText.isNotEmpty,
+                        child: Column(
+                          children: [
+                            Text(
+                              registerState.errorText,
+                              style: const TextStyle(color: Colors.red),
+                            ),
+                            const SizedBox(height: 20),
+                          ],
+                        )),
                     TextButton(
                       onPressed: () {
                         Navigator.pushReplacement(context, NoAnimationRoute(child: LoginPage()));
