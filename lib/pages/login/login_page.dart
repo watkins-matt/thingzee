@@ -10,6 +10,8 @@ class LoginPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final loginState = ref.watch(loginStateProvider);
+
     return Scaffold(
       backgroundColor: Colors.blue,
       body: AutofillGroup(
@@ -122,6 +124,17 @@ class LoginPage extends ConsumerWidget {
                           }
                         },
                       ),
+                      Visibility(
+                          visible: loginState.errorMessage.isNotEmpty,
+                          child: Column(
+                            children: [
+                              const SizedBox(height: 20),
+                              Text(
+                                loginState.errorMessage,
+                                style: const TextStyle(color: Colors.red),
+                              ),
+                            ],
+                          )),
                       const SizedBox(height: 20),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,

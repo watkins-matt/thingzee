@@ -181,11 +181,11 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                       },
                     ),
                     Visibility(
-                        visible: registerState.errorText.isNotEmpty,
+                        visible: registerState.errorMessage.isNotEmpty,
                         child: Column(
                           children: [
                             Text(
-                              registerState.errorText,
+                              registerState.errorMessage,
                               style: const TextStyle(color: Colors.red),
                             ),
                             const SizedBox(height: 20),

@@ -12,10 +12,10 @@ final loginStateProvider = StateNotifierProvider<LoginStateNotifier, LoginState>
 class LoginState {
   String email = '';
   String password = '';
-  String loginError = '';
+  String errorMessage = '';
   bool loading = false;
 
-  LoginState({this.email = '', this.password = '', this.loginError = '', this.loading = false});
+  LoginState({this.email = '', this.password = '', this.errorMessage = '', this.loading = false});
 }
 
 class LoginStateNotifier extends StateNotifier<LoginState> {
@@ -25,28 +25,29 @@ class LoginStateNotifier extends StateNotifier<LoginState> {
     final userSession = ref.read(userSessionProvider.notifier);
     final sessionState = ref.read(userSessionProvider);
 
-    state = LoginState(email: state.email, password: state.password, loginError: '', loading: true);
+    state =
+        LoginState(email: state.email, password: state.password, errorMessage: '', loading: true);
 
     try {
       await userSession.login(state.email, state.password);
     } catch (e) {
       state = LoginState(
-          email: state.email, password: state.password, loginError: e.toString(), loading: false);
+          email: state.email, password: state.password, errorMessage: e.toString(), loading: false);
       return false;
     }
 
     if (sessionState.isAuthenticated) {
       final userProfile = ref.read(userProfileProvider.notifier);
       userProfile.email = state.email;
-      state =
-          LoginState(email: state.email, password: state.password, loginError: '', loading: false);
+      state = LoginState(
+          email: state.email, password: state.password, errorMessage: '', loading: false);
       return true;
     }
 
     state = LoginState(
         email: state.email,
         password: state.password,
-        loginError: 'Unable to login. Username or password is incorrect or does not exist.',
+        errorMessage: 'Unable to login. Username or password is incorrect or does not exist.',
         loading: false);
     return false;
   }
@@ -55,12 +56,15 @@ class LoginStateNotifier extends StateNotifier<LoginState> {
     state = LoginState(
         email: value,
         password: state.password,
-        loginError: state.loginError,
+        errorMessage: state.errorMessage,
         loading: state.loading);
   }
 
   void setPassword(String value) {
     state = LoginState(
-        email: state.email, password: value, loginError: state.loginError, loading: state.loading);
+        email: state.email,
+        password: value,
+        errorMessage: state.errorMessage,
+        loading: state.loading);
   }
 }

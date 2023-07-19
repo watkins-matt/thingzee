@@ -11,14 +11,14 @@ class RegisterState {
   String username = '';
   String password = '';
   String confirmPassword = '';
-  String errorText = '';
+  String errorMessage = '';
 
   RegisterState(
       {this.email = '',
       this.username = '',
       this.password = '',
       this.confirmPassword = '',
-      this.errorText = ''});
+      this.errorMessage = ''});
 }
 
 class RegisterStateNotifier extends StateNotifier<RegisterState> {
@@ -38,7 +38,7 @@ class RegisterStateNotifier extends StateNotifier<RegisterState> {
           username: state.username,
           password: state.password,
           confirmPassword: state.confirmPassword,
-          errorText: e.toString());
+          errorMessage: e.toString());
       return false;
     }
 
@@ -55,7 +55,7 @@ class RegisterStateNotifier extends StateNotifier<RegisterState> {
         username: state.username,
         password: state.password,
         confirmPassword: value,
-        errorText: state.errorText);
+        errorMessage: state.errorMessage);
   }
 
   void setEmail(String value) {
@@ -64,7 +64,7 @@ class RegisterStateNotifier extends StateNotifier<RegisterState> {
         username: state.username,
         password: state.password,
         confirmPassword: state.confirmPassword,
-        errorText: state.errorText);
+        errorMessage: state.errorMessage);
   }
 
   void setPassword(String value) {
@@ -73,7 +73,7 @@ class RegisterStateNotifier extends StateNotifier<RegisterState> {
         username: state.username,
         password: value,
         confirmPassword: state.confirmPassword,
-        errorText: state.errorText);
+        errorMessage: state.errorMessage);
   }
 
   void setUsername(String value) {
