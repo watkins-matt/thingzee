@@ -35,9 +35,10 @@ class VerifyAccountDialog extends StatelessWidget {
     );
   }
 
-  static Future<bool> show(BuildContext context) async {
-    final result =
-        await showDialog<bool>(context: context, builder: (context) => const VerifyAccountDialog());
+  static Future<bool> show(BuildContext context, [void Function()? function]) async {
+    final result = await showDialog<bool>(
+        context: context,
+        builder: (context) => VerifyAccountDialog(onResendEmailPressed: function));
     return result ?? false;
   }
 }

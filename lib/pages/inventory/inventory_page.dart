@@ -10,6 +10,8 @@ import 'package:thingzee/pages/inventory/state/inventory_view.dart';
 import 'package:thingzee/pages/inventory/widget/inventory_view_widget.dart';
 import 'package:thingzee/pages/inventory/widget/user_profile_button.dart';
 import 'package:thingzee/pages/login/login_page.dart';
+import 'package:thingzee/pages/login/state/user_profile.dart';
+import 'package:thingzee/pages/login/widget/verify_account_dialog.dart';
 import 'package:thingzee/pages/settings/settings_page.dart';
 
 class FilterButton extends ConsumerWidget {
@@ -85,7 +87,7 @@ class _InventoryPageState extends ConsumerState<InventoryPage> {
             onSelected: (String value) async {
               final repo = ref.watch(repositoryProvider);
 
-              if (value == 'Login/Register') {
+              if (value == 'Login or Register') {
                 await LoginPage.push(context);
               } else if (value == 'Logout') {
                 if (repo.isMultiUser && repo is CloudRepository) {
@@ -100,14 +102,30 @@ class _InventoryPageState extends ConsumerState<InventoryPage> {
                 }
               } else if (value == 'Settings') {
                 await SettingsPage.push(context);
+              } else if (value == 'Verify Your Account') {
+                await VerifyAccountDialog.show(context, () async {
+                  if (repo.isMultiUser && repo is CloudRepository) {
+                    final userProfile = ref.read(userProfileProvider.notifier);
+                    CloudRepository repository = repo;
+                    await repository.sendVerificationEmail(userProfile.email);
+                  }
+                });
               }
             },
             itemBuilder: (BuildContext context) {
               final repo = ref.watch(repositoryProvider);
               final loggedIn = repo.loggedIn;
+              final verified = repo.isUserVerified;
 
-              return {'Manually Add Item', loggedIn ? 'Logout' : 'Login/Register', 'Settings'}
-                  .map((String choice) {
+              return {
+                'Manually Add Item',
+                loggedIn & verified
+                    ? 'Logout'
+                    : !verified
+                        ? 'Verify Your Account'
+                        : 'Login or Register',
+                'Settings'
+              }.map((String choice) {
                 return PopupMenuItem<String>(
                   value: choice,
                   child: Text(choice),
