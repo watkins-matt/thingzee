@@ -23,7 +23,6 @@ abstract class CloudRepository extends Repository {
   @override
   bool get isMultiUser => true;
   bool get isOnline => connectivity.status == ConnectivityStatus.online;
-  bool get isUserVerified;
 
   void handleConnectivityChange(ConnectivityStatus status);
   Future<bool> loginUser(String email, String password);
@@ -41,6 +40,7 @@ abstract class Repository {
   late Preferences prefs;
   late Preferences securePrefs;
   bool get isMultiUser => false;
+  bool get isUserVerified => false;
   bool get loggedIn => false;
 }
 
