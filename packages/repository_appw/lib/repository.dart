@@ -34,7 +34,7 @@ class AppwriteRepository extends CloudRepository {
 
   @override
   bool get loggedIn =>
-      _session != null && DateTime.now().isBefore(DateTime.parse(_session!.expire));
+      _verified && _session != null && DateTime.now().isBefore(DateTime.parse(_session!.expire));
 
   @override
   void handleConnectivityChange(ConnectivityStatus status) {
