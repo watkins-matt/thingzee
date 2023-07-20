@@ -76,7 +76,7 @@ class AppwriteRepository extends CloudRepository {
 
         await prefs.setString('appwrite_session_id', _session!.$id);
         await prefs.setString('appwrite_session_expire', _session!.expire);
-        await sync();
+        await sync(ignoreCooldown: true);
       }
     } catch (e, st) {
       Log.w('Appwrite: Failed to login user:', e, st);
@@ -142,8 +142,16 @@ class AppwriteRepository extends CloudRepository {
   }
 
   @override
-  Future<bool> sync() async {
+  Future<bool> sync({bool ignoreCooldown = false}) async {
     if (!ready || !loggedIn || connectivity.status != ConnectivityStatus.online) {
+      return false;
+    }
+
+    // Don't sync if we are within the cooldown period
+    if (!ignoreCooldown &&
+        _lastSync != null &&
+        DateTime.now().difference(_lastSync!).inSeconds < syncCooldown) {
+      Log.i('Appwrite: Cooldown period, skipping sync.');
       return false;
     }
 
@@ -162,6 +170,7 @@ class AppwriteRepository extends CloudRepository {
     await hist.handleConnectionChange(true, _session);
 
     Log.timerEnd(timer, 'Appwrite: Sync completed in \$seconds seconds.');
+    _lastSync = DateTime.now();
 
     return true;
   }
@@ -205,7 +214,7 @@ class AppwriteRepository extends CloudRepository {
       if (DateTime.now().isBefore(expireDate)) {
         Log.i('Appwrite: Session found, loading...');
         _session = await _account.getSession(sessionId: sessionId);
-        await sync();
+        await sync(ignoreCooldown: true);
       }
 
       // Just remove the preferences if the session is expired
