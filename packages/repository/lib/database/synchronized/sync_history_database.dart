@@ -10,13 +10,7 @@ class SynchronizedHistoryDatabase extends HistoryDatabase {
   final String lastSyncKey = 'SynchronizedHistoryDatabase.lastSync';
   DateTime? lastSync;
 
-  SynchronizedHistoryDatabase(this.local, this.remote, this.prefs) {
-    int? lastSyncMillis = prefs.getInt(lastSyncKey);
-    if (lastSyncMillis != null) {
-      lastSync = DateTime.fromMillisecondsSinceEpoch(lastSyncMillis);
-    }
-    syncDifferences();
-  }
+  SynchronizedHistoryDatabase(this.local, this.remote, this.prefs);
 
   @override
   List<History> all() {
@@ -52,10 +46,22 @@ class SynchronizedHistoryDatabase extends HistoryDatabase {
   }
 
   void syncDifferences() {
-    final since = lastSync ?? DateTime.fromMillisecondsSinceEpoch(0);
+    // Fetch the last sync time
+    int? lastSyncMillis = prefs.getInt(lastSyncKey);
+    if (lastSyncMillis != null) {
+      lastSync = DateTime.fromMillisecondsSinceEpoch(lastSyncMillis);
+    }
 
-    final remoteChanges = remote.getChanges(since);
-    final localChanges = local.getChanges(since);
+    if (lastSync == null) {
+      Log.d('HistoryDatabase: No last sync time found, synchronizing everything.');
+      synchronize();
+      return;
+    }
+
+    Log.d('HistoryDatabase: Synchronizing differences...');
+
+    final remoteChanges = remote.getChanges(lastSync!);
+    final localChanges = local.getChanges(lastSync!);
 
     final remoteMap = {for (var history in remoteChanges) history.upc: history};
     final localMap = {for (var history in localChanges) history.upc: history};

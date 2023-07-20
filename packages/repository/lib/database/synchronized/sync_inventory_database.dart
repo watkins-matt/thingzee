@@ -10,14 +10,7 @@ class SynchronizedInventoryDatabase extends InventoryDatabase {
   final String lastSyncKey = 'SynchronizedInventoryDatabase.lastSync';
   DateTime? lastSync;
 
-  SynchronizedInventoryDatabase(this.local, this.remote, this.prefs) {
-    int? lastSyncMillis = prefs.getInt(lastSyncKey);
-    if (lastSyncMillis != null) {
-      lastSync = DateTime.fromMillisecondsSinceEpoch(lastSyncMillis);
-    }
-
-    syncDifferences();
-  }
+  SynchronizedInventoryDatabase(this.local, this.remote, this.prefs);
 
   @override
   List<Inventory> all() {
@@ -68,10 +61,21 @@ class SynchronizedInventoryDatabase extends InventoryDatabase {
   }
 
   void syncDifferences() {
-    final since = lastSync ?? DateTime.fromMillisecondsSinceEpoch(0);
+    int? lastSyncMillis = prefs.getInt(lastSyncKey);
+    if (lastSyncMillis != null) {
+      lastSync = DateTime.fromMillisecondsSinceEpoch(lastSyncMillis);
+    }
 
-    final remoteChanges = remote.getChanges(since);
-    final localChanges = local.getChanges(since);
+    if (lastSync == null) {
+      Log.d('InventoryDatabase: No last sync time found, synchronizing everything.');
+      synchronize();
+      return;
+    }
+
+    Log.d('InventoryDatabase: Synchronizing differences...');
+
+    final remoteChanges = remote.getChanges(lastSync!);
+    final localChanges = local.getChanges(lastSync!);
 
     final remoteMap = {for (var inventory in remoteChanges) inventory.upc: inventory};
     final localMap = {for (var inventory in localChanges) inventory.upc: inventory};

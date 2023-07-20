@@ -11,14 +11,7 @@ class SynchronizedItemDatabase extends ItemDatabase {
   final String lastSyncKey = 'SynchronizedItemDatabase.lastSync';
   DateTime? lastSync;
 
-  SynchronizedItemDatabase(this.local, this.remote, this.prefs) {
-    int? lastSyncMillis = prefs.getInt(lastSyncKey);
-    if (lastSyncMillis != null) {
-      lastSync = DateTime.fromMillisecondsSinceEpoch(lastSyncMillis);
-    }
-
-    syncDifferences();
-  }
+  SynchronizedItemDatabase(this.local, this.remote, this.prefs);
 
   @override
   List<Item> all() {
@@ -74,11 +67,21 @@ class SynchronizedItemDatabase extends ItemDatabase {
   }
 
   void syncDifferences() {
-    Log.d('Looking for item differences...');
-    final since = lastSync ?? DateTime.fromMillisecondsSinceEpoch(0);
+    int? lastSyncMillis = prefs.getInt(lastSyncKey);
+    if (lastSyncMillis != null) {
+      lastSync = DateTime.fromMillisecondsSinceEpoch(lastSyncMillis);
+    }
 
-    final remoteChanges = remote.getChanges(since);
-    final localChanges = local.getChanges(since);
+    if (lastSync == null) {
+      Log.d('ItemDatabase: No last sync time found, synchronizing everything.');
+      synchronize();
+      return;
+    }
+
+    Log.d('ItemDatabase: Synchronizing differences...');
+
+    final remoteChanges = remote.getChanges(lastSync!);
+    final localChanges = local.getChanges(lastSync!);
 
     final remoteMap = {for (var item in remoteChanges) item.upc: item};
     final localMap = {for (var item in localChanges) item.upc: item};
