@@ -24,16 +24,17 @@ class LoginStateNotifier extends StateNotifier<LoginState> {
   Future<bool> login(WidgetRef ref) async {
     final userSession = ref.read(userSessionProvider.notifier);
     final sessionState = ref.read(userSessionProvider);
+    bool loggedIn = false;
 
     state =
         LoginState(email: state.email, password: state.password, errorMessage: '', loading: true);
 
     try {
-      await userSession.login(state.email, state.password);
+      loggedIn = await userSession.login(state.email, state.password);
     } catch (e) {
       state = LoginState(
           email: state.email, password: state.password, errorMessage: e.toString(), loading: false);
-      return false;
+      return loggedIn;
     }
 
     if (sessionState.isAuthenticated) {
@@ -41,15 +42,15 @@ class LoginStateNotifier extends StateNotifier<LoginState> {
       userProfile.email = state.email;
       state = LoginState(
           email: state.email, password: state.password, errorMessage: '', loading: false);
-      return true;
+      return loggedIn;
     }
 
     state = LoginState(
         email: state.email,
         password: state.password,
-        errorMessage: 'Unable to login. Username or password is incorrect or does not exist.',
+        errorMessage: 'Unable to login. Your email or password may be incorrect.',
         loading: false);
-    return false;
+    return loggedIn;
   }
 
   void setEmail(String value) {

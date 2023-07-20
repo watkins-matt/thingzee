@@ -26,9 +26,9 @@ abstract class CloudRepository extends Repository {
   bool get isUserVerified;
 
   void handleConnectivityChange(ConnectivityStatus status);
-  Future<void> loginUser(String email, String password);
+  Future<bool> loginUser(String email, String password);
   Future<void> logoutUser();
-  Future<void> registerUser(String username, String email, String password);
+  Future<bool> registerUser(String username, String email, String password);
   Future<void> sendVerificationEmail(String email);
   Future<bool> sync();
 }
@@ -79,8 +79,8 @@ class SynchronizedRepository extends CloudRepository {
   }
 
   @override
-  Future<void> loginUser(String email, String password) async {
-    await remote.loginUser(email, password);
+  Future<bool> loginUser(String email, String password) async {
+    return await remote.loginUser(email, password);
   }
 
   @override
@@ -89,8 +89,8 @@ class SynchronizedRepository extends CloudRepository {
   }
 
   @override
-  Future<void> registerUser(String username, String email, String password) async {
-    await remote.registerUser(username, email, password);
+  Future<bool> registerUser(String username, String email, String password) async {
+    return await remote.registerUser(username, email, password);
   }
 
   @override
@@ -101,7 +101,7 @@ class SynchronizedRepository extends CloudRepository {
   @override
   Future<bool> sync() async {
     if (!remote.loggedIn) {
-      Log.w('SynchronizedRepository: not logged in, cannot sync.');
+      Log.w('SynchronizedRepository: not logged in, cannot sync. Working offline.');
       return false;
     }
 
@@ -151,6 +151,7 @@ class SynchronizedRepository extends CloudRepository {
   static Future<Repository> create(Repository local, CloudRepository remote) async {
     final repo = SynchronizedRepository._(local, remote);
     await repo._init();
+    await repo.sync();
     return repo;
   }
 }

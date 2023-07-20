@@ -29,9 +29,10 @@ class RegisterStateNotifier extends StateNotifier<RegisterState> {
   Future<bool> register(WidgetRef ref) async {
     final userProfile = ref.read(userProfileProvider.notifier);
     final userSession = ref.read(userSessionProvider.notifier);
+    bool registerSuccess = false;
 
     try {
-      await userSession.register(state.username, state.email, state.password);
+      registerSuccess = await userSession.register(state.username, state.email, state.password);
     } catch (e) {
       state = RegisterState(
           email: state.email,
@@ -39,14 +40,14 @@ class RegisterStateNotifier extends StateNotifier<RegisterState> {
           password: state.password,
           confirmPassword: state.confirmPassword,
           errorMessage: e.toString());
-      return false;
+      return registerSuccess;
     }
 
-    if (ref.read(userSessionProvider).isAuthenticated) {
+    if (registerSuccess && ref.read(userSessionProvider).isAuthenticated) {
       userProfile.email = state.email;
     }
 
-    return true;
+    return registerSuccess;
   }
 
   void setConfirmPassword(String value) {

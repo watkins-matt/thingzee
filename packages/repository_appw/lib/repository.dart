@@ -66,7 +66,7 @@ class AppwriteRepository extends CloudRepository {
   }
 
   @override
-  Future<void> loginUser(String email, String password) async {
+  Future<bool> loginUser(String email, String password) async {
     try {
       await _loadSession();
 
@@ -80,7 +80,10 @@ class AppwriteRepository extends CloudRepository {
       }
     } catch (e, st) {
       Log.w('Appwrite: Failed to login user:', e, st);
+      return false;
     }
+
+    return true;
   }
 
   @override
@@ -106,12 +109,13 @@ class AppwriteRepository extends CloudRepository {
   }
 
   @override
-  Future<void> registerUser(String username, String email, String password) async {
+  Future<bool> registerUser(String username, String email, String password) async {
     // Try to create the user
     try {
       await _account.create(userId: username, email: email, password: password);
     } on AppwriteException catch (e) {
       Log.e('Appwrite: Failed to register user: [AppwriteException]', e.message);
+      return false;
     }
 
     // Should login immediately after registering
@@ -123,6 +127,8 @@ class AppwriteRepository extends CloudRepository {
     } on AppwriteException catch (e) {
       Log.e('Appwrite: Failed to send verification email: [AppwriteException]', e.message);
     }
+
+    return true;
   }
 
   @override

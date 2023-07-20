@@ -34,23 +34,35 @@ class UserSession extends StateNotifier<SessionState> {
   UserSession(this._repo) : super(SessionState.initial());
 
   Future<bool> login(String email, String password) async {
-    if (!_repo.isMultiUser || _repo is! CloudRepository) {
+    if (!_repo.isMultiUser || _repo is! CloudRepository || _repo is! SynchronizedRepository) {
       Log.w('Login not supported for this repository.');
       return false;
     }
 
-    final repo = _repo as CloudRepository;
-
-    try {
-      state = SessionState.loading();
-      await repo.loginUser(email, password);
-      state = SessionState.authenticated();
-    } catch (e) {
-      state = SessionState.error(e.toString());
+    CloudRepository repo;
+    if (_repo is SynchronizedRepository) {
+      repo = (_repo as SynchronizedRepository).remote;
+    } else if (_repo is CloudRepository) {
+      repo = _repo as CloudRepository;
+    } else {
+      Log.w('Login not supported for this repository.');
       return false;
     }
 
-    return true;
+    bool loginSuccess = false;
+
+    try {
+      state = SessionState.loading();
+      loginSuccess = await repo.loginUser(email, password);
+      if (loginSuccess) {
+        state = SessionState.authenticated();
+      }
+    } catch (e) {
+      state = SessionState.error(e.toString());
+      return loginSuccess;
+    }
+
+    return loginSuccess;
   }
 
   Future<void> logout() async {
@@ -60,22 +72,31 @@ class UserSession extends StateNotifier<SessionState> {
   }
 
   Future<bool> register(String username, String email, String password) async {
-    if (!_repo.isMultiUser || _repo is! CloudRepository) {
+    if (!_repo.isMultiUser || _repo is! CloudRepository || _repo is! SynchronizedRepository) {
       Log.w('Registration not supported for this repository.');
       return false;
     }
 
-    final repo = _repo as CloudRepository;
+    CloudRepository repo;
+    if (_repo is SynchronizedRepository) {
+      repo = (_repo as SynchronizedRepository).remote;
+    } else if (_repo is CloudRepository) {
+      repo = _repo as CloudRepository;
+    } else {
+      Log.w('Registration not supported for this repository.');
+      return false;
+    }
+    bool registerSuccess = false;
 
     try {
       state = SessionState.loading();
-      await repo.registerUser(username, email, password);
+      registerSuccess = await repo.registerUser(username, email, password);
       state = SessionState.authenticated();
     } catch (e) {
       state = SessionState.error(e.toString());
-      return false;
+      return registerSuccess;
     }
 
-    return true;
+    return registerSuccess;
   }
 }
