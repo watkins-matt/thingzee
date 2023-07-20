@@ -160,6 +160,7 @@ class LoginPage extends ConsumerWidget {
                               onPressed: () {
                                 Navigator.pushReplacement(
                                     context, NoAnimationRoute(child: const RegisterPage()));
+                                ref.read(loginStateProvider.notifier).clearErrorMessage();
                               },
                               child: const Text(
                                 'Register',

@@ -207,6 +207,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                       TextButton(
                         onPressed: () {
                           Navigator.pushReplacement(context, NoAnimationRoute(child: LoginPage()));
+                          ref.read(registerStateProvider.notifier).clearErrorMessage();
                         },
                         child: const Text(
                           'Already registered? Login instead.',
