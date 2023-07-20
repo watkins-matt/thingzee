@@ -115,7 +115,7 @@ class AppwriteRepository extends CloudRepository {
       await _account.create(userId: username, email: email, password: password);
     } on AppwriteException catch (e) {
       Log.e('Appwrite: Failed to register user: [AppwriteException]', e.message);
-      return false;
+      rethrow; // Rethrow the exception so the UI can handle showing the error
     }
 
     // Should login immediately after registering
@@ -126,6 +126,7 @@ class AppwriteRepository extends CloudRepository {
       await _account.createVerification(url: verificationEndpoint);
     } on AppwriteException catch (e) {
       Log.e('Appwrite: Failed to send verification email: [AppwriteException]', e.message);
+      rethrow; // Rethrow the exception so the UI can handle showing the error
     }
 
     return true;

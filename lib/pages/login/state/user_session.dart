@@ -91,9 +91,12 @@ class UserSession extends StateNotifier<SessionState> {
     try {
       state = SessionState.loading();
       registerSuccess = await repo.registerUser(username, email, password);
-      state = SessionState.authenticated();
+
+      if (registerSuccess) {
+        state = SessionState.authenticated();
+      }
     } catch (e) {
-      state = SessionState.error(e.toString());
+      state = SessionState.error('Invalid registration data. Please try again.');
       return registerSuccess;
     }
 

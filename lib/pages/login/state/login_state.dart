@@ -21,6 +21,13 @@ class LoginState {
 class LoginStateNotifier extends StateNotifier<LoginState> {
   LoginStateNotifier() : super(LoginState());
 
+  void clearErrorMessage() {
+    if (state.errorMessage.isNotEmpty) {
+      state = LoginState(
+          email: state.email, password: state.password, errorMessage: '', loading: state.loading);
+    }
+  }
+
   Future<bool> login(WidgetRef ref) async {
     final userSession = ref.read(userSessionProvider.notifier);
     final sessionState = ref.read(userSessionProvider);

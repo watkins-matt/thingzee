@@ -26,6 +26,16 @@ class RegisterStateNotifier extends StateNotifier<RegisterState> {
 
   bool get passwordsMatch => state.password == state.confirmPassword;
 
+  void clearErrorMessage() {
+    if (state.errorMessage.isNotEmpty) {
+      state = RegisterState(
+          email: state.email,
+          username: state.username,
+          password: state.password,
+          confirmPassword: state.confirmPassword);
+    }
+  }
+
   Future<bool> register(WidgetRef ref) async {
     final userProfile = ref.read(userProfileProvider.notifier);
     final userSession = ref.read(userSessionProvider.notifier);
@@ -45,6 +55,14 @@ class RegisterStateNotifier extends StateNotifier<RegisterState> {
 
     if (registerSuccess && ref.read(userSessionProvider).isAuthenticated) {
       userProfile.email = state.email;
+    } else if (!registerSuccess) {
+      state = RegisterState(
+          email: state.email,
+          username: state.username,
+          password: state.password,
+          confirmPassword: state.confirmPassword,
+          errorMessage:
+              'Unable to register. Please make sure your email is valid and that your username only contains letters and numbers.');
     }
 
     return registerSuccess;
