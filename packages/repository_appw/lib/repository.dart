@@ -37,6 +37,16 @@ class AppwriteRepository extends CloudRepository {
       _session != null && DateTime.now().isBefore(DateTime.parse(_session!.expire));
 
   @override
+  Future<bool> checkVerificationStatus() async {
+    // Users will never become unverified, so only check once
+    if (_verified) return true;
+
+    final userInfo = await _account.get();
+    _verified = userInfo.emailVerification;
+    return _verified;
+  }
+
+  @override
   void handleConnectivityChange(ConnectivityStatus status) {
     // Don't sync anything if we haven't initialized yet
     if (!ready) {
@@ -158,7 +168,7 @@ class AppwriteRepository extends CloudRepository {
     final timer = Log.timerStart('Appwrite: Starting sync...');
 
     // Recheck verification status on each sync
-    await _updateVerificationStatus();
+    await checkVerificationStatus();
 
     final items = this.items as AppwriteItemDatabase;
     final joinedInv = this.inv as JoinedInventoryDatabase;
@@ -226,14 +236,6 @@ class AppwriteRepository extends CloudRepository {
     } else {
       Log.i('Appwrite: No session found. Log in required.');
     }
-  }
-
-  Future<void> _updateVerificationStatus() async {
-    // Users will never become unverified, so only check once
-    if (_verified) return;
-
-    final userInfo = await _account.get();
-    _verified = userInfo.emailVerification;
   }
 
   static Future<Repository> create(ConnectivityService service) async {

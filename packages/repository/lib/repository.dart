@@ -24,6 +24,7 @@ abstract class CloudRepository extends Repository {
   bool get isMultiUser => true;
   bool get isOnline => connectivity.status == ConnectivityStatus.online;
 
+  Future<bool> checkVerificationStatus();
   void handleConnectivityChange(ConnectivityStatus status);
   Future<bool> loginUser(String email, String password);
   Future<void> logoutUser();
@@ -64,6 +65,11 @@ class SynchronizedRepository extends CloudRepository {
 
   @override
   bool get loggedIn => remote.loggedIn;
+
+  @override
+  Future<bool> checkVerificationStatus() async {
+    return await remote.checkVerificationStatus();
+  }
 
   @override
   void handleConnectivityChange(ConnectivityStatus status) {
