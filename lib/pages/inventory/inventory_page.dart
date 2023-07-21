@@ -88,7 +88,7 @@ class _InventoryPageState extends ConsumerState<InventoryPage> {
               final repo = ref.watch(repositoryProvider);
 
               if (value == 'Login or Register') {
-                await LoginPage.push(context);
+                await LoginPage.push(context, ref);
               } else if (value == 'Logout') {
                 if (repo.isMultiUser && repo is CloudRepository) {
                   CloudRepository repository = repo;
@@ -103,6 +103,19 @@ class _InventoryPageState extends ConsumerState<InventoryPage> {
               } else if (value == 'Settings') {
                 await SettingsPage.push(context);
               } else if (value == 'Verify Your Account') {
+                // Do an initial check to see if we have verified
+                if (repo.isMultiUser && repo is CloudRepository) {
+                  bool verified = await repo.checkVerificationStatus();
+                  if (verified && mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                      content: Text('Thank you for verifying your account.'),
+                    ));
+                    return;
+                  }
+                }
+
+                // Show the dialog if we are still unverified
+                if (!mounted) return;
                 await VerifyAccountDialog.show(context, () async {
                   if (repo.isMultiUser && repo is CloudRepository) {
                     final userProfile = ref.read(userProfileProvider.notifier);
@@ -119,9 +132,9 @@ class _InventoryPageState extends ConsumerState<InventoryPage> {
 
               return {
                 'Manually Add Item',
-                loggedIn & verified
+                loggedIn && verified
                     ? 'Logout'
-                    : !verified
+                    : loggedIn && !verified
                         ? 'Verify Your Account'
                         : 'Login or Register',
                 'Settings'
