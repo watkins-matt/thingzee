@@ -56,7 +56,7 @@ final initializationProvider = FutureProvider<Repository>((ref) async {
   }
 
   final appwrite = await AppwriteRepository.create(connectivity) as AppwriteRepository;
-  Log.i('initializationProvider: Appwrite initialization complete.');
+  Log.i('initializationProvider: AppwriteRepository initialization complete.');
   final repo = await SynchronizedRepository.create(objectbox, appwrite);
   Log.i('initializationProvider: SynchronizedRepository initialization complete.');
 

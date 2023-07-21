@@ -57,11 +57,11 @@ class AppwriteRepository extends CloudRepository {
 
     scheduleMicrotask(() async {
       if (_lastSync != null && DateTime.now().difference(_lastSync!).inSeconds < syncCooldown) {
-        Log.i('Appwrite: Cooldown period, skipping sync.');
+        Log.i('AppwriteRepository: Cooldown period, skipping sync.');
         return;
       }
 
-      Log.i('Appwrite: Connectivity status change detected: online=$online');
+      Log.i('AppwriteRepository: Connectivity status change detected: online=$online');
       final items = this.items as AppwriteItemDatabase;
       final joinedInv = this.inv as JoinedInventoryDatabase;
       final inv = joinedInv.inventoryDatabase as AppwriteInventoryDatabase;
@@ -70,7 +70,7 @@ class AppwriteRepository extends CloudRepository {
       await items.handleConnectionChange(online, _session);
       await inv.handleConnectionChange(online, _session);
       await hist.handleConnectionChange(online, _session);
-      Log.i('Appwrite: Connectivity status handling completed.');
+      Log.i('AppwriteRepository: Connectivity status handling completed.');
       _lastSync = DateTime.now();
     });
   }
@@ -89,7 +89,7 @@ class AppwriteRepository extends CloudRepository {
         await sync(ignoreCooldown: true);
       }
     } catch (e, st) {
-      Log.w('Appwrite: Failed to login user:', e, st);
+      Log.w('AppwriteRepository: Failed to login user:', e, st);
       return false;
     }
 
@@ -114,7 +114,7 @@ class AppwriteRepository extends CloudRepository {
       await inv.handleConnectionChange(false, null);
       await hist.handleConnectionChange(false, null);
 
-      Log.i('Appwrite: Successfully logged out user.');
+      Log.i('AppwriteRepository: Successfully logged out user.');
     }
   }
 
@@ -124,7 +124,7 @@ class AppwriteRepository extends CloudRepository {
     try {
       await _account.create(userId: username, email: email, password: password);
     } on AppwriteException catch (e) {
-      Log.e('Appwrite: Failed to register user: [AppwriteException]', e.message);
+      Log.e('AppwriteRepository: Failed to register user: [AppwriteException]', e.message);
       rethrow; // Rethrow the exception so the UI can handle showing the error
     }
 
@@ -135,7 +135,8 @@ class AppwriteRepository extends CloudRepository {
     try {
       await _account.createVerification(url: verificationEndpoint);
     } on AppwriteException catch (e) {
-      Log.e('Appwrite: Failed to send verification email: [AppwriteException]', e.message);
+      Log.e(
+          'AppwriteRepository: Failed to send verification email: [AppwriteException]', e.message);
       rethrow; // Rethrow the exception so the UI can handle showing the error
     }
 
@@ -147,7 +148,8 @@ class AppwriteRepository extends CloudRepository {
     try {
       await _account.createVerification(url: verificationEndpoint);
     } on AppwriteException catch (e) {
-      Log.e('Appwrite: Failed to send verification email: [AppwriteException]', e.message);
+      Log.e(
+          'AppwriteRepository: Failed to send verification email: [AppwriteException]', e.message);
     }
   }
 
@@ -161,11 +163,11 @@ class AppwriteRepository extends CloudRepository {
     if (!ignoreCooldown &&
         _lastSync != null &&
         DateTime.now().difference(_lastSync!).inSeconds < syncCooldown) {
-      Log.i('Appwrite: Cooldown period, skipping sync.');
+      Log.i('AppwriteRepository: Cooldown period, skipping sync.');
       return false;
     }
 
-    final timer = Log.timerStart('Appwrite: Starting sync...');
+    final timer = Log.timerStart('AppwriteRepository: Starting sync...');
 
     // Recheck verification status on each sync
     await checkVerificationStatus();
@@ -179,7 +181,7 @@ class AppwriteRepository extends CloudRepository {
     await inv.handleConnectionChange(true, _session);
     await hist.handleConnectionChange(true, _session);
 
-    Log.timerEnd(timer, 'Appwrite: Sync completed in \$seconds seconds.');
+    Log.timerEnd(timer, 'AppwriteRepository: Sync completed in \$seconds seconds.');
     _lastSync = DateTime.now();
 
     return true;
@@ -204,12 +206,12 @@ class AppwriteRepository extends CloudRepository {
     final inventory = AppwriteInventoryDatabase(prefs, _databases, 'test', 'user_inventory');
     inv = JoinedInventoryDatabase(inventory, hist);
 
-    Log.timerEnd(timer, 'Appwrite: Repository initialized in \$seconds seconds.');
+    Log.timerEnd(timer, 'AppwriteRepository: initialized in \$seconds seconds.');
     ready = true;
   }
 
   Future<void> _loadSession() async {
-    Log.i('Appwrite: Checking for existing session...');
+    Log.i('AppwriteRepository: Checking for existing session...');
 
     // Don't do anything if we have a session already or we are offline
     if (_session != null || connectivity.status != ConnectivityStatus.online) {
@@ -222,9 +224,18 @@ class AppwriteRepository extends CloudRepository {
       final expireDate = DateTime.parse(expiration);
 
       if (DateTime.now().isBefore(expireDate)) {
-        Log.i('Appwrite: Session found, loading...');
-        _session = await _account.getSession(sessionId: sessionId);
-        await sync(ignoreCooldown: true);
+        Log.i('AppwriteRepository: Session found, loading...');
+        try {
+          _session = await _account.getSession(sessionId: sessionId);
+          await sync(ignoreCooldown: true);
+        } on AppwriteException catch (e) {
+          Log.e('AppwriteRepository._loadSession: Failed to load session: [AppwriteException]',
+              e.message);
+          _session = null;
+          await prefs.remove('appwrite_session_id');
+          await prefs.remove('appwrite_session_expire');
+          return;
+        }
       }
 
       // Just remove the preferences if the session is expired
