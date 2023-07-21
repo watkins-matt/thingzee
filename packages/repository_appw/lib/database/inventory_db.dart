@@ -11,6 +11,7 @@ class AppwriteInventoryDatabase extends InventoryDatabase {
   static const maxRetries = 3;
   bool _online = false;
   bool _processingQueue = false;
+  DateTime? _lastRateLimitHit;
   DateTime? lastSync;
   String lastSyncKey = 'AppwriteInventoryDatabase.lastSync';
   final _inventory = <String, Inventory>{};
@@ -214,6 +215,16 @@ class AppwriteInventoryDatabase extends InventoryDatabase {
 
     try {
       while (_taskQueue.isNotEmpty) {
+        // We hit a rate limit, pause the queue until the rate limit is over
+        if (_lastRateLimitHit != null) {
+          final difference = DateTime.now().difference(_lastRateLimitHit!);
+          if (difference < Duration(minutes: 1)) {
+            final timeToWait = Duration(minutes: 1) - difference;
+            await Future.delayed(timeToWait);
+            _lastRateLimitHit = null;
+          }
+        }
+
         _QueueTask task = _taskQueue.removeAt(0);
 
         if (task.retries >= maxRetries) {
@@ -224,7 +235,11 @@ class AppwriteInventoryDatabase extends InventoryDatabase {
         try {
           await task.operation();
         } on AppwriteException catch (e) {
-          if (e.code != 404 && e.code != 409) {
+          if (e.code == 429) {
+            Log.e('Rate limit hit. Pausing queue processing.');
+            _lastRateLimitHit = DateTime.now();
+            _taskQueue.add(task);
+          } else if (e.code != 404 && e.code != 409) {
             Log.e(
                 'Failed to execute task: [AppwriteException] ${e.message}. Retry attempt ${task.retries + 1}');
             task.retries += 1;

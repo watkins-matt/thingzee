@@ -13,14 +13,15 @@ class AppwriteItemDatabase extends ItemDatabase {
   static const maxRetries = 3;
   bool _online = false;
   bool _processingQueue = false;
+  DateTime? _lastRateLimitHit;
   DateTime? lastSync;
-  String lastSyncKey = 'AppwriteItemDatabase.lastSync';
   final _items = <String, Item>{};
   final _taskQueue = <_QueueTask>[];
   final Databases _database;
   final Preferences prefs;
   final String collectionId;
   final String databaseId;
+  String lastSyncKey = 'AppwriteItemDatabase.lastSync';
   String userId = '';
 
   AppwriteItemDatabase(
@@ -246,6 +247,16 @@ class AppwriteItemDatabase extends ItemDatabase {
 
     try {
       while (_taskQueue.isNotEmpty) {
+        // We hit a rate limit, pause the queue until the rate limit is over
+        if (_lastRateLimitHit != null) {
+          final difference = DateTime.now().difference(_lastRateLimitHit!);
+          if (difference < Duration(minutes: 1)) {
+            final timeToWait = Duration(minutes: 1) - difference;
+            await Future.delayed(timeToWait);
+            _lastRateLimitHit = null;
+          }
+        }
+
         _QueueTask task = _taskQueue.removeAt(0);
 
         if (task.retries >= maxRetries) {
@@ -256,7 +267,12 @@ class AppwriteItemDatabase extends ItemDatabase {
         try {
           await task.operation();
         } on AppwriteException catch (e) {
-          if (e.code != 404 && e.code != 409) {
+          // Pause queue processing if we hit a rate limit
+          if (e.code == 429) {
+            Log.e('Rate limit hit. Pausing queue processing.');
+            _lastRateLimitHit = DateTime.now();
+            _taskQueue.add(task);
+          } else if (e.code != 404 && e.code != 409) {
             Log.e(
                 'Failed to execute task: [AppwriteException] ${e.message}. Retry attempt ${task.retries + 1}');
             task.retries += 1;
