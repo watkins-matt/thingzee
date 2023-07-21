@@ -118,6 +118,14 @@ class SynchronizedItemDatabase extends ItemDatabase {
       }
     }
 
+    // If the databases are out of sync, perform a full synchronization
+    if (local.all().length != remote.all().length) {
+      Log.w(
+          'ItemDatabase: Local and remote databases are out of sync, performing full synchronization.');
+      synchronize();
+      return;
+    }
+
     if (changes > 0) {
       Log.d('ItemDatabase: Synchronized $changes items.');
     } else {
@@ -125,7 +133,6 @@ class SynchronizedItemDatabase extends ItemDatabase {
     }
 
     _updateSyncTime();
-    assert(local.all().length == remote.all().length);
   }
 
   void synchronize() {
