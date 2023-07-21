@@ -110,20 +110,20 @@ class AppwriteItemDatabase extends ItemDatabase {
             databaseId: databaseId,
             collectionId: collectionId,
             documentId: uniqueDocumentId(item.upc),
-            data: item.toJson()..['user_id'] = userId);
+            data: serializeItem(item));
       } on AppwriteException catch (e) {
         if (e.code == 404) {
           await _database.createDocument(
               databaseId: databaseId,
               collectionId: collectionId,
               documentId: uniqueDocumentId(item.upc),
-              data: item.toJson()..['user_id'] = userId);
+              data: serializeItem(item));
         } else if (e.code == 409) {
           await _database.updateDocument(
               databaseId: databaseId,
               collectionId: collectionId,
               documentId: uniqueDocumentId(item.upc),
-              data: item.toJson()..['user_id'] = userId);
+              data: serializeItem(item));
         } else {
           Log.e('Failed to put item: [AppwriteException]', e.message);
           // Removing the inventory from local cache since we
@@ -143,6 +143,12 @@ class AppwriteItemDatabase extends ItemDatabase {
   @override
   List<Item> search(String string) {
     return _items.values.where((item) => item.name.contains(string)).toList();
+  }
+
+  Map<String, dynamic> serializeItem(Item item) {
+    var json = item.toJson();
+    json['userId'] = userId;
+    return json;
   }
 
   Future<void> sync() async {
