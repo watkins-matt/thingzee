@@ -11,7 +11,7 @@ class ObjectBoxProduct {
   late String category;
   List<String> upcs = [];
   @Id()
-  int id = 0;
+  int objectBoxId = 0;
   ObjectBoxProduct();
   ObjectBoxProduct.from(Product original) {
     name = original.name;

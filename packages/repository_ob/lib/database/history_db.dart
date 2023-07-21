@@ -24,7 +24,7 @@ class ObjectBoxHistoryDatabase extends HistoryDatabase {
     query.close();
 
     if (result != null) {
-      box.remove(result.id);
+      box.remove(result.objectBoxId);
     }
   }
 
@@ -73,8 +73,8 @@ class ObjectBoxHistoryDatabase extends HistoryDatabase {
 
     // If history exists, update the ID to match the existing history
     // before we replace it
-    if (exists != null && historyOb.id != exists.id) {
-      historyOb.id = exists.id;
+    if (exists != null && historyOb.objectBoxId != exists.objectBoxId) {
+      historyOb.objectBoxId = exists.objectBoxId;
     }
 
     assert(historyOb.upc.isNotEmpty && historyOb.history.upc.isNotEmpty);

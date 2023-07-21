@@ -9,7 +9,7 @@ class HiveItem extends HiveObject {
   @HiveField(0)
   late String upc;
   @HiveField(1)
-  late String iuid;
+  late String id;
   @HiveField(2)
   late String name;
   @HiveField(3)
@@ -35,7 +35,7 @@ class HiveItem extends HiveObject {
   HiveItem();
   HiveItem.from(Item original) {
     upc = original.upc;
-    iuid = original.iuid;
+    id = original.id;
     name = original.name;
     variety = original.variety;
     category = original.category;
@@ -51,7 +51,7 @@ class HiveItem extends HiveObject {
   Item toItem() {
     return Item()
       ..upc = upc
-      ..iuid = iuid
+      ..id = id
       ..name = name
       ..variety = variety
       ..category = category

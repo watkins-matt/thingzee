@@ -18,7 +18,7 @@ class ObjectBoxInventory {
   late String iuid;
   late double units;
   @Id()
-  int id = 0;
+  int objectBoxId = 0;
   ObjectBoxInventory();
   ObjectBoxInventory.from(Inventory original) {
     amount = original.amount;
@@ -83,7 +83,7 @@ set dbExpirationDates(List<String> dates) {
 @Entity()
 class ObjectBoxNullableDateTimeSerializer {
   @Id()
-  int id = 0;
+  int objectBoxId = 0;
   ObjectBoxNullableDateTimeSerializer();
   ObjectBoxNullableDateTimeSerializer.from();
   NullableDateTimeSerializer toNullableDateTimeSerializer() {

@@ -18,7 +18,7 @@ class HiveItemAdapter extends TypeAdapter<HiveItem> {
     };
     return HiveItem()
       ..upc = fields[0] as String
-      ..iuid = fields[1] as String
+      ..id = fields[1] as String
       ..name = fields[2] as String
       ..variety = fields[3] as String
       ..category = fields[4] as String
@@ -39,7 +39,7 @@ class HiveItemAdapter extends TypeAdapter<HiveItem> {
       ..writeByte(0)
       ..write(obj.upc)
       ..writeByte(1)
-      ..write(obj.iuid)
+      ..write(obj.id)
       ..writeByte(2)
       ..write(obj.name)
       ..writeByte(3)

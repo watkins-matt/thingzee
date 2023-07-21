@@ -11,17 +11,13 @@ class ObjectBoxHistory {
   String upc = '';
 
   @Id()
-  int id = 0;
+  int objectBoxId = 0;
 
   ObjectBoxHistory();
   ObjectBoxHistory.from(History original) {
     history = original;
     upc = original.upc;
   }
-  History toHistory() {
-    return history;
-  }
-
   String get dbHistory {
     return jsonEncode(history.toJson());
   }
@@ -29,5 +25,9 @@ class ObjectBoxHistory {
   set dbHistory(String value) {
     Map<String, dynamic> json = jsonDecode(value) as Map<String, dynamic>;
     history = History.fromJson(json).trim();
+  }
+
+  History toHistory() {
+    return history;
   }
 }

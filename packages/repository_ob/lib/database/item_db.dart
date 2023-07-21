@@ -24,7 +24,7 @@ class ObjectBoxItemDatabase extends ItemDatabase {
     query.close();
 
     if (result != null) {
-      box.remove(result.id);
+      box.remove(result.objectBoxId);
     }
   }
 
@@ -91,8 +91,8 @@ class ObjectBoxItemDatabase extends ItemDatabase {
     final exists = query.findFirst();
     query.close();
 
-    if (exists != null && itemOb.id != exists.id) {
-      itemOb.id = exists.id;
+    if (exists != null && itemOb.objectBoxId != exists.objectBoxId) {
+      itemOb.objectBoxId = exists.objectBoxId;
     }
 
     box.put(itemOb);

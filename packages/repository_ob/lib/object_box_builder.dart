@@ -113,7 +113,7 @@ class ObjectBoxBuilder implements Builder {
     }
 
     buffer.writeln('  @Id()');
-    buffer.writeln('  int id = 0;');
+    buffer.writeln('  int objectBoxId = 0;');
 
     // Write an unnamed constructor
     buffer.writeln('  ObjectBox${originalClass.name}();');

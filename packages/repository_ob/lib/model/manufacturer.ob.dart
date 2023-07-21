@@ -10,7 +10,7 @@ class ObjectBoxManufacturer {
   late String parentName;
   late String parentMuid;
   @Id()
-  int id = 0;
+  int objectBoxId = 0;
   ObjectBoxManufacturer();
   ObjectBoxManufacturer.from(Manufacturer original) {
     name = original.name;

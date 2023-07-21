@@ -24,7 +24,7 @@ class ObjectBoxInventoryDatabase extends InventoryDatabase {
     query.close();
 
     if (result != null) {
-      box.remove(result.id);
+      box.remove(result.objectBoxId);
     }
   }
 
@@ -104,8 +104,8 @@ class ObjectBoxInventoryDatabase extends InventoryDatabase {
     final exists = query.findFirst();
     query.close();
 
-    if (exists != null && invOb.id != exists.id) {
-      invOb.id = exists.id;
+    if (exists != null && invOb.objectBoxId != exists.objectBoxId) {
+      invOb.objectBoxId = exists.objectBoxId;
     }
 
     box.put(invOb);

@@ -6,7 +6,7 @@ import 'package:repository/model/item.dart';
 class ObjectBoxItem {
   @Unique()
   late String upc;
-  late String iuid;
+  late String id;
   late String name;
   late String variety;
   late String category;
@@ -19,11 +19,11 @@ class ObjectBoxItem {
   late String languageCode;
   late DateTime? lastUpdate;
   @Id()
-  int id = 0;
+  int objectBoxId = 0;
   ObjectBoxItem();
   ObjectBoxItem.from(Item original) {
     upc = original.upc;
-    iuid = original.iuid;
+    id = original.id;
     name = original.name;
     variety = original.variety;
     category = original.category;
@@ -39,7 +39,7 @@ class ObjectBoxItem {
   Item toItem() {
     return Item()
       ..upc = upc
-      ..iuid = iuid
+      ..id = id
       ..name = name
       ..variety = variety
       ..category = category
@@ -64,7 +64,7 @@ class ObjectBoxItemTranslation {
   late String unitName;
   late String unitPlural;
   @Id()
-  int id = 0;
+  int objectBoxId = 0;
   ObjectBoxItemTranslation();
   ObjectBoxItemTranslation.from(ItemTranslation original) {
     upc = original.upc;
