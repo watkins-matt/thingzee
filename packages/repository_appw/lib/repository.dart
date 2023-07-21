@@ -232,6 +232,7 @@ class AppwriteRepository extends CloudRepository {
           Log.e('AppwriteRepository._loadSession: Failed to load session: [AppwriteException]',
               e.message);
           _session = null;
+          Log.i('Appwrite: Removed invalid session. Log in required.');
           await prefs.remove('appwrite_session_id');
           await prefs.remove('appwrite_session_expire');
           return;
