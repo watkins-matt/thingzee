@@ -8,7 +8,7 @@ part of 'item.dart';
 
 Item _$ItemFromJson(Map<String, dynamic> json) => Item()
   ..upc = json['upc'] as String
-  ..iuid = json['iuid'] as String
+  ..id = json['id'] as String
   ..name = json['name'] as String
   ..variety = json['variety'] as String
   ..category = json['category'] as String
@@ -24,7 +24,7 @@ Item _$ItemFromJson(Map<String, dynamic> json) => Item()
 
 Map<String, dynamic> _$ItemToJson(Item instance) => <String, dynamic>{
       'upc': instance.upc,
-      'iuid': instance.iuid,
+      'id': instance.id,
       'name': instance.name,
       'variety': instance.variety,
       'category': instance.category,

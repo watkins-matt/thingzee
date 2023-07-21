@@ -9,7 +9,7 @@ part 'item.merge.dart';
 @Mergeable()
 class Item implements Comparable<Item> {
   String upc = '';
-  String iuid = '';
+  String id = '';
 
   String name = '';
   String variety = '';
@@ -40,7 +40,7 @@ class Item implements Comparable<Item> {
   bool equalTo(Item other) =>
       identical(this, other) ||
       upc == other.upc &&
-          iuid == other.iuid &&
+          id == other.id &&
           name == other.name &&
           variety == other.variety &&
           category == other.category &&

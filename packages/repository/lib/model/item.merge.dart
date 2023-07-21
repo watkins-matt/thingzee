@@ -6,7 +6,7 @@ Item _$mergeItem(Item first, Item second) {
   final newerItem = secondUpdate.isAfter(firstUpdate) ? second : first;
   return Item()
     ..upc = newerItem.upc.isNotEmpty ? newerItem.upc : first.upc
-    ..iuid = newerItem.iuid.isNotEmpty ? newerItem.iuid : first.iuid
+    ..id = newerItem.id.isNotEmpty ? newerItem.id : first.id
     ..name = newerItem.name.isNotEmpty ? newerItem.name : first.name
     ..variety = newerItem.variety.isNotEmpty ? newerItem.variety : first.variety
     ..category = newerItem.category.isNotEmpty ? newerItem.category : first.category
