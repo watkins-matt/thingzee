@@ -91,7 +91,7 @@ class ObjectBoxBuilder implements Builder {
       }
 
       if (uniqueFields.contains(field.name)) {
-        buffer.writeln('  @Unique()');
+        buffer.writeln('  @Unique(onConflict: ConflictStrategy.replace)');
       }
 
       final type = field.type.getDisplayString(withNullability: true);

@@ -116,7 +116,7 @@ final _entities = <ModelEntity>[
             id: const IdUid(1, 5930073436429162412),
             name: 'upc',
             type: 9,
-            flags: 2080,
+            flags: 34848,
             indexId: const IdUid(4, 1380383612824248493)),
         ModelProperty(
             id: const IdUid(3, 8507136725000371231),
@@ -166,7 +166,7 @@ final _entities = <ModelEntity>[
             id: const IdUid(6, 8210873934856385730),
             name: 'upc',
             type: 9,
-            flags: 2080,
+            flags: 34848,
             indexId: const IdUid(5, 3019641394831653558)),
         ModelProperty(
             id: const IdUid(7, 6745209600142358059),
@@ -220,7 +220,7 @@ final _entities = <ModelEntity>[
             id: const IdUid(1, 7056447120328768215),
             name: 'upc',
             type: 9,
-            flags: 2080,
+            flags: 34848,
             indexId: const IdUid(7, 2265487539467967031)),
         ModelProperty(
             id: const IdUid(2, 6388154415577016172),
@@ -300,7 +300,7 @@ final _entities = <ModelEntity>[
             id: const IdUid(1, 6728416846686828406),
             name: 'upc',
             type: 9,
-            flags: 2080,
+            flags: 34848,
             indexId: const IdUid(8, 866918556565432518)),
         ModelProperty(
             id: const IdUid(2, 283520272498643630),

@@ -7,7 +7,7 @@ import 'package:repository/ml/history.dart';
 class ObjectBoxHistory {
   History history = History();
 
-  @Unique()
+  @Unique(onConflict: ConflictStrategy.replace)
   String upc = '';
 
   @Id()

@@ -4,7 +4,7 @@ import 'package:objectbox/objectbox.dart';
 import 'package:repository/model/item.dart';
 @Entity()
 class ObjectBoxItem {
-  @Unique()
+  @Unique(onConflict: ConflictStrategy.replace)
   late String upc;
   late String id;
   late String name;
@@ -56,7 +56,7 @@ class ObjectBoxItem {
 }
 @Entity()
 class ObjectBoxItemTranslation {
-  @Unique()
+  @Unique(onConflict: ConflictStrategy.replace)
   late String upc;
   late String languageCode;
   late String name;
