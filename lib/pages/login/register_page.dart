@@ -56,7 +56,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                       TextFormField(
                         onChanged: (value) {
                           _markFieldTouched('username');
-                          ref.read(registerStateProvider.notifier).setUsername(value);
+                          ref.read(registerStateProvider.notifier).setUsername(value.trim());
                           _formKey.currentState!.validate();
                         },
                         validator: (val) {
@@ -76,7 +76,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                       TextFormField(
                         onChanged: (value) {
                           _markFieldTouched('email');
-                          ref.read(registerStateProvider.notifier).setEmail(value);
+                          ref.read(registerStateProvider.notifier).setEmail(value.trim());
                           _formKey.currentState!.validate();
                         },
                         validator: (val) {

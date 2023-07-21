@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:thingzee/pages/login/register_page.dart';
 import 'package:thingzee/pages/login/state/login_state.dart';
+import 'package:thingzee/pages/login/state/user_profile.dart';
 
 class LoginPage extends ConsumerWidget {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -50,7 +51,7 @@ class LoginPage extends ConsumerWidget {
                         TextFormField(
                           autofillHints: const [AutofillHints.email],
                           onChanged: (value) {
-                            ref.read(loginStateProvider.notifier).setEmail(value);
+                            ref.read(loginStateProvider.notifier).setEmail(value.trim());
                           },
                           validator: (val) {
                             if (val!.isEmpty) {
@@ -119,6 +120,9 @@ class LoginPage extends ConsumerWidget {
 
                               bool success = await ref.read(loginStateProvider.notifier).login(ref);
                               if (success && context.mounted) {
+                                final userProfile = ref.read(userProfileProvider.notifier);
+                                userProfile.email = ref.read(loginStateProvider).email;
+
                                 Navigator.pop(context);
                                 scaffoldMessenger.showSnackBar(
                                   const SnackBar(
@@ -183,7 +187,10 @@ class LoginPage extends ConsumerWidget {
     );
   }
 
-  static Future<void> push(BuildContext context) async {
+  static Future<void> push(BuildContext context, WidgetRef ref) async {
+    // Reset any error messages
+    ref.read(loginStateProvider.notifier).clearErrorMessage();
+
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => LoginPage()),
