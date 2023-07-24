@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:thingzee/pages/inventory/widget/pop_up_menu.dart';
+import 'package:thingzee/pages/inventory/widget/custom_dropdown_menu.dart';
 
 class UserProfileButton extends StatelessWidget {
   final CustomDropdownMenu menu;

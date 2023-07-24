@@ -3,7 +3,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:repository/repository.dart';
 import 'package:thingzee/app.dart';
 import 'package:thingzee/main.dart';
-import 'package:thingzee/pages/inventory/widget/pop_up_menu.dart';
+import 'package:thingzee/pages/inventory/widget/custom_dropdown_menu.dart';
 import 'package:thingzee/pages/login/login_page.dart';
 import 'package:thingzee/pages/login/state/user_profile.dart';
 import 'package:thingzee/pages/login/widget/verify_account_dialog.dart';
