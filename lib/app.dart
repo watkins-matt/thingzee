@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:repository/repository.dart';
 import 'package:thingzee/pages/home/home_page.dart';
+
+final navigatorKey = GlobalKey<NavigatorState>();
+
+final navigatorKeyProvider = Provider((_) => navigatorKey);
 
 class App extends StatelessWidget {
   static Repository? offlineDb;
@@ -11,6 +16,7 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      navigatorKey: navigatorKey,
       title: 'Thingzee',
       theme: ThemeData(
         useMaterial3: true,

@@ -1,38 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:material_floating_search_bar_2/material_floating_search_bar_2.dart';
-import 'package:repository/repository.dart';
 import 'package:thingzee/icon_library.dart';
-import 'package:thingzee/main.dart';
 import 'package:thingzee/pages/barcode/barcode_scanner_page.dart';
-import 'package:thingzee/pages/inventory/filter_dialog.dart';
 import 'package:thingzee/pages/inventory/state/inventory_view.dart';
+import 'package:thingzee/pages/inventory/widget/filter_button.dart';
 import 'package:thingzee/pages/inventory/widget/inventory_view_widget.dart';
+import 'package:thingzee/pages/inventory/widget/user_drop_down_menu.dart';
 import 'package:thingzee/pages/inventory/widget/user_profile_button.dart';
-import 'package:thingzee/pages/login/login_page.dart';
-import 'package:thingzee/pages/login/state/user_profile.dart';
-import 'package:thingzee/pages/login/widget/verify_account_dialog.dart';
-import 'package:thingzee/pages/settings/settings_page.dart';
-
-class FilterButton extends ConsumerWidget {
-  const FilterButton({
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return IconButton(
-        icon: const Icon(Icons.filter_list),
-        onPressed: () async {
-          final view = ref.read(inventoryProvider.notifier);
-
-          final filterResult = await FilterDialog.show(context, view.filter);
-          view.filter = filterResult;
-
-          await view.refresh();
-        });
-  }
-}
 
 class InventoryPage extends ConsumerStatefulWidget {
   const InventoryPage({Key? key}) : super(key: key);
@@ -73,83 +48,13 @@ class _InventoryPageState extends ConsumerState<InventoryPage> {
                   });
                 },
               )),
-          // IconButton(
-          //   icon: gridView ? const Icon(Icons.view_list) : const Icon(Icons.grid_view),
-          //   onPressed: () {
-          //     setState(() {
-          //       gridView = !gridView;
-          //     });
-          //   },
-          // ),
           FilterButton(key: GlobalKey()),
           UserProfileButton(
             imagePath: 'assets/images/account.png',
-            onSelected: (String value) async {
-              final repo = ref.watch(repositoryProvider);
-
-              if (value == 'Login or Register') {
-                await LoginPage.push(context, ref);
-              } else if (value == 'Logout') {
-                if (repo.isMultiUser && repo is CloudRepository) {
-                  CloudRepository repository = repo;
-                  await repository.logoutUser();
-
-                  // Show logged out snackbar message
-                  if (!mounted) return;
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                    content: Text('Logged out successfully.'),
-                  ));
-                }
-              } else if (value == 'Settings') {
-                await SettingsPage.push(context);
-              } else if (value == 'Verify Your Account') {
-                // Do an initial check to see if we have verified
-                if (repo.isMultiUser && repo is CloudRepository) {
-                  bool verified = await repo.checkVerificationStatus();
-                  if (verified && mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                      content: Text('Thank you for verifying your account.'),
-                    ));
-                    return;
-                  }
-                }
-
-                // Show the dialog if we are still unverified
-                if (!mounted) return;
-                await VerifyAccountDialog.show(context, () async {
-                  if (repo.isMultiUser && repo is CloudRepository) {
-                    final userProfile = ref.read(userProfileProvider.notifier);
-                    CloudRepository repository = repo;
-                    await repository.sendVerificationEmail(userProfile.email);
-                  }
-                });
-              }
-            },
-            itemBuilder: (BuildContext context) {
-              final repo = ref.watch(repositoryProvider);
-              final loggedIn = repo.loggedIn;
-              final verified = repo.isUserVerified;
-
-              return {
-                'Manually Add Item',
-                loggedIn && verified
-                    ? 'Logout'
-                    : loggedIn && !verified
-                        ? 'Verify Your Account'
-                        : 'Login or Register',
-                'Settings'
-              }.map((String choice) {
-                return PopupMenuItem<String>(
-                  value: choice,
-                  child: Text(choice),
-                );
-              }).toList();
-            },
+            menu: UserDropdownMenu(ref: ref),
           ),
         ],
-        body:
-            const InventoryViewWidget() /*gridView ? const InventoryGridViewWidget() : const InventoryViewWidget()*/
-        ,
+        body: const InventoryViewWidget(),
         builder: (BuildContext context, Animation<double> transition) {
           return const SizedBox(
             width: 0,
@@ -158,7 +63,6 @@ class _InventoryPageState extends ConsumerState<InventoryPage> {
         },
         onQueryChanged: (query) async {
           hasQuery = query.isNotEmpty;
-
           await view.search(query);
           setState(() {});
         },
@@ -168,8 +72,6 @@ class _InventoryPageState extends ConsumerState<InventoryPage> {
       floatingActionButton: FloatingActionButton(
         heroTag: 'InventoryBarcodeScan',
         onPressed: () async {
-          // Reset the Barcode scanner state
-
           await Navigator.push(
             context,
             MaterialPageRoute(
