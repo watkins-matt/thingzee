@@ -26,15 +26,15 @@ class UserDropdownMenu extends CustomDropdownMenu {
     final loggedIn = repo.loggedIn;
     final verified = repo.isUserVerified;
 
-    final choices = {
-      'Manually Add Item',
-      loggedIn && verified
-          ? 'Logout'
-          : loggedIn && !verified
-              ? 'Verify Your Account'
-              : 'Login or Register',
-      'Settings'
-    };
+    // Change the login option based on the user's status
+    var loginOption = 'Login or Register';
+    if (loggedIn && verified) {
+      loginOption = 'Logout';
+    } else if (loggedIn && !verified) {
+      loginOption = 'Verify Your Account';
+    }
+
+    final choices = {'Notifications', 'Settings', loginOption};
 
     return choices.map((String choice) {
       return PopupMenuItem<String>(
