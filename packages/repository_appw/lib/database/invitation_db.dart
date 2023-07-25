@@ -37,6 +37,9 @@ class AppwriteInvitationDatabase extends InvitationDatabase {
   bool get online => _online;
 
   @override
+  int get pendingInviteCount => pendingInvites().length;
+
+  @override
   void accept(Invitation invitation) {
     final updatedInvitation = invitation.copyWith(status: InvitationStatus.accepted);
     _invitations[invitation.id] = updatedInvitation;
