@@ -18,7 +18,11 @@ class History {
     evaluator = Evaluator(this);
   }
 
-  factory History.fromJson(Map<String, dynamic> json) => _$HistoryFromJson(json);
+  factory History.fromJson(Map<String, dynamic> json) {
+    final history = _$HistoryFromJson(json);
+    history.evaluator.train(history);
+    return history;
+  }
 
   double get baseAmount {
     if (series.isEmpty) {

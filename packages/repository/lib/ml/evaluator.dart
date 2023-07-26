@@ -6,7 +6,7 @@ import 'package:repository/ml/regressor.dart';
 
 class Evaluator {
   Map<String, Regressor> regressors = {};
-  Regressor _best = EmptyRegressor();
+  String _best = '';
   bool _trained = false;
   final String defaultType = 'Simple';
   final History history;
@@ -14,6 +14,11 @@ class Evaluator {
   Evaluator(this.history);
 
   Regressor get best {
+    final bestRegressor = regressors[_best];
+    if (_best.isEmpty || bestRegressor == null) {
+      return EmptyRegressor();
+    }
+
     if (!_trained) {
       train(history);
     }
@@ -21,10 +26,10 @@ class Evaluator {
     // If there is any series with a length greater than one
     // then the best regressor should not be an EmptyRegressor
     if (history.series.any((s) => s.observations.length > 1)) {
-      assert(_best.type != 'Empty' && _best.type != 'SinglePoint');
+      assert(bestRegressor.type != 'Empty' && bestRegressor.type != 'SinglePoint');
     }
 
-    return _best;
+    return bestRegressor;
   }
 
   bool get trained => _trained;
@@ -45,6 +50,8 @@ class Evaluator {
     return predictions;
   }
 
+  /// Updates the best regressor based on which one was
+  /// able to most accurately predict the newest observation.
   void assess(Observation observation) {
     if (!_trained) {
       throw Exception('Evaluator has not been trained. Train before assessing.');
@@ -60,7 +67,7 @@ class Evaluator {
 
       if (distance < minimumDistance) {
         minimumDistance = distance;
-        _best = regressor;
+        _best = modelEntry.key;
       }
     }
   }
@@ -81,27 +88,86 @@ class Evaluator {
     return best.predict(timestamp);
   }
 
+  /// Trains the evaluator by generating all possible regressors
+  /// and then evaluating them against every series to determine
+  /// which regressor is the best, giving more weight to the
+  /// most recent series.
   void train(History history) {
     if (history.series.isEmpty) {
       return;
     }
 
+    // First initialize the regressors
     int seriesId = 0;
     for (final series in history.series) {
       var regressorList = _generateRegressors(series);
 
       for (final regressor in regressorList) {
-        regressors['${regressor.type}-$seriesId'] = regressor;
-
-        if (regressor.type != 'Empty' && regressor.type != 'SinglePoint') {
-          _best = regressor;
-        }
+        final regressorId = '${regressor.type}-$seriesId';
+        regressors[regressorId] = regressor;
       }
 
       seriesId++;
     }
 
+    // Can't train if we have no regressors. This happens if we only
+    // have one series with a single point.
+    if (regressors.isEmpty) {
+      return;
+    }
+
+    double minError = double.infinity;
+    String bestRegressorId = regressors.keys.last;
+    double lastSeriesWeight = 3;
+
+    for (final regressorId in regressors.keys) {
+      final regressor = regressors[regressorId]!;
+
+      if (regressor.type != 'Empty' && regressor.type != 'SinglePoint') {
+        final averageError = _evaluateRegressor(regressor, history.series, lastSeriesWeight);
+
+        // If the average error was lower, we have a new best regressor
+        if (averageError < minError) {
+          minError = averageError;
+          bestRegressorId = regressorId;
+        }
+      }
+    }
+
+    _best = bestRegressorId;
     _trained = true;
+  }
+
+  double _computeMSE(Regressor regressor, HistorySeries series) {
+    double errorSum = 0;
+    int count = 0;
+
+    final pointsMap = series.toPoints();
+
+    for (final entry in pointsMap.entries) {
+      final predictedValue = regressor.predict(entry.key);
+      final trueValue = entry.value;
+
+      errorSum += (trueValue - predictedValue) * (trueValue - predictedValue);
+      count++;
+    }
+
+    return count > 0 ? errorSum / count : double.infinity;
+  }
+
+  double _evaluateRegressor(Regressor regressor, List<HistorySeries> allSeries,
+      [double lastSeriesWeight = 2]) {
+    double totalError = 0;
+
+    for (final series in allSeries) {
+      double error = _computeMSE(regressor, series);
+      if (series == allSeries.last) {
+        error *= lastSeriesWeight;
+      }
+      totalError += error;
+    }
+
+    return totalError / allSeries.length;
   }
 
   List<Regressor> _generateRegressors(HistorySeries series) {
