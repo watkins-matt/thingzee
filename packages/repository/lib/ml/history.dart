@@ -74,6 +74,14 @@ class History {
     return series.last;
   }
 
+  Observation? get last {
+    if (series.isEmpty) {
+      return null;
+    }
+
+    return series.last.observations.lastOrNull;
+  }
+
   DateTime get lastTimestamp {
     if (series.isEmpty) {
       return DateTime.fromMillisecondsSinceEpoch(0);

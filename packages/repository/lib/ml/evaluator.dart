@@ -13,6 +13,20 @@ class Evaluator {
 
   Evaluator(this.history);
 
+  Regressor get best {
+    if (!_trained) {
+      train(history);
+    }
+
+    // If there is any series with a length greater than one
+    // then the best regressor should not be an EmptyRegressor
+    if (history.series.any((s) => s.observations.length > 1)) {
+      assert(_best.type != 'Empty' && _best.type != 'SinglePoint');
+    }
+
+    return _best;
+  }
+
   bool get trained => _trained;
 
   Map<String, double> allPredictions(int timestamp) {
@@ -29,20 +43,6 @@ class Evaluator {
     }
 
     return predictions;
-  }
-
-  Regressor get best {
-    if (!_trained) {
-      train(history);
-    }
-
-    // If there is any series with a length greater than one
-    // then the best regressor should not be an EmptyRegressor
-    if (history.series.any((s) => s.observations.length > 1)) {
-      assert(_best.type != 'Empty' && _best.type != 'SinglePoint');
-    }
-
-    return _best;
   }
 
   void assess(Observation observation) {
@@ -68,6 +68,14 @@ class Evaluator {
   double predict(int timestamp) {
     if (!_trained) {
       throw Exception('Evaluator has not been trained. Train before predicting.');
+    }
+
+    // If the user has already said that we currently have 0,
+    // we can say for certain that the value is 0 regardless
+    // of what the regressors say.
+    Observation? last = history.last;
+    if (last != null && last.amount == 0) {
+      return 0;
     }
 
     return best.predict(timestamp);
