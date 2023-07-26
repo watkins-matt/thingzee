@@ -136,6 +136,7 @@ class Evaluator {
 
     _best = bestRegressorId;
     _trained = true;
+    // Log.d('Best regressor [${history.upc}]: $_best with average error of $minError');
   }
 
   double _computeMSE(Regressor regressor, HistorySeries series) {
@@ -203,6 +204,8 @@ class Evaluator {
         final holt = HoltLinearRegressor.fromMap(points, .85, .75);
         final shifted = ShiftedInterceptLinearRegressor(points);
         final weighted = WeightedLeastSquaresLinearRegressor(points);
+        final firstLast = SpecificPointRegressor(0, points.length - 1, points);
+        final secondLast = SpecificPointRegressor(1, points.length - 1, points);
 
         regressors.add(NormalizedRegressor.withBase(normalizer, simple, history.baseTimestamp,
             yShift: history.baseAmount));
@@ -214,6 +217,10 @@ class Evaluator {
             yShift: history.baseAmount));
         regressors.add(NormalizedRegressor.withBase(normalizer, weighted, history.baseTimestamp,
             yShift: history.baseAmount));
+        regressors.add(NormalizedRegressor.withBase(normalizer, firstLast, history.baseTimestamp,
+            yShift: history.baseAmount));
+        regressors.add(NormalizedRegressor.withBase(normalizer, secondLast, history.baseTimestamp,
+            yShift: history.baseAmount));
 
       // final dataFrame = series.toDataFrame();
       // final dataFrameNormalizer = DataFrameNormalizer(dataFrame, 'amount');
@@ -224,13 +231,13 @@ class Evaluator {
       // regressors.add(SimpleOLSRegressor(olsRegressor, dataFrameNormalizer));
 
       // Using the SGD Model
-      // final regressor = LinearRegressor.SGD(normalizer.dataFrame, 'amount',
+      // final sgdRegressor = LinearRegressor.SGD(dataFrame, 'amount',
       //     fitIntercept: true,
       //     interceptScale: .25,
       //     iterationLimit: 5000,
       //     initialLearningRate: 1,
       //     learningRateType: LearningRateType.constant);
-      // return MLLinearRegressor(regressor, normalizer);
+      // regressors.add(MLLinearRegressor(sgdRegressor, dataFrameNormalizer));
     }
 
     return regressors;
