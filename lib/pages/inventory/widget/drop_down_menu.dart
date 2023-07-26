@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 
-class CustomDropdownMenu extends StatelessWidget {
+class BaseDropdownMenu extends StatelessWidget {
   final PopupMenuItemBuilder<String> itemBuilder;
   final Function(String) onSelected;
+  final Widget child;
 
-  const CustomDropdownMenu({
+  const BaseDropdownMenu({
     super.key,
+    required this.child,
     required this.itemBuilder,
     required this.onSelected,
   });
@@ -19,6 +21,7 @@ class CustomDropdownMenu extends StatelessWidget {
       offset: const Offset(-10, 0),
       elevation: 20,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      child: child,
     );
   }
 }

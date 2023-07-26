@@ -3,20 +3,22 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:repository/repository.dart';
 import 'package:thingzee/app.dart';
 import 'package:thingzee/main.dart';
-import 'package:thingzee/pages/inventory/widget/custom_dropdown_menu.dart';
+import 'package:thingzee/pages/inventory/widget/drop_down_menu.dart';
 import 'package:thingzee/pages/login/login_page.dart';
 import 'package:thingzee/pages/login/state/user_profile.dart';
 import 'package:thingzee/pages/login/widget/verify_account_dialog.dart';
 import 'package:thingzee/pages/settings/settings_page.dart';
 
-class UserDropdownMenu extends CustomDropdownMenu {
+class UserDropdownMenu extends BaseDropdownMenu {
   final WidgetRef ref;
 
   UserDropdownMenu({
     Key? key,
+    required child,
     required this.ref,
   }) : super(
           key: key,
+          child: child,
           onSelected: (value) => _onSelected(value, ref),
           itemBuilder: (context) => _itemBuilder(ref, context),
         );

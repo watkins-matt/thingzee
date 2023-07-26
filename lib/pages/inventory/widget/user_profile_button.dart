@@ -1,25 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:thingzee/pages/inventory/widget/custom_dropdown_menu.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:thingzee/pages/inventory/widget/drop_down_menu_user.dart';
 
-class UserProfileButton extends StatelessWidget {
-  final CustomDropdownMenu menu;
+class UserProfileButton extends ConsumerWidget {
   final String imagePath;
 
   const UserProfileButton({
     super.key,
-    required this.menu,
     required this.imagePath,
   });
 
   @override
-  Widget build(BuildContext context) {
-    return IconButton(
-      onPressed: () => menu.build(context),
-      icon: CircleAvatar(
-        backgroundImage: AssetImage(imagePath),
-        backgroundColor: Colors.transparent,
-        radius: 16,
-      ),
-    );
+  Widget build(BuildContext context, WidgetRef ref) {
+    return UserDropdownMenu(
+        ref: ref,
+        child: CircleAvatar(
+          backgroundImage: AssetImage(imagePath),
+          backgroundColor: Colors.transparent,
+          radius: 16,
+        ));
   }
 }

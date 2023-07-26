@@ -6,7 +6,6 @@ import 'package:thingzee/pages/barcode/barcode_scanner_page.dart';
 import 'package:thingzee/pages/inventory/state/inventory_view.dart';
 import 'package:thingzee/pages/inventory/widget/filter_button.dart';
 import 'package:thingzee/pages/inventory/widget/inventory_view_widget.dart';
-import 'package:thingzee/pages/inventory/widget/user_drop_down_menu.dart';
 import 'package:thingzee/pages/inventory/widget/user_profile_button.dart';
 
 class InventoryPage extends ConsumerStatefulWidget {
@@ -49,10 +48,7 @@ class _InventoryPageState extends ConsumerState<InventoryPage> {
                 },
               )),
           FilterButton(key: GlobalKey()),
-          UserProfileButton(
-            imagePath: 'assets/images/account.png',
-            menu: UserDropdownMenu(ref: ref),
-          ),
+          const UserProfileButton(imagePath: 'assets/images/account.png'),
         ],
         body: const InventoryViewWidget(),
         builder: (BuildContext context, Animation<double> transition) {
