@@ -142,6 +142,8 @@ class History {
   void add(int timestamp, double amount, int householdCount, {int minOffsetHours = 24}) {
     assert(timestamp != 0); // Timestamp cannot be a placeholder value
 
+    clean();
+
     // There is not any point in making a HistorySeries where the only
     // entry is 0. We can't use a single 0 value for prediction purposes.
     // Do not add the value under these circumstances.
@@ -179,8 +181,27 @@ class History {
 
     // If the time difference is less than the minimum offset, update the last observation
     if (timeDifference < minOffset) {
-      current.observations.removeLast();
-      current.observations.add(observation);
+      // Check if the last observation was an increase from its predecessor
+      bool lastWasIncrease = current.observations.length > 1 &&
+          lastObservation.amount > current.observations[current.observations.length - 2].amount;
+
+      // If the new observation's amount is greater than the last one,
+      if (observation.amount > lastObservation.amount) {
+        // If this is the second increase in a row, we update
+        // the observation since we are within minOffset
+        if (lastWasIncrease) {
+          current.observations.removeLast();
+          current.observations.add(observation);
+
+          // We should allow adding the first increase within the minOffset
+        } else {
+          series.add(HistorySeries());
+          current.observations.add(observation);
+        }
+      } else {
+        current.observations.removeLast();
+        current.observations.add(observation);
+      }
     }
 
     // Otherwise, add the new observation as usual
@@ -220,8 +241,11 @@ class History {
       }
     }
 
-    evaluator.assess(observation);
-    evaluator.train(this);
+    // We added a new decrease, and we have more than one observation
+    if (observation.amount < lastObservation.amount && current.observations.length > 1) {
+      evaluator.train(this);
+      evaluator.assess(observation);
+    }
   }
 
   // Remove any invalid observations from the history
@@ -238,13 +262,22 @@ class History {
         s.observations.removeWhere((o) => o.timestamp == 0);
       }
 
-      // Remove any duplicate observations
+      // Ensure that every item is decreasing, and remove duplicates
       int i = 0;
       while (i < s.observations.length - 1) {
-        if (s.observations[i].amount == s.observations[i + 1].amount) {
-          s.observations.removeAt(i + 1);
-        } else {
-          i++; // Only move forward if we did not remove an item
+        // Check boundary before accessing
+        if (i + 1 < s.observations.length) {
+          // Remove if current observation has increased from the last one
+          if (s.observations[i].amount < s.observations[i + 1].amount) {
+            s.observations.removeAt(i + 1);
+            continue;
+          } else if (s.observations[i].amount == s.observations[i + 1].amount) {
+            // Remove any duplicate observations
+            s.observations.removeAt(i + 1);
+            continue;
+          } else {
+            i++; // Only move forward if we did not remove an item
+          }
         }
       }
     }
