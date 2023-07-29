@@ -179,26 +179,15 @@ class History {
     // Define the minimum time offset in ms (specified by minOffsetHours)
     final minOffset = minOffsetHours * 60 * 60 * 1000;
 
-    // If the time difference is less than the minimum offset, update the last observation
     if (timeDifference < minOffset) {
-      // Check if the last observation was an increase from its predecessor
-      bool lastWasIncrease = current.observations.length > 1 &&
-          lastObservation.amount > current.observations[current.observations.length - 2].amount;
-
-      // If the new observation's amount is greater than the last one,
-      if (observation.amount > lastObservation.amount) {
-        // If this is the second increase in a row, we update
-        // the observation since we are within minOffset
-        if (lastWasIncrease) {
-          current.observations.removeLast();
-          current.observations.add(observation);
-
-          // We should allow adding the first increase within the minOffset
-        } else {
-          series.add(HistorySeries());
-          current.observations.add(observation);
-        }
+      if (observation.amount > lastObservation.amount && series.length > 1) {
+        // If this is an increase and this is not the only item in the
+        // series, start a new series and add the new observation
+        series.add(HistorySeries());
+        current.observations.add(observation);
       } else {
+        // If it's a decrease or the current item is the only one in the
+        // series, simply update the last observation's amount
         current.observations.removeLast();
         current.observations.add(observation);
       }
