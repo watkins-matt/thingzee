@@ -6,6 +6,7 @@ import 'package:repository/ml/regressor.dart';
 
 class Evaluator {
   Map<String, Regressor> regressors = {};
+  Map<String, double> accuracy = {};
   String _best = '';
   bool _trained = false;
   final String defaultType = 'Simple';
@@ -134,9 +135,52 @@ class Evaluator {
       }
     }
 
+    // Store the average accuracy of each regressor
+    accuracy = _computeAccuracy();
+
     _best = bestRegressorId;
     _trained = true;
     // Log.d('Best regressor [${history.upc}]: $_best with average error of $minError');
+  }
+
+  Map<String, double> _computeAccuracy() {
+    Map<String, double> accuracyMap = {};
+
+    for (final regressorId in regressors.keys) {
+      final regressor = regressors[regressorId]!;
+      double totalAccuracy = 0;
+
+      for (final series in history.series) {
+        double mape = _computeMAPE(regressor, series);
+        double accuracy = 100 - mape;
+        totalAccuracy += accuracy;
+      }
+
+      double averageAccuracy = totalAccuracy / history.series.length;
+      accuracyMap[regressorId] = averageAccuracy;
+    }
+
+    return accuracyMap;
+  }
+
+  double _computeMAPE(Regressor regressor, HistorySeries series) {
+    double errorSum = 0;
+    int count = 0;
+
+    final pointsMap = series.toPoints();
+
+    for (final entry in pointsMap.entries) {
+      final predictedValue = regressor.predict(entry.key);
+      final trueValue = entry.value;
+
+      if (trueValue != 0) {
+        // Avoid division by zero
+        errorSum += (trueValue - predictedValue).abs() / trueValue;
+        count++;
+      }
+    }
+
+    return (count > 0 ? (errorSum / count) : 0) * 100; // Convert to percentage
   }
 
   double _computeMSE(Regressor regressor, HistorySeries series) {
