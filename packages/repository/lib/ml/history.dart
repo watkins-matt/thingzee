@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:log/log.dart';
 import 'package:repository/ml/evaluator.dart';
 import 'package:repository/ml/history_series.dart';
 import 'package:repository/ml/observation.dart';
@@ -142,7 +143,7 @@ class History {
   void add(int timestamp, double amount, int householdCount, {int minOffsetHours = 24}) {
     assert(timestamp != 0); // Timestamp cannot be a placeholder value
 
-    clean();
+    clean(warn: true);
 
     // There is not any point in making a HistorySeries where the only
     // entry is 0. We can't use a single 0 value for prediction purposes.
@@ -240,15 +241,17 @@ class History {
   // Remove any invalid observations from the history
   // (This means any series where there is only a 0 value,
   // or the timestamp is 0)
-  History clean() {
+  History clean({bool warn = false}) {
     for (final s in series) {
       // There was only one observation with amount 0, so remove it
       if (s.observations.length == 1 && s.observations.first.amount == 0) {
         s.observations.clear();
+        if (warn) Log.w('Removed single empty observation from history series $upc.');
       }
       // Remove any observations with placeholder timestamps
       else {
         s.observations.removeWhere((o) => o.timestamp == 0);
+        if (warn) Log.w('Removed observation with invalid timestamp from history series $upc.');
       }
 
       // Ensure that every item is decreasing, and remove duplicates
@@ -259,10 +262,12 @@ class History {
           // Remove if current observation has increased from the last one
           if (s.observations[i].amount < s.observations[i + 1].amount) {
             s.observations.removeAt(i + 1);
+            if (warn) Log.w('Removed invalid increasing observation from history series $upc.');
             continue;
           } else if (s.observations[i].amount == s.observations[i + 1].amount) {
             // Remove any duplicate observations
             s.observations.removeAt(i + 1);
+            if (warn) Log.w('Removed duplicate observation from history series $upc.');
             continue;
           } else {
             i++; // Only move forward if we did not remove an item
