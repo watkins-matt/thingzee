@@ -35,12 +35,12 @@ class Evaluator {
 
   String get bestAccuracy {
     if (!_trained) {
-      throw Exception('Evaluator has not been trained. Train before predicting.');
+      return '';
     }
 
     final bestRegressor = regressors[_best];
     if (_best.isEmpty || bestRegressor == null) {
-      return 'Unknown';
+      return '';
     }
 
     return '${accuracy[_best]!.toStringAsFixed(2)}%';
