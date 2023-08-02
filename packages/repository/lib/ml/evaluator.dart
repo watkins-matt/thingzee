@@ -33,6 +33,19 @@ class Evaluator {
     return bestRegressor;
   }
 
+  String get bestAccuracy {
+    if (!_trained) {
+      throw Exception('Evaluator has not been trained. Train before predicting.');
+    }
+
+    final bestRegressor = regressors[_best];
+    if (_best.isEmpty || bestRegressor == null) {
+      return 'Unknown';
+    }
+
+    return '${accuracy[_best]!.toStringAsFixed(2)}%';
+  }
+
   bool get trained => _trained;
 
   Map<String, double> allPredictions(int timestamp) {
