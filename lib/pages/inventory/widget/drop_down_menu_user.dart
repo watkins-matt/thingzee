@@ -3,6 +3,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:repository/repository.dart';
 import 'package:thingzee/app.dart';
 import 'package:thingzee/main.dart';
+import 'package:thingzee/pages/household/household_landing.dart';
 import 'package:thingzee/pages/inventory/widget/drop_down_menu.dart';
 import 'package:thingzee/pages/login/login_page.dart';
 import 'package:thingzee/pages/login/state/user_profile.dart';
@@ -23,6 +24,10 @@ class UserDropdownMenu extends BaseDropdownMenu {
           itemBuilder: (context) => _itemBuilder(ref, context),
         );
 
+  static Future<void> _household(BuildContext context, WidgetRef ref) async {
+    await HouseholdLandingPage.push(context);
+  }
+
   static List<PopupMenuEntry<String>> _itemBuilder(WidgetRef ref, BuildContext context) {
     final repo = ref.watch(repositoryProvider);
     final loggedIn = repo.loggedIn;
@@ -36,7 +41,7 @@ class UserDropdownMenu extends BaseDropdownMenu {
       loginOption = 'Verify Your Account';
     }
 
-    final choices = {'Notifications', 'Settings', loginOption};
+    final choices = {'Household', 'Settings', loginOption};
 
     return choices.map((String choice) {
       return PopupMenuItem<String>(
@@ -67,6 +72,7 @@ class UserDropdownMenu extends BaseDropdownMenu {
     final BuildContext context = ref.read(navigatorKeyProvider).currentContext!;
 
     final actions = {
+      'Household': () async => _household(context, ref),
       'Login or Register': () async => _login(context, ref),
       'Logout': () async => _logout(context, ref),
       'Settings': () async => _settings(context, ref),
