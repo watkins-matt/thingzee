@@ -21,7 +21,13 @@ class History {
 
   factory History.fromJson(Map<String, dynamic> json) {
     final history = _$HistoryFromJson(json);
-    history.evaluator.train(history);
+
+    try {
+      history.evaluator.train(history);
+    } catch (e) {
+      Log.e('Error training evaluator during deserialization', e);
+    }
+
     return history;
   }
 
