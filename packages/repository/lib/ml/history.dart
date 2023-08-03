@@ -25,7 +25,7 @@ class History {
     try {
       history.evaluator.train(history);
     } catch (e) {
-      Log.e('Error training evaluator during deserialization', e);
+      Log.e('Error training evaluator during deserialization: ', e);
     }
 
     return history;
