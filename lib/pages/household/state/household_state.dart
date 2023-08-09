@@ -13,8 +13,8 @@ class HouseholdState extends StateNotifier<List<HouseholdMember>> {
 
   HouseholdState(this.household) : super(household.members);
 
-  void addMember(String name, String email, {String? id, bool isAdmin = false}) {
-    household.addMember(name, email, id: id, isAdmin: isAdmin);
+  void addMember(String name, String email, {bool isAdmin = false}) {
+    household.addMember(name, email, isAdmin: isAdmin);
     state = household.members;
   }
 

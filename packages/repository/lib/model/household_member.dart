@@ -1,7 +1,7 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:meta/meta.dart';
 import 'package:repository/model/serializer_datetime.dart';
-import 'package:uuid/uuid.dart';
+import 'package:repository/util/hash.dart';
 
 part 'household_member.g.dart';
 
@@ -24,7 +24,7 @@ class HouseholdMember {
     String? userId,
     this.isAdmin = false,
   })  : timestamp = timestamp ?? DateTime.now(),
-        userId = userId ?? const Uuid().v4();
+        userId = userId ?? hashEmail(email);
 
   factory HouseholdMember.fromJson(Map<String, dynamic> json) => _$HouseholdMemberFromJson(json);
   Map<String, dynamic> toJson() => _$HouseholdMemberToJson(this);

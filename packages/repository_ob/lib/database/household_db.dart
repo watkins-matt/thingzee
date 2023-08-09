@@ -1,6 +1,7 @@
 import 'package:repository/database/household_database.dart';
 import 'package:repository/database/preferences.dart';
 import 'package:repository/model/household_member.dart';
+import 'package:repository/util/hash.dart';
 import 'package:repository_ob/model/household_member.ob.dart';
 import 'package:repository_ob/objectbox.g.dart';
 import 'package:uuid/uuid.dart';
@@ -44,8 +45,8 @@ class ObjectBoxHouseholdDatabase extends HouseholdDatabase {
   }
 
   @override
-  void addMember(String name, String email, {String? id, bool isAdmin = false}) {
-    if (id != null && members.any((element) => element.userId == id)) {
+  void addMember(String name, String email, {bool isAdmin = false}) {
+    if (members.any((element) => element.email == email)) {
       throw Exception('User already exists in household.');
     }
 
@@ -56,7 +57,7 @@ class ObjectBoxHouseholdDatabase extends HouseholdDatabase {
         householdId: _householdId!,
         name: name,
         isAdmin: isAdmin,
-        userId: id ?? const Uuid().v4(),
+        userId: hashEmail(email),
       ),
     );
     box.put(householdMember);

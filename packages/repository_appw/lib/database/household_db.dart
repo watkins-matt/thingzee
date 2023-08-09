@@ -6,6 +6,7 @@ import 'package:log/log.dart';
 import 'package:repository/database/household_database.dart';
 import 'package:repository/database/preferences.dart';
 import 'package:repository/model/household_member.dart';
+import 'package:repository/util/hash.dart';
 import 'package:uuid/uuid.dart';
 
 class AppwriteHouseholdDatabase extends HouseholdDatabase {
@@ -55,14 +56,9 @@ class AppwriteHouseholdDatabase extends HouseholdDatabase {
   List<HouseholdMember> get members => _members;
 
   @override
-  void addMember(String name, String email, {String? id, bool isAdmin = false}) {
-    if (id != null && _members.any((element) => element.userId == id)) {
+  void addMember(String name, String email, {bool isAdmin = false}) {
+    if (members.any((element) => element.email == email)) {
       throw Exception('User already exists in household.');
-    }
-
-    if (id != null && id.isEmpty) {
-      Log.w('AppwriteHouseholdDatabase: User ID an empty string. Defaulting to unique id.');
-      id = const Uuid().v4();
     }
 
     final member = HouseholdMember(
@@ -70,7 +66,7 @@ class AppwriteHouseholdDatabase extends HouseholdDatabase {
       householdId: _householdId,
       name: name,
       isAdmin: isAdmin,
-      userId: id ?? const Uuid().v4(),
+      userId: hashEmail(email),
     );
 
     _members.add(member);
