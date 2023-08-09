@@ -235,19 +235,20 @@ class ItemDetailPage extends HookConsumerWidget {
                       entries: ref.watch(editableItemProvider.notifier).allHistoryEntries,
                       isScrollable: false),
                 ]),
-                // const Padding(
-                //   padding: EdgeInsets.all(8),
-                //   child: Divider(
-                //     thickness: 2,
-                //   ),
-                // ),
-                // TextButton(
-                //     onPressed: () async {
-                //       ref.read(editableItemProvider.notifier).cleanUpHistory(repo);
-                //       final view = ref.read(inventoryProvider.notifier);
-                //       await view.refresh();
-                //     },
-                //     child: const Text('Clean Up History'))
+                const Padding(
+                  padding: EdgeInsets.all(8),
+                  child: Divider(
+                    thickness: 2,
+                  ),
+                ),
+                TextButton(
+                    onPressed: () async {
+                      final repo = ref.read(repositoryProvider);
+                      ref.read(editableItemProvider.notifier).cleanUpHistory(repo);
+                      final view = ref.read(inventoryProvider.notifier);
+                      await view.refresh();
+                    },
+                    child: const Text('Clean Up History'))
               ],
             ),
           ),

@@ -91,7 +91,7 @@ class EditableItem extends StateNotifier<EditableItemState> {
 
   void cleanUpHistory(Repository repo) {
     final inv = state.inventory;
-    inv.history = inv.history.clean();
+    inv.history = inv.history.clean(warn: true);
     repo.hist.put(inv.history);
 
     state = EditableItemState(state.item, inv, state.changedFields);
