@@ -249,8 +249,8 @@ class History {
   // or the timestamp is 0)
   History clean({bool warn = false}) {
     for (final s in series) {
-      // There was only one observation with amount 0, so remove it
-      if (s.observations.length == 1 && s.observations.first.amount == 0) {
+      // There was only one observation, so remove it
+      if (s.observations.length == 1) {
         s.observations.clear();
         if (warn) Log.w('Removed single empty observation from history series $upc.');
       }
