@@ -8,9 +8,11 @@ import 'package:repository/database/preferences_default.dart';
 import 'package:repository/database/preferences_secure.dart';
 import 'package:repository/network/connectivity_service.dart';
 import 'package:repository/repository.dart';
+import 'package:repository/util/hash.dart';
 import 'package:repository_appw/database/history_db.dart';
 import 'package:repository_appw/database/household_db.dart';
 import 'package:repository_appw/database/inventory_db.dart';
+import 'package:repository_appw/database/invitation_db.dart';
 import 'package:repository_appw/database/item_db.dart';
 
 class AppwriteRepository extends CloudRepository {
@@ -25,6 +27,8 @@ class AppwriteRepository extends CloudRepository {
   DateTime? _lastSync;
   final int syncCooldown = 60;
   bool _verified = false;
+  String _userId = '';
+  String _userEmail = '';
 
   AppwriteRepository._(ConnectivityService service) : super(service);
 
@@ -37,6 +41,12 @@ class AppwriteRepository extends CloudRepository {
   @override
   bool get loggedIn =>
       _session != null && DateTime.now().isBefore(DateTime.parse(_session!.expire));
+
+  @override
+  String get userEmail => _userEmail;
+
+  @override
+  String get userId => _userId;
 
   @override
   Future<bool> checkVerificationStatus() async {
@@ -79,9 +89,41 @@ class AppwriteRepository extends CloudRepository {
     });
   }
 
+  Future<void> loadUserInfo() async {
+    if (!ready) {
+      return;
+    }
+
+    // We already have the info loaded
+    if (_userId != '' && _userEmail != '') {
+      return;
+    }
+
+    if (prefs.containsKey('appwrite_session_user') && prefs.containsKey('appwrite_session_email')) {
+      _userId = prefs.getString('appwrite_session_user')!;
+      _userEmail = prefs.getString('appwrite_session_email')!;
+    } else {
+      final userInfo = await _account.get();
+      _userId = hashEmail(userInfo.email);
+      _userEmail = userInfo.email;
+
+      await prefs.setString('appwrite_session_user', _userId);
+      await prefs.setString('appwrite_session_email', _userEmail);
+    }
+  }
+
   @override
   Future<bool> loginUser(String email, String password) async {
     try {
+      // Load the user info
+      _userId = hashEmail(email);
+      _userEmail = email;
+
+      // Store the username and password for later use
+      await prefs.setString('appwrite_session_user', _userId);
+      await prefs.setString('appwrite_session_email', _userEmail);
+
+      // Attempt to load the existing session
       await _loadSession();
 
       // If no valid session, then login
@@ -94,6 +136,8 @@ class AppwriteRepository extends CloudRepository {
       }
     } catch (e, st) {
       Log.w('AppwriteRepository: Failed to login user:', e, st);
+      _userId = '';
+      _userEmail = '';
       return false;
     }
 
@@ -108,6 +152,11 @@ class AppwriteRepository extends CloudRepository {
 
       await prefs.remove('appwrite_session_id');
       await prefs.remove('appwrite_session_expire');
+      await prefs.remove('appwrite_session_user');
+      await prefs.remove('appwrite_session_email');
+
+      _userId = '';
+      _userEmail = '';
 
       final items = this.items as AppwriteItemDatabase;
       final joinedInv = this.inv as JoinedInventoryDatabase;
@@ -216,6 +265,8 @@ class AppwriteRepository extends CloudRepository {
     inv = JoinedInventoryDatabase(inventory, hist);
 
     household = AppwriteHouseholdDatabase(_teams, _databases, 'test', 'user_household', prefs);
+    invitation =
+        AppwriteInvitationDatabase(_databases, 'test', 'invitation', userEmail, household.id);
 
     Log.timerEnd(timer, 'AppwriteRepository: initialized in \$seconds seconds.');
     ready = true;
@@ -246,6 +297,8 @@ class AppwriteRepository extends CloudRepository {
           Log.i('Appwrite: Removed invalid session. Log in required.');
           await prefs.remove('appwrite_session_id');
           await prefs.remove('appwrite_session_expire');
+          await prefs.remove('appwrite_session_user');
+          await prefs.remove('appwrite_session_email');
           return;
         }
       }
@@ -255,6 +308,8 @@ class AppwriteRepository extends CloudRepository {
         Log.i('Appwrite: Session expired, deleting...');
         await prefs.remove('appwrite_session_id');
         await prefs.remove('appwrite_session_expire');
+        await prefs.remove('appwrite_session_user');
+        await prefs.remove('appwrite_session_email');
       }
     } else {
       Log.i('Appwrite: No session found. Log in required.');

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:log/log.dart';
+import 'package:repository/database/cloud/invitation_database.dart';
 import 'package:repository/database/history_database.dart';
 import 'package:repository/database/household_database.dart';
 import 'package:repository/database/inventory_database.dart';
@@ -17,6 +18,7 @@ import 'package:repository/network/connectivity_service.dart';
 
 abstract class CloudRepository extends Repository {
   final ConnectivityService connectivity;
+  late InvitationDatabase invitation;
 
   CloudRepository(this.connectivity) {
     connectivity.addListener(handleConnectivityChange);
@@ -25,6 +27,8 @@ abstract class CloudRepository extends Repository {
   @override
   bool get isMultiUser => true;
   bool get isOnline => connectivity.status == ConnectivityStatus.online;
+  String get userEmail;
+  String get userId;
 
   Future<bool> checkVerificationStatus();
   void handleConnectivityChange(ConnectivityStatus status);
@@ -68,6 +72,12 @@ class SynchronizedRepository extends CloudRepository {
 
   @override
   bool get loggedIn => remote.loggedIn;
+
+  @override
+  String get userEmail => remote.userEmail;
+
+  @override
+  String get userId => remote.userId;
 
   @override
   Future<bool> checkVerificationStatus() async {
