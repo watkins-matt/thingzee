@@ -5,7 +5,7 @@ abstract class HouseholdDatabase {
   DateTime get created;
   String get id;
   List<HouseholdMember> get members;
-
   void addMember(String name, String email, {String? id, bool isAdmin = false});
+  List<HouseholdMember> getChanges(DateTime since);
   void leave();
 }

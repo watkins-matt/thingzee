@@ -62,6 +62,15 @@ class ObjectBoxHouseholdDatabase extends HouseholdDatabase {
   }
 
   @override
+  List<HouseholdMember> getChanges(DateTime since) {
+    final query = box
+        .query(ObjectBoxHouseholdMember_.timestamp.greaterThan(since.millisecondsSinceEpoch))
+        .build();
+    final results = query.find();
+    return results.map((objBoxMember) => objBoxMember.toHouseholdMember()).toList();
+  }
+
+  @override
   void leave() {
     box.removeAll();
     _createNewHousehold();

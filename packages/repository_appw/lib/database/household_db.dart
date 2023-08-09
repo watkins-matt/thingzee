@@ -106,6 +106,14 @@ class AppwriteHouseholdDatabase extends HouseholdDatabase {
     });
   }
 
+  @override
+  List<HouseholdMember> getChanges(DateTime since) {
+    return _members
+        .where((member) =>
+            member.timestamp.millisecondsSinceEpoch != 0 && member.timestamp.isAfter(since))
+        .toList();
+  }
+
   Future<void> handleConnectionChange(bool online, Session? session) async {
     if (online && session != null) {
       _online = true;

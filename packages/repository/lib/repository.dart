@@ -10,6 +10,7 @@ import 'package:repository/database/preferences.dart';
 import 'package:repository/database/preferences_default.dart';
 import 'package:repository/database/preferences_secure.dart';
 import 'package:repository/database/synchronized/sync_history_database.dart';
+import 'package:repository/database/synchronized/sync_household_database.dart';
 import 'package:repository/database/synchronized/sync_inventory_database.dart';
 import 'package:repository/database/synchronized/sync_item_database.dart';
 import 'package:repository/network/connectivity_service.dart';
@@ -119,11 +120,13 @@ class SynchronizedRepository extends CloudRepository {
     final syncItems = items as SynchronizedItemDatabase;
     final syncInv = _getSyncDatabase(inv);
     final syncHistory = hist as SynchronizedHistoryDatabase;
+    final syncHousehold = household as SynchronizedHouseholdDatabase;
 
     Log.i('SynchronizedRepository: syncing differences between remote and local.');
     syncItems.syncDifferences();
     syncInv.syncDifferences();
     syncHistory.syncDifferences();
+    syncHousehold.syncDifferences();
     Log.timerEnd(timer, 'SynchronizedRepository: finished sync in \$seconds seconds.');
 
     return true;
@@ -153,6 +156,8 @@ class SynchronizedRepository extends CloudRepository {
 
     final inventory = SynchronizedInventoryDatabase(local.inv, remote.inv, prefs);
     inv = JoinedInventoryDatabase(inventory, hist);
+
+    household = SynchronizedHouseholdDatabase(local.household, remote.household, prefs);
     ready = true;
   }
 
