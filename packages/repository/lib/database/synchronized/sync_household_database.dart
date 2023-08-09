@@ -2,6 +2,7 @@ import 'package:log/log.dart';
 import 'package:repository/database/household_database.dart';
 import 'package:repository/database/preferences.dart';
 import 'package:repository/model/household_member.dart';
+import 'package:uuid/uuid.dart';
 
 class SynchronizedHouseholdDatabase extends HouseholdDatabase {
   final HouseholdDatabase local;
@@ -26,6 +27,9 @@ class SynchronizedHouseholdDatabase extends HouseholdDatabase {
 
   @override
   void addMember(String name, String email, {String? id, bool isAdmin = false}) {
+    // Ensure we use the same uuid for both databases
+    id ??= const Uuid().v4();
+
     local.addMember(name, email, id: id, isAdmin: isAdmin);
     remote.addMember(name, email, id: id, isAdmin: isAdmin);
   }
