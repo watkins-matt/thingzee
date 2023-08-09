@@ -96,7 +96,7 @@ class AppwriteHouseholdDatabase extends HouseholdDatabase {
               documentId: member.userId,
               data: serializeMember(member));
         } else {
-          Log.e('Failed to put item: [AppwriteException]', e.message);
+          Log.e('Failed to add member to household: [AppwriteException]', e.message);
           // Removing the inventory from local cache since we
           // failed to add it to the database
           _members.remove(member);
