@@ -140,7 +140,7 @@ class AppwriteInventoryDatabase extends InventoryDatabase {
 
   Map<String, dynamic> serializeInventory(Inventory inv) {
     var json = inv.toJson();
-    json['user_id'] = userId;
+    json['userId'] = userId;
     json.remove('history');
     json.remove('units');
 
