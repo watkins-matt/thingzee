@@ -8,8 +8,8 @@ import 'package:uuid/uuid.dart';
 class ObjectBoxHouseholdDatabase extends HouseholdDatabase {
   late Box<ObjectBoxHouseholdMember> box;
   final Preferences prefs;
-  late final String _householdId;
-  late final DateTime _created;
+  String? _householdId;
+  DateTime? _created;
 
   ObjectBoxHouseholdDatabase(Store store, this.prefs) {
     box = store.box<ObjectBoxHouseholdMember>();
@@ -32,10 +32,10 @@ class ObjectBoxHouseholdDatabase extends HouseholdDatabase {
   }
 
   @override
-  DateTime get created => _created;
+  DateTime get created => _created!;
 
   @override
-  String get id => _householdId;
+  String get id => _householdId!;
 
   @override
   List<HouseholdMember> get members {
@@ -49,10 +49,11 @@ class ObjectBoxHouseholdDatabase extends HouseholdDatabase {
       throw Exception('User already exists in household.');
     }
 
+    assert(_householdId != null);
     final householdMember = ObjectBoxHouseholdMember.from(
       HouseholdMember(
         email: email,
-        householdId: _householdId,
+        householdId: _householdId!,
         name: name,
         isAdmin: isAdmin,
         userId: id ?? const Uuid().v4(),
@@ -79,7 +80,7 @@ class ObjectBoxHouseholdDatabase extends HouseholdDatabase {
   void _createNewHousehold() {
     _householdId = const Uuid().v4();
     _created = DateTime.now();
-    prefs.setString('household_id', _householdId);
+    prefs.setString('household_id', _householdId!);
     prefs.setInt('household_created', created.millisecondsSinceEpoch);
   }
 
