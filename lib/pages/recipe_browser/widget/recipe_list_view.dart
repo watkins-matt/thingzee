@@ -9,7 +9,7 @@ class RecipeListView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final recipes = ref.watch(recipeListProvider);
 
-    return ListView.builder(
+    return ListView.separated(
       itemCount: recipes.length,
       itemBuilder: (context, index) {
         final recipe = recipes[index];
@@ -20,31 +20,28 @@ class RecipeListView extends ConsumerWidget {
         } catch (e) {
           isValidUrl = false;
         }
-        return Card(
-          surfaceTintColor: Colors.white,
-          elevation: 3,
-          margin: const EdgeInsets.all(8),
-          child: ListTile(
-            leading: isValidUrl
-                ? SizedBox(
-                    height: 50,
-                    width: 50,
-                    child: Image.network(
-                      recipe.imageUrl,
-                      errorBuilder:
-                          (BuildContext context, Object exception, StackTrace? stackTrace) {
-                        // The recipe does not have an associated image
-                        return Container();
-                      },
-                      fit: BoxFit.cover,
-                    ),
-                  )
-                : null,
-            title: Text(recipe.name),
-            onTap: () {},
-          ),
+        return ListTile(
+          leading: isValidUrl
+              ? SizedBox(
+                  height: 50,
+                  width: 50,
+                  child: Image.network(
+                    recipe.imageUrl,
+                    errorBuilder: (BuildContext context, Object exception, StackTrace? stackTrace) {
+                      // The recipe does not have an associated image
+                      return Container();
+                    },
+                    fit: BoxFit.cover,
+                  ),
+                )
+              : null,
+          title: Text(recipe.name),
+          onTap: () {},
         );
       },
+      separatorBuilder: (context, index) => const Divider(
+        color: Colors.grey,
+      ),
     );
   }
 }
