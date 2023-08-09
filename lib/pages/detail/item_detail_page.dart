@@ -230,25 +230,15 @@ class ItemDetailPage extends HookConsumerWidget {
                   height: 8,
                 ),
                 MaterialCardWidget(children: [
-                  const TitleHeaderWidget(title: 'History'),
+                  TitleHeaderWidget(
+                      title: 'History',
+                      actionButton: IconButton(
+                          onPressed: () async => await onCleanUpHistory(ref),
+                          icon: const Icon(Icons.cleaning_services, color: Colors.blue))),
                   HistoryListView(
                       entries: ref.watch(editableItemProvider.notifier).allHistoryEntries,
                       isScrollable: false),
                 ]),
-                const Padding(
-                  padding: EdgeInsets.all(8),
-                  child: Divider(
-                    thickness: 2,
-                  ),
-                ),
-                TextButton(
-                    onPressed: () async {
-                      final repo = ref.read(repositoryProvider);
-                      ref.read(editableItemProvider.notifier).cleanUpHistory(repo);
-                      final view = ref.read(inventoryProvider.notifier);
-                      await view.refresh();
-                    },
-                    child: const Text('Clean Up History'))
               ],
             ),
           ),
@@ -263,6 +253,13 @@ class ItemDetailPage extends HookConsumerWidget {
     await view.refresh();
 
     return true;
+  }
+
+  Future<void> onCleanUpHistory(WidgetRef ref) async {
+    final repo = ref.read(repositoryProvider);
+    ref.read(editableItemProvider.notifier).cleanUpHistory(repo);
+    final view = ref.read(inventoryProvider.notifier);
+    await view.refresh();
   }
 
   Future<void> onSaveButtonPressed(BuildContext context, WidgetRef ref) async {
