@@ -220,7 +220,12 @@ class AppwriteHouseholdDatabase extends HouseholdDatabase {
       await _teams.get(teamId: _householdId);
     } on AppwriteException catch (e) {
       if (e.code == 404) {
-        await _teams.create(teamId: _householdId, name: _householdId);
+        try {
+          await _teams.create(teamId: _householdId, name: _householdId);
+        } on Exception catch (e) {
+          Log.e('Error while creating team: [Exception]', e.toString());
+          rethrow;
+        }
       } else {
         // TODO: Handle team name conflict and recreate team with a new id
         Log.e('Failed to load team: [AppwriteException]', e.message);
