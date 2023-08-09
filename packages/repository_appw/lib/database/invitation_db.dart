@@ -5,6 +5,7 @@ import 'package:appwrite/models.dart' hide Log, Preferences;
 import 'package:log/log.dart';
 import 'package:repository/database/cloud/invitation_database.dart';
 import 'package:repository/model/cloud/invitation.dart';
+import 'package:repository/util/hash.dart';
 import 'package:uuid/uuid.dart';
 
 class AppwriteInvitationDatabase extends InvitationDatabase {
@@ -69,6 +70,7 @@ class AppwriteInvitationDatabase extends InvitationDatabase {
     if (online && session != null) {
       _online = true;
       userId = session.userId;
+
       await sync();
       scheduleMicrotask(_processQueue);
     } else {
@@ -91,6 +93,8 @@ class AppwriteInvitationDatabase extends InvitationDatabase {
 
   @override
   Invitation send(String email) {
+    String recipientUserId = hashEmail(email);
+
     final invitation = Invitation(
       id: Uuid().v4(),
       householdId: householdId,
@@ -103,11 +107,16 @@ class AppwriteInvitationDatabase extends InvitationDatabase {
     _invitations[invitation.id] = invitation;
     queueTask(() async {
       await _database.createDocument(
-        databaseId: databaseId,
-        collectionId: collectionId,
-        documentId: invitation.id,
-        data: invitation.toJson(),
-      );
+          databaseId: databaseId,
+          collectionId: collectionId,
+          documentId: invitation.id,
+          data: invitation.toJson(),
+          permissions: [
+            Permission.read(Role.user(userId, 'verified')),
+            Permission.read(Role.user(recipientUserId, 'verified')),
+            Permission.write(Role.user(userId, 'verified')),
+            Permission.write(Role.user(recipientUserId, 'verified'))
+          ]);
     });
     return invitation;
   }
