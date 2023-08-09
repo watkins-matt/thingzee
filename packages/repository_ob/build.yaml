@@ -12,6 +12,7 @@ targets:
       repository_ob|object_box_builder:
         enabled: true
         generate_for:
+          - lib/model/household_member.dart
           - lib/model/inventory.dart
           - lib/model/item.dart
           - lib/model/manufacturer.dart

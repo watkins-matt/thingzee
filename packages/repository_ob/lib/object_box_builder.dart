@@ -72,6 +72,8 @@ class ObjectBoxBuilder implements Builder {
   }
 
   String _generateObjectBoxClass(ClassElement originalClass, int typeIdCounter) {
+    bool isImmutable = originalClass.fields.every((field) => field.isFinal);
+
     // This will hold the generated code for a single class.
     var buffer = StringBuffer();
 
@@ -80,35 +82,24 @@ class ObjectBoxBuilder implements Builder {
     buffer.writeln('class ObjectBox${originalClass.name} {');
 
     for (final field in originalClass.fields) {
-      // Skip all properties
-      if (field.setter == null) {
-        continue;
-      }
-
-      // This field should be transient
-      if (transientFields.contains(field.name)) {
-        buffer.writeln('  @Transient()');
-      }
-
-      if (uniqueFields.contains(field.name)) {
-        buffer.writeln('  @Unique(onConflict: ConflictStrategy.replace)');
-      }
-
-      final type = field.type.getDisplayString(withNullability: true);
-      // Must initialize empty lists
-      if (type.contains('List<')) {
-        buffer.writeln('  $type ${field.name} = [];');
-      }
-      // Check for null suffix
-      // else if (field.type.nullabilitySuffix == NullabilitySuffix.question) {
-      //   buffer.writeln('  $type ${field.name}?;');
-      // }
-
-      // Initialize transient fields
-      else if (transientFields.contains(field.name)) {
-        buffer.writeln('  $type ${field.name} = $type();');
-      } else {
-        buffer.writeln('  late $type ${field.name};');
+      if (field.isFinal || field.setter != null) {
+        // Handle transient fields
+        if (transientFields.contains(field.name)) {
+          buffer.writeln('  @Transient()');
+        }
+        // Handle unique fields
+        if (uniqueFields.contains(field.name)) {
+          buffer.writeln('  @Unique(onConflict: ConflictStrategy.replace)');
+        }
+        // Handle field type and initialization
+        final type = field.type.getDisplayString(withNullability: true);
+        if (type.contains('List<')) {
+          buffer.writeln('  $type ${field.name} = [];');
+        } else if (transientFields.contains(field.name)) {
+          buffer.writeln('  $type ${field.name} = $type();');
+        } else {
+          buffer.writeln('  late $type ${field.name};');
+        }
       }
     }
 
@@ -121,7 +112,7 @@ class ObjectBoxBuilder implements Builder {
     // Write a constructor that takes an instance of the original class.
     buffer.writeln('  ObjectBox${originalClass.name}.from(${originalClass.name} original) {');
     for (final field in originalClass.fields) {
-      if (field.setter != null) {
+      if (field.isFinal || field.setter != null) {
         buffer.writeln('    ${field.name} = original.${field.name};');
       }
     }
@@ -130,18 +121,34 @@ class ObjectBoxBuilder implements Builder {
     // Write the conversion methods.
     buffer.writeln('  ${originalClass.name} to${originalClass.name}() {');
 
+    // DO NOT REMOVE THE FOLLOWING. This code is necessary to ensure
+    // that the history is in a consistent state.
     if (originalClass.name == 'Inventory') {
       buffer.writeln('      // Ensure history is in a consistent state');
       buffer.writeln('      history.upc = upc;');
     }
 
-    buffer.writeln('    return ${originalClass.name}()');
-    for (final field in originalClass.fields) {
-      if (field.setter != null) {
-        buffer.writeln('      ..${field.name} = ${field.name}');
+    if (isImmutable) {
+      buffer.writeln('    return ${originalClass.name}(');
+      for (final field in originalClass.fields) {
+        if (field.isFinal) {
+          buffer.write('      ${field.name}: ${field.name}');
+          if (field != originalClass.fields.last) {
+            buffer.write(',');
+          }
+          buffer.writeln();
+        }
       }
+      buffer.writeln('    );');
+    } else {
+      buffer.writeln('    return ${originalClass.name}()');
+      for (final field in originalClass.fields) {
+        if (field.setter != null) {
+          buffer.writeln('      ..${field.name} = ${field.name}');
+        }
+      }
+      buffer.writeln('    ;');
     }
-    buffer.writeln('    ;');
     buffer.writeln('  }');
 
     // Include template file if it exists

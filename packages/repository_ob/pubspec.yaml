@@ -16,6 +16,7 @@ dependencies:
   path_provider: ^2.0.15
   repository:
     path: ../repository
+  uuid: ^3.0.7
 
 dev_dependencies:
   build: ^2.4.0

@@ -7,6 +7,7 @@ import 'package:repository/database/preferences_default.dart';
 import 'package:repository/database/preferences_secure.dart';
 import 'package:repository/repository.dart';
 import 'package:repository_ob/database/history_db.dart';
+import 'package:repository_ob/database/household_db.dart';
 import 'package:repository_ob/database/inventory_joined_db.dart';
 import 'package:repository_ob/database/item_db.dart';
 
@@ -34,6 +35,7 @@ class ObjectBoxRepository extends Repository {
     items = ObjectBoxItemDatabase(store);
     hist = ObjectBoxHistoryDatabase(store);
     inv = ObjectBoxJoinedInventoryDatabase(store, hist);
+    household = ObjectBoxHouseholdDatabase(store, prefs);
 
     Log.timerEnd(timer, 'ObjectBox repository initialized in \$seconds seconds');
     ready = true;

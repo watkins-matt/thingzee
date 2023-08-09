@@ -9,6 +9,7 @@ import 'package:repository/database/preferences_secure.dart';
 import 'package:repository/network/connectivity_service.dart';
 import 'package:repository/repository.dart';
 import 'package:repository_appw/database/history_db.dart';
+import 'package:repository_appw/database/household_db.dart';
 import 'package:repository_appw/database/inventory_db.dart';
 import 'package:repository_appw/database/item_db.dart';
 
@@ -16,6 +17,7 @@ class AppwriteRepository extends CloudRepository {
   late Client _client;
   late Account _account;
   late Databases _databases;
+  late Teams _teams;
   final String appwriteEndpoint = 'https://cloud.appwrite.io/v1';
   final String projectId = 'thingzee';
   final String verificationEndpoint = 'https://verify.thingzee.net';
@@ -66,10 +68,12 @@ class AppwriteRepository extends CloudRepository {
       final joinedInv = this.inv as JoinedInventoryDatabase;
       final inv = joinedInv.inventoryDatabase as AppwriteInventoryDatabase;
       final hist = this.hist as AppwriteHistoryDatabase;
+      final household = this.household as AppwriteHouseholdDatabase;
 
       await items.handleConnectionChange(online, _session);
       await inv.handleConnectionChange(online, _session);
       await hist.handleConnectionChange(online, _session);
+      await household.handleConnectionChange(online, _session);
       Log.i('AppwriteRepository: Connectivity status handling completed.');
       _lastSync = DateTime.now();
     });
@@ -109,10 +113,12 @@ class AppwriteRepository extends CloudRepository {
       final joinedInv = this.inv as JoinedInventoryDatabase;
       final inv = joinedInv.inventoryDatabase as AppwriteInventoryDatabase;
       final hist = this.hist as AppwriteHistoryDatabase;
+      final household = this.household as AppwriteHouseholdDatabase;
 
       await items.handleConnectionChange(false, null);
       await inv.handleConnectionChange(false, null);
       await hist.handleConnectionChange(false, null);
+      await household.handleConnectionChange(false, null);
 
       Log.i('AppwriteRepository: Successfully logged out user.');
     }
@@ -176,10 +182,12 @@ class AppwriteRepository extends CloudRepository {
     final joinedInv = this.inv as JoinedInventoryDatabase;
     final inv = joinedInv.inventoryDatabase as AppwriteInventoryDatabase;
     final hist = this.hist as AppwriteHistoryDatabase;
+    final household = this.household as AppwriteHouseholdDatabase;
 
     await items.handleConnectionChange(true, _session);
     await inv.handleConnectionChange(true, _session);
     await hist.handleConnectionChange(true, _session);
+    await household.handleConnectionChange(true, _session);
 
     Log.timerEnd(timer, 'AppwriteRepository: Sync completed in \$seconds seconds.');
     _lastSync = DateTime.now();
@@ -195,6 +203,7 @@ class AppwriteRepository extends CloudRepository {
 
     _account = Account(_client);
     _databases = Databases(_client);
+    _teams = Teams(_client);
 
     prefs = await DefaultSharedPreferences.create();
     securePrefs = await SecurePreferences.create();
@@ -205,6 +214,8 @@ class AppwriteRepository extends CloudRepository {
     // Create joined inventory database
     final inventory = AppwriteInventoryDatabase(prefs, _databases, 'test', 'user_inventory');
     inv = JoinedInventoryDatabase(inventory, hist);
+
+    household = AppwriteHouseholdDatabase(_teams, _databases, 'test', 'user_household', prefs);
 
     Log.timerEnd(timer, 'AppwriteRepository: initialized in \$seconds seconds.');
     ready = true;

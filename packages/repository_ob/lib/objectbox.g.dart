@@ -14,6 +14,7 @@ import 'package:objectbox/internal.dart'; // generated code can access "internal
 import 'package:objectbox/objectbox.dart';
 import 'package:objectbox_flutter_libs/objectbox_flutter_libs.dart';
 
+import 'model/household_member.ob.dart';
 import 'model/inventory.ob.dart';
 import 'model/item.ob.dart';
 import 'model/manufacturer.ob.dart';
@@ -334,6 +335,50 @@ final _entities = <ModelEntity>[
             flags: 1)
       ],
       relations: <ModelRelation>[],
+      backlinks: <ModelBacklink>[]),
+  ModelEntity(
+      id: const IdUid(19, 8501125382873435329),
+      name: 'ObjectBoxHouseholdMember',
+      lastPropertyId: const IdUid(8, 3618722309383559273),
+      flags: 0,
+      properties: <ModelProperty>[
+        ModelProperty(
+            id: const IdUid(1, 4243342055390721375),
+            name: 'objectBoxId',
+            type: 6,
+            flags: 1),
+        ModelProperty(
+            id: const IdUid(2, 8750205013675183738),
+            name: 'isAdmin',
+            type: 1,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(3, 6176841570395132493),
+            name: 'timestamp',
+            type: 10,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(5, 8682336750676568002),
+            name: 'email',
+            type: 9,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(6, 4359941432476552937),
+            name: 'householdId',
+            type: 9,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(7, 4577600509295133427),
+            name: 'name',
+            type: 9,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(8, 3618722309383559273),
+            name: 'userId',
+            type: 9,
+            flags: 0)
+      ],
+      relations: <ModelRelation>[],
       backlinks: <ModelBacklink>[])
 ];
 
@@ -357,7 +402,7 @@ Future<Store> openStore(
 ModelDefinition getObjectBoxModel() {
   final model = ModelInfo(
       entities: _entities,
-      lastEntityId: const IdUid(18, 6355597710876493410),
+      lastEntityId: const IdUid(19, 8501125382873435329),
       lastIndexId: const IdUid(8, 866918556565432518),
       lastRelationId: const IdUid(0, 0),
       lastSequenceId: const IdUid(0, 0),
@@ -438,7 +483,8 @@ ModelDefinition getObjectBoxModel() {
         8898497516433519050,
         6575382785729127895,
         3045175981976767442,
-        4738601771660428828
+        4738601771660428828,
+        9191167413262940472
       ],
       retiredRelationUids: const [],
       modelVersion: 5,
@@ -789,6 +835,52 @@ ModelDefinition getObjectBoxModel() {
                 const fb.Int64Reader().vTableGet(buffer, rootOffset, 16, 0);
 
           return object;
+        }),
+    ObjectBoxHouseholdMember: EntityDefinition<ObjectBoxHouseholdMember>(
+        model: _entities[7],
+        toOneRelations: (ObjectBoxHouseholdMember object) => [],
+        toManyRelations: (ObjectBoxHouseholdMember object) => {},
+        getId: (ObjectBoxHouseholdMember object) => object.objectBoxId,
+        setId: (ObjectBoxHouseholdMember object, int id) {
+          object.objectBoxId = id;
+        },
+        objectToFB: (ObjectBoxHouseholdMember object, fb.Builder fbb) {
+          final emailOffset = fbb.writeString(object.email);
+          final householdIdOffset = fbb.writeString(object.householdId);
+          final nameOffset = fbb.writeString(object.name);
+          final userIdOffset = fbb.writeString(object.userId);
+          fbb.startTable(9);
+          fbb.addInt64(0, object.objectBoxId);
+          fbb.addBool(1, object.isAdmin);
+          fbb.addInt64(2, object.timestamp.millisecondsSinceEpoch);
+          fbb.addOffset(4, emailOffset);
+          fbb.addOffset(5, householdIdOffset);
+          fbb.addOffset(6, nameOffset);
+          fbb.addOffset(7, userIdOffset);
+          fbb.finish(fbb.endTable());
+          return object.objectBoxId;
+        },
+        objectFromFB: (Store store, ByteData fbData) {
+          final buffer = fb.BufferContext(fbData);
+          final rootOffset = buffer.derefObject(0);
+
+          final object = ObjectBoxHouseholdMember()
+            ..objectBoxId =
+                const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0)
+            ..isAdmin =
+                const fb.BoolReader().vTableGet(buffer, rootOffset, 6, false)
+            ..timestamp = DateTime.fromMillisecondsSinceEpoch(
+                const fb.Int64Reader().vTableGet(buffer, rootOffset, 8, 0))
+            ..email = const fb.StringReader(asciiOptimization: true)
+                .vTableGet(buffer, rootOffset, 12, '')
+            ..householdId = const fb.StringReader(asciiOptimization: true)
+                .vTableGet(buffer, rootOffset, 14, '')
+            ..name = const fb.StringReader(asciiOptimization: true)
+                .vTableGet(buffer, rootOffset, 16, '')
+            ..userId = const fb.StringReader(asciiOptimization: true)
+                .vTableGet(buffer, rootOffset, 18, '');
+
+          return object;
         })
   };
 
@@ -1011,4 +1103,35 @@ class ObjectBoxItemTranslation_ {
   /// see [ObjectBoxItemTranslation.objectBoxId]
   static final objectBoxId = QueryIntegerProperty<ObjectBoxItemTranslation>(
       _entities[6].properties[6]);
+}
+
+/// [ObjectBoxHouseholdMember] entity fields to define ObjectBox queries.
+class ObjectBoxHouseholdMember_ {
+  /// see [ObjectBoxHouseholdMember.objectBoxId]
+  static final objectBoxId = QueryIntegerProperty<ObjectBoxHouseholdMember>(
+      _entities[7].properties[0]);
+
+  /// see [ObjectBoxHouseholdMember.isAdmin]
+  static final isAdmin = QueryBooleanProperty<ObjectBoxHouseholdMember>(
+      _entities[7].properties[1]);
+
+  /// see [ObjectBoxHouseholdMember.timestamp]
+  static final timestamp = QueryIntegerProperty<ObjectBoxHouseholdMember>(
+      _entities[7].properties[2]);
+
+  /// see [ObjectBoxHouseholdMember.email]
+  static final email =
+      QueryStringProperty<ObjectBoxHouseholdMember>(_entities[7].properties[3]);
+
+  /// see [ObjectBoxHouseholdMember.householdId]
+  static final householdId =
+      QueryStringProperty<ObjectBoxHouseholdMember>(_entities[7].properties[4]);
+
+  /// see [ObjectBoxHouseholdMember.name]
+  static final name =
+      QueryStringProperty<ObjectBoxHouseholdMember>(_entities[7].properties[5]);
+
+  /// see [ObjectBoxHouseholdMember.userId]
+  static final userId =
+      QueryStringProperty<ObjectBoxHouseholdMember>(_entities[7].properties[6]);
 }

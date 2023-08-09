@@ -11,6 +11,7 @@ class HiveBuilder implements Builder {
     'ItemTranslation': 2,
     'Manufacturer': 3,
     'Product': 4,
+    'HouseholdMember': 5,
     'History': 223
   };
 
@@ -76,6 +77,8 @@ class HiveBuilder implements Builder {
   }
 
   String _generateHiveClass(ClassElement originalClass) {
+    bool isImmutable = originalClass.fields.every((field) => field.isFinal);
+
     // This will hold the generated code for a single class.
     var buffer = StringBuffer();
 
@@ -95,7 +98,7 @@ class HiveBuilder implements Builder {
     var fieldIndex = 0;
     for (final field in originalClass.fields) {
       // Skip all properties
-      if (field.setter == null) {
+      if (field.setter == null && !field.isFinal) {
         continue;
       }
 
@@ -110,21 +113,35 @@ class HiveBuilder implements Builder {
     // Write a constructor that takes an instance of the original class.
     buffer.writeln('  Hive${originalClass.name}.from(${originalClass.name} original) {');
     for (final field in originalClass.fields) {
-      if (field.setter != null) {
+      if (field.isFinal || field.setter != null) {
         buffer.writeln('    ${field.name} = original.${field.name};');
       }
     }
     buffer.writeln('  }');
 
-    // Write the conversion methods.
+    // Write the conversion method
     buffer.writeln('  ${originalClass.name} to${originalClass.name}() {');
-    buffer.writeln('    return ${originalClass.name}()');
-    for (final field in originalClass.fields) {
-      if (field.setter != null) {
-        buffer.writeln('      ..${field.name} = ${field.name}');
+    if (isImmutable) {
+      buffer.writeln('    return ${originalClass.name}(');
+      for (final field in originalClass.fields) {
+        if (field.isFinal) {
+          buffer.write('      ${field.name}: ${field.name}');
+          if (field != originalClass.fields.last) {
+            buffer.write(',');
+          }
+          buffer.writeln();
+        }
       }
+      buffer.writeln('    );');
+    } else {
+      buffer.writeln('    return ${originalClass.name}()');
+      for (final field in originalClass.fields) {
+        if (field.setter != null) {
+          buffer.writeln('      ..${field.name} = ${field.name}');
+        }
+      }
+      buffer.writeln('    ;');
     }
-    buffer.writeln('    ;');
     buffer.writeln('  }');
 
     // Close the class declaration.

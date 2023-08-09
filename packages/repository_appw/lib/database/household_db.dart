@@ -3,9 +3,9 @@ import 'dart:async';
 import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/models.dart' hide Log, Preferences;
 import 'package:log/log.dart';
-import 'package:repository/database/cloud/household_database.dart';
+import 'package:repository/database/household_database.dart';
 import 'package:repository/database/preferences.dart';
-import 'package:repository/model/cloud/household.dart';
+import 'package:repository/model/household_member.dart';
 import 'package:uuid/uuid.dart';
 
 class AppwriteHouseholdDatabase extends HouseholdDatabase {
@@ -13,54 +13,97 @@ class AppwriteHouseholdDatabase extends HouseholdDatabase {
   bool _online = false;
   bool _processingQueue = false;
   DateTime? _lastRateLimitHit;
+  DateTime? lastSync;
   final _taskQueue = <_QueueTask>[];
   final Databases _database;
+  final List<HouseholdMember> _members = [];
   final Preferences prefs;
   final String collectionId;
   final String databaseId;
   final Teams _teams;
+  late final DateTime _created;
+  late final String _householdId;
+  String lastSyncKey = 'AppwriteHouseholdDatabase.lastSync';
   String userId = '';
-  Household? _household;
 
   AppwriteHouseholdDatabase(
-      this._teams, this._database, this.databaseId, this.collectionId, this.prefs);
+      this._teams, this._database, this.databaseId, this.collectionId, this.prefs) {
+    // Update the last sync time
+    int? lastSyncMillis = prefs.getInt(lastSyncKey);
+    if (lastSyncMillis != null) {
+      lastSync = DateTime.fromMillisecondsSinceEpoch(lastSyncMillis);
+    }
 
-  @override
-  Household? get household {
-    return _household;
+    // Update the household information
+    if (!prefs.containsKey('household_id') || !prefs.containsKey('household_created')) {
+      _createNewHousehold();
+    } else {
+      _loadHousehold();
+    }
   }
 
   @override
-  Household create() {
-    final uuid = Uuid().v4();
-    final creationDate = DateTime.now();
+  List<HouseholdMember> get admins => _members.where((element) => element.isAdmin).toList();
+
+  @override
+  DateTime get created => _created;
+
+  @override
+  String get id => _householdId;
+
+  @override
+  List<HouseholdMember> get members => _members;
+
+  @override
+  void addMember(String name, String email, {String? id, bool isAdmin = false}) {
+    if (id != null && _members.any((element) => element.userId == id)) {
+      throw Exception('User already exists in household.');
+    }
+
+    if (id != null && id.isEmpty) {
+      Log.w('AppwriteHouseholdDatabase: User ID an empty string. Defaulting to unique id.');
+      id = const Uuid().v4();
+    }
+
+    final member = HouseholdMember(
+      email: email,
+      householdId: _householdId,
+      name: name,
+      isAdmin: isAdmin,
+      userId: id ?? const Uuid().v4(),
+    );
+
+    _members.add(member);
 
     queueTask(() async {
-      final team = await _teams.create(teamId: uuid, name: '$uuid');
-
-      // After creating the team, create a document in the household database
-      await _database.createDocument(
-        databaseId: databaseId,
-        collectionId: collectionId,
-        documentId: uuid,
-        data: {
-          'id': team.$id,
-          'timestamp': creationDate.toIso8601String(),
-          'userIds': [userId],
-          'adminIds': [userId],
-          'names': [],
-        },
-      );
-      await prefs.setString('householdId', uuid);
+      try {
+        await _database.updateDocument(
+            databaseId: databaseId,
+            collectionId: collectionId,
+            documentId: member.userId,
+            data: serializeMember(member));
+      } on AppwriteException catch (e) {
+        if (e.code == 404) {
+          await _database.createDocument(
+              databaseId: databaseId,
+              collectionId: collectionId,
+              documentId: member.userId,
+              data: serializeMember(member));
+        } else if (e.code == 409) {
+          await _database.updateDocument(
+              databaseId: databaseId,
+              collectionId: collectionId,
+              documentId: member.userId,
+              data: serializeMember(member));
+        } else {
+          Log.e('Failed to put item: [AppwriteException]', e.message);
+          // Removing the inventory from local cache since we
+          // failed to add it to the database
+          _members.remove(member);
+          rethrow;
+        }
+      }
     });
-
-    return Household(
-      id: uuid,
-      timestamp: creationDate,
-      userIds: [userId],
-      adminIds: [userId],
-      names: [],
-    );
   }
 
   Future<void> handleConnectionChange(bool online, Session? session) async {
@@ -91,29 +134,91 @@ class AppwriteHouseholdDatabase extends HouseholdDatabase {
     scheduleMicrotask(_processQueue);
   }
 
+  Map<String, dynamic> serializeMember(HouseholdMember member) {
+    var json = member.toJson();
+    return json;
+  }
+
   Future<void> sync() async {
-    if (!_online) return;
-
-    final timer = Log.timerStart();
-
-    try {
-      final String householdId = prefs.getString('householdId') ?? '';
-      if (householdId.isEmpty) {
-        throw Exception('Household ID not found in preferences.');
-      }
-
-      final Document response = await _database.getDocument(
-        databaseId: databaseId,
-        collectionId: collectionId,
-        documentId: householdId,
-      );
-
-      _household = Household.fromJson(response.data);
-    } on AppwriteException catch (e) {
-      Log.e('Failed to sync household: [AppwriteException]', e.message);
+    // Can't sync when offline
+    if (!_online) {
+      return;
     }
 
-    Log.timerEnd(timer, 'Appwrite: Household synced in \$seconds seconds.');
+    final timer = Log.timerStart();
+    String? cursor;
+    List<HouseholdMember> allMembers = [];
+
+    try {
+      DocumentList response;
+
+      do {
+        List<String> queries = [Query.limit(100)];
+
+        if (cursor != null) {
+          queries.add(Query.cursorAfter(cursor));
+        }
+
+        response = await _database.listDocuments(
+          databaseId: databaseId,
+          collectionId: collectionId,
+          queries: queries,
+        );
+
+        final members = _documentsToMembers(response);
+        allMembers.addAll(members);
+
+        if (response.documents.isNotEmpty) {
+          cursor = response.documents.last.$id;
+        }
+      } while (response.documents.isNotEmpty);
+
+      _members.clear();
+      _members.addAll(allMembers);
+    } on AppwriteException catch (e) {
+      Log.e('Failed to sync household members: [AppwriteException]', e.message);
+    }
+
+    Log.timerEnd(timer, 'Appwrite: Household members synced in \$seconds seconds.');
+    _updateSyncTime();
+  }
+
+  Future<void> _createNewHousehold() async {
+    _householdId = const Uuid().v4();
+    _created = DateTime.now();
+    await prefs.setString('household_id', _householdId);
+    await prefs.setInt('household_created', _created.millisecondsSinceEpoch);
+
+    try {
+      await _teams.create(teamId: _householdId, name: _householdId);
+    } on AppwriteException catch (e) {
+      Log.e('Failed to create team: [AppwriteException]', e.message);
+      rethrow;
+    }
+  }
+
+  List<HouseholdMember> _documentsToMembers(DocumentList documentList) {
+    return documentList.documents.map((document) {
+      return HouseholdMember.fromJson(document.data);
+    }).toList();
+  }
+
+  Future<void> _loadHousehold() async {
+    _householdId = prefs.getString('household_id')!;
+    _created = DateTime.fromMillisecondsSinceEpoch(prefs.getInt('household_created')!);
+
+    // Check if the team exists, and save it or create it if necessary
+    try {
+      await _teams.get(teamId: _householdId);
+    } on AppwriteException catch (e) {
+      if (e.code == 404) {
+        await _teams.create(teamId: _householdId, name: _householdId);
+      } else {
+        // TODO: Handle team name conflict and recreate team with a new id
+        Log.e('Failed to load team: [AppwriteException]', e.message);
+        rethrow;
+      }
+    }
   }
 
   Future<void> _processQueue() async {
@@ -149,6 +254,11 @@ class AppwriteHouseholdDatabase extends HouseholdDatabase {
     } finally {
       _processingQueue = false;
     }
+  }
+
+  void _updateSyncTime() {
+    lastSync = DateTime.now();
+    prefs.setInt(lastSyncKey, lastSync!.millisecondsSinceEpoch);
   }
 }
 

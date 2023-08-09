@@ -3,7 +3,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:repository/repository.dart';
 import 'package:thingzee/app.dart';
 import 'package:thingzee/main.dart';
-import 'package:thingzee/pages/household/household_landing.dart';
+import 'package:thingzee/pages/household/household_page.dart';
 import 'package:thingzee/pages/inventory/widget/drop_down_menu.dart';
 import 'package:thingzee/pages/login/login_page.dart';
 import 'package:thingzee/pages/login/state/user_profile.dart';
@@ -25,7 +25,7 @@ class UserDropdownMenu extends BaseDropdownMenu {
         );
 
   static Future<void> _household(BuildContext context, WidgetRef ref) async {
-    await HouseholdLandingPage.push(context);
+    await HouseholdPage.push(context);
   }
 
   static List<PopupMenuEntry<String>> _itemBuilder(WidgetRef ref, BuildContext context) {
