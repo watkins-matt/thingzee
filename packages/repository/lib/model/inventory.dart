@@ -4,6 +4,7 @@ import 'package:repository/extension/duration.dart';
 import 'package:repository/extension/list.dart';
 import 'package:repository/merge_generator.dart';
 import 'package:repository/ml/history.dart';
+import 'package:repository/model/serializer_datetime.dart';
 import 'package:stats/double.dart';
 
 part 'inventory.g.dart';
@@ -154,14 +155,4 @@ class Inventory {
 
   Inventory merge(Inventory other) => _$mergeInventory(this, other);
   Map<String, dynamic> toJson() => _$InventoryToJson(this);
-}
-
-class NullableDateTimeSerializer implements JsonConverter<DateTime?, int> {
-  const NullableDateTimeSerializer();
-
-  @override
-  DateTime? fromJson(int json) => json == 0 ? null : DateTime.fromMillisecondsSinceEpoch(json);
-
-  @override
-  int toJson(DateTime? dateTime) => dateTime != null ? dateTime.millisecondsSinceEpoch : 0;
 }

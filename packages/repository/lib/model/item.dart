@@ -1,6 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:repository/merge_generator.dart';
-import 'package:repository/model/inventory.dart';
+import 'package:repository/model/serializer_datetime.dart';
 
 part 'item.g.dart';
 part 'item.merge.dart';
