@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:repository/model/household_member.dart';
+import 'package:thingzee/pages/detail/widget/labeled_text.dart';
+import 'package:thingzee/pages/detail/widget/material_card_widget.dart';
 import 'package:thingzee/pages/detail/widget/title_header_widget.dart';
 import 'package:thingzee/pages/household/state/household_state.dart';
 import 'package:thingzee/pages/household/widget/add_member_dialog.dart';
@@ -28,28 +30,39 @@ class _HouseholdPageState extends ConsumerState<HouseholdPage> {
     final householdId = ref.watch(householdProvider.notifier).household.id;
 
     return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
       appBar: AppBar(
-        title: const Text('Household View'),
+        title: const Text('Household'),
         actions: [
           TextButton.icon(
             onPressed: _handleExitHousehold,
             icon: const Icon(Icons.exit_to_app),
-            label: const Text('Leave Household'),
+            label: const Text('Leave'),
           ),
         ],
       ),
       body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          Text('Household created on: $householdCreatedDate'),
-          Text('Household ID: $householdId'),
-          TitleHeaderWidget(
-            title: 'Members',
-            actionButton: IconButton(
-              onPressed: _showAddMemberDialog,
-              icon: const Icon(Icons.add),
-            ),
+          MaterialCardWidget(children: [
+            const TitleHeaderWidget(title: 'Information'),
+            LabeledText(labelText: 'ID', value: householdId),
+            LabeledText(labelText: 'Created', value: householdCreatedDate.toIso8601String()),
+          ]),
+          const SizedBox(
+            height: 8,
           ),
-          ..._buildMembersList(householdMembers),
+          MaterialCardWidget(children: [
+            TitleHeaderWidget(
+              title: 'Members',
+              actionButton: IconButton(
+                onPressed: _showAddMemberDialog,
+                icon: const Icon(Icons.add),
+              ),
+            ),
+            ..._buildMembersList(householdMembers),
+          ])
         ],
       ),
     );
