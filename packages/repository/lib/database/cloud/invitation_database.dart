@@ -6,5 +6,5 @@ abstract class InvitationDatabase {
   void accept(Invitation invitation);
   void delete(Invitation invitation);
   List<Invitation> pendingInvites();
-  Invitation send(String email);
+  Invitation send(String userEmail, String recipientEmail);
 }

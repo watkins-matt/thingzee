@@ -20,15 +20,12 @@ class AppwriteInvitationDatabase extends InvitationDatabase {
   final Databases _database;
   final String collectionId;
   final String databaseId;
-  final String userEmail;
   final String householdId;
-  String userId = '';
 
   AppwriteInvitationDatabase(
     this._database,
     this.databaseId,
     this.collectionId,
-    this.userEmail,
     this.householdId,
   );
 
@@ -69,13 +66,10 @@ class AppwriteInvitationDatabase extends InvitationDatabase {
   Future<void> handleConnectionChange(bool online, Session? session) async {
     if (online && session != null) {
       _online = true;
-      userId = session.userId;
-
       await sync();
       scheduleMicrotask(_processQueue);
     } else {
       _online = false;
-      userId = '';
     }
   }
 
@@ -92,15 +86,16 @@ class AppwriteInvitationDatabase extends InvitationDatabase {
   }
 
   @override
-  Invitation send(String email) {
-    String recipientUserId = hashEmail(email);
+  Invitation send(String userEmail, String recipientEmail) {
+    String userId = hashEmail(userEmail);
+    String recipientUserId = hashEmail(recipientEmail);
 
     final invitation = Invitation(
       id: Uuid().v4(),
       householdId: householdId,
       inviterEmail: userEmail,
       inviterUserId: userId,
-      recipientEmail: email,
+      recipientEmail: recipientEmail,
       timestamp: DateTime.now(),
       status: InvitationStatus.pending,
     );
@@ -115,7 +110,6 @@ class AppwriteInvitationDatabase extends InvitationDatabase {
             Permission.read(Role.user(userId, 'verified')),
             Permission.read(Role.user(recipientUserId, 'verified')),
             Permission.write(Role.user(userId, 'verified')),
-            Permission.write(Role.user(recipientUserId, 'verified'))
           ]);
     });
     return invitation;
