@@ -168,6 +168,8 @@ class SynchronizedRepository extends CloudRepository {
     inv = JoinedInventoryDatabase(inventory, hist);
 
     household = SynchronizedHouseholdDatabase(local.household, remote.household, prefs);
+    invitation = remote.invitation;
+
     ready = true;
   }
 
