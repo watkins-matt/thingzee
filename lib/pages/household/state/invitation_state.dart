@@ -1,0 +1,35 @@
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:repository/database/cloud/invitation_database.dart';
+import 'package:repository/model/cloud/invitation.dart';
+import 'package:repository/repository.dart';
+import 'package:thingzee/main.dart';
+
+final invitationsProvider = StateNotifierProvider<InvitationState, List<Invitation>>((ref) {
+  final repo = ref.watch(repositoryProvider);
+  CloudRepository cloudRepo = repo as CloudRepository;
+  return InvitationState(cloudRepo);
+});
+
+class InvitationState extends StateNotifier<List<Invitation>> {
+  final CloudRepository cloudRepo;
+
+  InvitationState(this.cloudRepo) : super(cloudRepo.invitation.pendingInvites());
+  bool get canSendInvites =>
+      cloudRepo.isMultiUser && cloudRepo.isUserVerified && cloudRepo.loggedIn;
+
+  bool isUserInvited(String email) {
+    assert(canSendInvites);
+    InvitationDatabase invitation = cloudRepo.invitation;
+    List<Invitation> invites = invitation.pendingInvites();
+    return invites.any((element) => element.recipientEmail == email);
+  }
+
+  void refreshInvitations() {
+    state = cloudRepo.invitation.pendingInvites();
+  }
+
+  void sendInvite(String email) {
+    cloudRepo.invitation.send(email);
+    refreshInvitations();
+  }
+}

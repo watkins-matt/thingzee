@@ -5,6 +5,7 @@ import 'package:thingzee/pages/detail/widget/labeled_text.dart';
 import 'package:thingzee/pages/detail/widget/material_card_widget.dart';
 import 'package:thingzee/pages/detail/widget/title_header_widget.dart';
 import 'package:thingzee/pages/household/state/household_state.dart';
+import 'package:thingzee/pages/household/state/invitation_state.dart';
 import 'package:thingzee/pages/household/widget/add_member_dialog.dart';
 
 class HouseholdPage extends ConsumerStatefulWidget {
@@ -70,15 +71,33 @@ class _HouseholdPageState extends ConsumerState<HouseholdPage> {
 
   List<Widget> _buildMembersList(List<HouseholdMember> members) {
     return members.map((member) {
+      bool userInvited = ref.watch(invitationsProvider.notifier).isUserInvited(member.email);
+
       return ListTile(
         title: Text(member.name),
         subtitle: Text(member.email),
+        trailing: userInvited
+            ? ElevatedButton(
+                onPressed: null,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.grey,
+                ),
+                child: const Text('Invite Sent'),
+              )
+            : ElevatedButton(
+                onPressed: () => _inviteUser(member.email),
+                child: const Text('Send Invite'),
+              ),
       );
     }).toList();
   }
 
   void _handleExitHousehold() {
     ref.read(householdProvider.notifier).leave();
+  }
+
+  void _inviteUser(String email) {
+    ref.read(invitationsProvider.notifier).sendInvite(email);
   }
 
   Future<void> _showAddMemberDialog() async {
