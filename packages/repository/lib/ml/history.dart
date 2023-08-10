@@ -249,15 +249,18 @@ class History {
   // or the timestamp is 0)
   History clean({bool warn = false}) {
     for (final s in series) {
-      // There was only one observation, so remove it
-      if (s.observations.length == 1) {
+      // There was only one observation, and this is not the last series
+      if (s.observations.length == 1 && (last != null && s.observations.last != last)) {
         s.observations.clear();
         if (warn) Log.w('Removed single empty observation from history series $upc.');
       }
       // Remove any observations with placeholder timestamps
       else {
+        int originalCount = s.observations.length;
         s.observations.removeWhere((o) => o.timestamp == 0);
-        if (warn) Log.w('Removed observation with invalid timestamp from history series $upc.');
+        if (originalCount > s.observations.length && warn) {
+          Log.w('Removed observation with invalid timestamp from history series $upc.');
+        }
       }
 
       // Ensure that every item is decreasing, and remove duplicates
