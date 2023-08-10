@@ -1,10 +1,9 @@
-import 'dart:convert';
-
-import 'package:crypto/crypto.dart';
+import 'package:uuid/uuid.dart';
 
 String hashEmail(String email) {
-  final reversedEmail = email.split('').reversed.join(''); // Reverse the email string
-  final bytes = utf8.encode(reversedEmail); // Encode the reversed email to bytes
-  final digest = sha256.convert(bytes); // Hash the bytes using SHA-256
-  return digest.toString(); // Convert the digest to a hex string
+  const namespace = '3c7fd503-ad66-4d00-80c6-01c87a9ff9a3';
+  final reversedEmail = email.split('').reversed.join('');
+
+  var uuid = const Uuid();
+  return uuid.v5(namespace, reversedEmail);
 }
