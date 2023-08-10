@@ -24,12 +24,22 @@ class InvitationState extends StateNotifier<List<Invitation>> {
     return invites.any((element) => element.recipientEmail == email);
   }
 
+  bool isUserSelf(String email) => cloudRepo.userEmail == email;
+
   void refreshInvitations() {
     state = cloudRepo.invitation.pendingInvites();
   }
 
-  void sendInvite(String email) {
-    cloudRepo.invitation.send(email);
+  void sendInvite(String recipientEmail) {
+    assert(canSendInvites);
+
+    // The user interface should prevent users from inviting themselves.
+    // This exception shouldn't occur under normal circumstances.
+    if (isUserSelf(recipientEmail)) {
+      throw Exception('User attempted to send an invitation to themselves.');
+    }
+
+    cloudRepo.invitation.send(cloudRepo.userEmail, recipientEmail);
     refreshInvitations();
   }
 }
