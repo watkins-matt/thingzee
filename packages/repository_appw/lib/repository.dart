@@ -89,29 +89,6 @@ class AppwriteRepository extends CloudRepository {
     });
   }
 
-  Future<void> loadUserInfo() async {
-    if (!ready) {
-      return;
-    }
-
-    // We already have the info loaded
-    if (_userId != '' && _userEmail != '') {
-      return;
-    }
-
-    if (prefs.containsKey('appwrite_session_user') && prefs.containsKey('appwrite_session_email')) {
-      _userId = prefs.getString('appwrite_session_user')!;
-      _userEmail = prefs.getString('appwrite_session_email')!;
-    } else {
-      final userInfo = await _account.get();
-      _userId = hashEmail(userInfo.email);
-      _userEmail = userInfo.email;
-
-      await prefs.setString('appwrite_session_user', _userId);
-      await prefs.setString('appwrite_session_email', _userEmail);
-    }
-  }
-
   @override
   Future<bool> loginUser(String email, String password) async {
     try {
@@ -265,8 +242,7 @@ class AppwriteRepository extends CloudRepository {
     inv = JoinedInventoryDatabase(inventory, hist);
 
     household = AppwriteHouseholdDatabase(_teams, _databases, 'test', 'user_household', prefs);
-    invitation =
-        AppwriteInvitationDatabase(_databases, 'test', 'invitation', userEmail, household.id);
+    invitation = AppwriteInvitationDatabase(_databases, 'test', 'invitation', household.id);
 
     Log.timerEnd(timer, 'AppwriteRepository: initialized in \$seconds seconds.');
     ready = true;
@@ -279,6 +255,8 @@ class AppwriteRepository extends CloudRepository {
     if (_session != null || connectivity.status != ConnectivityStatus.online) {
       return;
     }
+
+    await _loadUserInfo();
 
     if (prefs.containsKey('appwrite_session_id') && prefs.containsKey('appwrite_session_expire')) {
       String sessionId = prefs.getString('appwrite_session_id')!;
@@ -313,6 +291,29 @@ class AppwriteRepository extends CloudRepository {
       }
     } else {
       Log.i('Appwrite: No session found. Log in required.');
+    }
+  }
+
+  Future<void> _loadUserInfo() async {
+    if (!ready) {
+      return;
+    }
+
+    // We already have the info loaded
+    if (_userId != '' && _userEmail != '') {
+      return;
+    }
+
+    if (prefs.containsKey('appwrite_session_user') && prefs.containsKey('appwrite_session_email')) {
+      _userId = prefs.getString('appwrite_session_user')!;
+      _userEmail = prefs.getString('appwrite_session_email')!;
+    } else {
+      final userInfo = await _account.get();
+      _userId = hashEmail(userInfo.email);
+      _userEmail = userInfo.email;
+
+      await prefs.setString('appwrite_session_user', _userId);
+      await prefs.setString('appwrite_session_email', _userEmail);
     }
   }
 
