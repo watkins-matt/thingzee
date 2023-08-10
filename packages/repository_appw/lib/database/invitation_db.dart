@@ -100,17 +100,51 @@ class AppwriteInvitationDatabase extends InvitationDatabase {
       status: InvitationStatus.pending,
     );
     _invitations[invitation.id] = invitation;
+
+    // Try to send the invitation
     queueTask(() async {
-      await _database.createDocument(
-          databaseId: databaseId,
-          collectionId: collectionId,
-          documentId: invitation.id,
-          data: invitation.toJson(),
-          permissions: [
-            Permission.read(Role.user(userId, 'verified')),
-            Permission.read(Role.user(recipientUserId, 'verified')),
-            Permission.write(Role.user(userId, 'verified')),
-          ]);
+      try {
+        await _database.updateDocument(
+            databaseId: databaseId,
+            collectionId: collectionId,
+            documentId: invitation.id,
+            data: invitation.toJson(),
+            permissions: [
+              Permission.read(Role.user(userId, 'verified')),
+              Permission.read(Role.user(recipientUserId, 'verified')),
+              Permission.write(Role.user(userId, 'verified')),
+            ]);
+      } on AppwriteException catch (e) {
+        if (e.code == 404) {
+          await _database.createDocument(
+              databaseId: databaseId,
+              collectionId: collectionId,
+              documentId: invitation.id,
+              data: invitation.toJson(),
+              permissions: [
+                Permission.read(Role.user(userId, 'verified')),
+                Permission.read(Role.user(recipientUserId, 'verified')),
+                Permission.write(Role.user(userId, 'verified')),
+              ]);
+        } else if (e.code == 409) {
+          await _database.updateDocument(
+              databaseId: databaseId,
+              collectionId: collectionId,
+              documentId: invitation.id,
+              data: invitation.toJson(),
+              permissions: [
+                Permission.read(Role.user(userId, 'verified')),
+                Permission.read(Role.user(recipientUserId, 'verified')),
+                Permission.write(Role.user(userId, 'verified')),
+              ]);
+        } else {
+          Log.e('Failed to send invitation: [AppwriteException]', e.message);
+          // Removing the inventory from local cache since we
+          // failed to add it to the database
+          _invitations.remove(invitation.id);
+          rethrow;
+        }
+      }
     });
     return invitation;
   }
