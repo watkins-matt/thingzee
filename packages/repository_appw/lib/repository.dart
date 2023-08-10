@@ -79,11 +79,13 @@ class AppwriteRepository extends CloudRepository {
       final inv = joinedInv.inventoryDatabase as AppwriteInventoryDatabase;
       final hist = this.hist as AppwriteHistoryDatabase;
       final household = this.household as AppwriteHouseholdDatabase;
+      final invitation = this.invitation as AppwriteInvitationDatabase;
 
       await items.handleConnectionChange(online, _session);
       await inv.handleConnectionChange(online, _session);
       await hist.handleConnectionChange(online, _session);
       await household.handleConnectionChange(online, _session);
+      await invitation.handleConnectionChange(online, _session);
       Log.i('AppwriteRepository: Connectivity status handling completed.');
       _lastSync = DateTime.now();
     });
@@ -140,11 +142,13 @@ class AppwriteRepository extends CloudRepository {
       final inv = joinedInv.inventoryDatabase as AppwriteInventoryDatabase;
       final hist = this.hist as AppwriteHistoryDatabase;
       final household = this.household as AppwriteHouseholdDatabase;
+      final invitation = this.invitation as AppwriteInvitationDatabase;
 
       await items.handleConnectionChange(false, null);
       await inv.handleConnectionChange(false, null);
       await hist.handleConnectionChange(false, null);
       await household.handleConnectionChange(false, null);
+      await invitation.handleConnectionChange(false, null);
 
       Log.i('AppwriteRepository: Successfully logged out user.');
     }
@@ -209,11 +213,13 @@ class AppwriteRepository extends CloudRepository {
     final inv = joinedInv.inventoryDatabase as AppwriteInventoryDatabase;
     final hist = this.hist as AppwriteHistoryDatabase;
     final household = this.household as AppwriteHouseholdDatabase;
+    final invitation = this.invitation as AppwriteInvitationDatabase;
 
     await items.handleConnectionChange(true, _session);
     await inv.handleConnectionChange(true, _session);
     await hist.handleConnectionChange(true, _session);
     await household.handleConnectionChange(true, _session);
+    await invitation.handleConnectionChange(true, _session);
 
     Log.timerEnd(timer, 'AppwriteRepository: Sync completed in \$seconds seconds.');
     _lastSync = DateTime.now();
