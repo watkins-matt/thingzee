@@ -12,9 +12,10 @@ Invitation _$InvitationFromJson(Map<String, dynamic> json) => Invitation(
       inviterEmail: json['inviterEmail'] as String,
       inviterUserId: json['inviterUserId'] as String,
       recipientEmail: json['recipientEmail'] as String,
-      timestamp: DateTime.parse(json['timestamp'] as String),
-      status: $enumDecodeNullable(_$InvitationStatusEnumMap, json['status']) ??
-          InvitationStatus.pending,
+      timestamp: const DateTimeSerializer().fromJson(json['timestamp'] as int),
+      status: json['status'] == null
+          ? InvitationStatus.pending
+          : const InvitationStatusSerializer().fromJson(json['status'] as int),
     );
 
 Map<String, dynamic> _$InvitationToJson(Invitation instance) =>
@@ -24,12 +25,6 @@ Map<String, dynamic> _$InvitationToJson(Invitation instance) =>
       'inviterEmail': instance.inviterEmail,
       'inviterUserId': instance.inviterUserId,
       'recipientEmail': instance.recipientEmail,
-      'timestamp': instance.timestamp.toIso8601String(),
-      'status': _$InvitationStatusEnumMap[instance.status]!,
+      'timestamp': const DateTimeSerializer().toJson(instance.timestamp),
+      'status': const InvitationStatusSerializer().toJson(instance.status),
     };
-
-const _$InvitationStatusEnumMap = {
-  InvitationStatus.pending: 'pending',
-  InvitationStatus.accepted: 'accepted',
-  InvitationStatus.rejected: 'rejected',
-};

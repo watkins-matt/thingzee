@@ -1,5 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:meta/meta.dart';
+import 'package:repository/model/serializer_datetime.dart';
 
 part 'invitation.g.dart';
 
@@ -11,7 +12,9 @@ class Invitation {
   final String inviterEmail; // The email of the user who sent the invitation
   final String inviterUserId; // The id of the user who sent the invitation
   final String recipientEmail; // The email of the recipient
+  @DateTimeSerializer()
   final DateTime timestamp; // When the invitation was sent
+  @InvitationStatusSerializer()
   final InvitationStatus status; // Status of the invitation
 
   const Invitation({
@@ -50,3 +53,13 @@ class Invitation {
 }
 
 enum InvitationStatus { pending, accepted, rejected }
+
+class InvitationStatusSerializer implements JsonConverter<InvitationStatus, int> {
+  const InvitationStatusSerializer();
+
+  @override
+  InvitationStatus fromJson(int json) => InvitationStatus.values[json];
+
+  @override
+  int toJson(InvitationStatus status) => status.index;
+}
