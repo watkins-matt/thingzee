@@ -213,6 +213,18 @@ class Evaluator {
     return count > 0 ? errorSum / count : double.infinity;
   }
 
+  TwoPointLinearRegressor _createAverageRegressor(
+      Map<int, double> points, List<Regressor> regressors) {
+    List<double> slopes = regressors.map((regressor) => regressor.slope).toList();
+    double averageSlope = slopes.reduce((a, b) => a + b) / slopes.length;
+
+    int x1 = points.keys.first;
+    double y1 = points.values.first;
+    double intercept = y1 - averageSlope * x1;
+
+    return TwoPointLinearRegressor(averageSlope, intercept);
+  }
+
   double _evaluateRegressor(Regressor regressor, List<HistorySeries> allSeries,
       [double lastSeriesWeight = 2]) {
     double totalError = 0;
@@ -277,6 +289,10 @@ class Evaluator {
         regressors.add(NormalizedRegressor.withBase(normalizer, firstLast, history.baseTimestamp,
             yShift: history.baseAmount));
         regressors.add(NormalizedRegressor.withBase(normalizer, secondLast, history.baseTimestamp,
+            yShift: history.baseAmount));
+
+        final average = _createAverageRegressor(points, regressors);
+        regressors.add(NormalizedRegressor.withBase(normalizer, average, history.baseTimestamp,
             yShift: history.baseAmount));
 
       // final dataFrame = series.toDataFrame();
