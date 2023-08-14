@@ -166,6 +166,7 @@ class Evaluator {
       for (final series in history.series) {
         double mape = _computeMAPE(regressor, series);
         double accuracy = 100 - mape;
+        accuracy = accuracy.clamp(0, 100);
         totalAccuracy += accuracy;
       }
 
