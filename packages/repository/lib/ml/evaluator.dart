@@ -258,7 +258,7 @@ class Evaluator {
 
         final simple = SimpleLinearRegressor(points);
         final naive = NaiveRegressor.fromMap(points);
-        final holt = HoltLinearRegressor.fromMap(points, .85, .75);
+        final holt = HoltLinearRegressor.fromMap(points, .9, .9);
         final shifted = ShiftedInterceptLinearRegressor(points);
         final weighted = WeightedLeastSquaresLinearRegressor(points);
         final firstLast = SpecificPointRegressor(0, points.length - 1, points);
