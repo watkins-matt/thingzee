@@ -40,7 +40,13 @@ class HistorySeriesListView extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      TitleHeaderWidget(title: 'Series $index'),
+                      TitleHeaderWidget(
+                        title: 'Series $index',
+                        actionButton: IconButton(
+                          icon: const Icon(Icons.delete, color: Colors.blue),
+                          onPressed: () => onDelete(index),
+                        ),
+                      ),
                       HistoryListView(
                         entries: entries,
                         isScrollable: false,
@@ -71,5 +77,11 @@ class HistorySeriesListView extends StatelessWidget {
         );
       },
     );
+  }
+
+  void onDelete(int seriesIndex) {
+    // history.series.removeAt(seriesIndex);
+    // history.evaluator.regressors.removeWhere((key, value) => key.endsWith('-$seriesIndex'));
+    // history.evaluator.accuracy.removeWhere((key, value) => key.endsWith('-$seriesIndex'));
   }
 }
