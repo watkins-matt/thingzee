@@ -96,7 +96,7 @@ extension HistoryList<T> on List<HistorySeries> {
     if (identical(this, other)) return true;
     if (length != other.length) return false;
     for (var i = 0; i < length; i++) {
-      if (this[i].equalTo(other)) return false;
+      if (!this[i].equalTo(other[i]!)) return false;
     }
     return true;
   }
