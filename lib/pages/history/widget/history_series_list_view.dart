@@ -50,11 +50,13 @@ class HistorySeriesListView extends StatelessWidget {
                           final usageSpeedDays = regressor.hasSlope
                               ? (1 / regressor.slope.abs()) / 1000 / 60 / 60 / 24
                               : 0;
+                          final accuracy =
+                              history.evaluator.accuracy['${regressor.type}-$index'] ?? 0;
 
                           return Padding(
                             padding: const EdgeInsets.symmetric(vertical: 4),
                             child: Text(
-                                'Regressor (${regressor.type}): Usage Speed (Days): ${usageSpeedDays.toStringAsFixed(2)}'),
+                                'Regressor (${regressor.type}): Usage Rate (Days): ${usageSpeedDays.toStringAsFixed(2)} Accuracy: ${accuracy.toStringAsFixed(2)}'),
                           );
                         },
                       ),
