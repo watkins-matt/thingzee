@@ -13,6 +13,7 @@ import 'package:thingzee/pages/detail/widget/labeled_text.dart';
 import 'package:thingzee/pages/detail/widget/material_card_widget.dart';
 import 'package:thingzee/pages/detail/widget/text_field_column_widget.dart';
 import 'package:thingzee/pages/detail/widget/title_header_widget.dart';
+import 'package:thingzee/pages/history/history_page.dart';
 import 'package:thingzee/pages/history/widget/history_list_view.dart';
 import 'package:thingzee/pages/inventory/state/inventory_view.dart';
 import 'package:thingzee/pages/inventory/state/item_thumbnail_cache.dart';
@@ -238,6 +239,10 @@ class ItemDetailPage extends HookConsumerWidget {
                   HistoryListView(
                       entries: ref.watch(editableItemProvider.notifier).allHistoryEntries,
                       isScrollable: false),
+                  Center(
+                      child: TextButton(
+                          child: const Text('View History Detail'),
+                          onPressed: () async => onHistoryDetailPressed(context, ref))),
                 ]),
               ],
             ),
@@ -260,6 +265,11 @@ class ItemDetailPage extends HookConsumerWidget {
     ref.read(editableItemProvider.notifier).cleanUpHistory(repo);
     final view = ref.read(inventoryProvider.notifier);
     await view.refresh();
+  }
+
+  Future<void> onHistoryDetailPressed(BuildContext context, WidgetRef ref) async {
+    String upc = ref.read(editableItemProvider.notifier).upc;
+    await HistoryPage.push(context, upc);
   }
 
   Future<void> onSaveButtonPressed(BuildContext context, WidgetRef ref) async {
