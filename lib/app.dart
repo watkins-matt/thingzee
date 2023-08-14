@@ -19,15 +19,15 @@ class App extends StatelessWidget {
       navigatorKey: navigatorKey,
       title: 'Thingzee',
       theme: ThemeData(
-        useMaterial3: true,
-        colorSchemeSeed: Colors.blue,
-        cardColor: Colors.white,
-      ),
+          useMaterial3: true,
+          colorSchemeSeed: Colors.blue,
+          cardColor: Colors.white,
+          scaffoldBackgroundColor: Theme.of(context).colorScheme.surfaceVariant),
       darkTheme: ThemeData(
-        useMaterial3: true,
-        colorSchemeSeed: Colors.blue,
-        brightness: Brightness.dark,
-      ),
+          useMaterial3: true,
+          colorSchemeSeed: Colors.blue,
+          brightness: Brightness.dark,
+          scaffoldBackgroundColor: Theme.of(context).colorScheme.surfaceVariant),
       themeMode: ThemeMode.light,
       home: const HomePage(),
     );
