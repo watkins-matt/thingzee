@@ -33,13 +33,10 @@ class HoltLinearRegressor extends Regressor {
   final List<MapEntry<int, double>> data;
   final double alpha;
   final double beta;
-  final int unitDuration;
 
-  HoltLinearRegressor(this.data, this.alpha, this.beta,
-      {this.unitDuration = Duration.millisecondsPerDay});
+  HoltLinearRegressor(this.data, this.alpha, this.beta);
 
-  HoltLinearRegressor.fromMap(Map<int, double> mapData, this.alpha, this.beta,
-      {this.unitDuration = Duration.millisecondsPerDay})
+  HoltLinearRegressor.fromMap(Map<int, double> mapData, this.alpha, this.beta)
       : data = mapData.entries.toList();
 
   @override
@@ -66,7 +63,7 @@ class HoltLinearRegressor extends Regressor {
     int dtZero = (-result.level / result.trend).round();
 
     // Return the timestamp when the trend is expected to hit zero.
-    return data.last.key + dtZero * unitDuration;
+    return data.last.key + dtZero;
   }
 
   @override
@@ -74,7 +71,7 @@ class HoltLinearRegressor extends Regressor {
     _HoltLinearResult result = _calculateHoltLinear();
 
     // Estimate the time difference from the last known point to the prediction point.
-    int dtPred = (x - data.last.key) ~/ unitDuration;
+    int dtPred = x - data.last.key;
 
     // Return the forecasted value.
     return result.level + dtPred * result.trend;
@@ -84,16 +81,22 @@ class HoltLinearRegressor extends Regressor {
   _HoltLinearResult _calculateHoltLinear() {
     // Define the initial level and trend.
     double level = data[0].value;
-    double trend = data[1].value - data[0].value;
+    double trend = (data[1].value - data[0].value) /
+        (data[1].key - data[0].key); // Initial slope between the first two points
 
     // Iteratively apply Holt's Linear Exponential Smoothing.
     for (var i = 1; i < data.length; i++) {
       // Calculate the time difference between current and previous timestamp.
-      int dt = (data[i].key - data[i - 1].key) ~/ unitDuration;
+      int dt = data[i].key - data[i - 1].key;
 
-      // Adjust level and trend for the elapsed time.
+      // Forecast the value for the current timestamp using the previous level and trend.
+      double forecast = level + dt * trend;
+
+      // Update the level using the alpha smoothing parameter.
       double oldLevel = level;
-      level = alpha * data[i].value + (1 - alpha) * (level + dt * trend);
+      level = alpha * data[i].value + (1 - alpha) * forecast;
+
+      // Update the trend using the beta smoothing parameter.
       trend = beta * (level - oldLevel) / dt + (1 - beta) * trend;
     }
 
@@ -212,12 +215,10 @@ class MLLinearRegressor implements Regressor {
 
 class NaiveRegressor implements Regressor {
   final List<MapEntry<int, double>> data;
-  final int unitDuration;
 
-  NaiveRegressor(this.data, {this.unitDuration = Duration.millisecondsPerDay});
+  NaiveRegressor(this.data);
 
-  NaiveRegressor.fromMap(Map<int, double> map, {int unitDuration = Duration.millisecondsPerDay})
-      : this(map.entries.toList(), unitDuration: unitDuration);
+  NaiveRegressor.fromMap(Map<int, double> map) : this(map.entries.toList());
 
   @override
   bool get hasSlope => true;
@@ -227,13 +228,13 @@ class NaiveRegressor implements Regressor {
 
   @override
   double get slope {
-    // Calculate the time difference between the last two timestamps
-    int dt = (data.last.key - data[data.length - 2].key) ~/ unitDuration;
+    // Calculate the time difference between the last two timestamps in milliseconds
+    int dt = data.last.key - data[data.length - 2].key;
 
     // Calculate the value difference between the last two points
     double dv = data.last.value - data[data.length - 2].value;
 
-    // Calculate the trend
+    // Calculate the trend (slope)
     return dv / dt;
   }
 
@@ -242,8 +243,8 @@ class NaiveRegressor implements Regressor {
 
   @override
   int get xIntercept {
-    // Calculate the time difference between the last two timestamps
-    int dt = (data.last.key - data[data.length - 2].key) ~/ unitDuration;
+    // Calculate the time difference between the last two timestamps in milliseconds
+    int dt = data.last.key - data[data.length - 2].key;
 
     // Calculate the value difference between the last two points
     double dv = data.last.value - data[data.length - 2].value;
@@ -252,13 +253,13 @@ class NaiveRegressor implements Regressor {
     double trend = dv / dt;
 
     // Calculate the time at which the trend line crosses the x-axis
-    return (data.last.key - (data.last.value / trend) * unitDuration).toInt();
+    return (data.last.key - (data.last.value / trend)).toInt();
   }
 
   @override
   double predict(int timestamp) {
-    // Calculate the time difference between the last two timestamps
-    int dt = (data.last.key - data[data.length - 2].key) ~/ unitDuration;
+    // Calculate the time difference between the last two timestamps in milliseconds
+    int dt = data.last.key - data[data.length - 2].key;
 
     // Calculate the value difference between the last two points
     double dv = data.last.value - data[data.length - 2].value;
@@ -267,7 +268,7 @@ class NaiveRegressor implements Regressor {
     double trend = dv / dt;
 
     // Estimate the time difference from the last known point to the prediction point
-    int dtPred = (timestamp - data.last.key) ~/ unitDuration;
+    int dtPred = timestamp - data.last.key;
 
     // Return the forecasted value
     return data.last.value + dtPred * trend;
@@ -664,6 +665,43 @@ class TwoPointLinearRegressor implements Regressor {
   }
 }
 
+class UsageRateDaysRegressor implements Regressor {
+  final double _slope;
+  final double _intercept;
+
+  factory UsageRateDaysRegressor(double usageRateDays, int x1, double y1) {
+    final slope = -1 / (usageRateDays * 24 * 60 * 60 * 1000);
+    final intercept = y1 + (x1 * slope);
+    return UsageRateDaysRegressor._(slope, intercept);
+  }
+
+  UsageRateDaysRegressor._(this._slope, this._intercept);
+
+  @override
+  bool get hasSlope => true;
+
+  @override
+  bool get hasXIntercept => true;
+
+  @override
+  double get slope => _slope;
+
+  @override
+  String get type => 'UsageSpeedDays';
+
+  @override
+  int get xIntercept {
+    return (-_intercept / _slope).round();
+  }
+
+  double get yIntercept => _intercept;
+
+  @override
+  double predict(int x) {
+    return _slope * x + _intercept;
+  }
+}
+
 class WeightedLeastSquaresLinearRegressor implements Regressor {
   late double _intercept;
   late double _slope;
@@ -725,4 +763,13 @@ class _HoltLinearResult {
   final double trend;
 
   _HoltLinearResult(this.level, this.trend);
+}
+
+extension UsageRateDaysCalculator on Regressor {
+  double get usageRateDays {
+    if (hasSlope && slope != 0) {
+      return (1 / slope.abs()) / 1000 / 60 / 60 / 24;
+    }
+    return 0;
+  }
 }
