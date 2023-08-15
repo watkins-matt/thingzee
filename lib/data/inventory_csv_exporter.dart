@@ -1,33 +1,10 @@
 import 'package:csv/csv.dart';
+import 'package:log/log.dart';
 import 'package:repository/extension/string.dart';
 import 'package:repository/model/inventory.dart';
 import 'package:repository/model/item.dart';
 import 'package:repository/repository.dart';
 import 'package:thingzee/data/csv_exporter.dart';
-
-extension on Inventory {
-  List<dynamic> toCsvList(Item? item, List<String> headers) {
-    if (item == null) {
-      return [];
-    }
-
-    Map<String, dynamic> map = {
-      'upc': upc.normalizeUPC(),
-      'name': item.name,
-      'quantity': amount,
-      'update_date': lastUpdate != null ? lastUpdate!.millisecondsSinceEpoch : '',
-      'consumable': item.consumable ? 1 : 0,
-      'unit_count': item.unitCount,
-      'category': item.category,
-      'type': item.type,
-      'name_unit': item.unitName != 'Package' ? item.unitName : '',
-      'name_unit_plural': item.unitPlural != 'Packages' ? item.unitPlural : '',
-      'restock': restock ? 1 : 0,
-    };
-
-    return headers.map((header) => map[header]).toList();
-  }
-}
 
 class InventoryCsvExporter implements CsvExporter {
   @override
@@ -51,7 +28,13 @@ class InventoryCsvExporter implements CsvExporter {
     List<Inventory> allInventory = r.inv.all();
 
     for (final inventory in allInventory) {
-      rows.add(inventory.toCsvList(r.items.get(inventory.upc), headers));
+      final inventoryRow = inventory.toCsvList(r.items.get(inventory.upc), headers);
+
+      if (inventoryRow.isNotEmpty) {
+        rows.add(inventoryRow);
+      } else {
+        Log.w('InventoryCsvExporter: Could not find item for inventory UPC ${inventory.upc}');
+      }
     }
 
     // Important: we sort the rows by the second column (name)
@@ -63,5 +46,29 @@ class InventoryCsvExporter implements CsvExporter {
     rows.insert(0, headers);
 
     return const ListToCsvConverter().convert(rows);
+  }
+}
+
+extension on Inventory {
+  List<dynamic> toCsvList(Item? item, List<String> headers) {
+    if (item == null) {
+      return [];
+    }
+
+    Map<String, dynamic> map = {
+      'upc': upc.normalizeUPC(),
+      'name': item.name,
+      'quantity': amount,
+      'update_date': lastUpdate != null ? lastUpdate!.millisecondsSinceEpoch : '',
+      'consumable': item.consumable ? 1 : 0,
+      'unit_count': item.unitCount,
+      'category': item.category,
+      'type': item.type,
+      'name_unit': item.unitName != 'Package' ? item.unitName : '',
+      'name_unit_plural': item.unitPlural != 'Packages' ? item.unitPlural : '',
+      'restock': restock ? 1 : 0,
+    };
+
+    return headers.map((header) => map[header]).toList();
   }
 }
