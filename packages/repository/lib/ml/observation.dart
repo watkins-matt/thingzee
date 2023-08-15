@@ -8,13 +8,6 @@ part 'observation.g.dart';
 @JsonSerializable()
 @immutable
 class Observation {
-  final double timestamp;
-  final double amount;
-  final int weekday;
-  final double timeOfYearSin;
-  final double timeOfYearCos;
-  final int householdCount;
-
   static List<String> header = [
     'timestamp',
     'amount',
@@ -29,6 +22,13 @@ class Observation {
     // 'timeOfYear_cos',
     // 'householdCount',
   ];
+  final double timestamp;
+  final double amount;
+  final int weekday;
+  final double timeOfYearSin;
+  final double timeOfYearCos;
+
+  final int householdCount;
 
   Observation({
     required this.timestamp,
@@ -39,7 +39,6 @@ class Observation {
         timeOfYearCos = DateTime.fromMillisecondsSinceEpoch(timestamp.toInt()).timeOfYear[1];
 
   factory Observation.fromJson(Map<String, dynamic> json) => _$ObservationFromJson(json);
-  Map<String, dynamic> toJson() => _$ObservationToJson(this);
 
   @override
   int get hashCode {
@@ -56,6 +55,14 @@ class Observation {
         other.householdCount == householdCount;
   }
 
+  Observation copy() {
+    return Observation(
+      timestamp: timestamp,
+      amount: amount,
+      householdCount: householdCount,
+    );
+  }
+
   List<double> normalize(DataFrameNormalizer normalizer) {
     return [
       normalizer.normalizeValue('timestamp', timestamp),
@@ -64,6 +71,8 @@ class Observation {
       // normalizer.normalizeValue('timeOfYear_cos', timeOfYearCos),
     ];
   }
+
+  Map<String, dynamic> toJson() => _$ObservationToJson(this);
 
   List<double> toList() {
     // Convert weekday to one-hot encoding

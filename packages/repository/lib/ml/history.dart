@@ -289,6 +289,13 @@ class History {
     return this;
   }
 
+  History copy() {
+    return History()
+      ..upc = upc
+      ..series = series.map((s) => s.copy()).toList()
+      ..evaluator = evaluator;
+  }
+
   bool equalTo(History other) =>
       identical(this, other) || upc == other.upc && series.equals(other.series);
 
