@@ -107,7 +107,7 @@ class EditableItem extends StateNotifier<EditableItemState> {
     copiedInv.amount = inv.amount;
     copiedInv.upc = inv.upc;
     copiedInv.unitCount = inv.unitCount;
-    copiedInv.history = inv.history;
+    copiedInv.history = inv.history.copy();
     copiedInv.lastUpdate = inv.lastUpdate;
 
     // Make sure the upc is copied to the item
@@ -142,6 +142,13 @@ class EditableItem extends StateNotifier<EditableItemState> {
     }
 
     state = EditableItemState(copiedItem, state.inventory, state.changedFields);
+  }
+
+  void deleteHistorySeries(int index) {
+    final inv = state.inventory;
+    inv.history.series.removeAt(index);
+
+    state = EditableItemState(state.item, inv, state.changedFields);
   }
 
   void save(Repository repo) {
