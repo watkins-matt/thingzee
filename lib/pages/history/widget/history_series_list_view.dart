@@ -6,10 +6,12 @@ import 'package:thingzee/pages/history/widget/history_list_view.dart';
 
 class HistorySeriesListView extends StatelessWidget {
   final History history;
+  final Function(int) onDeleteSeries;
 
   const HistorySeriesListView({
     Key? key,
     required this.history,
+    required this.onDeleteSeries,
   }) : super(key: key);
 
   @override
@@ -44,7 +46,7 @@ class HistorySeriesListView extends StatelessWidget {
                         title: 'Series $index',
                         actionButton: IconButton(
                           icon: const Icon(Icons.delete, color: Colors.blue),
-                          onPressed: () => onDelete(index),
+                          onPressed: () => onDeleteSeries(index),
                         ),
                       ),
                       HistoryListView(
@@ -77,11 +79,5 @@ class HistorySeriesListView extends StatelessWidget {
         );
       },
     );
-  }
-
-  void onDelete(int seriesIndex) {
-    // history.series.removeAt(seriesIndex);
-    // history.evaluator.regressors.removeWhere((key, value) => key.endsWith('-$seriesIndex'));
-    // history.evaluator.accuracy.removeWhere((key, value) => key.endsWith('-$seriesIndex'));
   }
 }
