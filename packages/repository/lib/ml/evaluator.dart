@@ -1,3 +1,4 @@
+import 'package:log/log.dart';
 import 'package:repository/ml/history.dart';
 import 'package:repository/ml/history_series.dart';
 import 'package:repository/ml/normalizer_map.dart';
@@ -160,8 +161,15 @@ class Evaluator {
     Map<String, double> accuracyMap = {};
 
     for (final regressorId in regressors.keys) {
-      final regressor = regressors[regressorId]!;
+      var regressor = regressors[regressorId]!;
       double totalAccuracy = 0;
+
+      // Only compute accuracy for normalized regressors
+      if (regressor is! NormalizedRegressor) {
+        Log.w(
+            'Regressor ${regressor.type} for upc ${history.upc} is not a NormalizedRegressor. Cannot evaluate.');
+        continue;
+      }
 
       for (final series in history.series) {
         double mape = _computeMAPE(regressor, series);
@@ -177,39 +185,70 @@ class Evaluator {
     return accuracyMap;
   }
 
-  double _computeMAPE(Regressor regressor, HistorySeries series) {
+  double _computeMAPE(NormalizedRegressor regressor, HistorySeries series) {
     double errorSum = 0;
     int count = 0;
 
     final pointsMap = series.toPoints();
 
-    for (final entry in pointsMap.entries) {
+    // Save the original baseTimestamp and yShift
+    int originalBaseTimestamp = regressor.baseTimestamp;
+    double originalYShift = regressor.yShift;
+
+    // Get the first data point and set it as baseTimestamp and yShift
+    final firstEntry = pointsMap.entries.first;
+    regressor.baseTimestamp = firstEntry.key;
+    regressor.yShift = firstEntry.value;
+
+    // Evaluate from the second point onwards
+    for (final entry in pointsMap.entries.skip(1)) {
       final predictedValue = regressor.predict(entry.key);
       final trueValue = entry.value;
 
+      // Avoid division by zero
       if (trueValue != 0) {
-        // Avoid division by zero
-        errorSum += (trueValue - predictedValue).abs() / trueValue;
+        final errorPercent = (trueValue - predictedValue).abs() / trueValue;
+        errorSum += errorPercent;
         count++;
       }
     }
 
-    return (count > 0 ? (errorSum / count) : 0) * 100; // Convert to percentage
+    // Restore the original baseTimestamp and yShift
+    regressor.baseTimestamp = originalBaseTimestamp;
+    regressor.yShift = originalYShift;
+
+    // Convert to percentage
+    double averageError = (count > 0 ? (errorSum / count) : 0) * 100;
+    return averageError;
   }
 
-  double _computeMSE(Regressor regressor, HistorySeries series) {
+  double _computeMSE(NormalizedRegressor regressor, HistorySeries series) {
     double errorSum = 0;
     int count = 0;
 
     final pointsMap = series.toPoints();
 
-    for (final entry in pointsMap.entries) {
+    // Save the original baseTimestamp and yShift
+    int originalBaseTimestamp = regressor.baseTimestamp;
+    double originalYShift = regressor.yShift;
+
+    // Get the first data point and set it as baseTimestamp and yShift
+    final firstEntry = pointsMap.entries.first;
+    regressor.baseTimestamp = firstEntry.key;
+    regressor.yShift = firstEntry.value;
+
+    // Evaluate from the second point onwards
+    for (final entry in pointsMap.entries.skip(1)) {
       final predictedValue = regressor.predict(entry.key);
       final trueValue = entry.value;
 
       errorSum += (trueValue - predictedValue) * (trueValue - predictedValue);
       count++;
     }
+
+    // Restore the original baseTimestamp and yShift
+    regressor.baseTimestamp = originalBaseTimestamp;
+    regressor.yShift = originalYShift;
 
     return count > 0 ? errorSum / count : double.infinity;
   }
@@ -231,6 +270,12 @@ class Evaluator {
     double totalError = 0;
 
     for (final series in allSeries) {
+      if (regressor is! NormalizedRegressor) {
+        Log.w(
+            'Regressor ${regressor.type} for upc ${history.upc} is not a NormalizedRegressor. Cannot evaluate.');
+        continue;
+      }
+
       double error = _computeMSE(regressor, series);
       if (series == allSeries.last) {
         error *= lastSeriesWeight;
@@ -292,9 +337,9 @@ class Evaluator {
         regressors.add(NormalizedRegressor.withBase(normalizer, secondLast, history.baseTimestamp,
             yShift: history.baseAmount));
 
-        final average = _createAverageRegressor(points, regressors);
-        regressors.add(NormalizedRegressor.withBase(normalizer, average, history.baseTimestamp,
-            yShift: history.baseAmount));
+      // final average = _createAverageRegressor(points, regressors);
+      // regressors.add(NormalizedRegressor.withBase(normalizer, average, history.baseTimestamp,
+      //     yShift: history.baseAmount));
 
       // final dataFrame = series.toDataFrame();
       // final dataFrameNormalizer = DataFrameNormalizer(dataFrame, 'amount');
