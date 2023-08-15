@@ -23,14 +23,12 @@ class _HistoryPageState extends ConsumerState<HistoryPage> {
 
   @override
   Widget build(BuildContext context) {
-    final history = ref.read(editableItemProvider).inventory.history;
+    final history = ref.watch(editableItemProvider).inventory.history;
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
       appBar: AppBar(),
-      body: HistorySeriesListView(
-        history: history,
-      ),
+      body: HistorySeriesListView(history: history, onDeleteSeries: onDeleteSeries),
     );
   }
 
@@ -40,5 +38,10 @@ class _HistoryPageState extends ConsumerState<HistoryPage> {
 
     final editableItem = ref.read(editableItemProvider.notifier);
     entries = editableItem.allHistoryEntries;
+  }
+
+  void onDeleteSeries(int index) {
+    final editableItem = ref.read(editableItemProvider.notifier);
+    editableItem.deleteHistorySeries(index);
   }
 }
