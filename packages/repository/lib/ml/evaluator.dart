@@ -108,22 +108,13 @@ class Evaluator {
   /// which regressor is the best, giving more weight to the
   /// most recent series.
   void train(History history) {
+    // Can't train on an empty history
     if (history.series.isEmpty) {
       return;
     }
 
     // First initialize the regressors
-    int seriesId = 0;
-    for (final series in history.series) {
-      var regressorList = _generateRegressors(series);
-
-      for (final regressor in regressorList) {
-        final regressorId = '${regressor.type}-$seriesId';
-        regressors[regressorId] = regressor;
-      }
-
-      seriesId++;
-    }
+    regressors = _createRegressors();
 
     // Can't train if we have no regressors. This happens if we only
     // have one series with a single point.
@@ -131,30 +122,15 @@ class Evaluator {
       return;
     }
 
-    double minError = double.infinity;
-    String bestRegressorId = regressors.keys.last;
-    double lastSeriesWeight = 3;
-
-    for (final regressorId in regressors.keys) {
-      final regressor = regressors[regressorId]!;
-
-      if (regressor.type != 'Empty' && regressor.type != 'SinglePoint') {
-        final averageError = _evaluateRegressor(regressor, history.series, lastSeriesWeight);
-
-        // If the average error was lower, we have a new best regressor
-        if (averageError < minError) {
-          minError = averageError;
-          bestRegressorId = regressorId;
-        }
-      }
-    }
-
     // Store the average accuracy of each regressor
     accuracy = _computeAccuracy();
 
-    _best = bestRegressorId;
+    // Set the best regressor to the one with the highest accuracy
+    // First sort the map, then take the last item
+    accuracy =
+        Map.fromEntries(accuracy.entries.toList()..sort((a, b) => a.value.compareTo(b.value)));
+    _best = accuracy.keys.last;
     _trained = true;
-    // Log.d('Best regressor [${history.upc}]: $_best with average error of $minError');
   }
 
   Map<String, double> _computeAccuracy() {
@@ -222,69 +198,35 @@ class Evaluator {
     return averageError;
   }
 
-  double _computeMSE(NormalizedRegressor regressor, HistorySeries series) {
-    double errorSum = 0;
-    int count = 0;
+  Map<String, Regressor> _createRegressors() {
+    Map<String, Regressor> regressorMap = {};
 
-    final pointsMap = series.toPoints();
+    int seriesId = 0;
+    for (final series in history.series) {
+      var regressorList = _generateRegressors(series);
 
-    // Save the original baseTimestamp and yShift
-    int originalBaseTimestamp = regressor.baseTimestamp;
-    double originalYShift = regressor.yShift;
-
-    // Get the first data point and set it as baseTimestamp and yShift
-    final firstEntry = pointsMap.entries.first;
-    regressor.baseTimestamp = firstEntry.key;
-    regressor.yShift = firstEntry.value;
-
-    // Evaluate from the second point onwards
-    for (final entry in pointsMap.entries.skip(1)) {
-      final predictedValue = regressor.predict(entry.key);
-      final trueValue = entry.value;
-
-      errorSum += (trueValue - predictedValue) * (trueValue - predictedValue);
-      count++;
-    }
-
-    // Restore the original baseTimestamp and yShift
-    regressor.baseTimestamp = originalBaseTimestamp;
-    regressor.yShift = originalYShift;
-
-    return count > 0 ? errorSum / count : double.infinity;
-  }
-
-  TwoPointLinearRegressor _createAverageRegressor(
-      Map<int, double> points, List<Regressor> regressors) {
-    List<double> slopes = regressors.map((regressor) => regressor.slope).toList();
-    double averageSlope = slopes.reduce((a, b) => a + b) / slopes.length;
-
-    int x1 = points.keys.first;
-    double y1 = points.values.first;
-    double intercept = y1 - averageSlope * x1;
-
-    return TwoPointLinearRegressor(averageSlope, intercept);
-  }
-
-  double _evaluateRegressor(Regressor regressor, List<HistorySeries> allSeries,
-      [double lastSeriesWeight = 2]) {
-    double totalError = 0;
-
-    for (final series in allSeries) {
-      if (regressor is! NormalizedRegressor) {
-        Log.w(
-            'Regressor ${regressor.type} for upc ${history.upc} is not a NormalizedRegressor. Cannot evaluate.');
-        continue;
+      for (final regressor in regressorList) {
+        final regressorId = '${regressor.type}-$seriesId';
+        regressorMap[regressorId] = regressor;
       }
 
-      double error = _computeMSE(regressor, series);
-      if (series == allSeries.last) {
-        error *= lastSeriesWeight;
-      }
-      totalError += error;
+      seriesId++;
     }
 
-    return totalError / allSeries.length;
+    return regressorMap;
   }
+
+  // TwoPointLinearRegressor _createAverageRegressor(
+  //     Map<int, double> points, List<Regressor> regressors) {
+  //   List<double> slopes = regressors.map((regressor) => regressor.slope).toList();
+  //   double averageSlope = slopes.reduce((a, b) => a + b) / slopes.length;
+
+  //   int x1 = points.keys.first;
+  //   double y1 = points.values.first;
+  //   double intercept = y1 - averageSlope * x1;
+
+  //   return TwoPointLinearRegressor(averageSlope, intercept);
+  // }
 
   List<Regressor> _generateRegressors(HistorySeries series) {
     List<Regressor> regressors = [];
