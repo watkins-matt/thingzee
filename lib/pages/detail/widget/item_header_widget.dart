@@ -3,15 +3,15 @@ import 'package:flutter/material.dart';
 class ItemHeaderWidget extends StatelessWidget {
   final Widget image;
   final TextEditingController nameController;
-  final void Function() imageOnTap;
-  final void Function(String) onChanged;
+  final void Function() onImagePressed;
+  final void Function(String) onNameChanged;
 
   const ItemHeaderWidget({
     Key? key,
     required this.image,
     required this.nameController,
-    required this.imageOnTap,
-    required this.onChanged,
+    required this.onImagePressed,
+    required this.onNameChanged,
   }) : super(key: key);
 
   @override
@@ -37,7 +37,7 @@ class ItemHeaderWidget extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.only(left: 8),
                       child: InkWell(
-                        onTap: imageOnTap,
+                        onTap: onImagePressed,
                         child: image,
                       ),
                     ),
@@ -63,7 +63,7 @@ class ItemHeaderWidget extends StatelessWidget {
                               nameController.selectAll();
                             }
                           },
-                          onChanged: onChanged,
+                          onChanged: onNameChanged,
                           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 28),
                           minLines: 1,
                           maxLines: null),

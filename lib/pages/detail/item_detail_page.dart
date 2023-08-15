@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:log/log.dart';
 import 'package:repository/model/inventory.dart';
 import 'package:repository/model/item.dart';
 import 'package:stats/double.dart';
@@ -13,6 +14,7 @@ import 'package:thingzee/pages/detail/widget/labeled_text.dart';
 import 'package:thingzee/pages/detail/widget/material_card_widget.dart';
 import 'package:thingzee/pages/detail/widget/text_field_column_widget.dart';
 import 'package:thingzee/pages/detail/widget/title_header_widget.dart';
+import 'package:thingzee/pages/detail/widget/url_input_dialog.dart';
 import 'package:thingzee/pages/history/history_page.dart';
 import 'package:thingzee/pages/history/widget/history_list_view.dart';
 import 'package:thingzee/pages/inventory/state/inventory_view.dart';
@@ -81,8 +83,8 @@ class ItemDetailPage extends HookConsumerWidget {
                 ItemHeaderWidget(
                   image: image,
                   nameController: nameController,
-                  imageOnTap: () {},
-                  onChanged: (value) {
+                  onImagePressed: () async => await onImagePressed(context, ref),
+                  onNameChanged: (value) {
                     ref.read(editableItemProvider.notifier).name = value;
                   },
                 ),
@@ -270,6 +272,25 @@ class ItemDetailPage extends HookConsumerWidget {
   Future<void> onHistoryDetailPressed(BuildContext context, WidgetRef ref) async {
     String upc = ref.read(editableItemProvider.notifier).upc;
     await HistoryPage.push(context, upc);
+  }
+
+  Future<void> onImagePressed(BuildContext context, WidgetRef ref) async {
+    final editableItem = ref.read(editableItemProvider.notifier);
+    final url = editableItem.imageUrl;
+
+    final result = await UrlInputDialog.show(context, existingUrl: url);
+    if (result != null) {
+      editableItem.imageUrl = result;
+
+      // Ensure we have a valid UPC
+      if (editableItem.upc.isEmpty) {
+        Log.w('ItemDetailPage: Cannot add image from URL $result because UPC is empty.');
+        return;
+      }
+
+      final imageCache = ref.read(itemThumbnailCache.notifier);
+      await imageCache.downloadImage(result, editableItem.upc);
+    }
   }
 
   Future<void> onSaveButtonPressed(BuildContext context, WidgetRef ref) async {

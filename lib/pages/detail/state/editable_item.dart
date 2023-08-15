@@ -42,6 +42,15 @@ class EditableItem extends StateNotifier<EditableItemState> {
     state = EditableItemState(item, state.inventory, state.changedFields);
   }
 
+  String get imageUrl => state.item.imageUrl;
+
+  set imageUrl(String imageUrl) {
+    final item = state.item;
+    item.imageUrl = imageUrl;
+
+    state = EditableItemState(item, state.inventory, state.changedFields);
+  }
+
   String get name => state.item.name;
 
   set name(String name) {

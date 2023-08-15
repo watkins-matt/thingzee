@@ -22,6 +22,8 @@ class ItemThumbnailCache extends StateNotifier<Map<String, Image>> {
   }
 
   Future<bool> downloadImage(String imageUrl, String upc) async {
+    assert(imageUrl.isNotEmpty && upc.isNotEmpty);
+
     // Don't download multiple times
     if (cachedImageLoaded(upc)) {
       return true;
