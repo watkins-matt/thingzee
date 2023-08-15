@@ -62,7 +62,7 @@ class HistorySeriesListView extends StatelessWidget {
                           return Padding(
                             padding: const EdgeInsets.symmetric(vertical: 4),
                             child: Text(
-                                'Regressor (${regressor.type}): Usage Rate (Days): ${usageSpeedDays.toStringAsFixed(2)} Accuracy: ${accuracy.toStringAsFixed(2)}'),
+                                'Regressor (${regressor.type}): Usage Rate (Days): ${usageSpeedDays.toStringAsFixed(2)} Accuracy: ${accuracy.toStringAsFixed(0)}%'),
                           );
                         },
                       ),
