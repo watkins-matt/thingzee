@@ -326,19 +326,21 @@ class History {
         // choose the one with the higher maxTimestamp since it
         // has been updated more recently
         if (thisSeries.maxTimestamp > otherSeries.maxTimestamp) {
-          merged.series.add(thisSeries);
+          merged.series.add(thisSeries.copy());
         } else {
-          merged.series.add(otherSeries);
+          merged.series.add(otherSeries.copy());
         }
       } else if (thisSeries != null) {
         // If only this History instance has a HistorySeries with this minTimestamp, add it
-        merged.series.add(thisSeries);
+        merged.series.add(thisSeries.copy());
       } else if (otherSeries != null) {
         // If only the other History instance has a HistorySeries with this minTimestamp, add it
-        merged.series.add(otherSeries);
+        merged.series.add(otherSeries.copy());
       }
     }
 
+    // The merged result should always be at least as long as the longest History instance
+    assert(merged.series.length >= series.length && merged.series.length >= other.series.length);
     return merged;
   }
 
