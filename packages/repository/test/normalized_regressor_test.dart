@@ -48,5 +48,77 @@ void main() {
       expect(regressor.predict(firstRelativeTimestamp), closeTo(0.8, 0.4));
       expect(regressor.predict(secondRelativeTimestamp), closeTo(0, 0.4));
     });
+    test('NaiveRegressor with NormalizedRegressor', () {
+      Map<int, double> points = {
+        1687153789394: 1.5,
+        1689472466876: 0.98,
+        1692069900337: 0.2,
+      };
+
+      // Normalizing the points
+      MapNormalizer normalizer = MapNormalizer(points);
+      points = normalizer.dataPoints;
+
+      // Creating NaiveRegressor wrapped with NormalizedRegressor
+      final naive = NaiveRegressor.fromMap(points);
+      const baseTimestamp = 1687153789394;
+      const baseAmount = 1.5;
+      final regressor =
+          NormalizedRegressor.withBase(normalizer, naive, baseTimestamp, yShift: baseAmount);
+
+      // Checking the xIntercept
+      final xIntercept = regressor.xIntercept;
+      expect(xIntercept, isNotNull); // Replace with expected value if known
+
+      // Verifying that the value of regressor.predict at the xIntercept time is 0
+      final predictionAtXIntercept = regressor.predict(xIntercept);
+      expect(predictionAtXIntercept, closeTo(0, 0.01));
+    });
+
+    test('SimpleLinearRegressor with NormalizedRegressor', () {
+      Map<int, double> points = {
+        1687153789394: 1.5,
+        1689472466876: 0.98,
+        1692069900337: 0.2,
+      };
+
+      // Normalizing the points
+      MapNormalizer normalizer = MapNormalizer(points);
+      points = normalizer.dataPoints;
+
+      // Creating SimpleLinearRegressor wrapped with NormalizedRegressor
+      final naive = SimpleLinearRegressor(points);
+      const baseTimestamp = 1687153789394;
+      const baseAmount = 1.5;
+      final regressor =
+          NormalizedRegressor.withBase(normalizer, naive, baseTimestamp, yShift: baseAmount);
+
+      // Checking the xIntercept
+      final xIntercept = regressor.xIntercept;
+      expect(xIntercept, isNotNull); // Replace with expected value if known
+
+      // Verifying that the value of regressor.predict at the xIntercept time is 0
+      final predictionAtXIntercept = regressor.predict(xIntercept);
+      expect(predictionAtXIntercept, closeTo(0, 0.01));
+    });
+
+    test('SimpleLinearRegressor without NormalizedRegressor', () {
+      Map<int, double> points = {
+        1687153789394: 1.5,
+        1689472466876: 0.98,
+        1692069900337: 0.2,
+      };
+
+      // Creating SimpleLinearRegressor wrapped with NormalizedRegressor
+      final regressor = SimpleLinearRegressor(points);
+
+      // Checking the xIntercept
+      final xIntercept = regressor.xIntercept;
+      expect(xIntercept, isNotNull); // Replace with expected value if known
+
+      // Verifying that the value of regressor.predict at the xIntercept time is 0
+      final predictionAtXIntercept = regressor.predict(xIntercept);
+      expect(predictionAtXIntercept, closeTo(0, 0.01));
+    });
   });
 }
