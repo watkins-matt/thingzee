@@ -303,7 +303,7 @@ class NormalizedRegressor implements Regressor {
     if (yShift == 0) {
       return regressor.xIntercept + baseTimestamp;
     } else {
-      final yInterceptShifted = normalizer.normalizeAmount(yShift);
+      final yInterceptShifted = regressor.predict(0);
       return ((-yInterceptShifted / regressor.slope) + baseTimestamp).round();
     }
   }
