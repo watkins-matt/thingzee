@@ -10,9 +10,10 @@ class ImageBrowserPage extends StatefulWidget {
 
   static Future<String> push(BuildContext context, String upc) async {
     return await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => ImageBrowserPage(upc)),
-    );
+          context,
+          MaterialPageRoute(builder: (context) => ImageBrowserPage(upc)),
+        ) ??
+        '';
   }
 }
 
@@ -36,8 +37,8 @@ class _ImageBrowserPageState extends State<ImageBrowserPage> {
           backgroundColor: Colors.white,
           leading: Align(
               alignment: Alignment.centerLeft,
-              child:
-                  IconButton(icon: const Icon(Icons.cancel_outlined), onPressed: onCancelPressed)),
+              child: IconButton(
+                  icon: const Icon(Icons.cancel), color: Colors.red, onPressed: onCancelPressed)),
           title: TextField(
             controller: urlController,
             decoration: const InputDecoration(
@@ -49,8 +50,14 @@ class _ImageBrowserPageState extends State<ImageBrowserPage> {
             onSubmitted: onUrlSubmitted,
           ),
           actions: <Widget>[
-            IconButton(icon: const Icon(Icons.arrow_back), onPressed: onArrowBackPressed),
-            IconButton(icon: const Icon(Icons.check_box), onPressed: onCheckboxPressed)
+            IconButton(
+                icon: const Icon(Icons.arrow_back),
+                color: Colors.blue,
+                onPressed: onArrowBackPressed),
+            IconButton(
+                icon: const Icon(Icons.check_box),
+                color: Colors.green,
+                onPressed: onCheckboxPressed)
           ],
         ),
         body: Column(
