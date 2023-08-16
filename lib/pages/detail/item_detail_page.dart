@@ -17,6 +17,7 @@ import 'package:thingzee/pages/detail/widget/title_header_widget.dart';
 import 'package:thingzee/pages/detail/widget/url_input_dialog.dart';
 import 'package:thingzee/pages/history/history_page.dart';
 import 'package:thingzee/pages/history/widget/history_list_view.dart';
+import 'package:thingzee/pages/image_browser/image_browser_page.dart';
 import 'package:thingzee/pages/inventory/state/inventory_view.dart';
 import 'package:thingzee/pages/inventory/state/item_thumbnail_cache.dart';
 import 'package:thingzee/pages/shopping/state/shopping_list.dart';
@@ -276,9 +277,20 @@ class ItemDetailPage extends HookConsumerWidget {
 
   Future<void> onImagePressed(BuildContext context, WidgetRef ref) async {
     final editableItem = ref.read(editableItemProvider.notifier);
+    String upc = editableItem.upc;
     final url = editableItem.imageUrl;
 
-    final result = await UrlInputDialog.show(context, existingUrl: url);
+    final result = await UrlInputDialog.show(
+      context,
+      existingUrl: url,
+      customButton: const Text('Find Image'),
+      customButtonAction: () async {
+        // Allow the user to browse to a URL
+        return ImageBrowserPage.push(context, upc);
+      },
+    );
+
+    // If the user entered a URL, download and cache the image
     if (result != null) {
       editableItem.imageUrl = result;
 
@@ -295,7 +307,7 @@ class ItemDetailPage extends HookConsumerWidget {
 
   Future<void> onSaveButtonPressed(BuildContext context, WidgetRef ref) async {
     final editableItem = ref.read(editableItemProvider.notifier);
-    final repo = ref.watch(repositoryProvider);
+    final repo = ref.read(repositoryProvider);
     editableItem.save(repo);
 
     final view = ref.read(inventoryProvider.notifier);
@@ -315,7 +327,7 @@ class ItemDetailPage extends HookConsumerWidget {
     Item item,
     Inventory inventory,
   ) async {
-    final itemProv = ref.watch(editableItemProvider.notifier);
+    final itemProv = ref.read(editableItemProvider.notifier);
     itemProv.copyFrom(item, inventory);
 
     await Navigator.push(

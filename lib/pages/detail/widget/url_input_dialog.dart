@@ -2,14 +2,33 @@ import 'package:flutter/material.dart';
 
 class UrlInputDialog extends StatefulWidget {
   final String? existingUrl;
-  const UrlInputDialog({Key? key, this.existingUrl}) : super(key: key);
+  final Widget? customButton;
+  final Future<String?> Function()? customButtonAction;
+
+  const UrlInputDialog({
+    Key? key,
+    this.existingUrl,
+    this.customButton,
+    this.customButtonAction,
+  }) : super(key: key);
 
   @override
   State<UrlInputDialog> createState() => _UrlInputDialogState();
 
-  static Future<String?> show(BuildContext context, {String? existingUrl}) async {
+  static Future<String?> show(
+    BuildContext context, {
+    String? existingUrl,
+    Widget? customButton,
+    Future<String?> Function()? customButtonAction,
+  }) async {
     final result = await showDialog<String>(
-        context: context, builder: (context) => UrlInputDialog(existingUrl: existingUrl));
+      context: context,
+      builder: (context) => UrlInputDialog(
+        existingUrl: existingUrl,
+        customButton: customButton,
+        customButtonAction: customButtonAction,
+      ),
+    );
     return result;
   }
 }
@@ -27,13 +46,28 @@ class _UrlInputDialogState extends State<UrlInputDialog> {
       content: TextField(
         focusNode: _focusNode,
         controller: _urlController,
+        minLines: 1,
+        maxLines: 5,
         decoration: InputDecoration(
           labelText: 'URL',
-          errorText: _isUrlValid ? null : 'Please enter a valid URL',
+          errorText: _isUrlValid || !_hasStartedTyping ? null : 'Please enter a valid URL',
         ),
         keyboardType: TextInputType.url,
       ),
       actions: [
+        if (widget.customButton != null && widget.customButtonAction != null)
+          TextButton(
+            child: widget.customButton!,
+            onPressed: () async {
+              final url = await widget.customButtonAction?.call();
+              if (url != null && _validateUrl(url)) {
+                _urlController.text = url;
+                _urlController.selection = TextSelection.fromPosition(
+                  TextPosition(offset: url.length),
+                );
+              }
+            },
+          ),
         TextButton(
           onPressed: () {
             Navigator.pop(context);
@@ -42,6 +76,10 @@ class _UrlInputDialogState extends State<UrlInputDialog> {
         ),
         TextButton(
           onPressed: () {
+            // Even if the user didn't start typing, force validation
+            // when the submit button is pressed
+            _hasStartedTyping = true;
+
             final url = _urlController.text.trim();
             if (_validateUrl(url) && url.isNotEmpty) {
               Navigator.pop(context, url);
@@ -68,7 +106,7 @@ class _UrlInputDialogState extends State<UrlInputDialog> {
     super.initState();
     if (widget.existingUrl != null && widget.existingUrl!.isNotEmpty) {
       _urlController.text = widget.existingUrl!;
-      _validateUrl(widget.existingUrl!);
+      _isUrlValid = _validateUrl(widget.existingUrl!);
     }
     _urlController.addListener(() {
       final url = _urlController.text.trim();

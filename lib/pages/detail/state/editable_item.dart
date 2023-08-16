@@ -48,6 +48,7 @@ class EditableItem extends StateNotifier<EditableItemState> {
     final item = state.item;
     item.imageUrl = imageUrl;
 
+    state.changedFields.add('imageUrl');
     state = EditableItemState(item, state.inventory, state.changedFields);
   }
 
