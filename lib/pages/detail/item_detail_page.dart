@@ -40,8 +40,10 @@ class ItemDetailPage extends HookConsumerWidget {
     final cache = ref.watch(itemThumbnailCache);
     Image? image;
 
-    if (item.imageUrl.isNotEmpty && cache.containsKey(item.upc) && cache[item.upc] != null) {
-      image = cache[item.upc]!;
+    if (editableItem.imageUrl.isNotEmpty &&
+        cache.containsKey(editableItem.upc) &&
+        cache[editableItem.upc] != null) {
+      image = cache[editableItem.upc]!;
     } else {
       image = const Image(
         image: AssetImage('assets/images/no_image_available.png'),
