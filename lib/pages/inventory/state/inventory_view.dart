@@ -35,8 +35,6 @@ class InventoryView extends StateNotifier<List<JoinedItem>> {
   }
 
   Future<void> downloadImages(ItemThumbnailCache cache) async {
-    await cache.loadMapping();
-
     // Iterate through each image, download everything that isn't cached
     for (final joinedItem in state) {
       // If the image URL is empty, skip it. If we have an image
@@ -45,8 +43,6 @@ class InventoryView extends StateNotifier<List<JoinedItem>> {
         await cache.loadImageFromUrl(joinedItem.item.imageUrl, joinedItem.item.upc);
       }
     }
-
-    await cache.saveMapping();
   }
 
   Future<void> refresh() async {
