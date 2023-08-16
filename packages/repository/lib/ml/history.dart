@@ -240,7 +240,6 @@ class History {
     // We added a new decrease, and we have more than one observation
     if (observation.amount < lastObservation.amount && current.observations.length > 1) {
       evaluator.train(this);
-      evaluator.assess(observation);
     }
   }
 

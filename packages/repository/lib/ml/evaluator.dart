@@ -11,7 +11,7 @@ class Evaluator {
   String _best = '';
   bool _trained = false;
   final String defaultType = 'Simple';
-  final History history;
+  History history;
 
   Evaluator(this.history);
 
@@ -65,28 +65,6 @@ class Evaluator {
     return predictions;
   }
 
-  /// Updates the best regressor based on which one was
-  /// able to most accurately predict the newest observation.
-  void assess(Observation observation) {
-    if (!_trained) {
-      throw Exception('Evaluator has not been trained. Train before assessing.');
-    }
-
-    double targetAmount = observation.amount;
-    double minimumDistance = double.maxFinite;
-
-    for (final modelEntry in regressors.entries) {
-      final regressor = modelEntry.value;
-      final prediction = regressor.predict(observation.timestamp.toInt());
-      final distance = (prediction - targetAmount).abs();
-
-      if (distance < minimumDistance) {
-        minimumDistance = distance;
-        _best = modelEntry.key;
-      }
-    }
-  }
-
   double predict(int timestamp) {
     if (!_trained) {
       throw Exception('Evaluator has not been trained. Train before predicting.');
@@ -108,6 +86,9 @@ class Evaluator {
   /// which regressor is the best, giving more weight to the
   /// most recent series.
   void train(History history) {
+    // Update the history reference
+    this.history = history;
+
     // Can't train on an empty history
     if (history.series.isEmpty) {
       return;
