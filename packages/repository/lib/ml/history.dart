@@ -93,9 +93,9 @@ class History {
     return series.last.observations.lastOrNull;
   }
 
-  DateTime get lastTimestamp {
-    if (series.isEmpty) {
-      return DateTime.fromMillisecondsSinceEpoch(0);
+  DateTime? get lastTimestamp {
+    if (series.isEmpty || series.last.observations.isEmpty) {
+      return null;
     }
 
     return DateTime.fromMillisecondsSinceEpoch(series.last.observations.last.timestamp.toInt());

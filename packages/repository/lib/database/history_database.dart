@@ -12,7 +12,9 @@ abstract class HistoryDatabase {
     List<History> changes = [];
 
     for (final history in allHistory) {
-      if (history.lastTimestamp.isAfter(since)) {
+      final lastTimestamp = history.lastTimestamp;
+
+      if (lastTimestamp != null && lastTimestamp.isAfter(since)) {
         changes.add(history);
       }
     }
