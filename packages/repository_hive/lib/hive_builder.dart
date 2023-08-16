@@ -12,6 +12,8 @@ class HiveBuilder implements Builder {
     'Manufacturer': 3,
     'Product': 4,
     'HouseholdMember': 5,
+    'Location': 6,
+    'ExpirationDate': 7,
     'History': 223
   };
 
@@ -121,6 +123,14 @@ class HiveBuilder implements Builder {
 
     // Write the conversion method
     buffer.writeln('  ${originalClass.name} to${originalClass.name}() {');
+
+    // DO NOT REMOVE THE FOLLOWING. This code is necessary to ensure
+    // that the history is in a consistent state.
+    if (originalClass.name == 'Inventory') {
+      buffer.writeln('    // Ensure history is in a consistent state');
+      buffer.writeln('    history.upc = upc;');
+    }
+
     if (isImmutable) {
       buffer.writeln('    return ${originalClass.name}(');
       for (final field in originalClass.fields) {

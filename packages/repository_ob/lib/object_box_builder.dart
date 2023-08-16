@@ -8,6 +8,7 @@ Builder objectBoxBuilder(BuilderOptions options) => ObjectBoxBuilder();
 
 class ObjectBoxBuilder implements Builder {
   final Set<String> uniqueFields = const {'upc'};
+  final Set<String> uniqueClassExclusions = const {'ExpirationDate', 'Location'};
   final Set<String> transientFields = const {'history'};
   final Map<String, String> packageReplace = {'repository_ob': 'repository'};
 
@@ -88,7 +89,8 @@ class ObjectBoxBuilder implements Builder {
           buffer.writeln('  @Transient()');
         }
         // Handle unique fields
-        if (uniqueFields.contains(field.name)) {
+        if (uniqueFields.contains(field.name) &&
+            !uniqueClassExclusions.contains(originalClass.name)) {
           buffer.writeln('  @Unique(onConflict: ConflictStrategy.replace)');
         }
         // Handle field type and initialization
@@ -124,8 +126,8 @@ class ObjectBoxBuilder implements Builder {
     // DO NOT REMOVE THE FOLLOWING. This code is necessary to ensure
     // that the history is in a consistent state.
     if (originalClass.name == 'Inventory') {
-      buffer.writeln('      // Ensure history is in a consistent state');
-      buffer.writeln('      history.upc = upc;');
+      buffer.writeln('    // Ensure history is in a consistent state');
+      buffer.writeln('    history.upc = upc;');
     }
 
     if (isImmutable) {
