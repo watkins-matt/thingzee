@@ -106,7 +106,7 @@ class SynchronizedHistoryDatabase extends HistoryDatabase {
     if (changes > 0) {
       Log.d('HistoryDatabase: Synchronized $changes items.');
     } else {
-      Log.d('InventoryDatabase: No synchronization necessary, everything up to date.');
+      Log.d('HistoryDatabase: No synchronization necessary, everything up to date.');
     }
 
     _updateSyncTime();
