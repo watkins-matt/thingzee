@@ -17,15 +17,17 @@ class Location {
   @NullableDateTimeSerializer()
   final DateTime? updated;
 
-  const Location({
+  Location({
     required this.upc,
     required this.location,
     this.quantity,
-    this.created,
-    this.updated,
-  });
+    DateTime? created,
+    DateTime? updated,
+  })  : created = created ?? _defaultDateTime(updated),
+        updated = updated ?? _defaultDateTime(created);
 
   factory Location.fromJson(Map<String, dynamic> json) => _$LocationFromJson(json);
+
   Location copyWith({
     String? upc,
     String? location,
@@ -43,4 +45,9 @@ class Location {
   }
 
   Map<String, dynamic> toJson() => _$LocationToJson(this);
+
+  /// This method is a helper method to ensure that
+  /// created and updated can be initialized to equivalent values if
+  /// one or both are null.
+  static DateTime _defaultDateTime(DateTime? dateTime) => dateTime ?? DateTime.now();
 }

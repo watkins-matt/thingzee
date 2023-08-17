@@ -37,6 +37,13 @@ class AppwriteLocationDatabase extends LocationDatabase {
   }
 
   @override
+  List<Location> getChanges(DateTime since) {
+    return _locations
+        .where((location) => location.updated != null && location.updated!.isAfter(since))
+        .toList();
+  }
+
+  @override
   List<Location> getContents(String location) {
     return _locations.where((loc) => loc.location == location).toList();
   }

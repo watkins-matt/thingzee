@@ -23,6 +23,14 @@ class ObjectBoxLocationDatabase extends LocationDatabase {
   }
 
   @override
+  List<Location> getChanges(DateTime since) {
+    final query =
+        box.query(ObjectBoxLocation_.updated.greaterThan(since.millisecondsSinceEpoch)).build();
+    final results = query.find();
+    return results.map((objBoxLoc) => objBoxLoc.toLocation()).toList();
+  }
+
+  @override
   List<Location> getContents(String location) {
     final query = box.query(ObjectBoxLocation_.location.equals(location)).build();
     final results = query.find();
