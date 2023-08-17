@@ -7,6 +7,7 @@ import 'package:repository/database/household_database.dart';
 import 'package:repository/database/inventory_database.dart';
 import 'package:repository/database/item_database.dart';
 import 'package:repository/database/joined_inventory_database.dart';
+import 'package:repository/database/location_database.dart';
 import 'package:repository/database/preferences.dart';
 import 'package:repository/database/preferences_default.dart';
 import 'package:repository/database/preferences_secure.dart';
@@ -47,6 +48,7 @@ abstract class Repository {
   late Preferences prefs;
   late Preferences securePrefs;
   late HouseholdDatabase household;
+  late LocationDatabase location;
   bool get isMultiUser => false;
   bool get isUserVerified => false;
   bool get loggedIn => false;

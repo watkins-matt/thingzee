@@ -2,8 +2,9 @@ import 'package:repository/model/location.dart';
 
 abstract class LocationDatabase {
   List<String> get all;
-  List<String> contents(String location);
-  void delete(Location location);
+  List<Location> getContents(String location);
+  List<String> getUpcList(String location);
   int itemCount(String location);
-  void store(Location location);
+  void remove(String location, String upc);
+  void store(String location, String upc);
 }

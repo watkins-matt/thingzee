@@ -4,6 +4,7 @@ import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/models.dart' hide Log, Preferences;
 import 'package:log/log.dart';
 import 'package:repository/database/cloud/invitation_database.dart';
+import 'package:repository/database/preferences.dart';
 import 'package:repository/model/cloud/invitation.dart';
 import 'package:repository/util/hash.dart';
 import 'package:uuid/uuid.dart';
@@ -15,6 +16,7 @@ class AppwriteInvitationDatabase extends InvitationDatabase {
   DateTime? _lastRateLimitHit;
   DateTime? lastSync;
   final String lastSyncKey = 'AppwriteInvitationDatabase.lastSync';
+  final Preferences prefs;
   final _invitations = <String, Invitation>{};
   final _taskQueue = <_QueueTask>[];
   final Databases _database;
@@ -23,11 +25,17 @@ class AppwriteInvitationDatabase extends InvitationDatabase {
   final String householdId;
 
   AppwriteInvitationDatabase(
+    this.prefs,
     this._database,
     this.databaseId,
     this.collectionId,
     this.householdId,
-  );
+  ) {
+    int? lastSyncMillis = prefs.getInt(lastSyncKey);
+    if (lastSyncMillis != null) {
+      lastSync = DateTime.fromMillisecondsSinceEpoch(lastSyncMillis);
+    }
+  }
 
   @override
   bool get hasInvitations => _invitations.isNotEmpty;
@@ -189,6 +197,7 @@ class AppwriteInvitationDatabase extends InvitationDatabase {
     }
 
     Log.timerEnd(timer, 'Appwrite: Invitations synced in \$seconds seconds.');
+    _updateSyncTime();
   }
 
   List<Invitation> _documentsToList(DocumentList documentList) {
@@ -237,6 +246,11 @@ class AppwriteInvitationDatabase extends InvitationDatabase {
     } finally {
       _processingQueue = false;
     }
+  }
+
+  void _updateSyncTime() {
+    lastSync = DateTime.now();
+    prefs.setInt(lastSyncKey, lastSync!.millisecondsSinceEpoch);
   }
 }
 
