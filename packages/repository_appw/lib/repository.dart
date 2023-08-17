@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/models.dart' hide Log, Preferences;
 import 'package:log/log.dart';
+import 'package:repository/cloud_repository.dart';
 import 'package:repository/database/joined_inventory_database.dart';
 import 'package:repository/database/preferences_default.dart';
 import 'package:repository/database/preferences_secure.dart';

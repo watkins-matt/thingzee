@@ -6,6 +6,7 @@ import 'package:log/log.dart';
 import 'package:repository/database/mock/repository.dart';
 import 'package:repository/network/connectivity_service.dart';
 import 'package:repository/repository.dart';
+import 'package:repository/sync_repository.dart';
 import 'package:repository_appw/repository.dart';
 import 'package:repository_ob/repository.dart';
 import 'package:stack_trace/stack_trace.dart';

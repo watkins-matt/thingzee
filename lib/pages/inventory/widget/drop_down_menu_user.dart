@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:repository/repository.dart';
+import 'package:repository/cloud_repository.dart';
 import 'package:thingzee/app.dart';
 import 'package:thingzee/main.dart';
 import 'package:thingzee/pages/household/household_page.dart';

@@ -1,7 +1,7 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:repository/cloud_repository.dart';
 import 'package:repository/database/cloud/invitation_database.dart';
 import 'package:repository/model/cloud/invitation.dart';
-import 'package:repository/repository.dart';
 import 'package:thingzee/main.dart';
 
 final invitationsProvider = StateNotifierProvider<InvitationState, List<Invitation>>((ref) {
