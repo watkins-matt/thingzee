@@ -11,7 +11,7 @@ class ObjectBoxLocationDatabase extends LocationDatabase {
   }
 
   @override
-  List<String> get all {
+  List<String> get names {
     final query = box.query().build();
     final propertyQuery = query.property(ObjectBoxLocation_.location);
     propertyQuery.distinct = true;
@@ -20,6 +20,12 @@ class ObjectBoxLocationDatabase extends LocationDatabase {
     query.close();
 
     return locations;
+  }
+
+  @override
+  List<Location> all() {
+    final all = box.getAll();
+    return all.map((objBoxLoc) => objBoxLoc.toLocation()).toList();
   }
 
   @override
@@ -59,6 +65,16 @@ class ObjectBoxLocationDatabase extends LocationDatabase {
     query.close();
 
     return count;
+  }
+
+  @override
+  Map<String, Location> map() {
+    final allLocations = all();
+    final map = {
+      for (var location in allLocations) '${location.location}-${location.upc}': location
+    };
+
+    return map;
   }
 
   @override

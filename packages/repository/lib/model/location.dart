@@ -44,6 +44,28 @@ class Location {
     );
   }
 
+  bool equalTo(Location other) {
+    return upc == other.upc &&
+        location == other.location &&
+        quantity == other.quantity &&
+        created?.millisecondsSinceEpoch == other.created?.millisecondsSinceEpoch &&
+        updated?.millisecondsSinceEpoch == other.updated?.millisecondsSinceEpoch;
+  }
+
+  Location merge(Location other) {
+    final firstUpdate = updated ?? DateTime.fromMillisecondsSinceEpoch(0);
+    final secondUpdate = other.updated ?? DateTime.fromMillisecondsSinceEpoch(0);
+    final newerLocation = secondUpdate.isAfter(firstUpdate) ? other : this;
+
+    return Location(
+      upc: newerLocation.upc.isNotEmpty ? newerLocation.upc : upc,
+      location: newerLocation.location.isNotEmpty ? newerLocation.location : location,
+      quantity: newerLocation.quantity ?? quantity,
+      created: newerLocation.created ?? created,
+      updated: newerLocation.updated ?? updated,
+    );
+  }
+
   Map<String, dynamic> toJson() => _$LocationToJson(this);
 
   /// This method is a helper method to ensure that

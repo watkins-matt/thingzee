@@ -31,10 +31,13 @@ class AppwriteLocationDatabase extends LocationDatabase {
   }
 
   @override
-  List<String> get all {
+  List<String> get names {
     final uniqueLocations = _locations.map((location) => location.location).toSet();
     return uniqueLocations.toList();
   }
+
+  @override
+  List<Location> all() => List.unmodifiable(_locations);
 
   @override
   List<Location> getChanges(DateTime since) {
@@ -71,6 +74,16 @@ class AppwriteLocationDatabase extends LocationDatabase {
     return _locations.where((loc) => loc.location == location).length;
   }
 
+  @override
+  Map<String, Location> map() {
+    final allLocations = all();
+    final map = {
+      for (var location in allLocations) '${location.location}-${location.upc}': location
+    };
+
+    return map;
+  }
+
   void queueTask(Future<void> Function() operation) {
     _taskQueue.add(_QueueTask(operation));
     scheduleMicrotask(_processQueue);
@@ -98,6 +111,14 @@ class AppwriteLocationDatabase extends LocationDatabase {
     });
   }
 
+  Map<String, dynamic> serializeLocation(Location location) {
+    assert(userId.isNotEmpty);
+
+    var json = location.toJson();
+    json['userId'] = userId;
+    return json;
+  }
+
   @override
   void store(String location, String upc) {
     queueTask(() async {
@@ -113,18 +134,17 @@ class AppwriteLocationDatabase extends LocationDatabase {
 
       if (response.documents.isEmpty) {
         await _database.createDocument(
-          databaseId: databaseId,
-          collectionId: collectionId,
-          documentId: Uuid().v4(),
-          data: locationData.toJson(),
-        );
+            databaseId: databaseId,
+            collectionId: collectionId,
+            documentId: Uuid().v4(),
+            data: serializeLocation(locationData));
       } else {
         for (final document in response.documents) {
           await _database.updateDocument(
             databaseId: databaseId,
             collectionId: collectionId,
             documentId: document.$id,
-            data: locationData.toJson(),
+            data: serializeLocation(locationData),
           );
         }
       }
