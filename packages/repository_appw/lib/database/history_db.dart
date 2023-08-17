@@ -77,7 +77,7 @@ class AppwriteHistoryDatabase extends HistoryDatabase {
 
   @override
   Map<String, History> map() {
-    return _history;
+    return Map.unmodifiable(_history);
   }
 
   @override
