@@ -202,9 +202,18 @@ class AppwriteInventoryDatabase extends InventoryDatabase {
   }
 
   List<Inventory> _documentsToList(DocumentList documentList) {
-    return documentList.documents.map((doc) {
-      return deserializeInventory(doc.data);
-    }).toList();
+    return documentList.documents
+        .map((doc) {
+          try {
+            return deserializeInventory(doc.data);
+          } catch (e) {
+            Log.e('Error deserializing inventory:', e.toString());
+            return null;
+          }
+        })
+        .where((item) => item != null)
+        .cast<Inventory>()
+        .toList();
   }
 
   Future<void> _processQueue() async {

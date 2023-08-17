@@ -227,6 +227,8 @@ class AppwriteHouseholdDatabase extends HouseholdDatabase {
         Log.e('Failed to load team: [AppwriteException]', e.message);
         rethrow;
       }
+    } on TypeError catch (e) {
+      Log.e('[TypeError] Appwrite:', e.toString());
     }
   }
 
