@@ -132,6 +132,11 @@ class SynchronizedHistoryDatabase extends HistoryDatabase {
         }
 
         final mergedHistory = localHistories[remoteHistory.upc]!.merge(remoteHistory);
+
+        // We should never have a case where the merged history has less points
+        assert(mergedHistory.totalPoints >= localHistories[remoteHistory.upc]!.totalPoints);
+        assert(mergedHistory.totalPoints >= remoteHistory.totalPoints);
+
         local.put(mergedHistory);
         remote.put(mergedHistory);
       }
