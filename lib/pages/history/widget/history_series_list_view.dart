@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:repository/ml/history.dart';
+import 'package:repository/ml/regressor.dart';
 import 'package:thingzee/pages/detail/widget/material_card_widget.dart';
 import 'package:thingzee/pages/detail/widget/title_header_widget.dart';
 import 'package:thingzee/pages/history/widget/history_list_view.dart';
@@ -55,16 +56,14 @@ class HistorySeriesListView extends StatelessWidget {
                       ),
                       ...seriesRegressors.map(
                         (regressor) {
-                          final usageSpeedDays = regressor.hasSlope
-                              ? (1 / regressor.slope.abs()) / 1000 / 60 / 60 / 24
-                              : 0;
+                          final usageRateDays = regressor.usageRateDays;
                           final accuracy =
                               history.evaluator.accuracy['${regressor.type}-$index'] ?? 0;
 
                           return Padding(
                             padding: const EdgeInsets.symmetric(vertical: 4),
                             child: Text(
-                                'Regressor (${regressor.type}): Usage Rate (Days): ${usageSpeedDays.toStringAsFixed(2)} Accuracy: ${accuracy.toStringAsFixed(0)}%'),
+                                'Regressor (${regressor.type}): Usage Rate (Days): ${usageRateDays.toStringAsFixed(2)} Accuracy: ${accuracy.toStringAsFixed(0)}%'),
                           );
                         },
                       ),

@@ -4,6 +4,7 @@ import 'package:repository/extension/duration.dart';
 import 'package:repository/extension/list.dart';
 import 'package:repository/merge_generator.dart';
 import 'package:repository/ml/history.dart';
+import 'package:repository/ml/regressor.dart';
 import 'package:repository/model/serializer_datetime.dart';
 import 'package:stats/double.dart';
 
@@ -133,10 +134,8 @@ class Inventory {
     amount = value / unitCount;
   }
 
-  double get usageSpeedDays {
-    return history.regressor.hasSlope
-        ? (1 / history.regressor.slope.abs()) / 1000 / 60 / 60 / 24
-        : 0;
+  double get usageRateDays {
+    return history.regressor.usageRateDays;
   }
 
   double get usageSpeedMinutes {

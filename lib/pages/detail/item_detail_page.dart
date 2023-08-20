@@ -157,7 +157,7 @@ class ItemDetailPage extends HookConsumerWidget {
                             text: ref
                                 .watch(editableItemProvider)
                                 .inventory
-                                .usageSpeedDays
+                                .usageRateDays
                                 .roundTo(2)
                                 .toString(),
                           ),
