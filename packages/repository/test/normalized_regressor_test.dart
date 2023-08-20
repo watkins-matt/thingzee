@@ -4,7 +4,7 @@ import 'package:test/test.dart';
 
 void main() {
   group('Normalized Regressor test:', () {
-    test('Values should be as expected.', () async {
+    test('WLS: Ensure predictions match original data.', () async {
       final Map<int, double> points = {
         1686280709794: 2.5,
         1686389999245: 2.2,
@@ -119,6 +119,60 @@ void main() {
       // Verifying that the value of regressor.predict at the xIntercept time is 0
       final predictionAtXIntercept = regressor.predict(xIntercept);
       expect(predictionAtXIntercept, closeTo(0, 0.01));
+    });
+
+    test(
+        'Normalized and unnormalized regressors should agree'
+        ' when converting back to the same terms.', () {
+      Map<int, double> points = {
+        1687153789394: 1.5,
+        1689472466876: 0.98,
+        1692069900337: 0.2,
+      };
+      final unnormalizedRegressor = SimpleLinearRegressor(points);
+
+      // Create the normalized points
+      Map<int, double> normalizedPoints = Map.from(points);
+      MapNormalizer normalizer = MapNormalizer(normalizedPoints);
+      normalizedPoints = normalizer.dataPoints;
+
+      // Creating SimpleLinearRegressor wrapped with NormalizedRegressor
+      final regressor = SimpleLinearRegressor(normalizedPoints);
+      const baseTimestamp = 1687153789394;
+      const baseAmount = 1.5;
+      final normalizedRegressor =
+          NormalizedRegressor.withBase(normalizer, regressor, baseTimestamp, yShift: baseAmount);
+
+      expect(unnormalizedRegressor.slope, closeTo(normalizedRegressor.slope, 0.01));
+      expect(unnormalizedRegressor.xIntercept, closeTo(normalizedRegressor.xIntercept, 0.01));
+    });
+
+    test('Compare usageRateDays between normalized and unnormalized regressors.', () {
+      Map<int, double> points = {
+        1686184734424: 1.0,
+        1686280111737: 0.95,
+        1686788752281: 0.6,
+        1687637993121: 0.0,
+      };
+      final unnormalizedRegressor = SimpleLinearRegressor(points);
+      final originalUsageRateDays = unnormalizedRegressor.usageRateDays;
+      print('Original usageRateDays: $originalUsageRateDays');
+
+      // Create the normalized points
+      Map<int, double> normalizedPoints = Map.from(points);
+      MapNormalizer normalizer = MapNormalizer(normalizedPoints);
+      normalizedPoints = normalizer.dataPoints;
+
+      // Creating SimpleLinearRegressor wrapped with NormalizedRegressor
+      final regressor = SimpleLinearRegressor(normalizedPoints);
+      const baseTimestamp = 1692061933641;
+      const baseAmount = 3.0;
+      final normalizedRegressor =
+          NormalizedRegressor.withBase(normalizer, regressor, baseTimestamp, yShift: baseAmount);
+      final daysToXIntercept = (normalizedRegressor.xIntercept - baseTimestamp) / 86400000;
+      print('daysToXIntercept: $daysToXIntercept');
+
+      expect(daysToXIntercept, closeTo(originalUsageRateDays * 3, 0.6));
     });
   });
 }
