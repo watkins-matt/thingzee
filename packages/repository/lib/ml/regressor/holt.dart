@@ -1,13 +1,12 @@
 import 'package:repository/ml/regressor/regressor.dart';
 
 class HoltLinearRegressor extends Regressor {
-  final List<MapEntry<int, double>> data;
+  final List<MapEntry<double, double>> data;
   final double alpha;
   final double beta;
 
   HoltLinearRegressor(this.data, this.alpha, this.beta);
-
-  HoltLinearRegressor.fromMap(Map<int, double> mapData, this.alpha, this.beta)
+  HoltLinearRegressor.fromMap(Map<double, double> mapData, this.alpha, this.beta)
       : data = mapData.entries.toList();
 
   @override
@@ -15,6 +14,9 @@ class HoltLinearRegressor extends Regressor {
 
   @override
   bool get hasXIntercept => true;
+
+  @override
+  bool get hasYIntercept => true;
 
   @override
   double get slope {
@@ -27,22 +29,25 @@ class HoltLinearRegressor extends Regressor {
   String get type => 'Holt';
 
   @override
-  int get xIntercept {
+  double get xIntercept {
     _HoltLinearResult result = _calculateHoltLinear();
 
     // The time when the trend hits zero is when level + dt * trend = 0, solving for dt gives.
-    int dtZero = (-result.level / result.trend).round();
+    double dtZero = -result.level / result.trend;
 
     // Return the timestamp when the trend is expected to hit zero.
     return data.last.key + dtZero;
   }
 
   @override
-  double predict(int x) {
+  double get yIntercept => predict(0);
+
+  @override
+  double predict(double x) {
     _HoltLinearResult result = _calculateHoltLinear();
 
     // Estimate the time difference from the last known point to the prediction point.
-    int dtPred = x - data.last.key;
+    double dtPred = x - data.last.key;
 
     // Return the forecasted value.
     return result.level + dtPred * result.trend;
@@ -58,7 +63,7 @@ class HoltLinearRegressor extends Regressor {
     // Iteratively apply Holt's Linear Exponential Smoothing.
     for (var i = 1; i < data.length; i++) {
       // Calculate the time difference between current and previous timestamp.
-      int dt = data[i].key - data[i - 1].key;
+      double dt = data[i].key - data[i - 1].key;
 
       // Forecast the value for the current timestamp using the previous level and trend.
       double forecast = level + dt * trend;

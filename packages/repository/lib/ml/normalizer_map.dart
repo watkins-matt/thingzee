@@ -1,7 +1,7 @@
 class MapNormalizer {
-  Map<int, double> data;
-  late int minTime;
-  late int maxTime;
+  Map<double, double> data;
+  late double minTime;
+  late double maxTime;
   late double minAmount;
   late double maxAmount;
 
@@ -12,19 +12,12 @@ class MapNormalizer {
     maxAmount = data.values.reduce((a, b) => a > b ? a : b);
   }
 
-  int get range => maxTime - minTime;
-
-  int normalizeTime(int timestamp) {
-    return timestamp - minTime;
+  Map<double, double> get dataPoints {
+    return data
+        .map((timestamp, amount) => MapEntry(normalizeTime(timestamp), normalizeAmount(amount)));
   }
 
-  double normalizeAmount(double amount) {
-    return amount / maxAmount;
-  }
-
-  int denormalizeTime(int normalizedTimestamp) {
-    return normalizedTimestamp + minTime;
-  }
+  double get range => maxTime - minTime;
 
   double denormalizeAmount(double normalizedAmount) {
     return normalizedAmount * maxAmount;
@@ -34,8 +27,15 @@ class MapNormalizer {
     return slope * maxAmount;
   }
 
-  Map<int, double> get dataPoints {
-    return data
-        .map((timestamp, amount) => MapEntry(normalizeTime(timestamp), normalizeAmount(amount)));
+  double denormalizeTime(double normalizedTimestamp) {
+    return normalizedTimestamp + minTime;
+  }
+
+  double normalizeAmount(double amount) {
+    return amount / maxAmount;
+  }
+
+  double normalizeTime(double timestamp) {
+    return timestamp - minTime;
   }
 }

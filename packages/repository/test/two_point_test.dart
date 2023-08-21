@@ -33,7 +33,7 @@ void main() {
   group('TwoPointLinearRegressor and MapNormalizer', () {
     test('Calculate slope and predict y-values correctly', () {
       // Initialize data
-      var data = {
+      Map<double, double> data = {
         1686625527727: 0.5, // Jun 12, 2023 8:05 PM
         1686844388101: 0.35, // Jun 15, 2023 8:53 AM
       };
@@ -61,7 +61,7 @@ void main() {
       // Test shifting everything by this amount
       const lastOutageTimestamp = 1687355062307;
       final relativeOutageTimestamp = lastOutageTimestamp - normalizer.minTime;
-      const offsetShiftAmount = 1687360000000;
+      const offsetShiftAmount = 1687360000000.0;
 
       regressor = NormalizedRegressor.withBase(normalizer, tpRegressor, offsetShiftAmount);
       final newOutageTimestamp = offsetShiftAmount + relativeOutageTimestamp;
@@ -77,7 +77,7 @@ void main() {
 
     test('Unnormalized: calculate slope and predict y-values correctly', () {
       // Initialize data
-      var data = {
+      Map<double, double> data = {
         1686625527727: 0.5, // Jun 12, 2023 8:05 PM
         1686844388101: 0.35, // Jun 15, 2023 8:53 AM
       };

@@ -11,16 +11,22 @@ class SingleDataPointLinearRegressor implements Regressor {
   bool get hasXIntercept => false;
 
   @override
+  bool get hasYIntercept => true;
+
+  @override
   double get slope => 0;
 
   @override
   String get type => 'SinglePoint';
 
   @override
-  int get xIntercept => 0;
+  double get xIntercept => 0;
 
   @override
-  double predict(int x) {
+  double get yIntercept => intercept;
+
+  @override
+  double predict(double x) {
     return intercept;
   }
 }

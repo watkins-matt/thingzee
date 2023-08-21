@@ -55,7 +55,7 @@ class Inventory {
   double get predictedAmount {
     // If we can't predict anything, return the existing amount
     if (!canPredict) return amount;
-    double predictedQuantity = history.predict(DateTime.now().millisecondsSinceEpoch);
+    double predictedQuantity = history.predict(DateTime.now().millisecondsSinceEpoch.toDouble());
     return predictedQuantity > 0 ? predictedQuantity.toDouble() : 0;
   }
 
@@ -66,7 +66,7 @@ class Inventory {
       return DateTime.fromMillisecondsSinceEpoch(0);
     }
 
-    return DateTime.fromMillisecondsSinceEpoch(history.predictedOutageTimestamp);
+    return DateTime.fromMillisecondsSinceEpoch(history.predictedOutageTimestamp.round());
   }
 
   String get predictedOutDateString {
@@ -80,9 +80,9 @@ class Inventory {
       return const Duration(milliseconds: 0);
     }
 
-    int millisecondsUntilOut =
+    double millisecondsUntilOut =
         history.predictedOutageTimestamp - DateTime.now().millisecondsSinceEpoch;
-    return Duration(milliseconds: millisecondsUntilOut.abs());
+    return Duration(milliseconds: millisecondsUntilOut.round().abs());
   }
 
   String get predictedTimeUntilOutString {

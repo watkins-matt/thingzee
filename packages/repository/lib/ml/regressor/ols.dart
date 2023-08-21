@@ -19,6 +19,9 @@ class SimpleOLSRegressor implements Regressor {
   bool get hasXIntercept => true;
 
   @override
+  bool get hasYIntercept => true;
+
+  @override
   double get slope {
     // Note that the dataframe should be normalized, so predict 0
     // will return the y-intercept
@@ -33,7 +36,7 @@ class SimpleOLSRegressor implements Regressor {
   String get type => 'Ols';
 
   @override
-  int get xIntercept {
+  double get xIntercept {
     // Define the search window for timestamps.
     double lowerBound = DateTime.now().millisecondsSinceEpoch.toDouble();
     double upperBound = lowerBound + 30 * 24 * 60 * 60 * 1000; // 30 days
@@ -96,11 +99,14 @@ class SimpleOLSRegressor implements Regressor {
     }
 
     // Return the timestamp when amount runs out
-    return upperBound.round();
+    return upperBound;
   }
 
   @override
-  double predict(int x) {
+  double get yIntercept => predict(0);
+
+  @override
+  double predict(double x) {
     var observation = Observation(
       timestamp: x.toDouble(),
       amount: 0,

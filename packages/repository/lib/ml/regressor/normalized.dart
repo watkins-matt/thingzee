@@ -4,7 +4,7 @@ import 'package:repository/ml/regressor/regressor.dart';
 class NormalizedRegressor implements Regressor {
   MapNormalizer normalizer;
   Regressor regressor;
-  int baseTimestamp;
+  double baseTimestamp;
   double yShift;
 
   NormalizedRegressor(this.normalizer, this.regressor, {this.yShift = 0.0})
@@ -19,25 +19,40 @@ class NormalizedRegressor implements Regressor {
   bool get hasXIntercept => regressor.hasXIntercept;
 
   @override
+  bool get hasYIntercept => regressor.hasYIntercept;
+
+  @override
   double get slope => normalizer.denormalizeSlope(regressor.slope);
 
   @override
   String get type => regressor.type;
 
   @override
-  int get xIntercept {
+  double get xIntercept {
     if (yShift == 0) {
       return regressor.xIntercept + baseTimestamp;
     } else {
       final yInterceptShifted = regressor.predict(0);
-      return ((-yInterceptShifted / regressor.slope) + baseTimestamp).round();
+      final scaleFactor = normalizer.normalizeAmount(yShift);
+      final adjustedYIntercept = yInterceptShifted * scaleFactor;
+      return (-adjustedYIntercept / regressor.slope) + baseTimestamp;
     }
   }
 
   @override
-  double predict(int x) {
+  double get yIntercept {
+    if (yShift == 0) {
+      return regressor.yIntercept;
+    } else {
+      final yInterceptShifted = regressor.predict(0) * yShift;
+      return yInterceptShifted;
+    }
+  }
+
+  @override
+  double predict(double x) {
     var normalizedX = x - baseTimestamp;
-    var normalizedPrediction = regressor.predict(normalizedX);
+    var normalizedPrediction = regressor.predict(normalizedX + normalizer.minTime);
 
     if (yShift == 0) {
       return normalizer.denormalizeAmount(normalizedPrediction);

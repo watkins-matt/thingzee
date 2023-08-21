@@ -58,7 +58,8 @@ abstract class HistoryDatabase {
 
     for (final history in allHistory) {
       if (history.canPredict) {
-        final outTime = DateTime.fromMillisecondsSinceEpoch(history.predictedOutageTimestamp);
+        final outTime =
+            DateTime.fromMillisecondsSinceEpoch(history.predictedOutageTimestamp.round());
         if (outTime.isBefore(futureDate)) {
           predictedOuts.add(history.upc);
         }

@@ -87,9 +87,9 @@ class HistorySeries {
 
   Map<String, dynamic> toJson() => _$HistorySeriesToJson(this);
 
-  Map<int, double> toPoints() {
+  Map<double, double> toPoints() {
     return observations.fold({}, (map, o) {
-      map[o.timestamp.toInt()] = o.amount;
+      map[o.timestamp] = o.amount;
       return map;
     });
   }

@@ -2,6 +2,9 @@ import 'package:repository/ml/regressor/regressor.dart';
 
 class EmptyRegressor implements Regressor {
   @override
+  bool hasYIntercept = false;
+
+  @override
   bool get hasSlope => false;
 
   @override
@@ -14,10 +17,13 @@ class EmptyRegressor implements Regressor {
   String get type => 'Empty';
 
   @override
-  int get xIntercept => 0;
+  double get xIntercept => 0;
 
   @override
-  double predict(int x) {
+  double get yIntercept => 0;
+
+  @override
+  double predict(double x) {
     return 0;
   }
 }

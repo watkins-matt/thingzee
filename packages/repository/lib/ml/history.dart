@@ -51,19 +51,19 @@ class History {
     return value;
   }
 
-  int get baseTimestamp {
+  double get baseTimestamp {
     if (series.isEmpty) {
       return 0;
     }
 
-    int value = 0;
+    double value = 0;
 
     for (int i = series.length - 1; i >= 0; i--) {
       final individualSeries = series[i];
 
       if (individualSeries.observations.isNotEmpty) {
         final observation = individualSeries.observations.first;
-        value = observation.timestamp.toInt();
+        value = observation.timestamp;
         break;
       }
     }
@@ -113,7 +113,7 @@ class History {
     }).toList();
   }
 
-  int get predictedOutageTimestamp {
+  double get predictedOutageTimestamp {
     return regressor.xIntercept;
   }
 
@@ -343,7 +343,7 @@ class History {
     return merged;
   }
 
-  double predict(int timestamp) {
+  double predict(double timestamp) {
     if (!evaluator.trained) {
       evaluator.train(this);
     }

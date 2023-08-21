@@ -5,7 +5,7 @@ class TwoPointLinearRegressor implements Regressor {
   final double _intercept;
 
   TwoPointLinearRegressor(this._slope, this._intercept);
-  TwoPointLinearRegressor.fromPoints(int x1, double y1, int x2, double y2)
+  TwoPointLinearRegressor.fromPoints(double x1, double y1, double x2, double y2)
       : _slope = (y2 - y1) / (x2 - x1),
         _intercept = y1 - (y2 - y1) / (x2 - x1) * x1;
 
@@ -16,20 +16,24 @@ class TwoPointLinearRegressor implements Regressor {
   bool get hasXIntercept => true;
 
   @override
+  bool get hasYIntercept => true;
+
+  @override
   double get slope => _slope;
 
   @override
   String get type => 'TwoPoint';
 
   @override
-  int get xIntercept {
-    return (-_intercept / _slope).round();
+  double get xIntercept {
+    return -_intercept / _slope;
   }
 
+  @override
   double get yIntercept => _intercept;
 
   @override
-  double predict(int x) {
+  double predict(double x) {
     return _slope * x + _intercept;
   }
 }

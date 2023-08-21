@@ -1,10 +1,18 @@
 abstract class Regressor {
   bool get hasSlope;
   bool get hasXIntercept;
+  bool get hasYIntercept;
   double get slope;
   String get type;
-  int get xIntercept;
-  double predict(int x);
+  double get xIntercept;
+  double get yIntercept;
+  double predict(double x);
+}
+
+extension Formula on Regressor {
+  String get formula {
+    return 'y = ${slope.toStringAsExponential(2)}x + ${yIntercept.toStringAsExponential(2)}';
+  }
 }
 
 extension UsageRateDaysCalculator on Regressor {

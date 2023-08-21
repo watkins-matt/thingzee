@@ -49,7 +49,7 @@ class Evaluator {
 
   bool get trained => _trained;
 
-  Map<String, double> allPredictions(int timestamp) {
+  Map<String, double> allPredictions(double timestamp) {
     if (!_trained) {
       throw Exception('Evaluator has not been trained. Train before predicting.');
     }
@@ -65,7 +65,7 @@ class Evaluator {
     return predictions;
   }
 
-  double predict(int timestamp) {
+  double predict(double timestamp) {
     if (!_trained) {
       throw Exception('Evaluator has not been trained. Train before predicting.');
     }
@@ -149,7 +149,7 @@ class Evaluator {
     final pointsMap = series.toPoints();
 
     // Save the original baseTimestamp and yShift
-    int originalBaseTimestamp = regressor.baseTimestamp;
+    double originalBaseTimestamp = regressor.baseTimestamp;
     double originalYShift = regressor.yShift;
 
     // Get the first data point and set it as baseTimestamp and yShift

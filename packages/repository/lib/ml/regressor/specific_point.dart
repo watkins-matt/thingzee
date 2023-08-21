@@ -6,7 +6,7 @@ class SpecificPointRegressor implements Regressor {
   final int firstIndex;
   final int lastIndex;
 
-  SpecificPointRegressor(this.firstIndex, this.lastIndex, Map<int, double> dataPoints) {
+  SpecificPointRegressor(this.firstIndex, this.lastIndex, Map<double, double> dataPoints) {
     final xValues = dataPoints.keys.toList();
     final yValues = dataPoints.values.toList();
 
@@ -45,18 +45,24 @@ class SpecificPointRegressor implements Regressor {
   bool get hasXIntercept => true;
 
   @override
+  bool get hasYIntercept => true;
+
+  @override
   double get slope => _slope;
 
   @override
   String get type => 'SpecificPoint[$firstIndex:$lastIndex]';
 
   @override
-  int get xIntercept {
-    return (-_intercept / _slope).round();
+  double get xIntercept {
+    return -_intercept / _slope;
   }
 
   @override
-  double predict(int x) {
+  double get yIntercept => _intercept;
+
+  @override
+  double predict(double x) {
     return _slope * x + _intercept;
   }
 }

@@ -4,7 +4,7 @@ class SimpleLinearRegressor implements Regressor {
   late double _intercept;
   late double _slope;
 
-  SimpleLinearRegressor(Map<int, double> dataPoints) {
+  SimpleLinearRegressor(Map<double, double> dataPoints) {
     final xValues = dataPoints.keys.toList();
     final yValues = dataPoints.values.toList();
 
@@ -32,18 +32,24 @@ class SimpleLinearRegressor implements Regressor {
   bool get hasXIntercept => true;
 
   @override
+  bool get hasYIntercept => true;
+
+  @override
   double get slope => _slope;
 
   @override
   String get type => 'Simple';
 
   @override
-  int get xIntercept {
-    return (-_intercept / _slope).round();
+  double get xIntercept {
+    return -_intercept / _slope;
   }
 
   @override
-  double predict(int x) {
+  double get yIntercept => _intercept;
+
+  @override
+  double predict(double x) {
     return _slope * x + _intercept;
   }
 }

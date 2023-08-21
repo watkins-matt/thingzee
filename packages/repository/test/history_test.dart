@@ -34,7 +34,7 @@ void main() {
 
       var regressor = history.regressor;
       var predictedAmounts =
-          history.current.observations.map((o) => regressor.predict(o.timestamp.toInt())).toList();
+          history.current.observations.map((o) => regressor.predict(o.timestamp)).toList();
 
       expect(predictedAmounts[0], closeTo(4, 0.1));
       expect(predictedAmounts[1], closeTo(3, 0.1));

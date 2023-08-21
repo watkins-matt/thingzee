@@ -5,10 +5,10 @@ import 'package:test/test.dart';
 void main() {
   group('SimpleLinearRegressor', () {
     test('Should calculate Usage Rate Days correctly', () {
-      Map<int, double> points = {
-        DateTime.parse('2023-07-02 20:12:00').millisecondsSinceEpoch: 1.09,
-        DateTime.parse('2023-07-09 20:33:00').millisecondsSinceEpoch: 0.93,
-        DateTime.parse('2023-08-09 20:33:00').millisecondsSinceEpoch: 0,
+      Map<double, double> points = {
+        DateTime.parse('2023-07-02 20:12:00').millisecondsSinceEpoch.toDouble(): 1.09,
+        DateTime.parse('2023-07-09 20:33:00').millisecondsSinceEpoch.toDouble(): 0.93,
+        DateTime.parse('2023-08-09 20:33:00').millisecondsSinceEpoch.toDouble(): 0,
       };
       MapNormalizer normalizer = MapNormalizer(points);
       final simple = SimpleLinearRegressor(normalizer.dataPoints);
@@ -24,10 +24,10 @@ void main() {
 
   group('NaiveRegressor', () {
     test('Should calculate Usage Rate Days correctly', () {
-      Map<int, double> points = {
-        DateTime.parse('2023-07-02 20:12:00').millisecondsSinceEpoch: 1.09,
-        DateTime.parse('2023-07-09 20:33:00').millisecondsSinceEpoch: 0.93,
-        DateTime.parse('2023-08-09 20:33:00').millisecondsSinceEpoch: 0,
+      Map<double, double> points = {
+        DateTime.parse('2023-07-02 20:12:00').millisecondsSinceEpoch.toDouble(): 1.09,
+        DateTime.parse('2023-07-09 20:33:00').millisecondsSinceEpoch.toDouble(): 0.93,
+        DateTime.parse('2023-08-09 20:33:00').millisecondsSinceEpoch.toDouble(): 0,
       };
       MapNormalizer normalizer = MapNormalizer(points);
       final naive = NaiveRegressor.fromMap(normalizer.dataPoints);
@@ -43,10 +43,10 @@ void main() {
 
   group('HoltLinearRegressor', () {
     test('Should calculate Usage Rate Days correctly with alpha and beta', () {
-      Map<int, double> points = {
-        DateTime.parse('2023-07-02 20:12:00').millisecondsSinceEpoch: 1.09,
-        DateTime.parse('2023-07-09 20:33:00').millisecondsSinceEpoch: 0.93,
-        DateTime.parse('2023-08-09 20:33:00').millisecondsSinceEpoch: 0,
+      Map<double, double> points = {
+        DateTime.parse('2023-07-02 20:12:00').millisecondsSinceEpoch.toDouble(): 1.09,
+        DateTime.parse('2023-07-09 20:33:00').millisecondsSinceEpoch.toDouble(): 0.93,
+        DateTime.parse('2023-08-09 20:33:00').millisecondsSinceEpoch.toDouble(): 0,
       };
       MapNormalizer normalizer = MapNormalizer(points);
       final holt = HoltLinearRegressor.fromMap(normalizer.dataPoints, 0.9, 0.9);
