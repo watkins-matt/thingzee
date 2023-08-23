@@ -2,15 +2,21 @@ import 'package:repository/ml/normalizer_map.dart';
 import 'package:repository/ml/regressor/regressor.dart';
 
 class NormalizedRegressor implements Regressor {
+  final Map<double, double> data;
   MapNormalizer normalizer;
   Regressor regressor;
   double baseTimestamp;
-  double yShift;
+  double yScale;
 
-  NormalizedRegressor(this.normalizer, this.regressor, {this.yShift = 0.0})
-      : baseTimestamp = normalizer.minTime;
-  NormalizedRegressor.withBase(this.normalizer, this.regressor, this.baseTimestamp,
-      {this.yShift = 0.0});
+  factory NormalizedRegressor(Regressor regressor, Map<double, double> data,
+      {double yScale = 1.0, double? baseTimestamp}) {
+    var normalizer = MapNormalizer(data);
+    return NormalizedRegressor._(regressor, data,
+        yScale: yScale, normalizer: normalizer, baseTimestamp: baseTimestamp ?? normalizer.minTime);
+  }
+
+  NormalizedRegressor._(this.regressor, this.data,
+      {this.yScale = 1.0, required this.normalizer, required this.baseTimestamp});
 
   @override
   bool get hasSlope => regressor.hasSlope;
@@ -21,44 +27,30 @@ class NormalizedRegressor implements Regressor {
   @override
   bool get hasYIntercept => regressor.hasYIntercept;
 
+  double get shift => baseTimestamp - normalizer.minTime;
+
   @override
-  double get slope => normalizer.denormalizeSlope(regressor.slope);
+  double get slope => regressor.slope;
 
   @override
   String get type => regressor.type;
 
   @override
   double get xIntercept {
-    if (yShift == 0) {
-      return regressor.xIntercept + baseTimestamp;
-    } else {
-      final yInterceptShifted = regressor.predict(0);
-      final scaleFactor = normalizer.normalizeAmount(yShift);
-      final adjustedYIntercept = yInterceptShifted * scaleFactor;
-      return (-adjustedYIntercept / regressor.slope) + baseTimestamp;
+    if (slope == 0.0) {
+      return double.infinity;
     }
+
+    return baseTimestamp + (yScale * (regressor.xIntercept - normalizer.minTime));
   }
 
   @override
   double get yIntercept {
-    if (yShift == 0) {
-      return regressor.yIntercept;
-    } else {
-      final yInterceptShifted = regressor.predict(0) * yShift;
-      return yInterceptShifted;
-    }
+    return -slope * xIntercept;
   }
 
   @override
   double predict(double x) {
-    var normalizedX = x - baseTimestamp;
-    var normalizedPrediction = regressor.predict(normalizedX + normalizer.minTime);
-
-    if (yShift == 0) {
-      return normalizer.denormalizeAmount(normalizedPrediction);
-    } else {
-      final scaleFactor = normalizer.normalizeAmount(yShift);
-      return normalizer.denormalizeAmount(normalizedPrediction) * scaleFactor;
-    }
+    return slope * x + yIntercept;
   }
 }

@@ -1,7 +1,6 @@
 import 'package:log/log.dart';
 import 'package:repository/ml/history.dart';
 import 'package:repository/ml/history_series.dart';
-import 'package:repository/ml/normalizer_map.dart';
 import 'package:repository/ml/observation.dart';
 import 'package:repository/ml/regressor.dart';
 
@@ -148,14 +147,14 @@ class Evaluator {
 
     final pointsMap = series.toPoints();
 
-    // Save the original baseTimestamp and yShift
+    // Save the original baseTimestamp and yScale
     double originalBaseTimestamp = regressor.baseTimestamp;
-    double originalYShift = regressor.yShift;
+    double originalYScale = regressor.yScale;
 
-    // Get the first data point and set it as baseTimestamp and yShift
+    // Get the first data point and set it as baseTimestamp and yScale
     final firstEntry = pointsMap.entries.first;
     regressor.baseTimestamp = firstEntry.key;
-    regressor.yShift = firstEntry.value;
+    regressor.yScale = firstEntry.value;
 
     // Evaluate from the second point onwards
     for (final entry in pointsMap.entries.skip(1)) {
@@ -170,9 +169,9 @@ class Evaluator {
       }
     }
 
-    // Restore the original baseTimestamp and yShift
+    // Restore the original baseTimestamp and yScale
     regressor.baseTimestamp = originalBaseTimestamp;
-    regressor.yShift = originalYShift;
+    regressor.yScale = originalYScale;
 
     // Convert to percentage
     double averageError = (count > 0 ? (errorSum / count) : 0) * 100;
@@ -218,8 +217,6 @@ class Evaluator {
         return [];
       case 2:
         var points = series.toPoints();
-        MapNormalizer normalizer = MapNormalizer(points);
-        points = normalizer.dataPoints;
 
         var x1 = points.keys.elementAt(0);
         var y1 = points.values.elementAt(0);
@@ -229,14 +226,11 @@ class Evaluator {
         final regressor = TwoPointLinearRegressor.fromPoints(x1, y1, x2, y2);
 
         return [
-          NormalizedRegressor.withBase(normalizer, regressor, history.baseTimestamp,
-              yShift: history.baseAmount)
+          NormalizedRegressor(regressor, points,
+              baseTimestamp: history.baseTimestamp, yScale: history.baseAmount)
         ];
       default:
         var points = series.toPoints();
-        MapNormalizer normalizer = MapNormalizer(points);
-        points = normalizer.dataPoints;
-
         final simple = SimpleLinearRegressor(points);
         final naive = NaiveRegressor.fromMap(points);
         final holt = HoltLinearRegressor.fromMap(points, .9, .9);
@@ -245,24 +239,24 @@ class Evaluator {
         final firstLast = SpecificPointRegressor(0, points.length - 1, points);
         final secondLast = SpecificPointRegressor(1, points.length - 1, points);
 
-        regressors.add(NormalizedRegressor.withBase(normalizer, simple, history.baseTimestamp,
-            yShift: history.baseAmount));
-        regressors.add(NormalizedRegressor.withBase(normalizer, naive, history.baseTimestamp,
-            yShift: history.baseAmount));
-        regressors.add(NormalizedRegressor.withBase(normalizer, holt, history.baseTimestamp,
-            yShift: history.baseAmount));
-        regressors.add(NormalizedRegressor.withBase(normalizer, shifted, history.baseTimestamp,
-            yShift: history.baseAmount));
-        regressors.add(NormalizedRegressor.withBase(normalizer, weighted, history.baseTimestamp,
-            yShift: history.baseAmount));
-        regressors.add(NormalizedRegressor.withBase(normalizer, firstLast, history.baseTimestamp,
-            yShift: history.baseAmount));
-        regressors.add(NormalizedRegressor.withBase(normalizer, secondLast, history.baseTimestamp,
-            yShift: history.baseAmount));
+        regressors.add(NormalizedRegressor(simple, points,
+            baseTimestamp: history.baseTimestamp, yScale: history.baseAmount));
+        regressors.add(NormalizedRegressor(naive, points,
+            baseTimestamp: history.baseTimestamp, yScale: history.baseAmount));
+        regressors.add(NormalizedRegressor(holt, points,
+            baseTimestamp: history.baseTimestamp, yScale: history.baseAmount));
+        regressors.add(NormalizedRegressor(shifted, points,
+            baseTimestamp: history.baseTimestamp, yScale: history.baseAmount));
+        regressors.add(NormalizedRegressor(weighted, points,
+            baseTimestamp: history.baseTimestamp, yScale: history.baseAmount));
+        regressors.add(NormalizedRegressor(firstLast, points,
+            baseTimestamp: history.baseTimestamp, yScale: history.baseAmount));
+        regressors.add(NormalizedRegressor(secondLast, points,
+            baseTimestamp: history.baseTimestamp, yScale: history.baseAmount));
 
       // final average = _createAverageRegressor(points, regressors);
       // regressors.add(NormalizedRegressor.withBase(normalizer, average, history.baseTimestamp,
-      //     yShift: history.baseAmount));
+      //     yScale: history.baseAmount));
 
       // final dataFrame = series.toDataFrame();
       // final dataFrameNormalizer = DataFrameNormalizer(dataFrame, 'amount');

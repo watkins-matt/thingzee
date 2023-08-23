@@ -1,3 +1,5 @@
+import 'package:repository/ml/regressor/normalized.dart';
+
 abstract class Regressor {
   bool get hasSlope;
   bool get hasXIntercept;
@@ -11,7 +13,15 @@ abstract class Regressor {
 
 extension Formula on Regressor {
   String get formula {
-    return 'y = ${slope.toStringAsExponential(2)}x + ${yIntercept.toStringAsExponential(2)}';
+    return 'y = ${slope.toStringAsExponential(2)}x + ${yIntercept.toStringAsExponential(20)}';
+  }
+}
+
+extension NormalizedUsageRateDaysCalculator on NormalizedRegressor {
+  double get daysToXIntercept {
+    double xInterceptDifference = xIntercept - baseTimestamp;
+    // Convert the difference from milliseconds to days
+    return xInterceptDifference / 86400000;
   }
 }
 
@@ -21,5 +31,11 @@ extension UsageRateDaysCalculator on Regressor {
       return (1 / slope.abs()) / 1000 / 60 / 60 / 24;
     }
     return 0;
+  }
+
+  double daysToXIntercept(double baseTimestamp) {
+    double xInterceptDifference = xIntercept - baseTimestamp;
+    // Convert the difference from milliseconds to days
+    return xInterceptDifference / 86400000;
   }
 }

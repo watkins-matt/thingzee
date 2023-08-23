@@ -1,5 +1,6 @@
 import 'package:repository/ml/normalizer_map.dart';
 import 'package:repository/ml/regressor.dart';
+import 'package:repository/ml/scaler_map.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -32,15 +33,14 @@ void main() {
         1687567689462: 0
       };
 
-      MapNormalizer normalizer = MapNormalizer(points);
-      final weighted = WeightedLeastSquaresLinearRegressor(normalizer.dataPoints);
-      var regressor = NormalizedRegressor(normalizer, weighted);
+      final weighted = WeightedLeastSquaresLinearRegressor(points);
+      var regressor = NormalizedRegressor(weighted, points);
 
       expect(regressor.predict(1687567689462), closeTo(0, 0.1));
       expect(regressor.slope, closeTo(-9.363299158029206e-11, 0.1));
 
       const baseTimestamp = 1687655897475.0;
-      regressor = NormalizedRegressor.withBase(normalizer, weighted, baseTimestamp, yShift: 1);
+      regressor = NormalizedRegressor(weighted, points, baseTimestamp: baseTimestamp);
 
       // Slope should be the same regardless of the yShift.
       expect(regressor.slope, closeTo(-9.363299158029206e-11, 0.1));
@@ -59,22 +59,14 @@ void main() {
         1692069900337: 0.2,
       };
 
-      // Normalizing the points
-      MapNormalizer normalizer = MapNormalizer(points);
-      points = normalizer.dataPoints;
-
-      // Creating NaiveRegressor wrapped with NormalizedRegressor
       final naive = NaiveRegressor.fromMap(points);
       const baseTimestamp = 1687153789394.0;
       const baseAmount = 1.5;
       final regressor =
-          NormalizedRegressor.withBase(normalizer, naive, baseTimestamp, yShift: baseAmount);
+          NormalizedRegressor(naive, points, baseTimestamp: baseTimestamp, yScale: baseAmount);
 
-      // Checking the xIntercept
+      // Verify that the value at the x intercept should be equal to 0
       final xIntercept = regressor.xIntercept;
-      expect(xIntercept, isNotNull); // Replace with expected value if known
-
-      // Verifying that the value of regressor.predict at the xIntercept time is 0
       final predictionAtXIntercept = regressor.predict(xIntercept);
       expect(predictionAtXIntercept, closeTo(0, 0.01));
     });
@@ -86,22 +78,15 @@ void main() {
         1692069900337: 0.2,
       };
 
-      // Normalizing the points
-      MapNormalizer normalizer = MapNormalizer(points);
-      points = normalizer.dataPoints;
-
       // Creating SimpleLinearRegressor wrapped with NormalizedRegressor
-      final naive = SimpleLinearRegressor(points);
+      final simple = SimpleLinearRegressor(points);
       const baseTimestamp = 1687153789394.0;
       const baseAmount = 1.5;
       final regressor =
-          NormalizedRegressor.withBase(normalizer, naive, baseTimestamp, yShift: baseAmount);
+          NormalizedRegressor(simple, points, baseTimestamp: baseTimestamp, yScale: baseAmount);
 
-      // Checking the xIntercept
+      // Verify that the value at the x intercept should be equal to 0
       final xIntercept = regressor.xIntercept;
-      expect(xIntercept, isNotNull); // Replace with expected value if known
-
-      // Verifying that the value of regressor.predict at the xIntercept time is 0
       final predictionAtXIntercept = regressor.predict(xIntercept);
       expect(predictionAtXIntercept, closeTo(0, 0.01));
     });
@@ -116,11 +101,8 @@ void main() {
       // Creating SimpleLinearRegressor wrapped with NormalizedRegressor
       final regressor = SimpleLinearRegressor(points);
 
-      // Checking the xIntercept
+      // Verify that the value at the x intercept should be equal to 0
       final xIntercept = regressor.xIntercept;
-      expect(xIntercept, isNotNull); // Replace with expected value if known
-
-      // Verifying that the value of regressor.predict at the xIntercept time is 0
       final predictionAtXIntercept = regressor.predict(xIntercept);
       expect(predictionAtXIntercept, closeTo(0, 0.01));
     });
@@ -135,23 +117,14 @@ void main() {
       };
       final unnormalizedRegressor = SimpleLinearRegressor(points);
 
-      // Create the normalized points
-      Map<double, double> normalizedPoints = Map.from(points);
-      MapNormalizer normalizer = MapNormalizer(normalizedPoints);
-      normalizedPoints = normalizer.dataPoints;
-
       // Creating SimpleLinearRegressor wrapped with NormalizedRegressor
-      final regressor = SimpleLinearRegressor(normalizedPoints);
       const baseTimestamp = 1687153789394.0;
-      const baseAmount = 1.5;
-      final normalizedRegressor =
-          NormalizedRegressor.withBase(normalizer, regressor, baseTimestamp, yShift: baseAmount);
+      const baseAmount = 1.0;
+      final normalizedRegressor = NormalizedRegressor(unnormalizedRegressor, points,
+          baseTimestamp: baseTimestamp, yScale: baseAmount);
 
       expect(unnormalizedRegressor.slope, closeTo(normalizedRegressor.slope, 0.01));
       expect(unnormalizedRegressor.xIntercept, closeTo(normalizedRegressor.xIntercept, 0.01));
-
-      print(unnormalizedRegressor.formula);
-      print(normalizedRegressor.formula);
     });
 
     test('Compare usageRateDays between normalized and unnormalized regressors.', () {
@@ -161,47 +134,42 @@ void main() {
         1686788752281: 0.6,
         1687637993121: 0.0,
       };
-      final unnormalizedRegressor = SimpleLinearRegressor(points);
-      print(unnormalizedRegressor.predict(1686184734424)); // approx 1
-      print(unnormalizedRegressor.predict(1687637993121)); // approx 0
-      print(unnormalizedRegressor.predict(1686911363772.5)); // approx 0.5
-      print(unnormalizedRegressor.predict(unnormalizedRegressor.xIntercept)); // exact 0
 
+      const baseTimestamp = 1692061933641.0;
+      const baseAmount = 3.0;
+
+      final unnormalizedRegressor = SimpleLinearRegressor(points);
       final originalUsageRateDays = unnormalizedRegressor.usageRateDays;
-      print('Original usageRateDays: $originalUsageRateDays');
 
       // Create the normalized points
       Map<double, double> normalizedPoints = Map.from(points);
       MapNormalizer normalizer = MapNormalizer(normalizedPoints);
       normalizedPoints = normalizer.dataPoints;
+      MapScaler scaler = MapScaler(Map.from(normalizedPoints), 3, 1692061933641);
+      Map<double, double> rescaledPoints = scaler.scaledDataPoints;
 
-      // Creating SimpleLinearRegressor wrapped with NormalizedRegressor
-      final regressor = SimpleLinearRegressor(normalizedPoints);
-      const baseTimestamp = 1692061933641.0;
-      const baseAmount = 3.0;
-      final normalizedRegressor =
-          NormalizedRegressor.withBase(normalizer, regressor, baseTimestamp, yShift: baseAmount);
-      final daysToXIntercept = (normalizedRegressor.xIntercept - baseTimestamp) / 86400000;
-      print('daysToXIntercept: $daysToXIntercept');
-      print('xIntercept: ${normalizedRegressor.xIntercept}');
+      // Use this regressor to verify other regressors
+      final verifiedCorrectRegressor = SimpleLinearRegressor(rescaledPoints);
+      final correctDaysToXIntercept = verifiedCorrectRegressor.daysToXIntercept(baseTimestamp);
 
-      const targetXIntercept = 1696393769585.49;
-      final actualXIntercept = normalizedRegressor.xIntercept;
-      final difference = (actualXIntercept - targetXIntercept).abs();
-      print(difference);
+      expect(correctDaysToXIntercept, closeTo(originalUsageRateDays * baseAmount, 0.6));
+      expect(
+          verifiedCorrectRegressor.predict(verifiedCorrectRegressor.xIntercept), closeTo(0, 0.1));
+      expect(verifiedCorrectRegressor.predict(baseTimestamp), closeTo(baseAmount, 0.1));
 
-      var halfWayTimestampOriginal = targetXIntercept - baseTimestamp;
-      halfWayTimestampOriginal /= 2;
-      halfWayTimestampOriginal += baseTimestamp;
+      // Create the normalized regressor
+      final normalizedRegressor = NormalizedRegressor(unnormalizedRegressor, points,
+          baseTimestamp: baseTimestamp, yScale: baseAmount);
+      final normalizedDaysToXIntercept = normalizedRegressor.daysToXIntercept;
 
-// Predict the amount at this timestamp using the normalized regressor
-      final halfWayAmountNormalized = normalizedRegressor.predict(halfWayTimestampOriginal);
-      print(halfWayAmountNormalized);
+      expect(normalizedDaysToXIntercept, closeTo(originalUsageRateDays * baseAmount, 0.6));
+      expect(normalizedRegressor.predict(normalizedRegressor.xIntercept), closeTo(0, 0.1));
+      expect(normalizedRegressor.predict(baseTimestamp), closeTo(baseAmount, 0.1));
 
-      print(normalizedRegressor.predict(normalizedRegressor.xIntercept));
-      print(normalizedRegressor.predict(targetXIntercept));
-
-      expect(daysToXIntercept, closeTo(originalUsageRateDays * 3, 0.6));
+      // Formulas should match between the two regressors
+      // Only take the first 24 characters to avoid rounding errors
+      expect(normalizedRegressor.formula.substring(0, 24),
+          verifiedCorrectRegressor.formula.substring(0, 24));
     });
   });
 }

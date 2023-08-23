@@ -38,19 +38,15 @@ void main() {
         1686844388101: 0.35, // Jun 15, 2023 8:53 AM
       };
 
-      // Normalize data
-      var normalizer = MapNormalizer(data);
-      var normalizedData = normalizer.dataPoints;
-
       // Get normalized points
-      var x1 = normalizedData.keys.elementAt(0);
-      var y1 = normalizedData.values.elementAt(0);
-      var x2 = normalizedData.keys.elementAt(1);
-      var y2 = normalizedData.values.elementAt(1);
+      var x1 = data.keys.elementAt(0);
+      var y1 = data.values.elementAt(0);
+      var x2 = data.keys.elementAt(1);
+      var y2 = data.values.elementAt(1);
 
       // Calculate slope and intercept
       var tpRegressor = TwoPointLinearRegressor.fromPoints(x1, y1, x2, y2);
-      var regressor = NormalizedRegressor(normalizer, tpRegressor);
+      var regressor = NormalizedRegressor(tpRegressor, {x1: y1, x2: y2});
       // Check slope
       expect(regressor.slope, closeTo(-6.853684714986369e-10, 1e-2));
 
@@ -60,10 +56,10 @@ void main() {
 
       // Test shifting everything by this amount
       const lastOutageTimestamp = 1687355062307;
-      final relativeOutageTimestamp = lastOutageTimestamp - normalizer.minTime;
+      const relativeOutageTimestamp = lastOutageTimestamp - 1686625527727;
       const offsetShiftAmount = 1687360000000.0;
 
-      regressor = NormalizedRegressor.withBase(normalizer, tpRegressor, offsetShiftAmount);
+      regressor = NormalizedRegressor(tpRegressor, data, baseTimestamp: offsetShiftAmount);
       final newOutageTimestamp = offsetShiftAmount + relativeOutageTimestamp;
 
       // Slope should still be the same
