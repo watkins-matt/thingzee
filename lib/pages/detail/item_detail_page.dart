@@ -98,44 +98,6 @@ class ItemDetailPage extends HookConsumerWidget {
                   height: 8,
                 ),
                 MaterialCardWidget(children: [
-                  const TitleHeaderWidget(
-                      title: 'Identifiers',
-                      actionButton:
-                          IconButton(onPressed: null, icon: Icon(Icons.add, color: Colors.blue))),
-                  LabeledEditableText(
-                    labelText: 'UPC',
-                    keyboardType: TextInputType.number,
-                    controller: upcController,
-                    onChanged: (value) {
-                      ref.read(editableItemProvider.notifier).upc = value;
-                    },
-                  ),
-                  // ChoiceBoxEditableText(
-                  //     choices: const ['UPC', 'EAN'],
-                  //     keyboardType: TextInputType.number,
-                  //     controller: useTextEditingController(),
-                  //     onChanged: (value) {}),
-                ]),
-                const SizedBox(
-                  height: 8,
-                ),
-                MaterialCardWidget(children: [
-                  const TitleHeaderWidget(title: 'Details'),
-                  LabeledText(
-                    labelText: 'Last Updated',
-                    value: ref.read(editableItemProvider).inventory.timeSinceLastUpdateString,
-                  ),
-                  LabeledSwitchWidget(
-                      labelText: 'Consumable',
-                      value: ref.watch(editableItemProvider.notifier).consumable,
-                      onChanged: (value) {
-                        ref.read(editableItemProvider.notifier).consumable = value;
-                      }),
-                ]),
-                const SizedBox(
-                  height: 8,
-                ),
-                MaterialCardWidget(children: [
                   const Padding(
                     padding: EdgeInsets.only(bottom: 4),
                     child: TitleHeaderWidget(title: 'Inventory'),
@@ -254,6 +216,44 @@ class ItemDetailPage extends HookConsumerWidget {
                     )
                   ],
                 ),
+                const SizedBox(
+                  height: 8,
+                ),
+                MaterialCardWidget(children: [
+                  const TitleHeaderWidget(
+                      title: 'Identifiers',
+                      actionButton:
+                          IconButton(onPressed: null, icon: Icon(Icons.add, color: Colors.blue))),
+                  LabeledEditableText(
+                    labelText: 'UPC',
+                    keyboardType: TextInputType.number,
+                    controller: upcController,
+                    onChanged: (value) {
+                      ref.read(editableItemProvider.notifier).upc = value;
+                    },
+                  ),
+                  // ChoiceBoxEditableText(
+                  //     choices: const ['UPC', 'EAN'],
+                  //     keyboardType: TextInputType.number,
+                  //     controller: useTextEditingController(),
+                  //     onChanged: (value) {}),
+                ]),
+                const SizedBox(
+                  height: 8,
+                ),
+                MaterialCardWidget(children: [
+                  const TitleHeaderWidget(title: 'Details'),
+                  LabeledText(
+                    labelText: 'Last Updated',
+                    value: ref.read(editableItemProvider).inventory.timeSinceLastUpdateString,
+                  ),
+                  LabeledSwitchWidget(
+                      labelText: 'Consumable',
+                      value: ref.watch(editableItemProvider.notifier).consumable,
+                      onChanged: (value) {
+                        ref.read(editableItemProvider.notifier).consumable = value;
+                      }),
+                ]),
                 const SizedBox(
                   height: 8,
                 ),
