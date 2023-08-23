@@ -200,6 +200,11 @@ class EditableItem extends StateNotifier<EditableItemState> {
     // Save the inventory
     assert(state.inventory.upc == state.item.upc);
     repo.inv.put(state.inventory);
+
+    // Save each location
+    for (final location in state.inventory.locations) {
+      repo.location.store(location, state.item.upc);
+    }
   }
 }
 
