@@ -11,16 +11,6 @@ class ItemListTile extends ConsumerWidget {
   final Inventory inventory;
   const ItemListTile(this.item, this.inventory, {Key? key}) : super(key: key);
 
-  Future<void> onTap(BuildContext context, WidgetRef ref) async {
-    final itemProv = ref.watch(editableItemProvider.notifier);
-    itemProv.copyFrom(item, inventory);
-
-    await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => ItemDetailPage(item)),
-    );
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final cache = ref.watch(itemThumbnailCache);
@@ -57,7 +47,7 @@ class ItemListTile extends ConsumerWidget {
                 child: Align(
                   alignment: Alignment.centerRight,
                   child: Text(
-                    inventory.preferredAmountString,
+                    inventory.preferredAmountString + (inventory.canPredict ? '' : '*'),
                     textAlign: TextAlign.right,
                     textScaleFactor: 1.5,
                     style: TextStyle(
@@ -68,5 +58,15 @@ class ItemListTile extends ConsumerWidget {
             ],
           ),
         ));
+  }
+
+  Future<void> onTap(BuildContext context, WidgetRef ref) async {
+    final itemProv = ref.watch(editableItemProvider.notifier);
+    itemProv.copyFrom(item, inventory);
+
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => ItemDetailPage(item)),
+    );
   }
 }
