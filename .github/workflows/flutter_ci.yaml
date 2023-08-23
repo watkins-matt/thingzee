@@ -25,19 +25,20 @@ jobs:
       - name: Get Dependencies
         run: flutter pub get
 
-      - name: Get Dependencies for All Packages
+      - name: Get Dependencies For All Packages
         run: |
           for dir in packages/*/; do
-            cd "$dir"
-            flutter pub get
-            cd - # Return to the root directory
+            (cd "$dir" && flutter pub get)
           done
 
-      - name: Run Tests in Root
+      - name: Run Tests In Root
         run: flutter test
 
-      - name: Run Tests in Packages
-        run: flutter test packages/*/test/*_test.dart
+      - name: Run Tests For All Packages
+        run: |
+          for dir in packages/*/; do
+            (cd "$dir" && flutter test)
+          done
 
       - name: Run Flutter Analyzer
         run: flutter analyze
