@@ -126,7 +126,7 @@ class AppwriteItemDatabase extends ItemDatabase {
               documentId: uniqueDocumentId(item.upc),
               data: serializeItem(item));
         } else {
-          Log.e('Failed to put item: [AppwriteException]', e.message);
+          Log.e('Failed to put item ${item.upc}: [AppwriteException]', e.message);
           // Removing the inventory from local cache since we
           // failed to add it to the database
           _items.remove(item.upc);

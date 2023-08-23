@@ -123,7 +123,7 @@ class AppwriteInventoryDatabase extends InventoryDatabase {
               documentId: uniqueDocumentId(inv.upc),
               data: serializeInventory(inv));
         } else {
-          Log.e('Failed to put inventory: [AppwriteException]', e.message);
+          Log.e('Failed to put inventory ${inv.upc}: [AppwriteException]', e.message);
           // Removing the inventory from local cache since we
           // failed to add it to the database
           _inventory.remove(inv.upc);

@@ -105,7 +105,7 @@ class AppwriteHistoryDatabase extends HistoryDatabase {
               documentId: uniqueDocumentId(history.upc),
               data: serializeHistory(history));
         } else {
-          Log.e('Failed to put history: [AppwriteException]', e.message);
+          Log.e('Failed to put history ${history.upc}: [AppwriteException]', e.message);
           // Removing the history from local cache since we
           // failed to add it to the database
           _history.remove(history.upc);
