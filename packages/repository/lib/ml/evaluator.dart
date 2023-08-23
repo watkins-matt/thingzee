@@ -7,6 +7,7 @@ import 'package:repository/ml/regressor.dart';
 class Evaluator {
   Map<String, Regressor> regressors = {};
   Map<String, double> accuracy = {};
+  Map<String, double> latestAccuracy = {};
   String _best = '';
   bool _trained = false;
   final String defaultType = 'Simple';
@@ -109,7 +110,17 @@ class Evaluator {
     // First sort the map, then take the last item
     accuracy =
         Map.fromEntries(accuracy.entries.toList()..sort((a, b) => a.value.compareTo(b.value)));
-    _best = accuracy.keys.last;
+    latestAccuracy = Map.fromEntries(
+        latestAccuracy.entries.toList()..sort((a, b) => a.value.compareTo(b.value)));
+    // Set the best regressor the the one with the highest accuracy
+    // if there is only 1 data point in the last series, otherwise set
+    // it to whichever regressor has the highest accuracy on the latest data
+    // point.
+    if (history.series.isNotEmpty && history.series.last.observations.length == 1) {
+      _best = accuracy.keys.last;
+    } else {
+      _best = latestAccuracy.keys.last;
+    }
     _trained = true;
   }
 
@@ -132,6 +143,11 @@ class Evaluator {
         double accuracy = 100 - mape;
         accuracy = accuracy.clamp(0, 100);
         totalAccuracy += accuracy;
+
+        // Store the latest accuracy for each regressor
+        if (series == history.series.last) {
+          latestAccuracy[regressorId] = accuracy;
+        }
       }
 
       double averageAccuracy = totalAccuracy / history.series.length;
