@@ -93,8 +93,9 @@ class ObjectBoxLocationDatabase extends LocationDatabase {
   @override
   void store(String location, String upc) {
     assert(upc.isNotEmpty && location.isNotEmpty);
+    final time = DateTime.now();
     final locOb = ObjectBoxLocation.from(
-        Location(location: location, upc: upc, created: DateTime.now(), updated: DateTime.now()));
+        Location(location: location, upc: upc, created: time, updated: time));
 
     final query = box
         .query(ObjectBoxLocation_.upc.equals(upc).and(ObjectBoxLocation_.location.equals(location)))
