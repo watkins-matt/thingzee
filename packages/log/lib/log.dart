@@ -4,11 +4,10 @@ import 'dart:convert';
 import 'dart:developer' as developer;
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
+import 'package:log/platform/platform.dart';
 import 'package:logger/logger.dart';
 import 'package:path/path.dart' as path;
-import 'package:path_provider/path_provider.dart';
 import 'package:stack_trace/stack_trace.dart';
 
 class Log {
@@ -107,7 +106,7 @@ class StoredLogOutput extends LogOutput {
         event.lines.forEach(print);
         break;
       case PrintMethod.debugPrint:
-        event.lines.forEach(debugPrint);
+        event.lines.forEach(platformDebugPrint);
         break;
       case PrintMethod.developerLog:
         event.lines.forEach(developer.log);
@@ -119,8 +118,15 @@ class StoredLogOutput extends LogOutput {
     if (kIsWeb) return; // Can't write files on web
 
     // Get the log directory
-    final directory = await getApplicationDocumentsDirectory();
-    final logDirectoryPath = path.join(directory.path, 'logs');
+    final logPath = await getLogDirectoryPath();
+
+    // If the directory is null, we can't write logs
+    if (logPath == null || logPath.isEmpty) {
+      _logFile = null;
+      return;
+    }
+
+    final logDirectoryPath = path.join(logPath, 'logs');
     final logDirectory = Directory(logDirectoryPath);
 
     // Create if it doesn't exist
@@ -140,8 +146,14 @@ class StoredLogOutput extends LogOutput {
     if (kIsWeb) return; // Can't write files on web
 
     // Find the default log directory
-    final directory = await getApplicationDocumentsDirectory();
-    final logDirectoryPath = path.join(directory.path, 'logs');
+    final logPath = await getLogDirectoryPath();
+
+    // If the directory is null, we can't write logs
+    if (logPath == null || logPath.isEmpty) {
+      return;
+    }
+
+    final logDirectoryPath = path.join(logPath, 'logs');
     final logDirectory = Directory(logDirectoryPath);
 
     // Find the expiration date
