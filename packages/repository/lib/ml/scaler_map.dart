@@ -1,36 +1,25 @@
 class MapScaler {
   final Map<double, double> data;
-  final double scale;
-  final double baseTimestamp;
+  final double yScale;
+  final double xScale;
+  final double? baseX;
 
-  MapScaler(this.data, this.scale, this.baseTimestamp);
+  MapScaler(
+    this.data, {
+    this.yScale = 1.0,
+    this.xScale = 1.0,
+    this.baseX,
+  });
 
   Map<double, double> get scaledDataPoints {
-    double previousOriginalTime = data.keys.first;
-    double previousScaledTime = scaleTime(previousOriginalTime);
-
-    Map<double, double> scaledData = {
-      previousScaledTime: scaleAmount(data[previousOriginalTime]!),
-    };
+    Map<double, double> scaledData = {};
 
     data.forEach((timestamp, amount) {
-      if (timestamp != previousOriginalTime) {
-        double timeDifference = (timestamp - previousOriginalTime) * scale;
-        double scaledTime = previousScaledTime + timeDifference;
-        scaledData[scaledTime] = scaleAmount(amount);
-        previousOriginalTime = timestamp;
-        previousScaledTime = scaledTime;
-      }
+      double scaledTime = timestamp * xScale + (baseX ?? 0);
+      double scaledAmount = amount * yScale;
+      scaledData[scaledTime] = scaledAmount;
     });
 
     return scaledData;
-  }
-
-  double scaleAmount(double amount) {
-    return amount * scale;
-  }
-
-  double scaleTime(double timestamp) {
-    return timestamp + baseTimestamp;
   }
 }
