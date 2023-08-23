@@ -60,7 +60,7 @@ void main() {
       const offsetShiftAmount = 1687360000000.0;
 
       regressor = NormalizedRegressor(tpRegressor, data, baseTimestamp: offsetShiftAmount);
-      final newOutageTimestamp = offsetShiftAmount + relativeOutageTimestamp;
+      const newOutageTimestamp = offsetShiftAmount + relativeOutageTimestamp;
 
       // Slope should still be the same
       expect(regressor.slope, closeTo(-6.853684714986369e-10, 1e-2));
