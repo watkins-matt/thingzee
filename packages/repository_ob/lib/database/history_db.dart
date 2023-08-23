@@ -64,7 +64,7 @@ class ObjectBoxHistoryDatabase extends HistoryDatabase {
     history = history.clean();
 
     // Convert to ObjectBoxMLHistory
-    final historyOb = ObjectBoxHistory.from(history);
+    var historyOb = ObjectBoxHistory.from(history);
 
     // Check if history already exists
     final query = box.query(ObjectBoxHistory_.upc.equals(history.upc)).build();
@@ -75,6 +75,11 @@ class ObjectBoxHistoryDatabase extends HistoryDatabase {
     // before we replace it
     if (exists != null && historyOb.objectBoxId != exists.objectBoxId) {
       historyOb.objectBoxId = exists.objectBoxId;
+
+      // Merge the histories if they are not equal
+      if (!historyOb.history.equalTo(exists.toHistory())) {
+        historyOb.history = historyOb.history.merge(exists.toHistory());
+      }
     }
 
     assert(historyOb.upc.isNotEmpty && historyOb.history.upc.isNotEmpty);
