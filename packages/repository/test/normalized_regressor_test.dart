@@ -5,7 +5,7 @@ import 'package:test/test.dart';
 
 void main() {
   group('Normalized Regressor test:', () {
-    test('WLS: Ensure predictions match original data.', () async {
+    test('WLS: Ensure predictions match original data.', () {
       final Map<double, double> points = {
         1686280709794: 2.5,
         1686389999245: 2.2,
@@ -26,32 +26,61 @@ void main() {
       expect(weighted.predict(1686280709794), closeTo(2.5, 0.1));
       expect(weightedSecond.predict(0), closeTo(1, 0.1));
     });
-    test('WLS should work with 3 values.', () async {
-      final Map<double, double> points = {
-        1687068097311: 0.05,
-        1687227951884: 0.02,
-        1687567689462: 0
+    test('WLS should work when only shifting baseTimestamp.', () {
+      Map<double, double> points = {
+        1687153789394: 1.5,
+        1689472466876: 0.98,
+        1692069900337: 0.2,
       };
-
-      final weighted = WeightedLeastSquaresLinearRegressor(points);
-      var regressor = NormalizedRegressor(weighted, points);
-
-      expect(regressor.predict(1687567689462), closeTo(0, 0.1));
-      expect(regressor.slope, closeTo(-9.363299158029206e-11, 0.1));
-
       const baseTimestamp = 1687655897475.0;
-      regressor = NormalizedRegressor(weighted, points, baseTimestamp: baseTimestamp);
+      final shift = baseTimestamp - points.keys.first;
+      final range = points.keys.last - points.keys.first;
+
+      // Create and test the WLS regressor alone
+      final weighted = WeightedLeastSquaresLinearRegressor(points);
+      expect(weighted.predict(points.keys.first), closeTo(points.values.first, 0.1));
+      expect(weighted.predict(points.keys.last), closeTo(points.values.last, 0.1));
+      expect(weighted.predict(weighted.xIntercept), closeTo(0, 0.1));
+      expect(weighted.slope, closeTo(-2.58e-10, 0.01));
+
+      // Rescale the points
+      Map<double, double> normalizedPoints = Map.from(points);
+      MapNormalizer normalizer = MapNormalizer(normalizedPoints);
+      normalizedPoints = normalizer.dataPoints;
+      MapScaler scaler = MapScaler(Map.from(normalizedPoints), yScale: 1.5, baseX: baseTimestamp);
+      Map<double, double> rescaledPoints = scaler.scaledDataPoints;
+
+      // Create a correct regressor for verification
+      final verifiedCorrectRegressor = WeightedLeastSquaresLinearRegressor(rescaledPoints);
+
+      // The range should be the same
+      expect(rescaledPoints.keys.last - rescaledPoints.keys.first, closeTo(range, 0.1));
+      // The first key must be baseTimestamp since we shifted it
+      // from 0 to baseTimestamp
+      expect(rescaledPoints.keys.first, baseTimestamp);
+      // The difference between the first keys should be the same as the shift
+      expect(rescaledPoints.keys.first - points.keys.first, closeTo(shift, 0.1));
+
+      // Create the normalized regressor
+      final normalizedRegressor =
+          NormalizedRegressor(weighted, points, baseTimestamp: baseTimestamp);
+
+      // Formulas should match between the two regressors
+      // Only take the first 24 characters to avoid rounding errors
+      expect(normalizedRegressor.formula.substring(0, 24),
+          verifiedCorrectRegressor.formula.substring(0, 24));
 
       // Slope should be the same regardless of the yShift.
-      expect(regressor.slope, closeTo(-9.363299158029206e-11, 0.1));
+      expect(normalizedRegressor.slope, closeTo(-2.58e-10, 0.1));
 
-      const firstRelativeTimestamp = baseTimestamp + 159854573;
-      const secondRelativeTimestamp = baseTimestamp + 499592151;
-
-      expect(regressor.predict(baseTimestamp), closeTo(2, 0.4));
-      expect(regressor.predict(firstRelativeTimestamp), closeTo(0.8, 0.4));
-      expect(regressor.predict(secondRelativeTimestamp), closeTo(0, 0.4));
+      expect(normalizedRegressor.predict(rescaledPoints.keys.elementAt(0)),
+          closeTo(points.values.first, 0.4));
+      expect(normalizedRegressor.predict(rescaledPoints.keys.elementAt(1)),
+          closeTo(points.values.elementAt(1), 0.4));
+      expect(normalizedRegressor.predict(rescaledPoints.keys.elementAt(2)),
+          closeTo(points.values.elementAt(2), 0.4));
     });
+
     test('NaiveRegressor with NormalizedRegressor', () {
       Map<double, double> points = {
         1687153789394: 1.5,
@@ -119,12 +148,68 @@ void main() {
 
       // Creating SimpleLinearRegressor wrapped with NormalizedRegressor
       const baseTimestamp = 1687153789394.0;
-      const baseAmount = 1.0;
+      const baseAmount = 1.5;
       final normalizedRegressor = NormalizedRegressor(unnormalizedRegressor, points,
           baseTimestamp: baseTimestamp, yScale: baseAmount);
 
       expect(unnormalizedRegressor.slope, closeTo(normalizedRegressor.slope, 0.01));
       expect(unnormalizedRegressor.xIntercept, closeTo(normalizedRegressor.xIntercept, 0.01));
+    });
+
+    test('SimpleLinearRegressor should work when only shifting baseTimestamp.', () async {
+      Map<double, double> points = {
+        1687153789394: 1.5,
+        1689472466876: 0.98,
+        1692069900337: 0.2,
+      };
+      const baseTimestamp = 1687655897475.0;
+      final shift = baseTimestamp - points.keys.first;
+      final range = points.keys.last - points.keys.first;
+
+      // Create and test the SL regressor alone
+      final simple = SimpleLinearRegressor(points);
+      expect(simple.predict(points.keys.first), closeTo(points.values.first, 0.1));
+      expect(simple.predict(points.keys.last), closeTo(points.values.last, 0.1));
+      expect(simple.predict(simple.xIntercept), closeTo(0, 0.1));
+      expect(simple.slope, closeTo(-2.58e-10, 0.01));
+      expect(simple.daysToXIntercept(points.keys.first),
+          closeTo(simple.usageRateDays * points.values.first, 2));
+
+      // Rescale the points
+      Map<double, double> normalizedPoints = Map.from(points);
+      MapNormalizer normalizer = MapNormalizer(normalizedPoints);
+      normalizedPoints = normalizer.dataPoints;
+      MapScaler scaler = MapScaler(Map.from(normalizedPoints), yScale: 1.5, baseX: baseTimestamp);
+      Map<double, double> rescaledPoints = scaler.scaledDataPoints;
+
+      // Create a correct regressor for verification
+      final verifiedCorrectRegressor = SimpleLinearRegressor(rescaledPoints);
+
+      // The range should be the same
+      expect(rescaledPoints.keys.last - rescaledPoints.keys.first, closeTo(range, 0.1));
+      // The first key must be baseTimestamp since we shifted it
+      // from 0 to baseTimestamp
+      expect(rescaledPoints.keys.first, baseTimestamp);
+      // The difference between the first keys should be the same as the shift
+      expect(rescaledPoints.keys.first - points.keys.first, closeTo(shift, 0.1));
+
+      // Create the normalized regressor
+      final normalizedRegressor = NormalizedRegressor(simple, points, baseTimestamp: baseTimestamp);
+
+      // Formulas should match between the two regressors
+      // Only take the first 24 characters to avoid rounding errors
+      expect(normalizedRegressor.formula.substring(0, 24),
+          verifiedCorrectRegressor.formula.substring(0, 24));
+
+      // Slope should be the same regardless of the yShift.
+      expect(normalizedRegressor.slope, closeTo(-2.58e-10, 0.1));
+
+      expect(normalizedRegressor.predict(rescaledPoints.keys.elementAt(0)),
+          closeTo(points.values.first, 0.4));
+      expect(normalizedRegressor.predict(rescaledPoints.keys.elementAt(1)),
+          closeTo(points.values.elementAt(1), 0.4));
+      expect(normalizedRegressor.predict(rescaledPoints.keys.elementAt(2)),
+          closeTo(points.values.elementAt(2), 0.4));
     });
 
     test('Compare usageRateDays between normalized and unnormalized regressors.', () {
@@ -145,7 +230,8 @@ void main() {
       Map<double, double> normalizedPoints = Map.from(points);
       MapNormalizer normalizer = MapNormalizer(normalizedPoints);
       normalizedPoints = normalizer.dataPoints;
-      MapScaler scaler = MapScaler(Map.from(normalizedPoints), 3, 1692061933641);
+      MapScaler scaler =
+          MapScaler(Map.from(normalizedPoints), yScale: 3, xScale: 3, baseX: 1692061933641);
       Map<double, double> rescaledPoints = scaler.scaledDataPoints;
 
       // Use this regressor to verify other regressors
@@ -170,6 +256,27 @@ void main() {
       // Only take the first 24 characters to avoid rounding errors
       expect(normalizedRegressor.formula.substring(0, 24),
           verifiedCorrectRegressor.formula.substring(0, 24));
+    });
+
+    test('Scaling downward should work properly', () {
+      final points = {
+        1692061933641.0: 3.0,
+        1692348065580.0: 2.8499999999999996,
+        1693873987212.0: 1.7999999999999998,
+        1696421709732.0: 0.0
+      };
+      const yScale = 1.0; // We are scaling to 1/3 of the original data
+
+      final unnormalizedRegressor = SimpleLinearRegressor(points);
+      final originalDaysToXIntercept = unnormalizedRegressor.daysToXIntercept(points.keys.first);
+
+      final normalizedRegressor = NormalizedRegressor(unnormalizedRegressor, points,
+          baseTimestamp: points.keys.first, yScale: yScale);
+      expect(normalizedRegressor.yScaleProp, closeTo(yScale / points.values.first, 0.01));
+
+      final normalizedDaysToXIntercept = normalizedRegressor.daysToXIntercept;
+      expect(normalizedDaysToXIntercept,
+          closeTo(originalDaysToXIntercept * normalizedRegressor.yScaleProp, 0.01));
     });
   });
 }

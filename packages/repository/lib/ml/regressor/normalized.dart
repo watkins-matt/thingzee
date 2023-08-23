@@ -9,14 +9,16 @@ class NormalizedRegressor implements Regressor {
   double yScale;
 
   factory NormalizedRegressor(Regressor regressor, Map<double, double> data,
-      {double yScale = 1.0, double? baseTimestamp}) {
+      {double? yScale, double? baseTimestamp}) {
     var normalizer = MapNormalizer(data);
     return NormalizedRegressor._(regressor, data,
-        yScale: yScale, normalizer: normalizer, baseTimestamp: baseTimestamp ?? normalizer.minTime);
+        yScale: yScale ?? normalizer.maxAmount,
+        normalizer: normalizer,
+        baseTimestamp: baseTimestamp ?? normalizer.minTime);
   }
 
   NormalizedRegressor._(this.regressor, this.data,
-      {this.yScale = 1.0, required this.normalizer, required this.baseTimestamp});
+      {required this.yScale, required this.normalizer, required this.baseTimestamp});
 
   @override
   bool get hasSlope => regressor.hasSlope;
@@ -41,13 +43,20 @@ class NormalizedRegressor implements Regressor {
       return double.infinity;
     }
 
-    return baseTimestamp + (yScale * (regressor.xIntercept - normalizer.minTime));
+    return baseTimestamp + (yScaleProp * (regressor.xIntercept - normalizer.minTime));
   }
 
   @override
   double get yIntercept {
     return -slope * xIntercept;
   }
+
+  /// Represents the proportion we are scaling by.
+  /// For example, if we set yScale to 1 and the original amount was
+  /// 3, then yScaleProp would be 1/3 because we are scaling down.
+  /// If we set yScale to 3 and the original amount was 1, then
+  /// yScaleProp would be 3 because we are scaling up.
+  double get yScaleProp => yScale / normalizer.maxAmount;
 
   @override
   double predict(double x) {
