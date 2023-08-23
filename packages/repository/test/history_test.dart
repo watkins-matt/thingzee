@@ -5,7 +5,7 @@ import 'package:test/test.dart';
 void main() {
   const int minOffset = 86400000;
   group('MLHistory:', () {
-    test('should ensure that values added are at least 24 hours apart.', () async {
+    test('Should ensure that values added are at least 24 hours apart.', () {
       History history = History();
       history.add(1, 100, 2);
       history.add(2, 90, 2);
@@ -18,7 +18,7 @@ void main() {
       expect(history.current.observations[1].timestamp, minOffset + 3);
     });
 
-    test('Regression of two points should match expected values.', () async {
+    test('Regression of two points should match expected values.', () {
       TwoPointLinearRegressor regressor =
           TwoPointLinearRegressor.fromPoints(1640995200000, 10, 1641081600000, 6);
 
