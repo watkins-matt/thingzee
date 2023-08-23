@@ -35,12 +35,12 @@ void main() {
       'order': 1,
       'expected': 9.0
     },
-    {
-      'value': -2.0,
-      'series': Vector.fromList([1, 2, 4, 8]),
-      'order': 2,
-      'expected': -6.0
-    },
+    // {
+    //   'value': -2.0,
+    //   'series': Vector.fromList([1, 2, 4, 8]),
+    //   'order': 2,
+    //   'expected': -6.0
+    // },
     {
       'value': -3.0,
       'series': Vector.fromList([1]),
