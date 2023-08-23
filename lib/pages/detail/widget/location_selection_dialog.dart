@@ -7,11 +7,29 @@ class LocationSelectorDialog extends HookWidget {
     'Office': {'Desk': [], 'Bookshelf': [], 'Closet': []},
     'Kitchen': {
       'Counter': [],
-      'Fridge': [],
+      'Fridge': [
+        'Top Shelf',
+        'Middle Shelf',
+        'Bottom Shelf',
+        'Top',
+        'Left Drawer',
+        'Right Drawer',
+        'Upper Drawer',
+        'Lower Drawer'
+      ],
+      'Freezer': [
+        'Top Shelf',
+        'Middle Shelf',
+        'Bottom Shelf',
+        'Left Drawer',
+        'Right Drawer',
+        'Upper Drawer',
+        'Lower Drawer'
+      ],
       'Pantry': [],
       'Under Sink Cabinet': [],
-      'Upper Cabinets': [],
-      'Lower Cabinets': []
+      'Upper Cabinets': ['Top Shelf', 'Middle Shelf', 'Bottom Shelf'],
+      'Lower Cabinets': ['Top Shelf', 'Middle Shelf', 'Bottom Shelf'],
     },
     'Bedroom': {'Dresser': [], 'Nightstand Left': [], 'Nightstand Right': []},
     'Bathroom': {'Cabinet': [], 'Under Sink Cabinet': [], 'Shower': [], 'Counter': []},
