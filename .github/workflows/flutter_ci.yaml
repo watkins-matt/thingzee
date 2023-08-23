@@ -3,9 +3,10 @@ name: Flutter CI
 on:
   push:
     paths:
-      - '**/*.dart'
+      - "**/*.dart"
     branches:
-      - '*'
+      - "*"
+  workflow_dispatch:
 
 jobs:
   test:
@@ -18,7 +19,8 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: 'stable'
+          channel: "stable"
+      - run: flutter --version
 
       - name: Get Dependencies
         run: flutter pub get
@@ -26,5 +28,8 @@ jobs:
       - name: Run Tests
         run: flutter test
 
+      - name: Run Tests in Packages
+        run: flutter test packages/*/test/*_test.dart
+
       - name: Run Flutter Analyzer
-        run: flutter analyze
+        run: flutter analyze ./analysis_options.yaml
