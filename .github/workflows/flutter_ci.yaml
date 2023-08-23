@@ -37,7 +37,11 @@ jobs:
       - name: Run Tests For All Packages
         run: |
           for dir in packages/*/; do
-            (cd "$dir" && flutter test)
+            if [ -d "$dir/test" ]; then
+              (cd "$dir" && flutter test)
+            else
+              echo "No tests in $dir"
+            fi
           done
 
       - name: Run Flutter Analyzer
