@@ -5,6 +5,8 @@ import 'package:repository/ml/history.dart';
 
 @Entity()
 class ObjectBoxHistory {
+  // Serialization occurs though dbHistory
+  @Transient()
   History history = History();
 
   @Unique(onConflict: ConflictStrategy.replace)
@@ -15,9 +17,10 @@ class ObjectBoxHistory {
 
   ObjectBoxHistory();
   ObjectBoxHistory.from(History original) {
-    history = original;
+    history = History.fromJson(original.toJson());
     upc = original.upc;
   }
+
   String get dbHistory {
     return jsonEncode(history.toJson());
   }
