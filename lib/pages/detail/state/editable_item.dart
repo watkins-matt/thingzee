@@ -52,6 +52,8 @@ class EditableItem extends StateNotifier<EditableItemState> {
     state = EditableItemState(item, state.inventory, state.changedFields);
   }
 
+  List<String> get locations => state.inventory.locations;
+
   String get name => state.item.name;
 
   set name(String name) {
@@ -62,8 +64,8 @@ class EditableItem extends StateNotifier<EditableItemState> {
   }
 
   String get predictedAmount => state.inventory.predictedAmount.toStringNoZero(2);
-
   double get totalUnitCount => state.inventory.units;
+
   int get unitCount => state.inventory.unitCount;
 
   set unitCount(int value) {
@@ -92,11 +94,22 @@ class EditableItem extends StateNotifier<EditableItemState> {
   }
 
   String get variety => state.item.variety;
+
   set variety(String variety) {
     final item = state.item;
     item.variety = variety;
 
     state = EditableItemState(item, state.inventory, state.changedFields);
+  }
+
+  void addLocation(String location) {
+    final inv = state.inventory;
+
+    // Don't add the location if it already exists
+    if (!inv.locations.contains(location)) {
+      inv.locations.add(location);
+      state = EditableItemState(state.item, inv, state.changedFields);
+    }
   }
 
   void cleanUpHistory(Repository repo) {
@@ -119,6 +132,7 @@ class EditableItem extends StateNotifier<EditableItemState> {
     copiedInv.unitCount = inv.unitCount;
     copiedInv.history = inv.history.copy();
     copiedInv.lastUpdate = inv.lastUpdate;
+    copiedInv.locations = inv.locations;
 
     // Make sure the upc is copied to the item
     if (state.item.upc != copiedInv.upc) {
@@ -159,6 +173,15 @@ class EditableItem extends StateNotifier<EditableItemState> {
     inv.history.series.removeAt(index);
 
     state = EditableItemState(state.item, inv, state.changedFields);
+  }
+
+  void removeLocation(String location) {
+    final inv = state.inventory;
+
+    if (inv.locations.contains(location)) {
+      inv.locations.remove(location);
+      state = EditableItemState(state.item, inv, state.changedFields);
+    }
   }
 
   void save(Repository repo) {

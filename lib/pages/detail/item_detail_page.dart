@@ -11,6 +11,8 @@ import 'package:thingzee/pages/detail/widget/item_header_widget.dart';
 import 'package:thingzee/pages/detail/widget/labeled_editable_text.dart';
 import 'package:thingzee/pages/detail/widget/labeled_switch_widget.dart';
 import 'package:thingzee/pages/detail/widget/labeled_text.dart';
+import 'package:thingzee/pages/detail/widget/location_chip_view.dart';
+import 'package:thingzee/pages/detail/widget/location_selection_dialog.dart';
 import 'package:thingzee/pages/detail/widget/material_card_widget.dart';
 import 'package:thingzee/pages/detail/widget/text_field_column_widget.dart';
 import 'package:thingzee/pages/detail/widget/title_header_widget.dart';
@@ -35,6 +37,7 @@ class ItemDetailPage extends HookConsumerWidget {
         useTextEditingController(text: editableItem.totalUnitCount.toStringNoZero(2));
     final nameController = useTextEditingController(text: editableItem.name);
     final upcController = useTextEditingController(text: editableItem.upc);
+    List<String> locations = ref.watch(editableItemProvider.notifier).locations;
     //final predictedAmountController = useTextEditingController(text: editableItem.predictedAmount);
 
     final cache = ref.watch(itemThumbnailCache);
@@ -235,6 +238,25 @@ class ItemDetailPage extends HookConsumerWidget {
                 const SizedBox(
                   height: 8,
                 ),
+                MaterialCardWidget(
+                  children: [
+                    TitleHeaderWidget(
+                        title: 'Locations',
+                        actionButton: IconButton(
+                          onPressed: () async => await onAddLocationPressed(context, ref),
+                          icon: const Icon(Icons.add, color: Colors.blue),
+                        )),
+                    LocationChipView(
+                      locations: locations.toSet(),
+                      onLocationRemove: (location) {
+                        ref.read(editableItemProvider.notifier).removeLocation(location);
+                      },
+                    )
+                  ],
+                ),
+                const SizedBox(
+                  height: 8,
+                ),
                 MaterialCardWidget(children: [
                   TitleHeaderWidget(
                       title: 'History',
@@ -255,6 +277,14 @@ class ItemDetailPage extends HookConsumerWidget {
         ),
       ),
     );
+  }
+
+  Future<bool> onAddLocationPressed(BuildContext context, WidgetRef ref) async {
+    final result = await LocationSelectorDialog.show(context);
+    if (result.isNotEmpty) {
+      ref.read(editableItemProvider.notifier).addLocation(result);
+    }
+    return true;
   }
 
   Future<bool> onBackButtonPressed(BuildContext context, WidgetRef ref) async {
