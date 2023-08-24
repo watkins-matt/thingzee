@@ -77,8 +77,8 @@ class SynchronizedInventoryDatabase extends InventoryDatabase {
     final remoteChanges = remote.getChanges(lastSync!);
     final localChanges = local.getChanges(lastSync!);
 
-    final remoteMap = {for (var inventory in remoteChanges) inventory.upc: inventory};
-    final localMap = {for (var inventory in localChanges) inventory.upc: inventory};
+    final remoteMap = {for (final inventory in remoteChanges) inventory.upc: inventory};
+    final localMap = {for (final inventory in localChanges) inventory.upc: inventory};
     int changes = 0;
 
     for (final remoteInventory in remoteChanges) {

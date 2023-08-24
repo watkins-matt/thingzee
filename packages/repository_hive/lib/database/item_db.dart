@@ -71,7 +71,7 @@ class HiveItemDatabase extends ItemDatabase {
   @override
   Map<String, Item> map() {
     final all = box.values.toList();
-    return {for (var hiveItem in all) hiveItem.upc: hiveItem.toItem()};
+    return {for (final hiveItem in all) hiveItem.upc: hiveItem.toItem()};
   }
 
   @override

@@ -58,8 +58,8 @@ class SynchronizedHouseholdDatabase extends HouseholdDatabase {
     final remoteChanges = remote.getChanges(lastSync!);
     final localChanges = local.getChanges(lastSync!);
 
-    final remoteMap = {for (var member in remoteChanges) member.email: member};
-    final localMap = {for (var member in localChanges) member.email: member};
+    final remoteMap = {for (final member in remoteChanges) member.email: member};
+    final localMap = {for (final member in localChanges) member.email: member};
     int changes = 0;
 
     for (final remoteMember in remoteChanges) {
@@ -107,8 +107,8 @@ class SynchronizedHouseholdDatabase extends HouseholdDatabase {
     var remoteMembers = remote.members;
 
     // Convert to maps for easier lookup using email as the key
-    var localMap = {for (var member in localMembers) member.email: member};
-    var remoteMap = {for (var member in remoteMembers) member.email: member};
+    var localMap = {for (final member in localMembers) member.email: member};
+    var remoteMap = {for (final member in remoteMembers) member.email: member};
 
     // Go through all the local members and add the missing ones to the remote
     for (final localMember in localMembers) {

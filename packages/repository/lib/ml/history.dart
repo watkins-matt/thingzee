@@ -307,8 +307,8 @@ class History {
 
     // Create a map of all the history series from both History instances,
     // using the HistorySeries minTimestamp as the key
-    Map<int, HistorySeries> thisSeriesMap = {for (var s in series) s.minTimestamp: s};
-    Map<int, HistorySeries> otherSeriesMap = {for (var s in other.series) s.minTimestamp: s};
+    Map<int, HistorySeries> thisSeriesMap = {for (final s in series) s.minTimestamp: s};
+    Map<int, HistorySeries> otherSeriesMap = {for (final s in other.series) s.minTimestamp: s};
 
     // Get all unique minTimestamp keys
     Set<int> allKeys = {};

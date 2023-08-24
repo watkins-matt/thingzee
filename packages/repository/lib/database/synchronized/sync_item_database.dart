@@ -83,8 +83,8 @@ class SynchronizedItemDatabase extends ItemDatabase {
     final remoteChanges = remote.getChanges(lastSync!);
     final localChanges = local.getChanges(lastSync!);
 
-    final remoteMap = {for (var item in remoteChanges) item.upc: item};
-    final localMap = {for (var item in localChanges) item.upc: item};
+    final remoteMap = {for (final item in remoteChanges) item.upc: item};
+    final localMap = {for (final item in localChanges) item.upc: item};
     int changes = 0;
 
     for (final remoteItem in remoteChanges) {

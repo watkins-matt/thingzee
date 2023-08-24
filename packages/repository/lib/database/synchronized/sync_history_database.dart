@@ -63,8 +63,8 @@ class SynchronizedHistoryDatabase extends HistoryDatabase {
     final remoteChanges = remote.getChanges(lastSync!);
     final localChanges = local.getChanges(lastSync!);
 
-    final remoteMap = {for (var history in remoteChanges) history.upc: history};
-    final localMap = {for (var history in localChanges) history.upc: history};
+    final remoteMap = {for (final history in remoteChanges) history.upc: history};
+    final localMap = {for (final history in localChanges) history.upc: history};
     int changes = 0;
 
     for (final remoteHistory in remoteChanges) {

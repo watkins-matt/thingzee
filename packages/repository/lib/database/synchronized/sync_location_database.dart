@@ -78,10 +78,10 @@ class SynchronizedLocationDatabase extends LocationDatabase {
     final localChanges = local.getChanges(lastSync!);
 
     final remoteMap = {
-      for (var location in remoteChanges) '${location.location}-${location.upc}': location
+      for (final location in remoteChanges) '${location.location}-${location.upc}': location
     };
     final localMap = {
-      for (var location in localChanges) '${location.location}-${location.upc}': location
+      for (final location in localChanges) '${location.location}-${location.upc}': location
     };
     int changes = 0;
 

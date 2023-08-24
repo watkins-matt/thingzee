@@ -78,7 +78,7 @@ class AppwriteLocationDatabase extends LocationDatabase {
   Map<String, Location> map() {
     final allLocations = all();
     final map = {
-      for (var location in allLocations) '${location.location}-${location.upc}': location
+      for (final location in allLocations) '${location.location}-${location.upc}': location
     };
 
     return map;
