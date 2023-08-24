@@ -70,9 +70,7 @@ class ObjectBoxLocationDatabase extends LocationDatabase {
   @override
   Map<String, Location> map() {
     final allLocations = all();
-    final map = {
-      for (final location in allLocations) '${location.location}-${location.upc}': location
-    };
+    final map = {for (final location in allLocations) '${location.name}-${location.upc}': location};
 
     return map;
   }
@@ -94,8 +92,8 @@ class ObjectBoxLocationDatabase extends LocationDatabase {
   void store(String location, String upc) {
     assert(upc.isNotEmpty && location.isNotEmpty);
     final time = DateTime.now();
-    final locOb = ObjectBoxLocation.from(
-        Location(location: location, upc: upc, created: time, updated: time));
+    final locOb =
+        ObjectBoxLocation.from(Location(name: location, upc: upc, created: time, updated: time));
 
     final query = box
         .query(ObjectBoxLocation_.upc.equals(upc).and(ObjectBoxLocation_.location.equals(location)))
