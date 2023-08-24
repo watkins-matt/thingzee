@@ -8,7 +8,7 @@ part 'location.g.dart';
 @immutable
 class Location {
   final String upc;
-  final String location;
+  final String name;
   final double? quantity;
 
   @NullableDateTimeSerializer()
@@ -19,7 +19,7 @@ class Location {
 
   Location({
     required this.upc,
-    required this.location,
+    required this.name,
     this.quantity,
     DateTime? created,
     DateTime? updated,
@@ -30,14 +30,14 @@ class Location {
 
   Location copyWith({
     String? upc,
-    String? location,
+    String? name,
     double? quantity,
     DateTime? created,
     DateTime? updated,
   }) {
     return Location(
       upc: upc ?? this.upc,
-      location: location ?? this.location,
+      name: name ?? this.name,
       quantity: quantity ?? this.quantity,
       created: created ?? this.created,
       updated: updated ?? this.updated,
@@ -46,7 +46,7 @@ class Location {
 
   bool equalTo(Location other) {
     return upc == other.upc &&
-        location == other.location &&
+        name == other.name &&
         quantity == other.quantity &&
         created?.millisecondsSinceEpoch == other.created?.millisecondsSinceEpoch &&
         updated?.millisecondsSinceEpoch == other.updated?.millisecondsSinceEpoch;
@@ -59,7 +59,7 @@ class Location {
 
     return Location(
       upc: newerLocation.upc.isNotEmpty ? newerLocation.upc : upc,
-      location: newerLocation.location.isNotEmpty ? newerLocation.location : location,
+      name: newerLocation.name.isNotEmpty ? newerLocation.name : name,
       quantity: newerLocation.quantity ?? quantity,
       created: newerLocation.created ?? created,
       updated: newerLocation.updated ?? updated,

@@ -8,7 +8,7 @@ part of 'location.dart';
 
 Location _$LocationFromJson(Map<String, dynamic> json) => Location(
       upc: json['upc'] as String,
-      location: json['location'] as String,
+      name: json['name'] as String,
       quantity: (json['quantity'] as num?)?.toDouble(),
       created: _$JsonConverterFromJson<int, DateTime?>(
           json['created'], const NullableDateTimeSerializer().fromJson),
@@ -18,7 +18,7 @@ Location _$LocationFromJson(Map<String, dynamic> json) => Location(
 
 Map<String, dynamic> _$LocationToJson(Location instance) => <String, dynamic>{
       'upc': instance.upc,
-      'location': instance.location,
+      'name': instance.name,
       'quantity': instance.quantity,
       'created': const NullableDateTimeSerializer().toJson(instance.created),
       'updated': const NullableDateTimeSerializer().toJson(instance.updated),
