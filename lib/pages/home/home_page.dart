@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:thingzee/pages/inventory/inventory_page.dart';
+import 'package:thingzee/pages/location/location_page.dart';
 import 'package:thingzee/pages/recipe_browser/recipe_browser.dart';
 import 'package:thingzee/pages/shopping/shopping_list_page.dart';
 
@@ -14,7 +15,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   List<Widget> pageList = [
     const InventoryPage(),
-    Container(), // const LocationPage(),
+    const LocationPage(),
     const RecipeBrowser(),
     const ShoppingListPage(),
   ];
