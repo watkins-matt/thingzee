@@ -2,6 +2,7 @@ import 'dart:core';
 
 import 'package:objectbox/objectbox.dart';
 import 'package:repository/model/location.dart';
+
 @Entity()
 class ObjectBoxLocation {
   late String upc;
@@ -14,18 +15,13 @@ class ObjectBoxLocation {
   ObjectBoxLocation();
   ObjectBoxLocation.from(Location original) {
     upc = original.upc;
-    location = original.location;
+    location = original.name;
     quantity = original.quantity;
     created = original.created;
     updated = original.updated;
   }
   Location toLocation() {
     return Location(
-      upc: upc,
-      location: location,
-      quantity: quantity,
-      created: created,
-      updated: updated
-    );
+        upc: upc, name: location, quantity: quantity, created: created, updated: updated);
   }
 }
