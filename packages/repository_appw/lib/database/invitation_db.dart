@@ -201,9 +201,18 @@ class AppwriteInvitationDatabase extends InvitationDatabase {
   }
 
   List<Invitation> _documentsToList(DocumentList documentList) {
-    return documentList.documents.map((doc) {
-      return Invitation.fromJson(doc.data);
-    }).toList();
+    return documentList.documents
+        .map((doc) {
+          try {
+            return Invitation.fromJson(doc.data);
+          } catch (e) {
+            Log.w('Failed to deserialize Invitation: ${doc.data["id"]}', e);
+            return null;
+          }
+        })
+        .where((invitation) => invitation != null)
+        .cast<Invitation>()
+        .toList();
   }
 
   Future<void> _processQueue() async {

@@ -194,7 +194,7 @@ class AppwriteItemDatabase extends ItemDatabase {
       Log.e(e);
     }
 
-    Log.timerEnd(timer, 'Appwrite: Items synced in \$seconds seconds.');
+    Log.timerEnd(timer, 'AppwriteItemDB: Items synced in \$seconds seconds.');
     _updateSyncTime();
   }
 
@@ -218,25 +218,34 @@ class AppwriteItemDatabase extends ItemDatabase {
         _items[item.upc] = mergedItem;
       }
     } on AppwriteException catch (e) {
-      Log.e(e);
+      Log.e('AppwriteItemDB: Error while syncing modifications: $e');
     }
 
-    Log.timerEnd(timer, 'Appwrite: Modified item sync completed in \$seconds seconds.');
+    Log.timerEnd(timer, 'AppwriteItemDB: Modified item sync completed in \$seconds seconds.');
     _updateSyncTime();
   }
 
   String uniqueDocumentId(String upc) {
     if (userId.isEmpty) {
-      throw Exception('User ID is empty, cannot generate unique document ID');
+      throw Exception('AppwriteItemDB: User ID is empty, cannot generate unique document ID');
     }
 
     return '$userId-$upc';
   }
 
   List<Item> _documentsToList(DocumentList documentList) {
-    return documentList.documents.map((doc) {
-      return Item.fromJson(doc.data);
-    }).toList();
+    return documentList.documents
+        .map((doc) {
+          try {
+            return Item.fromJson(doc.data);
+          } catch (e) {
+            Log.w('Failed to deserialize Item from upc: ${doc.data["upc"]}', e);
+            return null;
+          }
+        })
+        .where((item) => item != null)
+        .cast<Item>()
+        .toList();
   }
 
   Future<void> _processQueue() async {
@@ -260,7 +269,7 @@ class AppwriteItemDatabase extends ItemDatabase {
         _QueueTask task = _taskQueue.removeAt(0);
 
         if (task.retries >= maxRetries) {
-          Log.e('Failed to execute task after $maxRetries attempts.');
+          Log.e('AppwriteItemDB: Failed to execute task after $maxRetries attempts.');
           continue;
         }
 

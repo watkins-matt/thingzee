@@ -53,8 +53,14 @@ class AppwriteHistoryDatabase extends HistoryDatabase {
     _history.clear();
   }
 
-  History deserializeHistory(Map<String, dynamic> serialized) {
-    return History.fromJson(jsonDecode(serialized['json']));
+  History? deserializeHistory(Map<String, dynamic> serialized) {
+    try {
+      return History.fromJson(jsonDecode(serialized['json']));
+    } catch (e) {
+      Log.w('Failed to deserialize History object for upc ${serialized["upc"]}. Error: $e');
+      _history.remove(serialized['upc']);
+      return null;
+    }
   }
 
   @override
@@ -106,9 +112,6 @@ class AppwriteHistoryDatabase extends HistoryDatabase {
               data: serializeHistory(history));
         } else {
           Log.e('Failed to put history ${history.upc}: [AppwriteException]', e.message);
-          // Removing the history from local cache since we
-          // failed to add it to the database
-          _history.remove(history.upc);
           rethrow;
         }
       }
@@ -185,9 +188,13 @@ class AppwriteHistoryDatabase extends HistoryDatabase {
   }
 
   List<History> _documentsToList(DocumentList documentList) {
-    return documentList.documents.map((doc) {
-      return deserializeHistory(doc.data);
-    }).toList();
+    return documentList.documents
+        .map((doc) {
+          return deserializeHistory(doc.data);
+        })
+        .where((history) => history != null)
+        .cast<History>()
+        .toList();
   }
 
   Future<void> _processQueue() async {
