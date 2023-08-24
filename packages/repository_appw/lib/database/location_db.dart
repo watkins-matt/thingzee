@@ -32,7 +32,7 @@ class AppwriteLocationDatabase extends LocationDatabase {
 
   @override
   List<String> get names {
-    final uniqueLocations = _locations.map((location) => location.location).toSet();
+    final uniqueLocations = _locations.map((location) => location.name).toSet();
     return uniqueLocations.toList();
   }
 
@@ -48,12 +48,12 @@ class AppwriteLocationDatabase extends LocationDatabase {
 
   @override
   List<Location> getContents(String location) {
-    return _locations.where((loc) => loc.location == location).toList();
+    return _locations.where((loc) => loc.name == location).toList();
   }
 
   @override
   List<String> getUpcList(String location) {
-    return _locations.where((loc) => loc.location == location).map((loc) => loc.upc).toList();
+    return _locations.where((loc) => loc.name == location).map((loc) => loc.upc).toList();
   }
 
   Future<void> handleConnectionChange(bool online, Session? session) async {
@@ -71,15 +71,13 @@ class AppwriteLocationDatabase extends LocationDatabase {
 
   @override
   int itemCount(String location) {
-    return _locations.where((loc) => loc.location == location).length;
+    return _locations.where((loc) => loc.name == location).length;
   }
 
   @override
   Map<String, Location> map() {
     final allLocations = all();
-    final map = {
-      for (final location in allLocations) '${location.location}-${location.upc}': location
-    };
+    final map = {for (final location in allLocations) '${location.name}-${location.upc}': location};
 
     return map;
   }
@@ -92,7 +90,7 @@ class AppwriteLocationDatabase extends LocationDatabase {
   @override
   void remove(String location, String upc) {
     queueTask(() async {
-      List<String> query = [Query.equal('location', location), Query.equal('upc', upc)];
+      List<String> query = [Query.equal('name', location), Query.equal('upc', upc)];
       final response = await _database.listDocuments(
         databaseId: databaseId,
         collectionId: collectionId,
@@ -107,7 +105,7 @@ class AppwriteLocationDatabase extends LocationDatabase {
         );
       }
 
-      _locations.removeWhere((loc) => loc.location == location && loc.upc == upc);
+      _locations.removeWhere((loc) => loc.name == location && loc.upc == upc);
     });
   }
 
@@ -122,7 +120,7 @@ class AppwriteLocationDatabase extends LocationDatabase {
   @override
   void store(String location, String upc) {
     queueTask(() async {
-      final query = [Query.equal('location', location), Query.equal('upc', upc)];
+      final query = [Query.equal('name', location), Query.equal('upc', upc)];
       final response = await _database.listDocuments(
         databaseId: databaseId,
         collectionId: collectionId,
@@ -130,7 +128,7 @@ class AppwriteLocationDatabase extends LocationDatabase {
       );
 
       final locationData =
-          Location(location: location, upc: upc, created: DateTime.now(), updated: DateTime.now());
+          Location(name: location, upc: upc, created: DateTime.now(), updated: DateTime.now());
 
       if (response.documents.isEmpty) {
         await _database.createDocument(
@@ -195,9 +193,18 @@ class AppwriteLocationDatabase extends LocationDatabase {
   }
 
   List<Location> _documentsToLocations(DocumentList documentList) {
-    return documentList.documents.map((document) {
-      return Location.fromJson(document.data);
-    }).toList();
+    return documentList.documents
+        .map((document) {
+          try {
+            return Location.fromJson(document.data);
+          } catch (e) {
+            Log.w('Failed to deserialize location for upc ${document.data["upc"]}. Error: $e');
+            return null;
+          }
+        })
+        .where((location) => location != null)
+        .cast<Location>()
+        .toList();
   }
 
   Future<void> _processQueue() async {
