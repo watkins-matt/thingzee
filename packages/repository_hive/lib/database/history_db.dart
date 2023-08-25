@@ -47,7 +47,7 @@ class HiveHistoryDatabase extends HistoryDatabase {
   @override
   void put(History history) {
     assert(history.upc.isNotEmpty);
-    history = history.clean();
+    history = history.clean(warn: true);
     final hiveHistory = HiveHistory.from(history);
     box.put(history.upc, hiveHistory);
   }

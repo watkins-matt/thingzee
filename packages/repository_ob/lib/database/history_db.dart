@@ -61,7 +61,7 @@ class ObjectBoxHistoryDatabase extends HistoryDatabase {
     assert(history.upc.isNotEmpty);
 
     // Remove any invalid values
-    history = history.clean();
+    history = history.clean(warn: true);
 
     // Convert to ObjectBoxMLHistory
     var historyOb = ObjectBoxHistory.from(history);
