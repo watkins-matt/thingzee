@@ -194,7 +194,7 @@ class EditableItem extends StateNotifier<EditableItemState> {
 
     // If the amount changed, add a new history entry
     if (state.changedFields.contains('amount')) {
-      state.inventory.history.add(DateTime.now().millisecondsSinceEpoch, state.inventory.amount, 2);
+      state.inventory.history.add(saveTimestamp.millisecondsSinceEpoch, state.inventory.amount, 2);
     }
 
     // Make sure we update the last updated time
