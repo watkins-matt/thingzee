@@ -301,45 +301,28 @@ class History {
   History merge(History other) {
     assert(upc == other.upc);
 
-    // Create a new merged History instance
-    History merged = History();
-    merged.upc = upc;
+    // Create a new merged History instance using a copy of this instance
+    History merged = copy();
 
-    // Create a map of all the history series from both History instances,
-    // using the HistorySeries minTimestamp as the key
-    Map<int, HistorySeries> thisSeriesMap = {for (final s in series) s.minTimestamp: s};
-    Map<int, HistorySeries> otherSeriesMap = {for (final s in other.series) s.minTimestamp: s};
+    // Combine series from both instances, filtering out series without observations
+    List<HistorySeries> allSeries = series.where((s) => s.observations.isNotEmpty).toList()
+      ..addAll(other.series.where((s) => s.observations.isNotEmpty));
 
-    // Get all unique minTimestamp keys
-    Set<int> allKeys = {};
-    allKeys.addAll(thisSeriesMap.keys);
-    allKeys.addAll(otherSeriesMap.keys);
-
-    // For each unique key, merge the corresponding HistorySeries from both History instances
-    for (final key in allKeys) {
-      HistorySeries? thisSeries = thisSeriesMap[key];
-      HistorySeries? otherSeries = otherSeriesMap[key];
-
-      if (thisSeries != null && otherSeries != null) {
-        // If both History instances have a HistorySeries with this minTimestamp,
-        // choose the one with the higher maxTimestamp since it
-        // has been updated more recently
-        if (thisSeries.maxTimestamp > otherSeries.maxTimestamp) {
-          merged.series.add(thisSeries.copy());
-        } else {
-          merged.series.add(otherSeries.copy());
-        }
-      } else if (thisSeries != null) {
-        // If only this History instance has a HistorySeries with this minTimestamp, add it
-        merged.series.add(thisSeries.copy());
-      } else if (otherSeries != null) {
-        // If only the other History instance has a HistorySeries with this minTimestamp, add it
-        merged.series.add(otherSeries.copy());
+    // Group series by minTimestamp and choose the one with the highest maxTimestamp for each group
+    final Map<int, HistorySeries> mergedSeriesMap = {};
+    for (final series in allSeries) {
+      final existingSeries = mergedSeriesMap[series.minTimestamp];
+      if (existingSeries == null || series.maxTimestamp > existingSeries.maxTimestamp) {
+        mergedSeriesMap[series.minTimestamp] = series.copy();
       }
     }
 
-    // The merged result should always be at least as long as the longest History instance
-    assert(merged.series.length >= series.length && merged.series.length >= other.series.length);
+    // Set the merged series to the sorted values of the map
+    merged.series = mergedSeriesMap.values.toList()
+      ..sort((a, b) => a.minTimestamp.compareTo(b.minTimestamp));
+
+    // Retrain on the merged points
+    merged.evaluator.train(merged);
     return merged;
   }
 
