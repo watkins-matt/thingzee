@@ -115,7 +115,10 @@ class EditableItem extends StateNotifier<EditableItemState> {
   void cleanUpHistory(Repository repo) {
     final inv = state.inventory;
     inv.history = inv.history.clean(warn: true);
-    repo.hist.put(inv.history);
+
+    // Save the inventory. Note that we use a joined db
+    // here so saving the inventory also saves the history
+    repo.inv.put(inv);
 
     state = EditableItemState(state.item, inv, state.changedFields);
   }
@@ -130,7 +133,7 @@ class EditableItem extends StateNotifier<EditableItemState> {
     copiedInv.amount = inv.amount;
     copiedInv.upc = inv.upc;
     copiedInv.unitCount = inv.unitCount;
-    copiedInv.history = inv.history.copy();
+    copiedInv.history = inv.history;
     copiedInv.lastUpdate = inv.lastUpdate;
     copiedInv.locations = inv.locations;
 
