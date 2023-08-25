@@ -75,11 +75,6 @@ class ObjectBoxHistoryDatabase extends HistoryDatabase {
     // before we replace it
     if (exists != null && historyOb.objectBoxId != exists.objectBoxId) {
       historyOb.objectBoxId = exists.objectBoxId;
-
-      // Merge the histories if they are not equal
-      if (!historyOb.history.equalTo(exists.toHistory())) {
-        historyOb.history = historyOb.history.merge(exists.toHistory());
-      }
     }
 
     assert(historyOb.upc.isNotEmpty && historyOb.history.upc.isNotEmpty);
