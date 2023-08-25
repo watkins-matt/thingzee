@@ -193,15 +193,15 @@ class EditableItem extends StateNotifier<EditableItemState> {
     repo.items.put(state.item);
 
     // If the amount changed, add a new history entry
-    if (state.changedFields.contains('amount')) {
+    if (state.changedFields.contains('amount') ||
+        state.inventory.history.series.isEmpty ||
+        state.inventory.history.series.last.observations.isEmpty) {
       state.inventory.history.add(saveTimestamp.millisecondsSinceEpoch, state.inventory.amount, 2);
     }
 
     // Make sure we update the last updated time
     state.inventory.lastUpdate = saveTimestamp;
 
-    // Save the inventory. Note that we use a joined db
-    // here so saving the inventory also saves the history
     assert(state.inventory.upc == state.item.upc);
     repo.inv.put(state.inventory);
 
