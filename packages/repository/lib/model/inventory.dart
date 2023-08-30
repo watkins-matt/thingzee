@@ -108,7 +108,9 @@ class Inventory {
   }
 
   String get preferredAmountString {
-    return unitCount == 1 ? preferredAmount.toStringAsFixed(2) : preferredAmount.toStringAsFixed(0);
+    return unitCount == 1 && (preferredAmount.roundTo(1) > 0)
+        ? preferredAmount.toStringAsFixed(2)
+        : preferredAmount.toStringAsFixed(0);
   }
 
   Duration get timeSinceLastUpdate {
