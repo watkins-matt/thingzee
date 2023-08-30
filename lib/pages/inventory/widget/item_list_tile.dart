@@ -3,7 +3,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:repository/model/inventory.dart';
 import 'package:repository/model/item.dart';
 import 'package:thingzee/pages/detail/item_detail_page.dart';
-import 'package:thingzee/pages/detail/state/editable_item.dart';
 import 'package:thingzee/pages/inventory/state/item_thumbnail_cache.dart';
 
 class ItemListTile extends ConsumerWidget {
@@ -61,12 +60,6 @@ class ItemListTile extends ConsumerWidget {
   }
 
   Future<void> onTap(BuildContext context, WidgetRef ref) async {
-    final itemProv = ref.watch(editableItemProvider.notifier);
-    itemProv.copyFrom(item, inventory);
-
-    await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => ItemDetailPage(item)),
-    );
+    await ItemDetailPage.push(context, ref, item, inventory);
   }
 }
