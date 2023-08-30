@@ -5,6 +5,7 @@ import 'package:repository/ml/history.dart';
 import 'package:repository/model/inventory.dart';
 
 part 'inventory.hive.g.dart';
+
 @HiveType(typeId: 0)
 class HiveInventory extends HiveObject {
   @HiveField(0)
@@ -29,6 +30,9 @@ class HiveInventory extends HiveObject {
   late double units;
   HiveInventory();
   HiveInventory.from(Inventory original) {
+    // Ensure history is in a consistent state
+    history.upc = original.upc;
+
     amount = original.amount;
     unitCount = original.unitCount;
     lastUpdate = original.lastUpdate;
@@ -53,7 +57,6 @@ class HiveInventory extends HiveObject {
       ..restock = restock
       ..upc = upc
       ..iuid = iuid
-      ..units = units
-    ;
+      ..units = units;
   }
 }

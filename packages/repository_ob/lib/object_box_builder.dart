@@ -113,6 +113,12 @@ class ObjectBoxBuilder implements Builder {
 
     // Write a constructor that takes an instance of the original class.
     buffer.writeln('  ObjectBox${originalClass.name}.from(${originalClass.name} original) {');
+    // DO NOT REMOVE THE FOLLOWING. This code is necessary to ensure
+    // that the history is in a consistent state.
+    if (originalClass.name == 'Inventory') {
+      buffer.writeln('    // Ensure history is in a consistent state');
+      buffer.writeln('    history.upc = original.upc;');
+    }
     for (final field in originalClass.fields) {
       if (field.isFinal || field.setter != null) {
         buffer.writeln('    ${field.name} = original.${field.name};');
