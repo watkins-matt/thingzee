@@ -50,7 +50,9 @@ class JoinedInventoryDatabase extends InventoryDatabase {
 
   @override
   List<Inventory> getChanges(DateTime since) {
-    return inventoryDatabase.getChanges(since);
+    var changes = inventoryDatabase.getChanges(since);
+    changes = historyDatabase.joinList(changes);
+    return changes;
   }
 
   @override
