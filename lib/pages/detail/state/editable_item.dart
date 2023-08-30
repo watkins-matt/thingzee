@@ -203,6 +203,7 @@ class EditableItem extends StateNotifier<EditableItemState> {
     state.inventory.lastUpdate = saveTimestamp;
 
     assert(state.inventory.upc == state.item.upc);
+    assert(state.inventory.history.upc == state.item.upc);
     repo.inv.put(state.inventory);
 
     // Save each location
