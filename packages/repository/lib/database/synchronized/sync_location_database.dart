@@ -26,20 +26,17 @@ class SynchronizedLocationDatabase extends LocationDatabase {
   }
 
   @override
-  List<Location> getContents(String location) {
-    syncDifferences();
-    return local.getContents(location);
+  List<String> getSubPaths(String location) {
+    return local.getSubPaths(location);
   }
 
   @override
   List<String> getUpcList(String location) {
-    syncDifferences();
     return local.getUpcList(location);
   }
 
   @override
   int itemCount(String location) {
-    syncDifferences();
     return local.itemCount(location);
   }
 

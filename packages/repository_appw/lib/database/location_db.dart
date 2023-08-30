@@ -47,13 +47,46 @@ class AppwriteLocationDatabase extends LocationDatabase {
   }
 
   @override
-  List<Location> getContents(String location) {
-    return _locations.where((loc) => loc.name == location).toList();
+  List<String> getSubPaths(String location) {
+    location = normalizeLocation(location);
+    final Set<String> subpaths = {};
+
+    for (final loc in _locations) {
+      var normalizedLocName = normalizeLocation(loc.name);
+
+      if (normalizedLocName.startsWith(location) && normalizedLocName != location) {
+        var remainingPath = normalizedLocName.substring(location.length);
+        var nextSlashIndex = remainingPath.indexOf('/');
+
+        if (nextSlashIndex != -1) {
+          var subpath = remainingPath.substring(0, nextSlashIndex);
+
+          // Remove trailing slash only if it exists
+          if (subpath.endsWith('/')) {
+            subpath = subpath.substring(0, subpath.length - 1);
+          }
+
+          subpaths.add(subpath);
+        }
+
+        // Handle top level directory
+        else if (location == '/') {
+          subpaths.add(remainingPath);
+        }
+      }
+    }
+
+    return subpaths.toList();
   }
 
   @override
   List<String> getUpcList(String location) {
-    return _locations.where((loc) => loc.name == location).map((loc) => loc.upc).toList();
+    location = normalizeLocation(location);
+
+    return _locations
+        .where((loc) => normalizeLocation(loc.name) == location)
+        .map((loc) => loc.upc)
+        .toList();
   }
 
   Future<void> handleConnectionChange(bool online, Session? session) async {
@@ -119,6 +152,8 @@ class AppwriteLocationDatabase extends LocationDatabase {
 
   @override
   void store(String location, String upc) {
+    location = normalizeLocation(location);
+
     queueTask(() async {
       final query = [Query.equal('name', location), Query.equal('upc', upc)];
       final response = await _database.listDocuments(

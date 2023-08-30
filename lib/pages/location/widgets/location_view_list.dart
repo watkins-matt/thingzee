@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:thingzee/pages/inventory/state/item_thumbnail_cache.dart';
+import 'package:thingzee/pages/inventory/widget/item_list_tile.dart';
 import 'package:thingzee/pages/location/state/location_view_state.dart';
 
 class LocationListView extends ConsumerWidget {
@@ -8,28 +8,40 @@ class LocationListView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final locations = ref.watch(locationViewProvider).contents;
-    final thumbnailCache = ref.watch(itemThumbnailCache);
+    final subPaths = ref.watch(locationViewProvider).subPaths;
+    final currentItems = ref.watch(locationViewProvider).currentItems;
 
     return ListView.builder(
-      itemCount: locations.length,
+      itemCount: subPaths.length + currentItems.length,
       itemBuilder: (context, index) {
-        final location = locations[index];
-        Image image;
-        if (thumbnailCache.containsKey(location.upc) && thumbnailCache[location.upc] != null) {
-          image = thumbnailCache[location.upc]!;
-        } else {
-          image = const Image(
-            image: AssetImage('assets/images/no_image_available.png'),
-            width: 100,
-            height: 100,
+        // Handle subpaths
+        if (index < subPaths.length) {
+          final subPath = subPaths[index];
+          return ListTile(
+            onTap: () => ref.read(locationViewProvider.notifier).changeDirectory(subPath),
+            title: Row(
+              children: [
+                const Icon(Icons.folder, size: 50, color: Colors.blue),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    subPath,
+                    style: const TextStyle(
+                      fontSize: 20,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           );
         }
-        return ListTile(
-          onTap: () => ref.read(locationViewProvider.notifier).changeDirectory(location.name),
-          leading: image,
-          title: Text(location.name),
-        );
+
+        // Handle items
+        else {
+          final itemIndex = index - subPaths.length;
+          final joinedItem = currentItems[itemIndex];
+          return ItemListTile(joinedItem.item, joinedItem.inventory);
+        }
       },
     );
   }

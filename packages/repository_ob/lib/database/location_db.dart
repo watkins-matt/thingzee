@@ -37,18 +37,43 @@ class ObjectBoxLocationDatabase extends LocationDatabase {
   }
 
   @override
-  List<Location> getContents(String location) {
-    final query = box.query(ObjectBoxLocation_.location.equals(location)).build();
-    final results = query.find();
+  List<String> getSubPaths(String location) {
+    location = normalizeLocation(location);
+    final Set<String> subpaths = {};
 
-    List<Location> locations = results.map((objBoxLoc) => objBoxLoc.toLocation()).toList();
+    final query = box.query(ObjectBoxLocation_.location.startsWith(location)).build();
+    final results = query.find();
     query.close();
 
-    return locations;
+    for (final objBoxLoc in results) {
+      var normalizedLocName = normalizeLocation(objBoxLoc.location);
+
+      if (normalizedLocName.startsWith(location) && normalizedLocName != location) {
+        var remainingPath = normalizedLocName.substring(location.length);
+        var nextSlashIndex = remainingPath.indexOf('/');
+
+        if (nextSlashIndex != -1) {
+          var subpath = remainingPath.substring(0, nextSlashIndex);
+
+          // Remove trailing slash only if it exists
+          if (subpath.endsWith('/')) {
+            subpath = subpath.substring(0, subpath.length - 1);
+          }
+
+          subpaths.add(subpath);
+        } else if (location == '/') {
+          subpaths.add(remainingPath);
+        }
+      }
+    }
+
+    return subpaths.toList();
   }
 
   @override
   List<String> getUpcList(String location) {
+    location = normalizeLocation(location);
+
     final query = box.query(ObjectBoxLocation_.location.equals(location)).build();
     final propertyQuery = query.property(ObjectBoxLocation_.upc);
 
@@ -91,6 +116,8 @@ class ObjectBoxLocationDatabase extends LocationDatabase {
   @override
   void store(String location, String upc) {
     assert(upc.isNotEmpty && location.isNotEmpty);
+    location = normalizeLocation(location);
+
     final time = DateTime.now();
     final locOb =
         ObjectBoxLocation.from(Location(name: location, upc: upc, created: time, updated: time));

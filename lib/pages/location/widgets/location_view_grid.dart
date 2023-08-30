@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:thingzee/pages/inventory/state/item_thumbnail_cache.dart';
+import 'package:thingzee/pages/inventory/widget/item_grid_tile.dart';
 import 'package:thingzee/pages/location/state/location_view_state.dart';
 
 class LocationGridView extends ConsumerWidget {
@@ -8,8 +8,8 @@ class LocationGridView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final locations = ref.watch(locationViewProvider).contents;
-    final thumbnailCache = ref.watch(itemThumbnailCache);
+    final subPaths = ref.watch(locationViewProvider).subPaths;
+    final currentItems = ref.watch(locationViewProvider).currentItems;
 
     return GridView.builder(
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -18,29 +18,41 @@ class LocationGridView extends ConsumerWidget {
         mainAxisSpacing: 8,
         childAspectRatio: 1,
       ),
-      itemCount: locations.length,
+      itemCount: subPaths.length + currentItems.length,
       itemBuilder: (context, index) {
-        final location = locations[index];
-        Image image;
-        if (thumbnailCache.containsKey(location.upc) && thumbnailCache[location.upc] != null) {
-          image = thumbnailCache[location.upc]!;
-        } else {
-          image = const Image(
-            image: AssetImage('assets/images/no_image_available.png'),
-            width: 100,
-            height: 100,
+        // Handle subpaths
+        if (index < subPaths.length) {
+          final subPath = subPaths[index];
+          return GestureDetector(
+            onTap: () => ref.read(locationViewProvider.notifier).changeDirectory(subPath),
+            child: Card(
+              elevation: 4,
+              child: GridTile(
+                footer: GridTileBar(
+                  title: Text(
+                    subPath,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                child: const Center(
+                  child: Icon(
+                    Icons.folder,
+                    size: 50,
+                    color: Colors.blue,
+                  ),
+                ),
+              ),
+            ),
           );
         }
-        return GestureDetector(
-          onTap: () => ref.read(locationViewProvider.notifier).changeDirectory(location.name),
-          child: Card(
-            elevation: 4,
-            child: GridTile(
-              footer: Center(child: Text(location.name)),
-              child: image,
-            ),
-          ),
-        );
+
+        // Handle items
+        else {
+          final itemIndex = index - subPaths.length;
+          final joinedItem = currentItems[itemIndex];
+          return ItemGridTile(joinedItem.item, joinedItem.inventory);
+        }
       },
     );
   }
