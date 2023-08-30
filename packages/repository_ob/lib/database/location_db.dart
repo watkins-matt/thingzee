@@ -67,7 +67,9 @@ class ObjectBoxLocationDatabase extends LocationDatabase {
       }
     }
 
-    return subpaths.toList();
+    var result = subpaths.toList();
+    result.sort((a, b) => a.compareTo(b));
+    return result;
   }
 
   @override

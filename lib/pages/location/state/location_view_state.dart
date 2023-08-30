@@ -83,7 +83,8 @@ class LocationViewState extends StateNotifier<LocationState> {
 
     final subPaths = r.location.getSubPaths(currentDir);
     final upcList = r.location.getUpcList(currentDir);
-    final joinedItems = items.getAll(upcList);
+    var joinedItems = items.getAll(upcList);
+    joinedItems.sort((a, b) => a.item.name.compareTo(b.item.name));
 
     state = state.copyWith(
       currentDirectory: currentDir,
@@ -103,7 +104,8 @@ class LocationViewState extends StateNotifier<LocationState> {
   void refresh() {
     final subPaths = r.location.getSubPaths(state.currentDirectory);
     final upcList = r.location.getUpcList(state.currentDirectory);
-    final joinedItems = items.getAll(upcList);
+    var joinedItems = items.getAll(upcList);
+    joinedItems.sort((a, b) => a.item.name.compareTo(b.item.name));
 
     state = state.copyWith(
       subPaths: subPaths,
