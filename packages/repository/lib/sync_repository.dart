@@ -128,8 +128,10 @@ class SynchronizedRepository extends CloudRepository {
     items = SynchronizedItemDatabase(local.items, remote.items, prefs);
     hist = SynchronizedHistoryDatabase(local.hist, remote.hist, prefs);
 
-    final inventory = SynchronizedInventoryDatabase(local.inv, remote.inv, prefs);
-    inv = JoinedInventoryDatabase(inventory, hist);
+    // Note that we do not join the history and item databases here.
+    // This is because they are joined at the lower levels of the local
+    // and remote databases.
+    inv = SynchronizedInventoryDatabase(local.inv, remote.inv, prefs);
 
     household = SynchronizedHouseholdDatabase(local.household, remote.household, prefs);
     invitation = remote.invitation;
