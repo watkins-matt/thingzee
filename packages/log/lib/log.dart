@@ -198,7 +198,12 @@ class StoredLogOutput extends LogOutput {
 
     // Append the logs to the file
     if (_logFile != null) {
-      final logLines = logsToWrite.map((e) => e.lines.join('\n')).join('\n');
+      final logLines = logsToWrite.map((e) {
+        final joinedLines = e.lines.join('\n');
+        // Remove escape codes
+        final cleanLines = joinedLines.replaceAll(RegExp(r'\x1B\[[0-9;]*[a-zA-Z]'), '');
+        return cleanLines;
+      }).join('\n');
       await _logFile!.writeAsString(logLines, mode: FileMode.append);
       logsToWrite.clear();
     }
