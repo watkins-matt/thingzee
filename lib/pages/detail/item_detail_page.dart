@@ -4,6 +4,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:log/log.dart';
 import 'package:repository/model/inventory.dart';
 import 'package:repository/model/item.dart';
+import 'package:repository/model/location.dart';
 import 'package:stats/double.dart';
 import 'package:thingzee/main.dart';
 import 'package:thingzee/pages/detail/state/editable_item.dart';
@@ -38,7 +39,9 @@ class ItemDetailPage extends HookConsumerWidget {
     final nameController = useTextEditingController(text: editableItem.name);
     final upcController = useTextEditingController(text: editableItem.upc);
     List<String> locations = ref.watch(editableItemProvider.notifier).locations;
-    //final predictedAmountController = useTextEditingController(text: editableItem.predictedAmount);
+
+    // For every location, pretty print it
+    locations = locations.map((e) => prettyPrintPath(e)).toList();
 
     final cache = ref.watch(itemThumbnailCache);
     Image? image;
