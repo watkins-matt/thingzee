@@ -41,8 +41,8 @@ class JoinedItemDatabase {
     return joinedItems;
   }
 
-  List<JoinedItem> search(String string) {
-    List<Item> results = itemDatabase.search(string);
+  List<JoinedItem> filter(Filter filter) {
+    List<Item> results = itemDatabase.filter(filter);
     List<JoinedItem> joinedItems = [];
 
     for (final item in results) {
@@ -70,20 +70,30 @@ class JoinedItemDatabase {
     }
   }
 
-  List<JoinedItem> filter(Filter filter) {
-    List<Item> results = itemDatabase.filter(filter);
+  /// Returns a list of JoinedItems for the given UPCs.
+  /// If innerJoin is true, only items with corresponding inventory objects
+  /// will be returned.
+  List<JoinedItem> getAll(List<String> upcs, {bool innerJoin = true}) {
+    List<Item> items = itemDatabase.getAll(upcs);
+    final inventoryMap = inventoryDatabase.map();
     List<JoinedItem> joinedItems = [];
 
-    for (final item in results) {
-      final inventory = inventoryDatabase.get(item.upc);
+    for (int i = 0; i < items.length; i++) {
+      final upc = items[i].upc;
 
-      if (inventory != null) {
-        joinedItems.add(JoinedItem(item, inventory));
+      // There may be cases where the item exists, but doesn't have inventory
+      // As long as innerJoin is true, we only return items that have
+      // a corresponding inventory object.
+      if (inventoryMap.containsKey(upc)) {
+        final inventory = inventoryMap[upc]!;
+        joinedItems.add(JoinedItem(items[i], inventory));
+      }
+
+      // If innerJoin is false, we return the item with an empty inventory
+      else if (!innerJoin) {
+        joinedItems.add(JoinedItem(items[i], Inventory.withUPC(upc)));
       }
     }
-
-    // Sort everything by name
-    joinedItems.sort((a, b) => a.item.name.compareTo(b.item.name));
 
     return joinedItems;
   }
@@ -108,27 +118,20 @@ class JoinedItemDatabase {
     return getAll(predicted.toList());
   }
 
-  List<JoinedItem> getAll(List<String> upcs, {bool innerJoin = true}) {
-    List<Item> items = itemDatabase.getAll(upcs);
-    final inventoryMap = inventoryDatabase.map();
+  List<JoinedItem> search(String string) {
+    List<Item> results = itemDatabase.search(string);
     List<JoinedItem> joinedItems = [];
 
-    for (int i = 0; i < items.length; i++) {
-      final upc = items[i].upc;
+    for (final item in results) {
+      final inventory = inventoryDatabase.get(item.upc);
 
-      // There may be cases where the item exists, but doesn't have inventory
-      // As long as innerJoin is true, we only return items that have
-      // a corresponding inventory object.
-      if (inventoryMap.containsKey(upc)) {
-        final inventory = inventoryMap[upc]!;
-        joinedItems.add(JoinedItem(items[i], inventory));
-      }
-
-      // If innerJoin is false, we return the item with an empty inventory
-      else if (!innerJoin) {
-        joinedItems.add(JoinedItem(items[i], Inventory.withUPC(upc)));
+      if (inventory != null) {
+        joinedItems.add(JoinedItem(item, inventory));
       }
     }
+
+    // Sort everything by name
+    joinedItems.sort((a, b) => a.item.name.compareTo(b.item.name));
 
     return joinedItems;
   }
