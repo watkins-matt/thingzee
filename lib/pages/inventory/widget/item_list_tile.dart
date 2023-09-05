@@ -19,44 +19,46 @@ class ItemListTile extends ConsumerWidget {
       imageProvider = cache[item.upc]!.image;
     }
 
-    return InkWell(
-        onTap: () => onTap(context, ref),
-        child: ListTile(
-          title: Row(
-            children: [
-              if (imageProvider != null)
-                Row(
-                  children: [
-                    ConstrainedBox(
-                      constraints: const BoxConstraints(
-                        minWidth: 100,
-                        minHeight: 100,
-                        maxWidth: 100,
-                        maxHeight: 100,
+    return Material(
+      child: InkWell(
+          onTap: () => onTap(context, ref),
+          child: ListTile(
+            title: Row(
+              children: [
+                if (imageProvider != null)
+                  Row(
+                    children: [
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(
+                          minWidth: 100,
+                          minHeight: 100,
+                          maxWidth: 100,
+                          maxHeight: 100,
+                        ),
+                        child: Ink.image(image: imageProvider, fit: BoxFit.contain),
                       ),
-                      child: Ink.image(image: imageProvider, fit: BoxFit.contain),
-                    ),
-                    const SizedBox(width: 10),
-                  ],
+                      const SizedBox(width: 10),
+                    ],
+                  ),
+                Expanded(
+                  child: Text(item.name, softWrap: true),
                 ),
-              Expanded(
-                child: Text(item.name, softWrap: true),
-              ),
-              Expanded(
-                child: Align(
-                  alignment: Alignment.centerRight,
-                  child: Text(
-                    inventory.preferredAmountString + (inventory.canPredict ? '' : '*'),
-                    textAlign: TextAlign.right,
-                    textScaleFactor: 1.5,
-                    style: TextStyle(
-                        color: inventory.predictedAmount > 0.5 ? Colors.green : Colors.red),
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: Text(
+                      inventory.preferredAmountString + (inventory.canPredict ? '' : '*'),
+                      textAlign: TextAlign.right,
+                      textScaleFactor: 1.5,
+                      style: TextStyle(
+                          color: inventory.predictedAmount > 0.5 ? Colors.green : Colors.red),
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
-        ));
+              ],
+            ),
+          )),
+    );
   }
 
   Future<void> onTap(BuildContext context, WidgetRef ref) async {

@@ -24,34 +24,36 @@ class ItemGridTile extends ConsumerWidget {
       imageProvider = const AssetImage('assets/images/no_image_available.png');
     }
 
-    return InkWell(
-      onTap: () async {
-        await ItemDetailPage.push(context, ref, item, inventory);
-      },
-      child: Card(
-        elevation: 2,
-        child: GridTile(
-          footer: GridTileBar(
-            title: Text(
-              item.name,
-              style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-              textScaleFactor: 1,
-              textAlign: TextAlign.center,
-              softWrap: true,
-              maxLines: 2,
-            ),
-            trailing: Text(
-              inventory.preferredAmountString + (inventory.canPredict ? '' : '*'),
-              textAlign: TextAlign.left,
-              textScaleFactor: 1.5,
-              style: TextStyle(
-                color: inventory.predictedAmount > 0.5 ? Colors.green : Colors.red,
+    return Material(
+      child: InkWell(
+        onTap: () async {
+          await ItemDetailPage.push(context, ref, item, inventory);
+        },
+        child: Card(
+          elevation: 2,
+          child: GridTile(
+            footer: GridTileBar(
+              title: Text(
+                item.name,
+                style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                textScaleFactor: 1,
+                textAlign: TextAlign.center,
+                softWrap: true,
+                maxLines: 2,
+              ),
+              trailing: Text(
+                inventory.preferredAmountString + (inventory.canPredict ? '' : '*'),
+                textAlign: TextAlign.left,
+                textScaleFactor: 1.5,
+                style: TextStyle(
+                  color: inventory.predictedAmount > 0.5 ? Colors.green : Colors.red,
+                ),
               ),
             ),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.only(top: 2, bottom: 48, left: 0, right: 0),
-            child: Ink.image(image: imageProvider, fit: BoxFit.contain),
+            child: Padding(
+              padding: const EdgeInsets.only(top: 2, bottom: 48, left: 0, right: 0),
+              child: Ink.image(image: imageProvider, fit: BoxFit.contain),
+            ),
           ),
         ),
       ),
