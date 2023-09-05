@@ -6,6 +6,7 @@ import 'package:log/log.dart';
 import 'package:repository/database/inventory_database.dart';
 import 'package:repository/database/preferences.dart';
 import 'package:repository/model/inventory.dart';
+import 'package:repository/util/hash.dart';
 
 class AppwriteInventoryDatabase extends InventoryDatabase {
   static const maxRetries = 3;
@@ -193,10 +194,10 @@ class AppwriteInventoryDatabase extends InventoryDatabase {
 
   String uniqueDocumentId(String upc) {
     if (userId.isEmpty) {
-      throw Exception('User ID is empty, cannot generate unique document ID');
+      throw Exception('User ID is empty, cannot generate unique document ID.');
     }
 
-    return '$userId-$upc';
+    return hashBarcode(userId, upc);
   }
 
   List<Inventory> _documentsToList(DocumentList documentList) {

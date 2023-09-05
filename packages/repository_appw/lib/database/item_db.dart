@@ -8,6 +8,7 @@ import 'package:repository/database/item_database.dart';
 import 'package:repository/database/preferences.dart';
 import 'package:repository/model/filter.dart';
 import 'package:repository/model/item.dart';
+import 'package:repository/util/hash.dart';
 
 class AppwriteItemDatabase extends ItemDatabase {
   static const maxRetries = 3;
@@ -227,10 +228,10 @@ class AppwriteItemDatabase extends ItemDatabase {
 
   String uniqueDocumentId(String upc) {
     if (userId.isEmpty) {
-      throw Exception('AppwriteItemDB: User ID is empty, cannot generate unique document ID');
+      throw Exception('AppwriteItemDB: User ID is empty, cannot generate unique document ID.');
     }
 
-    return '$userId-$upc';
+    return hashBarcode(userId, upc);
   }
 
   List<Item> _documentsToList(DocumentList documentList) {

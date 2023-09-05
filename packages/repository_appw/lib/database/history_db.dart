@@ -7,6 +7,7 @@ import 'package:log/log.dart';
 import 'package:repository/database/history_database.dart';
 import 'package:repository/database/preferences.dart';
 import 'package:repository/ml/history.dart';
+import 'package:repository/util/hash.dart';
 
 class AppwriteHistoryDatabase extends HistoryDatabase {
   static const maxRetries = 3;
@@ -125,7 +126,7 @@ class AppwriteHistoryDatabase extends HistoryDatabase {
 
   Map<String, dynamic> serializeHistory(History history) {
     Map<String, dynamic> serialized = {
-      'user_id': userId,
+      'userId': userId,
       'upc': history.upc,
       'json': jsonEncode(history.toJson())
     };
@@ -181,10 +182,10 @@ class AppwriteHistoryDatabase extends HistoryDatabase {
 
   String uniqueDocumentId(String upc) {
     if (userId.isEmpty) {
-      throw Exception('User ID is empty, cannot generate unique document ID');
+      throw Exception('User ID is empty, cannot generate unique document ID.');
     }
 
-    return '$userId-$upc';
+    return hashBarcode(userId, upc);
   }
 
   List<History> _documentsToList(DocumentList documentList) {
