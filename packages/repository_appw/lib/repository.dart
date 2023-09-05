@@ -324,12 +324,24 @@ class AppwriteRepository extends CloudRepository {
       _userId = prefs.getString('appwrite_session_user')!;
       _userEmail = prefs.getString('appwrite_session_email')!;
     } else {
-      final userInfo = await _account.get();
-      _userId = hashEmail(userInfo.email);
-      _userEmail = userInfo.email;
+      try {
+        final userInfo = await _account.get();
+        _userId = hashEmail(userInfo.email);
+        _userEmail = userInfo.email;
 
-      await prefs.setString('appwrite_session_user', _userId);
-      await prefs.setString('appwrite_session_email', _userEmail);
+        await prefs.setString('appwrite_session_user', _userId);
+        await prefs.setString('appwrite_session_email', _userEmail);
+      } on AppwriteException catch (e) {
+        Log.e('AppwriteRepository._loadUserInfo: Failed to load user: [AppwriteException]',
+            e.message);
+        _session = null;
+        Log.i('Appwrite: Removed invalid session. Log in required.');
+        await prefs.remove('appwrite_session_id');
+        await prefs.remove('appwrite_session_expire');
+        await prefs.remove('appwrite_session_user');
+        await prefs.remove('appwrite_session_email');
+        return;
+      }
     }
   }
 
