@@ -55,22 +55,22 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                     children: <Widget>[
                       TextFormField(
                         onChanged: (value) {
-                          _markFieldTouched('username');
-                          ref.read(registerStateProvider.notifier).setUsername(value.trim());
+                          _markFieldTouched('name');
+                          ref.read(registerStateProvider.notifier).setName(value.trim());
                           _formKey.currentState!.validate();
                         },
                         validator: (val) {
-                          if (!_fieldTouched('username')) {
+                          if (!_fieldTouched('name')) {
                             return null;
                           }
                           if (val!.isEmpty) {
-                            return 'Username cannot be empty.';
+                            return 'Name cannot be empty.';
                           } else {
                             return null;
                           }
                         },
                         decoration:
-                            InputDecoration(hintText: 'Username', fillColor: Colors.grey[200]),
+                            InputDecoration(hintText: 'First Name', fillColor: Colors.grey[200]),
                       ),
                       const SizedBox(height: 20),
                       TextFormField(
@@ -165,14 +165,14 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                         child: const Text('Register'),
                         onPressed: () async {
                           // Mark all fields touched so we validate before submitting
-                          _markFieldTouched('username');
+                          _markFieldTouched('name');
                           _markFieldTouched('email');
                           _markFieldTouched('password');
                           _markFieldTouched('password_confirmation');
 
                           if (_formKey.currentState!.validate()) {
                             Log.d('Email: ${registerState.email}');
-                            Log.d('Username: ${registerState.username}');
+                            Log.d('Name: ${registerState.name}');
                             Log.d('Password: ${registerState.password}');
 
                             final scaffoldMessenger = ScaffoldMessenger.of(context);

@@ -8,14 +8,14 @@ final registerStateProvider = StateNotifierProvider<RegisterStateNotifier, Regis
 
 class RegisterState {
   String email = '';
-  String username = '';
+  String name = '';
   String password = '';
   String confirmPassword = '';
   String errorMessage = '';
 
   RegisterState(
       {this.email = '',
-      this.username = '',
+      this.name = '',
       this.password = '',
       this.confirmPassword = '',
       this.errorMessage = ''});
@@ -30,7 +30,7 @@ class RegisterStateNotifier extends StateNotifier<RegisterState> {
     if (state.errorMessage.isNotEmpty) {
       state = RegisterState(
           email: state.email,
-          username: state.username,
+          name: state.name,
           password: state.password,
           confirmPassword: state.confirmPassword);
     }
@@ -42,11 +42,11 @@ class RegisterStateNotifier extends StateNotifier<RegisterState> {
     bool registerSuccess = false;
 
     try {
-      registerSuccess = await userSession.register(state.username, state.email, state.password);
+      registerSuccess = await userSession.register(state.name, state.email, state.password);
     } catch (e) {
       state = RegisterState(
           email: state.email,
-          username: state.username,
+          name: state.name,
           password: state.password,
           confirmPassword: state.confirmPassword,
           errorMessage: e.toString());
@@ -58,7 +58,7 @@ class RegisterStateNotifier extends StateNotifier<RegisterState> {
     } else if (!registerSuccess) {
       state = RegisterState(
           email: state.email,
-          username: state.username,
+          name: state.name,
           password: state.password,
           confirmPassword: state.confirmPassword,
           errorMessage:
@@ -71,7 +71,7 @@ class RegisterStateNotifier extends StateNotifier<RegisterState> {
   void setConfirmPassword(String value) {
     state = RegisterState(
         email: state.email,
-        username: state.username,
+        name: state.name,
         password: state.password,
         confirmPassword: value,
         errorMessage: state.errorMessage);
@@ -80,26 +80,26 @@ class RegisterStateNotifier extends StateNotifier<RegisterState> {
   void setEmail(String value) {
     state = RegisterState(
         email: value,
-        username: state.username,
+        name: state.name,
         password: state.password,
         confirmPassword: state.confirmPassword,
         errorMessage: state.errorMessage);
+  }
+
+  void setName(String value) {
+    state = RegisterState(
+        email: state.email,
+        name: value,
+        password: state.password,
+        confirmPassword: state.confirmPassword);
   }
 
   void setPassword(String value) {
     state = RegisterState(
         email: state.email,
-        username: state.username,
+        name: state.name,
         password: value,
         confirmPassword: state.confirmPassword,
         errorMessage: state.errorMessage);
-  }
-
-  void setUsername(String value) {
-    state = RegisterState(
-        email: state.email,
-        username: value,
-        password: state.password,
-        confirmPassword: state.confirmPassword);
   }
 }

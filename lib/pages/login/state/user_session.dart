@@ -3,6 +3,7 @@ import 'package:log/log.dart';
 import 'package:repository/cloud_repository.dart';
 import 'package:repository/repository.dart';
 import 'package:repository/sync_repository.dart';
+import 'package:repository/util/hash.dart';
 import 'package:thingzee/main.dart';
 
 final userSessionProvider = StateNotifierProvider<UserSession, SessionState>((ref) {
@@ -92,7 +93,8 @@ class UserSession extends StateNotifier<SessionState> {
 
     try {
       state = SessionState.loading();
-      registerSuccess = await repo.registerUser(username, email, password);
+      final userId = hashEmail(email);
+      registerSuccess = await repo.registerUser(userId, email, password);
 
       if (registerSuccess) {
         state = SessionState.authenticated();
