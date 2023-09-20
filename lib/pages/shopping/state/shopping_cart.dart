@@ -20,6 +20,8 @@ class ShoppingCart extends StateNotifier<ShoppingCartState> {
   }
 
   void completeTrip() {
+    final now = DateTime.now();
+
     for (final item in state.items) {
       // Pull the latest version from the database if possible
       var inventory = repo.inv.get(item.inventory.upc) ?? item.inventory;
@@ -28,11 +30,19 @@ class ShoppingCart extends StateNotifier<ShoppingCartState> {
       // Update the amount to the predicted amount before we increment
       // it. Still not totally accurate, but should be better
       // than using a old likely inaccurate amount.
-      if (inventory.canPredict) {
-        inventory.amount = inventory.predictedAmount.roundToDouble();
+      if (inventory.canPredict && inventory.history.lastTimestamp != null) {
+        final lastTimestamp = inventory.history.lastTimestamp;
+        final timeSinceLastUpdate = now.difference(lastTimestamp!);
+
+        // The last history update was more than a day ago, use predicted
+        if (timeSinceLastUpdate.inDays > 1) {
+          inventory.amount = inventory.predictedAmount;
+        }
+
+        // Note that if the last update was less than a day ago, we'll
+        // just use the last amount by default, because this is probably accurate.
       }
 
-      final now = DateTime.now();
       inventory.amount += 1;
       inventory.history.add(now.millisecondsSinceEpoch, inventory.amount, 2);
       inventory.lastUpdate = now;
