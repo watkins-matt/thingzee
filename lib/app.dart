@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:repository/repository.dart';
-import 'package:thingzee/pages/home/home_page.dart';
+import 'package:thingzee/pages/bottom_nav_bar/bottom_nav_bar.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 
@@ -29,7 +29,7 @@ class App extends StatelessWidget {
           brightness: Brightness.dark,
           scaffoldBackgroundColor: Theme.of(context).colorScheme.surfaceVariant),
       themeMode: ThemeMode.light,
-      home: const HomePage(),
+      home: const BottomNavBar(),
     );
   }
 }
