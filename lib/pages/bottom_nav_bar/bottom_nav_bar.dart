@@ -34,7 +34,7 @@ class BottomNavBar extends ConsumerWidget {
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Inventory'),
           BottomNavigationBarItem(icon: Icon(Icons.folder), label: 'Locations'),
           BottomNavigationBarItem(icon: Icon(Icons.restaurant_menu), label: 'Recipes'),
-          BottomNavigationBarItem(icon: Icon(Icons.shopping_cart), label: 'Shopping List'),
+          BottomNavigationBarItem(icon: Icon(Icons.shopping_cart), label: 'Shopping'),
         ],
       ),
       body: IndexedStack(
