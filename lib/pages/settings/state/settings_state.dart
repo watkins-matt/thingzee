@@ -13,6 +13,7 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
   final Preferences _securePrefs;
   final Set<String> _monitored = {PreferenceKey.mealieURL};
   final Set<String> _monitoredSecure = {SecurePreferenceKey.mealieApiKey};
+  final Set<String> _monitoredInt = {PreferenceKey.restockDayCount};
 
   SettingsNotifier(this._prefs, this._securePrefs) : super(SettingsState()) {
     for (final key in _monitored) {
@@ -22,6 +23,18 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
     for (final key in _monitoredSecure) {
       secureGetString(key);
     }
+
+    for (final key in _monitoredInt) {
+      getInt(key);
+    }
+  }
+
+  int? getInt(String key) {
+    final value = _prefs.getInt(key);
+    if (value != null && value.toString() != state.settings[key]) {
+      state = state.copyWith(settings: Map.from(state.settings)..[key] = value.toString());
+    }
+    return value;
   }
 
   String? getString(String key) {
@@ -43,6 +56,11 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
   Future<void> secureSetString(String key, String value) async {
     await _securePrefs.setString(key, value);
     state = state.copyWith(secureSettings: Map.from(state.secureSettings)..[key] = value);
+  }
+
+  Future<void> setInt(String key, int value) async {
+    await _prefs.setInt(key, value);
+    state = state.copyWith(settings: Map.from(state.settings)..[key] = value.toString());
   }
 
   Future<void> setString(String key, String value) async {
