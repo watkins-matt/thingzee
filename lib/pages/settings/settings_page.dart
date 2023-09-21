@@ -11,6 +11,7 @@ import 'package:thingzee/pages/log/log_viewer_page.dart';
 import 'package:thingzee/pages/settings/state/preference_keys.dart';
 import 'package:thingzee/pages/settings/state/settings_state.dart';
 import 'package:thingzee/pages/settings/widget/text_entry_dialog.dart';
+import 'package:thingzee/pages/shopping/state/shopping_list.dart';
 
 // Settings page
 // Features to include:
@@ -40,6 +41,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         ref.watch(settingsProvider.select((s) => s.settings[PreferenceKey.mealieURL]));
     final mealieApiKeyText = ref
         .watch(settingsProvider.select((s) => s.secureSettings[SecurePreferenceKey.mealieApiKey]));
+    final restockDayCount =
+        ref.watch(settingsProvider.select((s) => s.settings[PreferenceKey.restockDayCount])) ??
+            PreferenceKeyDefault.restockDayCount;
 
     return Scaffold(
       appBar: AppBar(
@@ -72,6 +76,18 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                     title: const Text('Mealie API Key'),
                     value: mealieApiKeyText != null ? const Text('Hidden') : const Text('Not Set'),
                     onPressed: onMealieApiKeyButtonPreseed),
+              ],
+            ),
+            SettingsSection(
+              title: const Text('Shopping List'),
+              tiles: [
+                SettingsTile(
+                    title: const Text('Restock Items Running Out Within (Days)'),
+                    description: const Text(
+                        'Set the number of days to look ahead for items running out.'
+                        'For example, if set to 7, items running out within the next 7 days will be added to the shopping list.'),
+                    onPressed: onRestockDayCountPressed,
+                    value: Text(restockDayCount)),
               ],
             ),
             SettingsSection(
@@ -136,6 +152,31 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     );
     if (result != null) {
       await ref.read(settingsProvider.notifier).setString(PreferenceKey.mealieURL, result);
+    }
+  }
+
+  Future<void> onRestockDayCountPressed(BuildContext context) async {
+    final controller = TextEditingController();
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) => TextEntryDialog(
+        title: 'Enter Restock Day Count',
+        controller: controller,
+        validator: (value) {
+          return (value != null && int.tryParse(value) != null)
+              ? null
+              : 'Please enter a valid integer';
+        },
+      ),
+    );
+
+    if (result != null && int.tryParse(result) != null) {
+      await ref
+          .read(settingsProvider.notifier)
+          .setInt(PreferenceKey.restockDayCount, int.parse(result));
+
+      // Update the shopping list
+      ref.read(shoppingListProvider.notifier).refresh();
     }
   }
 

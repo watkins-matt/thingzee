@@ -2,6 +2,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:repository/database/joined_item_database.dart';
 import 'package:repository/repository.dart';
 import 'package:thingzee/main.dart';
+import 'package:thingzee/pages/settings/state/preference_keys.dart';
 
 final shoppingListProvider = StateNotifierProvider<ShoppingList, ShoppingListState>((ref) {
   final repo = ref.watch(repositoryProvider);
@@ -44,8 +45,10 @@ class ShoppingList extends StateNotifier<ShoppingListState> {
   }
 
   void refresh() {
+    int daysUntilOut = repo.prefs.getInt(PreferenceKey.restockDayCount) ?? 12;
+
     List<JoinedItem> databaseOuts = db.outs();
-    List<JoinedItem> predictedOuts = db.predictedOuts(repo.hist);
+    List<JoinedItem> predictedOuts = db.predictedOuts(repo.hist, days: daysUntilOut);
 
     Map<String, JoinedItem> combinedOuts = {for (final out in databaseOuts) out.item.upc: out};
 
