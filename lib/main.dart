@@ -3,7 +3,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:log/log.dart';
+import 'package:repository/database/joined_item_database.dart';
 import 'package:repository/database/mock/repository.dart';
+import 'package:repository/model/filter.dart';
 import 'package:repository/network/connectivity_service.dart';
 import 'package:repository/repository.dart';
 import 'package:repository/sync_repository.dart';
@@ -11,6 +13,7 @@ import 'package:repository_appw/repository.dart';
 import 'package:repository_ob/repository.dart';
 import 'package:stack_trace/stack_trace.dart';
 import 'package:thingzee/app.dart';
+import 'package:thingzee/pages/inventory/state/item_thumbnail_cache.dart';
 
 Future<void> main() async {
   await runZonedGuarded(() async {
@@ -33,9 +36,26 @@ Future<void> main() async {
     };
 
     App.offlineDb = await ObjectBoxRepository.create();
-    runApp(const ProviderScope(
-      child: App(),
-    ));
+
+    // Preload the ItemThumbnailCache with the initial view order
+    final joinedItemDb = JoinedItemDatabase(App.offlineDb!.items, App.offlineDb!.inv);
+    final defaultFilter = Filter();
+    List<JoinedItem> joinedItems = joinedItemDb.filter(defaultFilter);
+    List<String> upcListToPreload = joinedItems.map((e) => e.item.upc).toList();
+    final preloadedThumbnailCache = ItemThumbnailCache(upcListToPreload);
+
+    runApp(
+      ProviderScope(
+        overrides: [
+          // Ensure that the offline database is always ready before the UI is created
+          offlineDatabaseProvider.overrideWithValue(App.offlineDb!),
+          itemThumbnailCache.overrideWith(
+            (ref) => preloadedThumbnailCache,
+          )
+        ],
+        child: const App(),
+      ),
+    );
   },
 
       // Log any other unhandled errors from within the zone

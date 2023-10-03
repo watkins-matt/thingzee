@@ -12,8 +12,8 @@ final itemThumbnailCache =
 class ItemThumbnailCache extends StateNotifier<Map<String, Image>> {
   Map<String, String> fileNames = {}; // Maps UPC -> file name
 
-  ItemThumbnailCache() : super({}) {
-    _init();
+  ItemThumbnailCache([List<String> upcListToPreload = const []]) : super({}) {
+    _init(upcListToPreload);
   }
 
   bool cachedImageLoaded(String upc) {
@@ -167,8 +167,14 @@ class ItemThumbnailCache extends StateNotifier<Map<String, Image>> {
     }
   }
 
-  Future<void> _init() async {
+  Future<void> _init(List<String> upcListToPreload) async {
     await loadFileMapping();
+
+    // Load any images that we need to preload first if present
+    for (final upc in upcListToPreload) {
+      await loadImageIfExists(upc);
+    }
+
     await refresh();
   }
 }
