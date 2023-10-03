@@ -36,13 +36,7 @@ Future<void> main() async {
     };
 
     App.offlineDb = await ObjectBoxRepository.create();
-
-    // Preload the ItemThumbnailCache with the initial view order
-    final joinedItemDb = JoinedItemDatabase(App.offlineDb!.items, App.offlineDb!.inv);
-    final defaultFilter = Filter();
-    List<JoinedItem> joinedItems = joinedItemDb.filter(defaultFilter);
-    List<String> upcListToPreload = joinedItems.map((e) => e.item.upc).toList();
-    final preloadedThumbnailCache = ItemThumbnailCache(upcListToPreload);
+    App.thumbnailCache = await createThumbnailCache();
 
     runApp(
       ProviderScope(
@@ -50,7 +44,7 @@ Future<void> main() async {
           // Ensure that the offline database is always ready before the UI is created
           offlineDatabaseProvider.overrideWithValue(App.offlineDb!),
           itemThumbnailCache.overrideWith(
-            (ref) => preloadedThumbnailCache,
+            (ref) => App.thumbnailCache!,
           )
         ],
         child: const App(),
@@ -103,3 +97,23 @@ final repositoryProvider = Provider<Repository>((ref) {
     return offlineDbState;
   }
 });
+
+Future<ItemThumbnailCache> createThumbnailCache() async {
+  assert(App.offlineDb != null);
+  const preloadCount = 10;
+
+  // Offline db must be initialized first
+  final joinedItemDb = JoinedItemDatabase(App.offlineDb!.items, App.offlineDb!.inv);
+  final defaultFilter = Filter();
+
+  // Create a list of items using the default filter order by name
+  // and convert it to a list of upcs
+  List<JoinedItem> joinedItems = joinedItemDb.filter(defaultFilter);
+  List<String> upcListToPreload = joinedItems.map((e) => e.item.upc).toList();
+
+  // Limit the list to the preload count
+  upcListToPreload = upcListToPreload.sublist(0, preloadCount);
+  final preloadedThumbnailCache = await ItemThumbnailCache.withPreload(upcListToPreload);
+
+  return preloadedThumbnailCache;
+}

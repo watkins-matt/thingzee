@@ -7,14 +7,12 @@ import 'package:log/log.dart';
 import 'package:path_provider/path_provider.dart';
 
 final itemThumbnailCache =
-    StateNotifierProvider<ItemThumbnailCache, Map<String, Image>>((ref) => ItemThumbnailCache());
+    StateNotifierProvider<ItemThumbnailCache, Map<String, Image>>((ref) => ItemThumbnailCache._());
 
 class ItemThumbnailCache extends StateNotifier<Map<String, Image>> {
   Map<String, String> fileNames = {}; // Maps UPC -> file name
 
-  ItemThumbnailCache([List<String> upcListToPreload = const []]) : super({}) {
-    _init(upcListToPreload);
-  }
+  ItemThumbnailCache._() : super({});
 
   bool cachedImageLoaded(String upc) {
     return state.containsKey(upc);
@@ -85,6 +83,12 @@ class ItemThumbnailCache extends StateNotifier<Map<String, Image>> {
 
   bool hasCacheOnDisk(String upc) {
     return fileNames.containsKey(upc);
+  }
+
+  Future<void> loadAllImages() async {
+    for (final upc in fileNames.keys) {
+      await loadImageIfExists(upc);
+    }
   }
 
   Future<void> loadFileMapping() async {
@@ -161,20 +165,27 @@ class ItemThumbnailCache extends StateNotifier<Map<String, Image>> {
     return false;
   }
 
-  Future<void> refresh() async {
-    for (final upc in fileNames.keys) {
+  Future<void> preloadImages(List<String> upcListToPreload) async {
+    for (final upc in upcListToPreload) {
       await loadImageIfExists(upc);
     }
   }
 
-  Future<void> _init(List<String> upcListToPreload) async {
+  Future<void> _init() async {
     await loadFileMapping();
+  }
 
-    // Load any images that we need to preload first if present
-    for (final upc in upcListToPreload) {
-      await loadImageIfExists(upc);
-    }
+  static Future<ItemThumbnailCache> create() async {
+    final cache = ItemThumbnailCache._();
+    await cache._init();
+    await cache.loadAllImages();
+    return cache;
+  }
 
-    await refresh();
+  static Future<ItemThumbnailCache> withPreload(List<String> upcListToPreload) async {
+    final cache = ItemThumbnailCache._();
+    await cache._init();
+    await cache.preloadImages(upcListToPreload);
+    return cache;
   }
 }
