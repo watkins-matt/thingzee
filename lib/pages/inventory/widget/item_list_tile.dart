@@ -25,21 +25,21 @@ class ItemListTile extends ConsumerWidget {
           child: ListTile(
             title: Row(
               children: [
-                if (imageProvider != null)
-                  Row(
-                    children: [
-                      ConstrainedBox(
+                Row(
+                  children: [
+                    ConstrainedBox(
                         constraints: const BoxConstraints(
                           minWidth: 100,
                           minHeight: 100,
                           maxWidth: 100,
                           maxHeight: 100,
                         ),
-                        child: Ink.image(image: imageProvider, fit: BoxFit.contain),
-                      ),
-                      const SizedBox(width: 10),
-                    ],
-                  ),
+                        child: imageProvider != null
+                            ? Ink.image(image: imageProvider, fit: BoxFit.contain)
+                            : Container()),
+                    const SizedBox(width: 10),
+                  ],
+                ),
                 Expanded(
                   child: Text(item.name, softWrap: true),
                 ),
