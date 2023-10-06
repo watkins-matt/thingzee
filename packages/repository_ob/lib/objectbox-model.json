@@ -180,7 +180,7 @@
     },
     {
       "id": "17:2183662866210831935",
-      "lastPropertyId": "14:6972730156399653636",
+      "lastPropertyId": "15:5327912492728875812",
       "name": "ObjectBoxItem",
       "properties": [
         {
@@ -255,13 +255,18 @@
           "name": "objectBoxId",
           "type": 6,
           "flags": 1
+        },
+        {
+          "id": "15:5327912492728875812",
+          "name": "typeId",
+          "type": 9
         }
       ],
       "relations": []
     },
     {
       "id": "18:6355597710876493410",
-      "lastPropertyId": "7:2218455768959677665",
+      "lastPropertyId": "9:2320097251911814411",
       "name": "ObjectBoxItemTranslation",
       "properties": [
         {
@@ -301,6 +306,11 @@
           "name": "objectBoxId",
           "type": 6,
           "flags": 1
+        },
+        {
+          "id": "9:2320097251911814411",
+          "name": "type",
+          "type": 9
         }
       ],
       "relations": []
@@ -351,17 +361,12 @@
     },
     {
       "id": "20:6997640042144843407",
-      "lastPropertyId": "6:8027817434216091028",
+      "lastPropertyId": "7:9125561795024444450",
       "name": "ObjectBoxLocation",
       "properties": [
         {
           "id": "1:5207115531357652064",
           "name": "upc",
-          "type": 9
-        },
-        {
-          "id": "2:8456053334622007497",
-          "name": "location",
           "type": 9
         },
         {
@@ -384,6 +389,11 @@
           "name": "objectBoxId",
           "type": 6,
           "flags": 1
+        },
+        {
+          "id": "7:9125561795024444450",
+          "name": "name",
+          "type": 9
         }
       ],
       "relations": []
@@ -501,7 +511,9 @@
     3045175981976767442,
     4738601771660428828,
     9191167413262940472,
-    1962250420156656810
+    1962250420156656810,
+    8456053334622007497,
+    4224742095922657995
   ],
   "retiredRelationUids": [],
   "version": 1

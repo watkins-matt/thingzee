@@ -202,7 +202,7 @@ final _entities = <ModelEntity>[
   ModelEntity(
       id: const IdUid(17, 2183662866210831935),
       name: 'ObjectBoxItem',
-      lastPropertyId: const IdUid(14, 6972730156399653636),
+      lastPropertyId: const IdUid(15, 5327912492728875812),
       flags: 0,
       properties: <ModelProperty>[
         ModelProperty(
@@ -275,14 +275,19 @@ final _entities = <ModelEntity>[
             id: const IdUid(14, 6972730156399653636),
             name: 'objectBoxId',
             type: 6,
-            flags: 1)
+            flags: 1),
+        ModelProperty(
+            id: const IdUid(15, 5327912492728875812),
+            name: 'typeId',
+            type: 9,
+            flags: 0)
       ],
       relations: <ModelRelation>[],
       backlinks: <ModelBacklink>[]),
   ModelEntity(
       id: const IdUid(18, 6355597710876493410),
       name: 'ObjectBoxItemTranslation',
-      lastPropertyId: const IdUid(7, 2218455768959677665),
+      lastPropertyId: const IdUid(9, 2320097251911814411),
       flags: 0,
       properties: <ModelProperty>[
         ModelProperty(
@@ -320,7 +325,12 @@ final _entities = <ModelEntity>[
             id: const IdUid(7, 2218455768959677665),
             name: 'objectBoxId',
             type: 6,
-            flags: 1)
+            flags: 1),
+        ModelProperty(
+            id: const IdUid(9, 2320097251911814411),
+            name: 'type',
+            type: 9,
+            flags: 0)
       ],
       relations: <ModelRelation>[],
       backlinks: <ModelBacklink>[]),
@@ -371,17 +381,12 @@ final _entities = <ModelEntity>[
   ModelEntity(
       id: const IdUid(20, 6997640042144843407),
       name: 'ObjectBoxLocation',
-      lastPropertyId: const IdUid(6, 8027817434216091028),
+      lastPropertyId: const IdUid(7, 9125561795024444450),
       flags: 0,
       properties: <ModelProperty>[
         ModelProperty(
             id: const IdUid(1, 5207115531357652064),
             name: 'upc',
-            type: 9,
-            flags: 0),
-        ModelProperty(
-            id: const IdUid(2, 8456053334622007497),
-            name: 'location',
             type: 9,
             flags: 0),
         ModelProperty(
@@ -403,7 +408,12 @@ final _entities = <ModelEntity>[
             id: const IdUid(6, 8027817434216091028),
             name: 'objectBoxId',
             type: 6,
-            flags: 1)
+            flags: 1),
+        ModelProperty(
+            id: const IdUid(7, 9125561795024444450),
+            name: 'name',
+            type: 9,
+            flags: 0)
       ],
       relations: <ModelRelation>[],
       backlinks: <ModelBacklink>[]),
@@ -433,7 +443,13 @@ final _entities = <ModelEntity>[
       backlinks: <ModelBacklink>[])
 ];
 
-/// Open an ObjectBox store with the model declared in this file.
+/// Shortcut for [Store.new] that passes [getObjectBoxModel] and for Flutter
+/// apps by default a [directory] using `defaultStoreDirectory()` from the
+/// ObjectBox Flutter library.
+///
+/// Note: for desktop apps it is recommended to specify a unique [directory].
+///
+/// See [Store.new] for an explanation of all parameters.
 Future<Store> openStore(
         {String? directory,
         int? maxDBSizeInKB,
@@ -449,7 +465,8 @@ Future<Store> openStore(
         queriesCaseSensitiveDefault: queriesCaseSensitiveDefault,
         macosApplicationGroup: macosApplicationGroup);
 
-/// ObjectBox model definition, pass it to [Store] - Store(getObjectBoxModel())
+/// Returns the ObjectBox model definition for this project for use with
+/// [Store.new].
 ModelDefinition getObjectBoxModel() {
   final model = ModelInfo(
       entities: _entities,
@@ -537,7 +554,9 @@ ModelDefinition getObjectBoxModel() {
         3045175981976767442,
         4738601771660428828,
         9191167413262940472,
-        1962250420156656810
+        1962250420156656810,
+        8456053334622007497,
+        4224742095922657995
       ],
       retiredRelationUids: const [],
       modelVersion: 5,
@@ -758,7 +777,8 @@ ModelDefinition getObjectBoxModel() {
           final unitPluralOffset = fbb.writeString(object.unitPlural);
           final imageUrlOffset = fbb.writeString(object.imageUrl);
           final languageCodeOffset = fbb.writeString(object.languageCode);
-          fbb.startTable(15);
+          final typeIdOffset = fbb.writeString(object.typeId);
+          fbb.startTable(16);
           fbb.addOffset(0, upcOffset);
           fbb.addOffset(1, idOffset);
           fbb.addOffset(2, nameOffset);
@@ -773,6 +793,7 @@ ModelDefinition getObjectBoxModel() {
           fbb.addOffset(11, languageCodeOffset);
           fbb.addInt64(12, object.lastUpdate?.millisecondsSinceEpoch);
           fbb.addInt64(13, object.objectBoxId);
+          fbb.addOffset(14, typeIdOffset);
           fbb.finish(fbb.endTable());
           return object.objectBoxId;
         },
@@ -810,7 +831,9 @@ ModelDefinition getObjectBoxModel() {
                 ? null
                 : DateTime.fromMillisecondsSinceEpoch(lastUpdateValue)
             ..objectBoxId =
-                const fb.Int64Reader().vTableGet(buffer, rootOffset, 30, 0);
+                const fb.Int64Reader().vTableGet(buffer, rootOffset, 30, 0)
+            ..typeId = const fb.StringReader(asciiOptimization: true)
+                .vTableGet(buffer, rootOffset, 32, '');
 
           return object;
         }),
@@ -829,7 +852,8 @@ ModelDefinition getObjectBoxModel() {
           final varietyOffset = fbb.writeString(object.variety);
           final unitNameOffset = fbb.writeString(object.unitName);
           final unitPluralOffset = fbb.writeString(object.unitPlural);
-          fbb.startTable(8);
+          final typeOffset = fbb.writeString(object.type);
+          fbb.startTable(10);
           fbb.addOffset(0, upcOffset);
           fbb.addOffset(1, languageCodeOffset);
           fbb.addOffset(2, nameOffset);
@@ -837,6 +861,7 @@ ModelDefinition getObjectBoxModel() {
           fbb.addOffset(4, unitNameOffset);
           fbb.addOffset(5, unitPluralOffset);
           fbb.addInt64(6, object.objectBoxId);
+          fbb.addOffset(8, typeOffset);
           fbb.finish(fbb.endTable());
           return object.objectBoxId;
         },
@@ -858,7 +883,9 @@ ModelDefinition getObjectBoxModel() {
             ..unitPlural = const fb.StringReader(asciiOptimization: true)
                 .vTableGet(buffer, rootOffset, 14, '')
             ..objectBoxId =
-                const fb.Int64Reader().vTableGet(buffer, rootOffset, 16, 0);
+                const fb.Int64Reader().vTableGet(buffer, rootOffset, 16, 0)
+            ..type = const fb.StringReader(asciiOptimization: true)
+                .vTableGet(buffer, rootOffset, 20, '');
 
           return object;
         }),
@@ -918,14 +945,14 @@ ModelDefinition getObjectBoxModel() {
         },
         objectToFB: (ObjectBoxLocation object, fb.Builder fbb) {
           final upcOffset = fbb.writeString(object.upc);
-          final locationOffset = fbb.writeString(object.location);
-          fbb.startTable(7);
+          final nameOffset = fbb.writeString(object.name);
+          fbb.startTable(8);
           fbb.addOffset(0, upcOffset);
-          fbb.addOffset(1, locationOffset);
           fbb.addFloat64(2, object.quantity);
           fbb.addInt64(3, object.created?.millisecondsSinceEpoch);
           fbb.addInt64(4, object.updated?.millisecondsSinceEpoch);
           fbb.addInt64(5, object.objectBoxId);
+          fbb.addOffset(6, nameOffset);
           fbb.finish(fbb.endTable());
           return object.objectBoxId;
         },
@@ -939,8 +966,6 @@ ModelDefinition getObjectBoxModel() {
           final object = ObjectBoxLocation()
             ..upc = const fb.StringReader(asciiOptimization: true)
                 .vTableGet(buffer, rootOffset, 4, '')
-            ..location = const fb.StringReader(asciiOptimization: true)
-                .vTableGet(buffer, rootOffset, 6, '')
             ..quantity = const fb.Float64Reader()
                 .vTableGetNullable(buffer, rootOffset, 8)
             ..created = createdValue == null
@@ -950,7 +975,9 @@ ModelDefinition getObjectBoxModel() {
                 ? null
                 : DateTime.fromMillisecondsSinceEpoch(updatedValue)
             ..objectBoxId =
-                const fb.Int64Reader().vTableGet(buffer, rootOffset, 14, 0);
+                const fb.Int64Reader().vTableGet(buffer, rootOffset, 14, 0)
+            ..name = const fb.StringReader(asciiOptimization: true)
+                .vTableGet(buffer, rootOffset, 16, '');
 
           return object;
         }),
@@ -1169,6 +1196,10 @@ class ObjectBoxItem_ {
   /// see [ObjectBoxItem.objectBoxId]
   static final objectBoxId =
       QueryIntegerProperty<ObjectBoxItem>(_entities[4].properties[13]);
+
+  /// see [ObjectBoxItem.typeId]
+  static final typeId =
+      QueryStringProperty<ObjectBoxItem>(_entities[4].properties[14]);
 }
 
 /// [ObjectBoxItemTranslation] entity fields to define ObjectBox queries.
@@ -1200,6 +1231,10 @@ class ObjectBoxItemTranslation_ {
   /// see [ObjectBoxItemTranslation.objectBoxId]
   static final objectBoxId = QueryIntegerProperty<ObjectBoxItemTranslation>(
       _entities[5].properties[6]);
+
+  /// see [ObjectBoxItemTranslation.type]
+  static final type =
+      QueryStringProperty<ObjectBoxItemTranslation>(_entities[5].properties[7]);
 }
 
 /// [ObjectBoxHouseholdMember] entity fields to define ObjectBox queries.
@@ -1239,25 +1274,25 @@ class ObjectBoxLocation_ {
   static final upc =
       QueryStringProperty<ObjectBoxLocation>(_entities[7].properties[0]);
 
-  /// see [ObjectBoxLocation.location]
-  static final location =
-      QueryStringProperty<ObjectBoxLocation>(_entities[7].properties[1]);
-
   /// see [ObjectBoxLocation.quantity]
   static final quantity =
-      QueryDoubleProperty<ObjectBoxLocation>(_entities[7].properties[2]);
+      QueryDoubleProperty<ObjectBoxLocation>(_entities[7].properties[1]);
 
   /// see [ObjectBoxLocation.created]
   static final created =
-      QueryIntegerProperty<ObjectBoxLocation>(_entities[7].properties[3]);
+      QueryIntegerProperty<ObjectBoxLocation>(_entities[7].properties[2]);
 
   /// see [ObjectBoxLocation.updated]
   static final updated =
-      QueryIntegerProperty<ObjectBoxLocation>(_entities[7].properties[4]);
+      QueryIntegerProperty<ObjectBoxLocation>(_entities[7].properties[3]);
 
   /// see [ObjectBoxLocation.objectBoxId]
   static final objectBoxId =
-      QueryIntegerProperty<ObjectBoxLocation>(_entities[7].properties[5]);
+      QueryIntegerProperty<ObjectBoxLocation>(_entities[7].properties[4]);
+
+  /// see [ObjectBoxLocation.name]
+  static final name =
+      QueryStringProperty<ObjectBoxLocation>(_entities[7].properties[5]);
 }
 
 /// [ObjectBoxExpirationDate] entity fields to define ObjectBox queries.

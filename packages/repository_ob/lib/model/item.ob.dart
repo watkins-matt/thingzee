@@ -2,6 +2,7 @@ import 'dart:core';
 
 import 'package:objectbox/objectbox.dart';
 import 'package:repository/model/item.dart';
+
 @Entity()
 class ObjectBoxItem {
   @Unique(onConflict: ConflictStrategy.replace)
@@ -11,6 +12,7 @@ class ObjectBoxItem {
   late String variety;
   late String category;
   late String type;
+  late String typeId;
   late int unitCount;
   late String unitName;
   late String unitPlural;
@@ -28,6 +30,7 @@ class ObjectBoxItem {
     variety = original.variety;
     category = original.category;
     type = original.type;
+    typeId = original.typeId;
     unitCount = original.unitCount;
     unitName = original.unitName;
     unitPlural = original.unitPlural;
@@ -44,16 +47,17 @@ class ObjectBoxItem {
       ..variety = variety
       ..category = category
       ..type = type
+      ..typeId = typeId
       ..unitCount = unitCount
       ..unitName = unitName
       ..unitPlural = unitPlural
       ..imageUrl = imageUrl
       ..consumable = consumable
       ..languageCode = languageCode
-      ..lastUpdate = lastUpdate
-    ;
+      ..lastUpdate = lastUpdate;
   }
 }
+
 @Entity()
 class ObjectBoxItemTranslation {
   @Unique(onConflict: ConflictStrategy.replace)
@@ -63,6 +67,7 @@ class ObjectBoxItemTranslation {
   late String variety;
   late String unitName;
   late String unitPlural;
+  late String type;
   @Id()
   int objectBoxId = 0;
   ObjectBoxItemTranslation();
@@ -73,6 +78,7 @@ class ObjectBoxItemTranslation {
     variety = original.variety;
     unitName = original.unitName;
     unitPlural = original.unitPlural;
+    type = original.type;
   }
   ItemTranslation toItemTranslation() {
     return ItemTranslation()
@@ -82,6 +88,6 @@ class ObjectBoxItemTranslation {
       ..variety = variety
       ..unitName = unitName
       ..unitPlural = unitPlural
-    ;
+      ..type = type;
   }
 }

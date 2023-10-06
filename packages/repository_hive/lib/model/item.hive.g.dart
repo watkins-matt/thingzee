@@ -23,19 +23,20 @@ class HiveItemAdapter extends TypeAdapter<HiveItem> {
       ..variety = fields[3] as String
       ..category = fields[4] as String
       ..type = fields[5] as String
-      ..unitCount = fields[6] as int
-      ..unitName = fields[7] as String
-      ..unitPlural = fields[8] as String
-      ..imageUrl = fields[9] as String
-      ..consumable = fields[10] as bool
-      ..languageCode = fields[11] as String
-      ..lastUpdate = fields[12] as DateTime?;
+      ..typeId = fields[6] as String
+      ..unitCount = fields[7] as int
+      ..unitName = fields[8] as String
+      ..unitPlural = fields[9] as String
+      ..imageUrl = fields[10] as String
+      ..consumable = fields[11] as bool
+      ..languageCode = fields[12] as String
+      ..lastUpdate = fields[13] as DateTime?;
   }
 
   @override
   void write(BinaryWriter writer, HiveItem obj) {
     writer
-      ..writeByte(13)
+      ..writeByte(14)
       ..writeByte(0)
       ..write(obj.upc)
       ..writeByte(1)
@@ -49,18 +50,20 @@ class HiveItemAdapter extends TypeAdapter<HiveItem> {
       ..writeByte(5)
       ..write(obj.type)
       ..writeByte(6)
-      ..write(obj.unitCount)
+      ..write(obj.typeId)
       ..writeByte(7)
-      ..write(obj.unitName)
+      ..write(obj.unitCount)
       ..writeByte(8)
-      ..write(obj.unitPlural)
+      ..write(obj.unitName)
       ..writeByte(9)
-      ..write(obj.imageUrl)
+      ..write(obj.unitPlural)
       ..writeByte(10)
-      ..write(obj.consumable)
+      ..write(obj.imageUrl)
       ..writeByte(11)
-      ..write(obj.languageCode)
+      ..write(obj.consumable)
       ..writeByte(12)
+      ..write(obj.languageCode)
+      ..writeByte(13)
       ..write(obj.lastUpdate);
   }
 
@@ -91,13 +94,14 @@ class HiveItemTranslationAdapter extends TypeAdapter<HiveItemTranslation> {
       ..name = fields[2] as String
       ..variety = fields[3] as String
       ..unitName = fields[4] as String
-      ..unitPlural = fields[5] as String;
+      ..unitPlural = fields[5] as String
+      ..type = fields[6] as String;
   }
 
   @override
   void write(BinaryWriter writer, HiveItemTranslation obj) {
     writer
-      ..writeByte(6)
+      ..writeByte(7)
       ..writeByte(0)
       ..write(obj.upc)
       ..writeByte(1)
@@ -109,7 +113,9 @@ class HiveItemTranslationAdapter extends TypeAdapter<HiveItemTranslation> {
       ..writeByte(4)
       ..write(obj.unitName)
       ..writeByte(5)
-      ..write(obj.unitPlural);
+      ..write(obj.unitPlural)
+      ..writeByte(6)
+      ..write(obj.type);
   }
 
   @override

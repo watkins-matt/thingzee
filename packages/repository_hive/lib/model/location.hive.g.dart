@@ -18,7 +18,7 @@ class HiveLocationAdapter extends TypeAdapter<HiveLocation> {
     };
     return HiveLocation()
       ..upc = fields[0] as String
-      ..location = fields[1] as String
+      ..name = fields[1] as String
       ..quantity = fields[2] as double?
       ..created = fields[3] as DateTime?
       ..updated = fields[4] as DateTime?;
@@ -31,7 +31,7 @@ class HiveLocationAdapter extends TypeAdapter<HiveLocation> {
       ..writeByte(0)
       ..write(obj.upc)
       ..writeByte(1)
-      ..write(obj.location)
+      ..write(obj.name)
       ..writeByte(2)
       ..write(obj.quantity)
       ..writeByte(3)

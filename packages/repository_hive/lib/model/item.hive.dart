@@ -4,6 +4,7 @@ import 'package:hive/hive.dart';
 import 'package:repository/model/item.dart';
 
 part 'item.hive.g.dart';
+
 @HiveType(typeId: 1)
 class HiveItem extends HiveObject {
   @HiveField(0)
@@ -19,18 +20,20 @@ class HiveItem extends HiveObject {
   @HiveField(5)
   late String type;
   @HiveField(6)
-  late int unitCount;
+  late String typeId;
   @HiveField(7)
-  late String unitName;
+  late int unitCount;
   @HiveField(8)
-  late String unitPlural;
+  late String unitName;
   @HiveField(9)
-  late String imageUrl;
+  late String unitPlural;
   @HiveField(10)
-  late bool consumable;
+  late String imageUrl;
   @HiveField(11)
-  late String languageCode;
+  late bool consumable;
   @HiveField(12)
+  late String languageCode;
+  @HiveField(13)
   late DateTime? lastUpdate;
   HiveItem();
   HiveItem.from(Item original) {
@@ -40,6 +43,7 @@ class HiveItem extends HiveObject {
     variety = original.variety;
     category = original.category;
     type = original.type;
+    typeId = original.typeId;
     unitCount = original.unitCount;
     unitName = original.unitName;
     unitPlural = original.unitPlural;
@@ -56,16 +60,17 @@ class HiveItem extends HiveObject {
       ..variety = variety
       ..category = category
       ..type = type
+      ..typeId = typeId
       ..unitCount = unitCount
       ..unitName = unitName
       ..unitPlural = unitPlural
       ..imageUrl = imageUrl
       ..consumable = consumable
       ..languageCode = languageCode
-      ..lastUpdate = lastUpdate
-    ;
+      ..lastUpdate = lastUpdate;
   }
 }
+
 @HiveType(typeId: 2)
 class HiveItemTranslation extends HiveObject {
   @HiveField(0)
@@ -80,6 +85,8 @@ class HiveItemTranslation extends HiveObject {
   late String unitName;
   @HiveField(5)
   late String unitPlural;
+  @HiveField(6)
+  late String type;
   HiveItemTranslation();
   HiveItemTranslation.from(ItemTranslation original) {
     upc = original.upc;
@@ -88,6 +95,7 @@ class HiveItemTranslation extends HiveObject {
     variety = original.variety;
     unitName = original.unitName;
     unitPlural = original.unitPlural;
+    type = original.type;
   }
   ItemTranslation toItemTranslation() {
     return ItemTranslation()
@@ -97,6 +105,6 @@ class HiveItemTranslation extends HiveObject {
       ..variety = variety
       ..unitName = unitName
       ..unitPlural = unitPlural
-    ;
+      ..type = type;
   }
 }

@@ -11,6 +11,7 @@ Item _$mergeItem(Item first, Item second) {
     ..variety = newerItem.variety.isNotEmpty ? newerItem.variety : first.variety
     ..category = newerItem.category.isNotEmpty ? newerItem.category : first.category
     ..type = newerItem.type.isNotEmpty ? newerItem.type : first.type
+    ..typeId = newerItem.typeId.isNotEmpty ? newerItem.typeId : first.typeId
     ..unitCount = newerItem.unitCount != 1 ? newerItem.unitCount : first.unitCount
     ..unitName = newerItem.unitName.isNotEmpty ? newerItem.unitName : first.unitName
     ..unitPlural = newerItem.unitPlural.isNotEmpty ? newerItem.unitPlural : first.unitPlural

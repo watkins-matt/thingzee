@@ -13,7 +13,7 @@ class ObjectBoxLocationDatabase extends LocationDatabase {
   @override
   List<String> get names {
     final query = box.query().build();
-    final propertyQuery = query.property(ObjectBoxLocation_.location);
+    final propertyQuery = query.property(ObjectBoxLocation_.name);
     propertyQuery.distinct = true;
 
     List<String> locations = propertyQuery.find();
@@ -41,12 +41,12 @@ class ObjectBoxLocationDatabase extends LocationDatabase {
     location = normalizeLocation(location);
     final Set<String> subpaths = {};
 
-    final query = box.query(ObjectBoxLocation_.location.startsWith(location)).build();
+    final query = box.query(ObjectBoxLocation_.name.startsWith(location)).build();
     final results = query.find();
     query.close();
 
     for (final objBoxLoc in results) {
-      var normalizedLocName = normalizeLocation(objBoxLoc.location);
+      var normalizedLocName = normalizeLocation(objBoxLoc.name);
 
       if (normalizedLocName.startsWith(location) && normalizedLocName != location) {
         var remainingPath = normalizedLocName.substring(location.length);
@@ -76,7 +76,7 @@ class ObjectBoxLocationDatabase extends LocationDatabase {
   List<String> getUpcList(String location) {
     location = normalizeLocation(location);
 
-    final query = box.query(ObjectBoxLocation_.location.equals(location)).build();
+    final query = box.query(ObjectBoxLocation_.name.equals(location)).build();
     final propertyQuery = query.property(ObjectBoxLocation_.upc);
 
     List<String> upcs = propertyQuery.find();
@@ -87,7 +87,7 @@ class ObjectBoxLocationDatabase extends LocationDatabase {
 
   @override
   int itemCount(String location) {
-    final query = box.query(ObjectBoxLocation_.location.equals(location)).build();
+    final query = box.query(ObjectBoxLocation_.name.equals(location)).build();
     final count = query.count();
     query.close();
 
@@ -105,7 +105,7 @@ class ObjectBoxLocationDatabase extends LocationDatabase {
   @override
   void remove(String location, String upc) {
     final query = box
-        .query(ObjectBoxLocation_.location.equals(location).and(ObjectBoxLocation_.upc.equals(upc)))
+        .query(ObjectBoxLocation_.name.equals(location).and(ObjectBoxLocation_.upc.equals(upc)))
         .build();
     final result = query.findFirst();
     query.close();
@@ -125,7 +125,7 @@ class ObjectBoxLocationDatabase extends LocationDatabase {
         ObjectBoxLocation.from(Location(name: location, upc: upc, created: time, updated: time));
 
     final query = box
-        .query(ObjectBoxLocation_.upc.equals(upc).and(ObjectBoxLocation_.location.equals(location)))
+        .query(ObjectBoxLocation_.upc.equals(upc).and(ObjectBoxLocation_.name.equals(location)))
         .build();
     final exists = query.findFirst();
     query.close();
