@@ -14,19 +14,35 @@ part 'inventory.merge.dart';
 @JsonSerializable(explicitToJson: true)
 @Mergeable()
 class Inventory {
+  @JsonKey(defaultValue: 0)
   double amount = 0;
+
+  @JsonKey(defaultValue: 1)
   int unitCount = 1;
+
   @NullableDateTimeSerializer()
   DateTime? lastUpdate;
+
+  @JsonKey(defaultValue: [])
   List<DateTime> expirationDates = <DateTime>[];
+
+  @JsonKey(defaultValue: [])
   List<String> locations = <String>[];
-  @JsonKey(includeFromJson: false, includeToJson: false)
+
+  @JsonKey(includeFromJson: false, includeToJson: false, defaultValue: null)
   History history = History();
+
+  @JsonKey(defaultValue: true)
   bool restock = true;
+
+  @JsonKey(defaultValue: '')
   String upc = '';
+
+  @JsonKey(defaultValue: '')
   String iuid = '';
 
   Inventory();
+
   factory Inventory.fromJson(Map<String, dynamic> json) => _$InventoryFromJson(json);
   Inventory.withUPC(this.upc) {
     history.upc = upc;
