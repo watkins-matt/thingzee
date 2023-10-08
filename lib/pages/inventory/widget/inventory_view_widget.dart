@@ -59,7 +59,7 @@ class InventoryViewWidget extends ConsumerWidget {
         );
       },
       background: Container(color: Colors.red),
-      child: ItemListTile(item, inventory),
+      child: ItemListTile(item, inventory, key: ValueKey(item.upc)),
     );
   }
 }
