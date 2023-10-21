@@ -326,7 +326,8 @@ class ItemDetailPage extends HookConsumerWidget {
     );
 
     // If the user entered a URL, download and cache the image
-    if (result != null) {
+    // as long as it isn't the same as the previous one
+    if (result != null && result != editableItem.imageUrl) {
       editableItem.imageUrl = result;
 
       // Ensure we have a valid UPC
@@ -336,7 +337,7 @@ class ItemDetailPage extends HookConsumerWidget {
       }
 
       final imageCache = ref.read(itemThumbnailCache.notifier);
-      await imageCache.downloadImage(result, editableItem.upc);
+      await imageCache.downloadImage(result, editableItem.upc, replace: true);
     }
   }
 

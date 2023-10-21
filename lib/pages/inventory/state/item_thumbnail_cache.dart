@@ -18,11 +18,11 @@ class ItemThumbnailCache extends StateNotifier<Map<String, Image>> {
     return state.containsKey(upc);
   }
 
-  Future<bool> downloadImage(String imageUrl, String upc) async {
+  Future<bool> downloadImage(String imageUrl, String upc, {bool replace = false}) async {
     assert(imageUrl.isNotEmpty && upc.isNotEmpty);
 
     // Don't download multiple times
-    if (cachedImageLoaded(upc)) {
+    if (cachedImageLoaded(upc) && !replace) {
       return true;
     }
 
@@ -70,12 +70,16 @@ class ItemThumbnailCache extends StateNotifier<Map<String, Image>> {
 
     // Write the image to disk
     final imagePath = '${directory.path}/images/$upc$fileExtension';
-    await File(imagePath).writeAsBytes(response.data!);
+    await File(imagePath).writeAsBytes(response.data!, flush: true);
 
     // Update the mapping
     fileNames[upc] = '$upc$fileExtension';
 
     Image image = Image.file(File(imagePath), fit: BoxFit.fill);
+
+    if (replace) {
+      state.remove(upc);
+    }
 
     state = {...state, upc: image};
     return true;
