@@ -14,11 +14,7 @@ class FilterButton extends ConsumerWidget {
         icon: const Icon(Icons.filter_list),
         onPressed: () async {
           final view = ref.read(inventoryProvider.notifier);
-
-          final filterResult = await FilterDialog.show(context, view.filter);
-          view.filter = filterResult;
-
-          await view.refresh();
+          await FilterDialog.show(context, view.filter);
         });
   }
 }
