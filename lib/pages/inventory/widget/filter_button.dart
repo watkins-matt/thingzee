@@ -11,6 +11,7 @@ class FilterButton extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return IconButton(
+        visualDensity: VisualDensity.compact,
         icon: const Icon(Icons.filter_list),
         onPressed: () async {
           final view = ref.read(inventoryProvider.notifier);
