@@ -36,6 +36,8 @@ class InventoryViewWidget extends ConsumerWidget {
     final item = joinedItem.item;
     final inventory = joinedItem.inventory;
 
+    bool showBranded = ref.read(inventoryProvider.notifier).filter.displayBranded;
+
     return Dismissible(
       key: Key(item.upc),
       dismissThresholds: const {
@@ -59,7 +61,7 @@ class InventoryViewWidget extends ConsumerWidget {
         );
       },
       background: Container(color: Colors.red),
-      child: ItemListTile(item, inventory, key: ValueKey(item.upc)),
+      child: ItemListTile(item, inventory, key: ValueKey(item.upc), brandedName: showBranded),
     );
   }
 }
