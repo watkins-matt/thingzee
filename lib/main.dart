@@ -104,7 +104,7 @@ Future<ItemThumbnailCache> createThumbnailCache() async {
 
   // Offline db must be initialized first
   final joinedItemDb = JoinedItemDatabase(App.offlineDb!.items, App.offlineDb!.inv);
-  final defaultFilter = Filter();
+  const defaultFilter = Filter();
 
   // Create a list of items using the default filter order by name
   // and convert it to a list of upcs
