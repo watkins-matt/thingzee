@@ -49,6 +49,7 @@ class LabeledEditableText extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.all(4),
                   child: TextField(
+                    textCapitalization: TextCapitalization.words,
                     keyboardType: keyboardType,
                     decoration: const InputDecoration(border: InputBorder.none, isCollapsed: true),
                     textAlign: TextAlign.left,
