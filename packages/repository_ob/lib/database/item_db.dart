@@ -108,6 +108,21 @@ class ObjectBoxItemDatabase extends ItemDatabase {
 
 extension ObjectBoxCondition on Filter {
   Condition<ObjectBoxItem>? toObjectBoxItemCondition() {
-    return ObjectBoxItem_.consumable.equals(consumable);
+    // If both consumable and nonConsumable are true, return everything
+    if (consumable && nonConsumable) {
+      return null;
+    }
+    // Only the consumable items
+    else if (consumable) {
+      return ObjectBoxItem_.consumable.equals(true);
+    }
+    // Only the non-consumable
+    else if (nonConsumable) {
+      return ObjectBoxItem_.consumable.equals(false);
+    }
+    // Neither consumable nor nonConsumable is true, default to everything.
+    else {
+      return null;
+    }
   }
 }
