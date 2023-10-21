@@ -34,6 +34,7 @@ class _InventoryPageState extends ConsumerState<InventoryPage> {
         isScrollControlled: true,
         borderRadius: BorderRadius.circular(30),
         clearQueryOnClose: false,
+        automaticallyImplyBackButton: false,
         margins:
             EdgeInsets.only(top: MediaQuery.of(context).viewPadding.top + 10, left: 10, right: 10),
         actions: [
