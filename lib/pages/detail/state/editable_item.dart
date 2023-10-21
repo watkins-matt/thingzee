@@ -43,7 +43,7 @@ class EditableItem extends StateNotifier<EditableItemState> {
   String get imageUrl => state.item.imageUrl;
   set imageUrl(String imageUrl) {
     final item = state.item;
-    item.imageUrl = imageUrl;
+    item.imageUrl = imageUrl.trim();
 
     state.changedFields.add('imageUrl');
     state = EditableItemState(item, state.inventory, state.changedFields);
@@ -54,7 +54,7 @@ class EditableItem extends StateNotifier<EditableItemState> {
   String get name => state.item.name;
   set name(String name) {
     final item = state.item;
-    item.name = name;
+    item.name = name.trim();
 
     state = EditableItemState(item, state.inventory, state.changedFields);
   }
@@ -65,7 +65,7 @@ class EditableItem extends StateNotifier<EditableItemState> {
   String get type => state.item.type;
   set type(String type) {
     final item = state.item;
-    item.type = type;
+    item.type = type.trim();
 
     state.changedFields.add('type');
     state = EditableItemState(item, state.inventory, state.changedFields);
@@ -84,6 +84,8 @@ class EditableItem extends StateNotifier<EditableItemState> {
 
   String get upc => state.item.upc;
   set upc(String upc) {
+    upc = upc.trim();
+
     final item = state.item;
     item.upc = upc;
 
@@ -99,12 +101,13 @@ class EditableItem extends StateNotifier<EditableItemState> {
   String get variety => state.item.variety;
   set variety(String variety) {
     final item = state.item;
-    item.variety = variety;
+    item.variety = variety.trim();
 
     state = EditableItemState(item, state.inventory, state.changedFields);
   }
 
   void addLocation(String location) {
+    location = location.trim();
     final inv = state.inventory;
 
     // Don't add the location if it already exists
@@ -182,6 +185,7 @@ class EditableItem extends StateNotifier<EditableItemState> {
   }
 
   void removeLocation(String location) {
+    location = location.trim();
     final inv = state.inventory;
 
     if (inv.locations.contains(location)) {
