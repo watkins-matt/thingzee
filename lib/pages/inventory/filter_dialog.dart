@@ -1,28 +1,138 @@
 import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:repository/model/filter.dart';
+import 'package:thingzee/pages/inventory/state/inventory_view.dart';
 
-class FilterDialog extends StatefulWidget {
+class FilterDialog extends ConsumerStatefulWidget {
   final Filter defaultFilter;
 
-  FilterDialog({Key? key})
-      : defaultFilter = Filter(),
+  const FilterDialog({Key? key})
+      : defaultFilter = const Filter(),
         super(key: key);
   const FilterDialog.fromFilter(this.defaultFilter, {Key? key}) : super(key: key);
 
-  static Future<Filter> show(BuildContext context, Filter filter) async {
-    final result = await showDialog<Filter>(
-        context: context, builder: (context) => FilterDialog.fromFilter(filter));
-    return result ?? Filter();
-  }
-
   @override
-  State<FilterDialog> createState() => _FilterDialogState();
+  ConsumerState<FilterDialog> createState() => _FilterDialogState();
+
+  static Future<Filter> show(BuildContext context, Filter filter) async {
+    final result = await showModalBottomSheet<Filter>(
+      context: context,
+      builder: (context) => FilterDialog.fromFilter(filter),
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
+      ),
+    );
+    return result ?? const Filter();
+  }
 }
 
-class _FilterDialogState extends State<FilterDialog> {
+class _FilterDialogState extends ConsumerState<FilterDialog> {
   bool consumable = false;
   bool nonConsumable = false;
-  bool outs = false;
+  bool outsOnly = false;
+  bool displayBranded = true;
+
+  Filter get filter => Filter(
+        consumable: consumable,
+        nonConsumable: nonConsumable,
+        outsOnly: outsOnly,
+        displayBranded: displayBranded,
+      );
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final ColorScheme colorScheme = theme.colorScheme;
+
+    return Container(
+      width: MediaQuery.of(context).size.width,
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(
+            'Filter',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: colorScheme.primary,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Item Type',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: colorScheme.onSurface,
+            ),
+          ),
+          Wrap(
+            spacing: 8,
+            children: <Widget>[
+              ChoiceChip(
+                label: const Text('Consumable'),
+                selected: consumable,
+                onSelected: _toggleConsumable,
+              ),
+              ChoiceChip(
+                label: const Text('Non-Consumable'),
+                selected: nonConsumable,
+                onSelected: _toggleNonConsumable,
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Item Quantity',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: colorScheme.onSurface,
+            ),
+          ),
+          Wrap(
+            spacing: 8,
+            children: <Widget>[
+              ChoiceChip(
+                label: const Text('Outs Only'),
+                selected: outsOnly,
+                onSelected: _toggleOutsOnly,
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Item Name',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: colorScheme.onSurface,
+            ),
+          ),
+          Wrap(
+            spacing: 8,
+            children: <Widget>[
+              ChoiceChip(
+                label: const Text('Branded'),
+                selected: displayBranded,
+                onSelected: _toggleDisplayBranded,
+              ),
+              ChoiceChip(
+                label: const Text('Generic'),
+                selected: !displayBranded,
+                onSelected: (bool selected) {
+                  _toggleDisplayBranded(!selected);
+                },
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   void initState() {
@@ -30,70 +140,48 @@ class _FilterDialogState extends State<FilterDialog> {
 
     consumable = widget.defaultFilter.consumable;
     nonConsumable = widget.defaultFilter.nonConsumable;
-    outs = widget.defaultFilter.outs;
+    outsOnly = widget.defaultFilter.outsOnly;
+    displayBranded = widget.defaultFilter.displayBranded;
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: const Text('Filter'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          Wrap(
-            spacing: 4,
-            children: <Widget>[
-              FilterChip(
-                label: const Text('Consumable'),
-                selected: consumable,
-                onSelected: (bool selected) {
-                  setState(() {
-                    consumable = selected;
-                    if (!selected && !nonConsumable) {
-                      nonConsumable = true;
-                    }
-                  });
-                },
-              ),
-              FilterChip(
-                label: const Text('Non-Consumable'),
-                selected: nonConsumable,
-                onSelected: (bool selected) {
-                  setState(() {
-                    nonConsumable = selected;
-                    if (!selected && !consumable) {
-                      consumable = true;
-                    }
-                  });
-                },
-              ),
-              FilterChip(
-                label: const Text('Outs'),
-                selected: outs,
-                onSelected: (bool selected) {
-                  setState(() {
-                    outs = selected;
-                  });
-                },
-              ),
-            ],
-          ),
-        ],
-      ),
-      actions: <Widget>[
-        TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: const Text('Cancel')),
-        TextButton(
-          onPressed: () {
-            Navigator.pop(
-                context, Filter(consumable: consumable, nonConsumable: nonConsumable, outs: outs));
-          },
-          child: const Text('OK'),
-        )
-      ],
-    );
+  Future<void> _toggleConsumable(bool selected) async {
+    setState(() {
+      consumable = selected;
+      // If deselection is attempted while the other chip is also deselected,
+      // set nonConsumable to true to ensure at least one chip remains selected.
+      nonConsumable = (!selected && !nonConsumable) || nonConsumable;
+    });
+    await _updateView();
+  }
+
+  Future<void> _toggleDisplayBranded(bool selected) async {
+    setState(() {
+      displayBranded = selected;
+    });
+
+    await _updateView();
+  }
+
+  Future<void> _toggleNonConsumable(bool selected) async {
+    setState(() {
+      nonConsumable = selected;
+      // If deselection is attempted while the other chip is also deselected,
+      // set consumable to true to ensure at least one chip remains selected.
+      consumable = (!selected && !consumable) || consumable;
+    });
+    await _updateView();
+  }
+
+  Future<void> _toggleOutsOnly(bool selected) async {
+    setState(() {
+      outsOnly = selected;
+    });
+
+    await _updateView();
+  }
+
+  Future<void> _updateView() async {
+    final view = ref.read(inventoryProvider.notifier);
+    view.filter = filter;
   }
 }
