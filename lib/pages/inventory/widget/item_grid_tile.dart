@@ -8,8 +8,10 @@ import 'package:thingzee/pages/inventory/state/item_thumbnail_cache.dart';
 class ItemGridTile extends ConsumerWidget {
   final Item item;
   final Inventory inventory;
+  final bool brandedName;
 
-  const ItemGridTile(this.item, this.inventory, {Key? key}) : super(key: key);
+  const ItemGridTile(this.item, this.inventory, {Key? key, this.brandedName = true})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -24,6 +26,16 @@ class ItemGridTile extends ConsumerWidget {
       imageProvider = const AssetImage('assets/images/no_image_available.png');
     }
 
+    // Use the preferred amount string, and for consumable items
+    // include an asterisk if we are not able to predict the amount
+    String amountString =
+        inventory.preferredAmountString + (!item.consumable || inventory.canPredict ? '' : '*');
+
+    // Do not show decimal places for non-consumable items
+    if (!item.consumable) {
+      amountString = inventory.amount.toStringAsFixed(0);
+    }
+
     return Material(
       child: InkWell(
         onTap: () async {
@@ -34,7 +46,7 @@ class ItemGridTile extends ConsumerWidget {
           child: GridTile(
             footer: GridTileBar(
               title: Text(
-                item.name,
+                brandedName || item.type.isEmpty ? item.name : item.type,
                 style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
                 textScaleFactor: 1,
                 textAlign: TextAlign.center,
@@ -42,7 +54,7 @@ class ItemGridTile extends ConsumerWidget {
                 maxLines: 2,
               ),
               trailing: Text(
-                inventory.preferredAmountString + (inventory.canPredict ? '' : '*'),
+                amountString,
                 textAlign: TextAlign.left,
                 textScaleFactor: 1.5,
                 style: TextStyle(

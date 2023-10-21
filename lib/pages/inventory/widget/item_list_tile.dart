@@ -8,7 +8,10 @@ import 'package:thingzee/pages/inventory/state/item_thumbnail_cache.dart';
 class ItemListTile extends ConsumerWidget {
   final Item item;
   final Inventory inventory;
-  const ItemListTile(this.item, this.inventory, {Key? key}) : super(key: key);
+  final bool brandedName;
+
+  const ItemListTile(this.item, this.inventory, {Key? key, this.brandedName = true})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -17,6 +20,16 @@ class ItemListTile extends ConsumerWidget {
 
     if (item.imageUrl.isNotEmpty && cache.containsKey(item.upc) && cache[item.upc] != null) {
       imageProvider = cache[item.upc]!.image;
+    }
+
+    // Use the preferred amount string, and for consumable items
+    // include an asterisk if we are not able to predict the amount
+    String amountString =
+        inventory.preferredAmountString + (!item.consumable || inventory.canPredict ? '' : '*');
+
+    // Do not show decimal places for non-consumable items
+    if (!item.consumable) {
+      amountString = inventory.amount.toStringAsFixed(0);
     }
 
     return Material(
@@ -41,13 +54,14 @@ class ItemListTile extends ConsumerWidget {
                   ],
                 ),
                 Expanded(
-                  child: Text(item.name, softWrap: true),
+                  child: Text(brandedName || item.type.isEmpty ? item.name : item.type,
+                      softWrap: true),
                 ),
                 Expanded(
                   child: Align(
                     alignment: Alignment.centerRight,
                     child: Text(
-                      inventory.preferredAmountString + (inventory.canPredict ? '' : '*'),
+                      amountString,
                       textAlign: TextAlign.right,
                       textScaleFactor: 1.5,
                       style: TextStyle(
