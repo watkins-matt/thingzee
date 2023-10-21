@@ -7,6 +7,7 @@ import 'package:thingzee/pages/inventory/state/inventory_view.dart';
 import 'package:thingzee/pages/inventory/widget/filter_button.dart';
 import 'package:thingzee/pages/inventory/widget/inventory_view_widget.dart';
 import 'package:thingzee/pages/inventory/widget/user_profile_button.dart';
+import 'package:thingzee/pages/inventory/widget/view_button.dart';
 
 class InventoryPage extends ConsumerStatefulWidget {
   const InventoryPage({Key? key}) : super(key: key);
@@ -49,6 +50,7 @@ class _InventoryPageState extends ConsumerState<InventoryPage> {
                 },
               )),
           FilterButton(key: GlobalKey()),
+          ViewButton(key: GlobalKey()),
           const UserProfileButton(imagePath: 'assets/images/account.png'),
         ],
         body: const InventoryViewWidget(),
