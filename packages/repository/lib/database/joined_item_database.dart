@@ -49,6 +49,11 @@ class JoinedItemDatabase {
       final inventory = inventoryDatabase.get(item.upc);
 
       if (inventory != null) {
+        // If we're only showing outs, skip anything that has inventory
+        if (filter.outsOnly && inventory.amount > 0) {
+          continue;
+        }
+
         joinedItems.add(JoinedItem(item, inventory));
       }
     }
