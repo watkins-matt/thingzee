@@ -38,6 +38,7 @@ class ItemDetailPage extends HookConsumerWidget {
         useTextEditingController(text: editableItem.totalUnitCount.toStringNoZero(2));
     final nameController = useTextEditingController(text: editableItem.name);
     final upcController = useTextEditingController(text: editableItem.upc);
+    final typeController = useTextEditingController(text: editableItem.type);
     List<String> locations = ref.watch(editableItemProvider.notifier).locations;
 
     // For every location, pretty print it
@@ -249,6 +250,18 @@ class ItemDetailPage extends HookConsumerWidget {
                   LabeledText(
                     labelText: 'Last Updated',
                     value: ref.read(editableItemProvider).inventory.timeSinceLastUpdateString,
+                  ),
+                  LabeledEditableText(
+                    labelText: 'Item Type',
+                    keyboardType: TextInputType.text,
+                    controller: typeController,
+                    onChanged: (value) {
+                      ref.read(editableItemProvider.notifier).type = value;
+                    },
+                    helpTooltip: 'A generic, unbranded name for what the item is. '
+                        'For example, "Milk" or "Bread". Do not include '
+                        'brand names or other details like scents, flavors '
+                        'or packaging/size information.',
                   ),
                   LabeledSwitchWidget(
                       labelText: 'Consumable',
