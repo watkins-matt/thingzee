@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:thingzee/pages/inventory/state/inventory_display.dart';
 import 'package:thingzee/pages/inventory/state/inventory_view.dart';
 import 'package:thingzee/pages/inventory/widget/item_list_tile.dart';
 
@@ -37,6 +38,7 @@ class InventoryViewWidget extends ConsumerWidget {
     final inventory = joinedItem.inventory;
 
     bool showBranded = ref.read(inventoryProvider.notifier).filter.displayBranded;
+    bool showImages = ref.watch(inventoryDisplayProvider).displayImages;
 
     return Dismissible(
       key: Key(item.upc),
@@ -61,7 +63,8 @@ class InventoryViewWidget extends ConsumerWidget {
         );
       },
       background: Container(color: Colors.red),
-      child: ItemListTile(item, inventory, key: ValueKey(item.upc), brandedName: showBranded),
+      child: ItemListTile(item, inventory,
+          key: ValueKey(item.upc), brandedName: showBranded, image: showImages),
     );
   }
 }
