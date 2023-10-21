@@ -15,12 +15,18 @@ final inventoryProvider = StateNotifierProvider<InventoryView, List<JoinedItem>>
 class InventoryView extends StateNotifier<List<JoinedItem>> {
   final Repository r;
   final JoinedItemDatabase joinedItemDb;
-  Filter filter = Filter();
+  Filter _filter = const Filter();
   String query = '';
 
   InventoryView(this.r)
       : joinedItemDb = JoinedItemDatabase(r.items, r.inv),
         super(<JoinedItem>[]) {
+    refresh();
+  }
+
+  Filter get filter => _filter;
+  set filter(Filter value) {
+    _filter = value;
     refresh();
   }
 
