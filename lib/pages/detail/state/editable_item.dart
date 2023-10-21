@@ -23,7 +23,6 @@ class EditableItem extends StateNotifier<EditableItemState> {
   }
 
   double get amount => state.inventory.amount;
-
   set amount(double amount) {
     final inv = state.inventory;
     inv.amount = amount;
@@ -33,7 +32,6 @@ class EditableItem extends StateNotifier<EditableItemState> {
   }
 
   bool get consumable => state.item.consumable;
-
   set consumable(bool consumable) {
     final item = state.item;
     item.consumable = consumable;
@@ -43,7 +41,6 @@ class EditableItem extends StateNotifier<EditableItemState> {
   }
 
   String get imageUrl => state.item.imageUrl;
-
   set imageUrl(String imageUrl) {
     final item = state.item;
     item.imageUrl = imageUrl;
@@ -55,7 +52,6 @@ class EditableItem extends StateNotifier<EditableItemState> {
   List<String> get locations => state.inventory.locations;
 
   String get name => state.item.name;
-
   set name(String name) {
     final item = state.item;
     item.name = name;
@@ -66,8 +62,16 @@ class EditableItem extends StateNotifier<EditableItemState> {
   String get predictedAmount => state.inventory.predictedAmount.toStringNoZero(2);
   double get totalUnitCount => state.inventory.units;
 
-  int get unitCount => state.inventory.unitCount;
+  String get type => state.item.type;
+  set type(String type) {
+    final item = state.item;
+    item.type = type;
 
+    state.changedFields.add('type');
+    state = EditableItemState(item, state.inventory, state.changedFields);
+  }
+
+  int get unitCount => state.inventory.unitCount;
   set unitCount(int value) {
     final inv = state.inventory;
     inv.unitCount = value;
@@ -79,7 +83,6 @@ class EditableItem extends StateNotifier<EditableItemState> {
   }
 
   String get upc => state.item.upc;
-
   set upc(String upc) {
     final item = state.item;
     item.upc = upc;
@@ -94,7 +97,6 @@ class EditableItem extends StateNotifier<EditableItemState> {
   }
 
   String get variety => state.item.variety;
-
   set variety(String variety) {
     final item = state.item;
     item.variety = variety;
@@ -158,6 +160,7 @@ class EditableItem extends StateNotifier<EditableItemState> {
     copiedItem.category = item.category;
     copiedItem.unitCount = item.unitCount;
     copiedItem.consumable = item.consumable;
+    copiedItem.type = item.type;
 
     // Make sure the upc is copied to the inventory
     if (state.inventory.upc != copiedItem.upc) {
