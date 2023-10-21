@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:thingzee/pages/detail/widget/help_icon_button.dart';
 
 class LabeledEditableText extends StatelessWidget {
+  static const int maxLines = 1;
+  static const int minLines = 1;
   final String labelText;
   final TextInputType keyboardType;
   final TextEditingController controller;
   final void Function(String) onChanged;
-  static const int maxLines = 1;
-  static const int minLines = 1;
+  final String? helpTooltip;
 
   const LabeledEditableText({
     Key? key,
@@ -14,6 +16,7 @@ class LabeledEditableText extends StatelessWidget {
     required this.keyboardType,
     required this.controller,
     required this.onChanged,
+    this.helpTooltip,
   }) : super(key: key);
 
   @override
@@ -40,17 +43,27 @@ class LabeledEditableText extends StatelessWidget {
         ),
         Expanded(
           flex: 3,
-          child: Padding(
-            padding: const EdgeInsets.all(4),
-            child: TextField(
-              keyboardType: keyboardType,
-              decoration: const InputDecoration(border: InputBorder.none, isCollapsed: true),
-              textAlign: TextAlign.left,
-              controller: controller,
-              onChanged: onChanged,
-              minLines: 1,
-              maxLines: 1,
-            ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(4),
+                  child: TextField(
+                    keyboardType: keyboardType,
+                    decoration: const InputDecoration(border: InputBorder.none, isCollapsed: true),
+                    textAlign: TextAlign.left,
+                    controller: controller,
+                    onChanged: onChanged,
+                    minLines: 1,
+                    maxLines: 1,
+                  ),
+                ),
+              ),
+              if (helpTooltip != null)
+                HelpIconButton(
+                  message: helpTooltip!,
+                ),
+            ],
           ),
         ),
       ],
