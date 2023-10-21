@@ -9,8 +9,10 @@ class ItemListTile extends ConsumerWidget {
   final Item item;
   final Inventory inventory;
   final bool brandedName;
+  final bool image;
 
-  const ItemListTile(this.item, this.inventory, {Key? key, this.brandedName = true})
+  const ItemListTile(this.item, this.inventory,
+      {Key? key, this.brandedName = true, this.image = true})
       : super(key: key);
 
   @override
@@ -38,21 +40,22 @@ class ItemListTile extends ConsumerWidget {
           child: ListTile(
             title: Row(
               children: [
-                Row(
-                  children: [
-                    ConstrainedBox(
-                        constraints: const BoxConstraints(
-                          minWidth: 100,
-                          minHeight: 100,
-                          maxWidth: 100,
-                          maxHeight: 100,
-                        ),
-                        child: imageProvider != null
-                            ? Ink.image(image: imageProvider, fit: BoxFit.contain)
-                            : Container()),
-                    const SizedBox(width: 10),
-                  ],
-                ),
+                if (image)
+                  Row(
+                    children: [
+                      ConstrainedBox(
+                          constraints: const BoxConstraints(
+                            minWidth: 100,
+                            minHeight: 100,
+                            maxWidth: 100,
+                            maxHeight: 100,
+                          ),
+                          child: imageProvider != null && image
+                              ? Ink.image(image: imageProvider, fit: BoxFit.contain)
+                              : Container()),
+                      const SizedBox(width: 10),
+                    ],
+                  ),
                 Expanded(
                   child: Text(brandedName || item.type.isEmpty ? item.name : item.type,
                       softWrap: true),
