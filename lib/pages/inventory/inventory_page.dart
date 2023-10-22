@@ -51,6 +51,7 @@ class _InventoryPageState extends ConsumerState<InventoryPage> {
               )),
           FilterButton(key: GlobalKey()),
           ViewButton(key: GlobalKey()),
+          const SizedBox(height: 32, width: 4),
           const UserProfileButton(imagePath: 'assets/images/account.png'),
         ],
         body: const InventoryViewWidget(),
