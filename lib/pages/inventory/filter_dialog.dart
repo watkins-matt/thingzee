@@ -31,13 +31,11 @@ class _FilterDialogState extends ConsumerState<FilterDialog> {
   bool consumable = false;
   bool nonConsumable = false;
   bool outsOnly = false;
-  bool displayBranded = true;
 
   Filter get filter => Filter(
         consumable: consumable,
         nonConsumable: nonConsumable,
         outsOnly: outsOnly,
-        displayBranded: displayBranded,
       );
 
   @override
@@ -103,32 +101,6 @@ class _FilterDialogState extends ConsumerState<FilterDialog> {
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          Text(
-            'Item Name',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: colorScheme.onSurface,
-            ),
-          ),
-          Wrap(
-            spacing: 8,
-            children: <Widget>[
-              ChoiceChip(
-                label: const Text('Branded'),
-                selected: displayBranded,
-                onSelected: _toggleDisplayBranded,
-              ),
-              ChoiceChip(
-                label: const Text('Generic'),
-                selected: !displayBranded,
-                onSelected: (bool selected) {
-                  _toggleDisplayBranded(!selected);
-                },
-              ),
-            ],
-          ),
         ],
       ),
     );
@@ -141,7 +113,6 @@ class _FilterDialogState extends ConsumerState<FilterDialog> {
     consumable = widget.defaultFilter.consumable;
     nonConsumable = widget.defaultFilter.nonConsumable;
     outsOnly = widget.defaultFilter.outsOnly;
-    displayBranded = widget.defaultFilter.displayBranded;
   }
 
   Future<void> _toggleConsumable(bool selected) async {
@@ -151,14 +122,6 @@ class _FilterDialogState extends ConsumerState<FilterDialog> {
       // set nonConsumable to true to ensure at least one chip remains selected.
       nonConsumable = (!selected && !nonConsumable) || nonConsumable;
     });
-    await _updateView();
-  }
-
-  Future<void> _toggleDisplayBranded(bool selected) async {
-    setState(() {
-      displayBranded = selected;
-    });
-
     await _updateView();
   }
 
