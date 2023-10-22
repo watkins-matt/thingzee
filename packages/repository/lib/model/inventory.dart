@@ -124,9 +124,22 @@ class Inventory {
   }
 
   String get preferredAmountString {
-    return unitCount == 1 && (preferredAmount.roundTo(1) > 0)
-        ? preferredAmount.toStringAsFixed(2)
-        : preferredAmount.toStringAsFixed(0);
+    // With no unit count specified, we show the amount in a percentage.
+    // However, if the amount is 0, we show 0% instead of 0.0%
+    // Also, if the amount is greater than 1, we just show
+    // the units instead of something like 350% which doesn't make
+    // much sense.
+    if (unitCount == 1 && (preferredAmount.roundTo(1) > 0)) {
+      return preferredAmount <= 1.0
+          ? '${(preferredAmount * 100).roundTo(0).toStringAsFixed(0)}%'
+          : preferredAmount.toStringAsFixed(2);
+    }
+
+    // There is a unit count specified, so we show the
+    // amount in total units
+    else {
+      return preferredAmount.toStringAsFixed(0);
+    }
   }
 
   Duration get timeSinceLastUpdate {
