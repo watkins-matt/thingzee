@@ -27,11 +27,11 @@ class ItemListTile extends ConsumerWidget {
     // Use the preferred amount string, and for consumable items
     // include an asterisk if we are not able to predict the amount
     String amountString =
-        inventory.preferredAmountString + (!item.consumable || inventory.canPredict ? '' : '*');
+        item.consumable ? inventory.preferredAmountString : inventory.amount.toStringAsFixed(0);
 
-    // Do not show decimal places for non-consumable items
-    if (!item.consumable) {
-      amountString = inventory.amount.toStringAsFixed(0);
+    // If we can't predict the item, add an asterisk to the amount
+    if (item.consumable && !inventory.canPredict) {
+      amountString += '*';
     }
 
     return Material(
@@ -68,6 +68,7 @@ class ItemListTile extends ConsumerWidget {
                       textAlign: TextAlign.right,
                       textScaleFactor: 1.5,
                       style: TextStyle(
+                          fontWeight: FontWeight.bold,
                           color: inventory.predictedAmount > 0.5 ? Colors.green : Colors.red),
                     ),
                   ),
