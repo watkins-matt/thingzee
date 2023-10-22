@@ -58,8 +58,24 @@ class JoinedItemDatabase {
       }
     }
 
-    // Sort everything by name
-    joinedItems.sort((a, b) => a.item.name.compareTo(b.item.name));
+    // Sort by alphabetically name if we are using branded names
+    if (filter.displayBranded) {
+      joinedItems.sort((a, b) => a.item.name.compareTo(b.item.name));
+    }
+    // Without branded names, we need to sort by type if available
+    else {
+      joinedItems.sort((a, b) {
+        final typeA = a.item.type;
+        final typeB = b.item.type;
+        if (typeA.isEmpty) {
+          return typeB.isEmpty ? a.item.name.compareTo(b.item.name) : 1;
+        }
+        if (typeB.isEmpty) {
+          return -1;
+        }
+        return typeA.compareTo(typeB);
+      });
+    }
 
     return joinedItems;
   }
