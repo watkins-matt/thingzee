@@ -8,13 +8,29 @@ part 'household_member.g.dart';
 @JsonSerializable(explicitToJson: true)
 @immutable
 class HouseholdMember {
-  final bool isAdmin; // Whether the user is an admin of the household
+  // Whether the user is an admin of the household
+  @JsonKey(defaultValue: false)
+  final bool isAdmin;
+
+  // The time the member was created
   @DateTimeSerializer()
-  final DateTime timestamp; // The time the member was added
-  final String email; // The email of the user
-  final String householdId; // A unique identifier for the household
-  final String name; // The name of the user
-  final String userId; // A unique identifier for the user
+  final DateTime timestamp;
+
+  // The email of the user
+  @JsonKey(defaultValue: '')
+  final String email;
+
+  // A unique identifier for the household
+  @JsonKey(defaultValue: '')
+  final String householdId;
+
+  // The name of the user
+  @JsonKey(defaultValue: '')
+  final String name;
+
+  // A unique identifier for the user
+  @JsonKey(defaultValue: '')
+  final String userId;
 
   HouseholdMember({
     required this.email,

@@ -74,8 +74,13 @@ String prettyPrintPath(String path) {
 @JsonSerializable(explicitToJson: true)
 @immutable
 class Location {
+  @JsonKey(defaultValue: '')
   final String upc;
+
+  @JsonKey(defaultValue: '')
   final String name;
+
+  @JsonKey(defaultValue: 0.0)
   final double? quantity;
 
   @NullableDateTimeSerializer()
