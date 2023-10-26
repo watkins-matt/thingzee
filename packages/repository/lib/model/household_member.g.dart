@@ -8,12 +8,12 @@ part of 'household_member.dart';
 
 HouseholdMember _$HouseholdMemberFromJson(Map<String, dynamic> json) =>
     HouseholdMember(
-      email: json['email'] as String,
-      householdId: json['householdId'] as String,
-      name: json['name'] as String,
+      email: json['email'] as String? ?? '',
+      householdId: json['householdId'] as String? ?? '',
+      name: json['name'] as String? ?? '',
       timestamp: _$JsonConverterFromJson<int, DateTime>(
           json['timestamp'], const DateTimeSerializer().fromJson),
-      userId: json['userId'] as String?,
+      userId: json['userId'] as String? ?? '',
       isAdmin: json['isAdmin'] as bool? ?? false,
     );
 
