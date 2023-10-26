@@ -7,25 +7,32 @@ part 'expiration_date.g.dart';
 @JsonSerializable(explicitToJson: true)
 @immutable
 class ExpirationDate {
+  @JsonKey(defaultValue: '')
   final String upc;
 
   @NullableDateTimeSerializer()
   final DateTime? date;
 
-  const ExpirationDate({
+  @NullableDateTimeSerializer()
+  final DateTime? created;
+
+  ExpirationDate({
     required this.upc,
-    this.date,
-  });
+    required this.date,
+    DateTime? created,
+  }) : created = created ?? DateTime.now();
 
   factory ExpirationDate.fromJson(Map<String, dynamic> json) => _$ExpirationDateFromJson(json);
 
   ExpirationDate copyWith({
     String? upc,
     DateTime? date,
+    DateTime? created,
   }) {
     return ExpirationDate(
       upc: upc ?? this.upc,
       date: date ?? this.date,
+      created: created ?? this.created,
     );
   }
 
