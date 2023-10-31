@@ -18,33 +18,35 @@ class LocationListView extends ConsumerWidget {
         // Handle subpaths
         if (index < subPaths.length) {
           final subPath = subPaths[index];
-          return MaterialCardWidget(children: [
-            ListTile(
-              onTap: () => ref.read(locationViewProvider.notifier).changeDirectory(subPath),
-              title: Row(
-                children: [
-                  const Icon(Icons.folder, size: 50, color: Colors.blue),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      subPath,
-                      style: const TextStyle(
-                        fontSize: 20,
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 4),
+            child: MaterialCardWidget(padding: 0, children: [
+              ListTile(
+                onTap: () => ref.read(locationViewProvider.notifier).changeDirectory(subPath),
+                title: Row(
+                  children: [
+                    const Icon(Icons.folder, size: 50, color: Colors.blue),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        subPath,
+                        style: const TextStyle(
+                          fontSize: 20,
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ]);
+            ]),
+          );
         }
 
         // Handle items
         else {
           final itemIndex = index - subPaths.length;
           final joinedItem = currentItems[itemIndex];
-          return MaterialCardWidget(
-              children: [ItemListTile(joinedItem.item, joinedItem.inventory)]);
+          return ItemListTile(joinedItem.item, joinedItem.inventory);
         }
       },
     );

@@ -37,6 +37,7 @@ class App extends ConsumerWidget {
       colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue).copyWith(
         background: Colors.white,
         surfaceTint: Colors.white,
+        surfaceVariant: Colors.white,
       ),
       cardColor: Colors.white,
       scaffoldBackgroundColor: const Color.fromARGB(255, 225, 226, 236),
@@ -45,6 +46,8 @@ class App extends ConsumerWidget {
     final darkThemeData = ThemeData(
       useMaterial3: true,
       colorScheme: const ColorScheme.dark().copyWith(
+        surfaceTint: Colors.white,
+        surfaceVariant: Colors.white,
         primary: Colors.lightBlueAccent,
         secondary: Colors.blueAccent,
         surface: const Color(0xFF202125),

@@ -17,7 +17,6 @@ class ItemHeaderWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      surfaceTintColor: Colors.white,
       margin: EdgeInsets.zero,
       elevation: 1,
       shape: const RoundedRectangleBorder(),
