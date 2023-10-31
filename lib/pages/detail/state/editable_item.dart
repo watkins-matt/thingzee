@@ -43,6 +43,10 @@ class EditableItem extends StateNotifier<EditableItemState> {
   }
 
   List<MapEntry<int, double>> get currentHistorySeries {
+    if (state.inventory.history.series.isEmpty) {
+      return [];
+    }
+
     final series = state.inventory.history.series.last;
     final entries =
         series.observations.map((o) => MapEntry(o.timestamp.toInt(), o.amount)).toList();
@@ -148,7 +152,7 @@ class EditableItem extends StateNotifier<EditableItemState> {
     copiedInv.amount = inv.amount;
     copiedInv.upc = inv.upc;
     copiedInv.unitCount = inv.unitCount;
-    copiedInv.history = inv.history;
+    copiedInv.history = inv.history.copy();
     copiedInv.lastUpdate = inv.lastUpdate;
     copiedInv.locations = inv.locations;
 
