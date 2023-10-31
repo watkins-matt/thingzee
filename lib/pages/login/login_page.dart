@@ -3,6 +3,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:thingzee/pages/login/register_page.dart';
 import 'package:thingzee/pages/login/state/login_state.dart';
 import 'package:thingzee/pages/login/state/user_profile.dart';
+import 'package:thingzee/pages/settings/state/settings_state.dart';
 
 class LoginPage extends ConsumerWidget {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -12,6 +13,7 @@ class LoginPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final loginState = ref.watch(loginStateProvider);
+    final isDarkMode = ref.watch(isDarkModeProvider(context));
 
     return WillPopScope(
       onWillPop: () async {
@@ -20,12 +22,10 @@ class LoginPage extends ConsumerWidget {
         return true;
       },
       child: Scaffold(
-        backgroundColor: Colors.blue,
+        backgroundColor: !isDarkMode ? Colors.blue : Theme.of(context).scaffoldBackgroundColor,
         body: AutofillGroup(
           child: Center(
             child: Card(
-              color: Colors.white,
-              shadowColor: Colors.black,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(15),
               ),
@@ -41,7 +41,6 @@ class LoginPage extends ConsumerWidget {
                         const Text(
                           'Login',
                           style: TextStyle(
-                            color: Colors.black,
                             fontSize: 36,
                             fontWeight: FontWeight.w600,
                             letterSpacing: .5,
@@ -61,15 +60,9 @@ class LoginPage extends ConsumerWidget {
                             }
                           },
                           decoration: InputDecoration(
-                            prefixIcon: const Icon(Icons.email_outlined),
-                            labelText: 'Email',
-                            filled: true,
-                            fillColor: Colors.blue[75],
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide.none,
-                            ),
-                          ),
+                              hintText: 'Email',
+                              prefixIcon: const Icon(Icons.email_outlined),
+                              fillColor: Colors.grey[200]),
                         ),
                         const SizedBox(height: 20),
                         TextFormField(
@@ -86,15 +79,9 @@ class LoginPage extends ConsumerWidget {
                             }
                           },
                           decoration: InputDecoration(
-                            prefixIcon: const Icon(Icons.lock_outline),
-                            labelText: 'Password',
-                            filled: true,
-                            fillColor: Colors.blue[75],
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide.none,
-                            ),
-                          ),
+                              hintText: 'Password',
+                              prefixIcon: const Icon(Icons.lock_outline),
+                              fillColor: Colors.grey[200]),
                         ),
                         const SizedBox(height: 20),
                         ElevatedButton(

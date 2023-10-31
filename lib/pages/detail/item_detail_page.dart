@@ -23,6 +23,7 @@ import 'package:thingzee/pages/history/widget/history_list_view.dart';
 import 'package:thingzee/pages/image_browser/image_browser_page.dart';
 import 'package:thingzee/pages/inventory/state/inventory_view.dart';
 import 'package:thingzee/pages/inventory/state/item_thumbnail_cache.dart';
+import 'package:thingzee/pages/settings/state/settings_state.dart';
 import 'package:thingzee/pages/shopping/state/shopping_list.dart';
 
 class ItemDetailPage extends HookConsumerWidget {
@@ -40,6 +41,7 @@ class ItemDetailPage extends HookConsumerWidget {
     final upcController = useTextEditingController(text: editableItem.upc);
     final typeController = useTextEditingController(text: editableItem.type);
     List<String> locations = ref.watch(editableItemProvider.notifier).locations;
+    final isDarkMode = ref.watch(isDarkModeProvider(context));
 
     // For every location, pretty print it
     locations = locations.map((e) => prettyPrintPath(e)).toList();
@@ -90,13 +92,13 @@ class ItemDetailPage extends HookConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 ItemHeaderWidget(
-                  image: image,
-                  nameController: nameController,
-                  onImagePressed: () async => await onImagePressed(context, ref),
-                  onNameChanged: (value) {
-                    ref.read(editableItemProvider.notifier).name = value;
-                  },
-                ),
+                    image: image,
+                    nameController: nameController,
+                    onImagePressed: () async => await onImagePressed(context, ref),
+                    onNameChanged: (value) {
+                      ref.read(editableItemProvider.notifier).name = value;
+                    },
+                    isDarkMode: isDarkMode),
                 const SizedBox(
                   height: 8,
                 ),

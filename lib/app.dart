@@ -59,6 +59,9 @@ class App extends ConsumerWidget {
       ),
       cardColor: Colors.grey[900],
       scaffoldBackgroundColor: const Color(0xFF202125),
+      floatingActionButtonTheme: const FloatingActionButtonThemeData(
+        backgroundColor: Colors.lightBlueAccent,
+      ),
     );
 
     return MaterialApp(

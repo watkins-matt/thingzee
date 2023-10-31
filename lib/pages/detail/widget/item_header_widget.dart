@@ -5,6 +5,7 @@ class ItemHeaderWidget extends StatelessWidget {
   final TextEditingController nameController;
   final void Function() onImagePressed;
   final void Function(String) onNameChanged;
+  final bool isDarkMode;
 
   const ItemHeaderWidget({
     Key? key,
@@ -12,10 +13,20 @@ class ItemHeaderWidget extends StatelessWidget {
     required this.nameController,
     required this.onImagePressed,
     required this.onNameChanged,
+    this.isDarkMode = false,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    var image = this.image;
+
+    if (isDarkMode) {
+      image = ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: image,
+      );
+    }
+
     return Card(
       margin: EdgeInsets.zero,
       elevation: 1,

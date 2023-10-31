@@ -3,6 +3,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:log/log.dart';
 import 'package:thingzee/pages/login/login_page.dart';
 import 'package:thingzee/pages/login/state/register_state.dart';
+import 'package:thingzee/pages/settings/state/settings_state.dart';
 
 class RegisterPage extends ConsumerStatefulWidget {
   const RegisterPage({Key? key}) : super(key: key);
@@ -28,6 +29,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     final registerState = ref.watch(registerStateProvider);
+    final isDarkMode = ref.watch(isDarkModeProvider(context));
 
     return WillPopScope(
       onWillPop: () async {
@@ -36,11 +38,9 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
         return true;
       },
       child: Scaffold(
-        backgroundColor: Colors.blue,
+        backgroundColor: !isDarkMode ? Colors.blue : Theme.of(context).scaffoldBackgroundColor,
         body: Center(
           child: Card(
-            color: Colors.white,
-            shadowColor: Colors.black,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(15),
             ),
