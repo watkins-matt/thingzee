@@ -25,7 +25,7 @@ class HiveInventoryAdapter extends TypeAdapter<HiveInventory> {
       ..history = fields[5] as History
       ..restock = fields[6] as bool
       ..upc = fields[7] as String
-      ..iuid = fields[8] as String
+      ..uid = fields[8] as String
       ..units = fields[9] as double;
   }
 
@@ -50,7 +50,7 @@ class HiveInventoryAdapter extends TypeAdapter<HiveInventory> {
       ..writeByte(7)
       ..write(obj.upc)
       ..writeByte(8)
-      ..write(obj.iuid)
+      ..write(obj.uid)
       ..writeByte(9)
       ..write(obj.units);
   }

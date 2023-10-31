@@ -19,9 +19,9 @@ class HiveManufacturerAdapter extends TypeAdapter<HiveManufacturer> {
     return HiveManufacturer()
       ..name = fields[0] as String
       ..website = fields[1] as String
-      ..muid = fields[2] as String
+      ..uid = fields[2] as String
       ..parentName = fields[3] as String
-      ..parentMuid = fields[4] as String;
+      ..parentUid = fields[4] as String;
   }
 
   @override
@@ -33,11 +33,11 @@ class HiveManufacturerAdapter extends TypeAdapter<HiveManufacturer> {
       ..writeByte(1)
       ..write(obj.website)
       ..writeByte(2)
-      ..write(obj.muid)
+      ..write(obj.uid)
       ..writeByte(3)
       ..write(obj.parentName)
       ..writeByte(4)
-      ..write(obj.parentMuid);
+      ..write(obj.parentUid);
   }
 
   @override

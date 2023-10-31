@@ -6,26 +6,26 @@ import 'package:repository/model/manufacturer.dart';
 class ObjectBoxManufacturer {
   late String name;
   late String website;
-  late String muid;
+  late String uid;
   late String parentName;
-  late String parentMuid;
+  late String parentUid;
   @Id()
   int objectBoxId = 0;
   ObjectBoxManufacturer();
   ObjectBoxManufacturer.from(Manufacturer original) {
     name = original.name;
     website = original.website;
-    muid = original.muid;
+    uid = original.uid;
     parentName = original.parentName;
-    parentMuid = original.parentMuid;
+    parentUid = original.parentUid;
   }
   Manufacturer toManufacturer() {
     return Manufacturer()
       ..name = name
       ..website = website
-      ..muid = muid
+      ..uid = uid
       ..parentName = parentName
-      ..parentMuid = parentMuid
+      ..parentUid = parentUid
     ;
   }
 }

@@ -18,17 +18,20 @@ class HiveExpirationDateAdapter extends TypeAdapter<HiveExpirationDate> {
     };
     return HiveExpirationDate()
       ..upc = fields[0] as String
-      ..date = fields[1] as DateTime?;
+      ..date = fields[1] as DateTime?
+      ..created = fields[2] as DateTime?;
   }
 
   @override
   void write(BinaryWriter writer, HiveExpirationDate obj) {
     writer
-      ..writeByte(2)
+      ..writeByte(3)
       ..writeByte(0)
       ..write(obj.upc)
       ..writeByte(1)
-      ..write(obj.date);
+      ..write(obj.date)
+      ..writeByte(2)
+      ..write(obj.created);
   }
 
   @override

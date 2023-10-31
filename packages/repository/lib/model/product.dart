@@ -1,9 +1,9 @@
 class Product implements Comparable<Product> {
   String name = '';
-  String puid = '';
+  String uid = '';
 
   String manufacturer = '';
-  String muid = '';
+  String manufacturerUid = '';
   String category = '';
   List<String> upcs = <String>[];
 

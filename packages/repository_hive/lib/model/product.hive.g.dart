@@ -18,9 +18,9 @@ class HiveProductAdapter extends TypeAdapter<HiveProduct> {
     };
     return HiveProduct()
       ..name = fields[0] as String
-      ..puid = fields[1] as String
+      ..uid = fields[1] as String
       ..manufacturer = fields[2] as String
-      ..muid = fields[3] as String
+      ..manufacturerUid = fields[3] as String
       ..category = fields[4] as String
       ..upcs = (fields[5] as List).cast<String>();
   }
@@ -32,11 +32,11 @@ class HiveProductAdapter extends TypeAdapter<HiveProduct> {
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
-      ..write(obj.puid)
+      ..write(obj.uid)
       ..writeByte(2)
       ..write(obj.manufacturer)
       ..writeByte(3)
-      ..write(obj.muid)
+      ..write(obj.manufacturerUid)
       ..writeByte(4)
       ..write(obj.category)
       ..writeByte(5)

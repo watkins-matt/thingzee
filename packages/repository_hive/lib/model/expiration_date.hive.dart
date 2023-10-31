@@ -10,15 +10,19 @@ class HiveExpirationDate extends HiveObject {
   late String upc;
   @HiveField(1)
   late DateTime? date;
+  @HiveField(2)
+  late DateTime? created;
   HiveExpirationDate();
   HiveExpirationDate.from(ExpirationDate original) {
     upc = original.upc;
     date = original.date;
+    created = original.created;
   }
   ExpirationDate toExpirationDate() {
     return ExpirationDate(
       upc: upc,
-      date: date
+      date: date,
+      created: created
     );
   }
 }

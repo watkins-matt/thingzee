@@ -15,7 +15,7 @@ class ObjectBoxInventory {
   late bool restock;
   @Unique(onConflict: ConflictStrategy.replace)
   late String upc;
-  late String iuid;
+  late String uid;
   late double units;
   @Id()
   int objectBoxId = 0;
@@ -31,7 +31,7 @@ class ObjectBoxInventory {
     history = original.history;
     restock = original.restock;
     upc = original.upc;
-    iuid = original.iuid;
+    uid = original.uid;
     units = original.units;
   }
   Inventory toInventory() {
@@ -46,7 +46,7 @@ class ObjectBoxInventory {
       ..history = history
       ..restock = restock
       ..upc = upc
-      ..iuid = iuid
+      ..uid = uid
       ..units = units
     ;
   }

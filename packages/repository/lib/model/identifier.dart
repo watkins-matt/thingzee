@@ -2,18 +2,14 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'identifier.g.dart';
 
-abstract class IdentifierType {
-  String get label;
+class ASIN extends IdentifierType {
+  @override
+  String get label => 'ASIN';
 }
 
-class UPC extends IdentifierType {
+class BSKU extends IdentifierType {
   @override
-  String get label => 'UPC';
-}
-
-class UPCE extends IdentifierType {
-  @override
-  String get label => 'UPCE';
+  String get label => 'BSKU';
 }
 
 class EAN extends IdentifierType {
@@ -26,43 +22,8 @@ class EAN8 extends IdentifierType {
   String get label => 'EAN8';
 }
 
-class ISBN extends IdentifierType {
-  @override
-  String get label => 'ISBN';
-}
-
-class ASIN extends IdentifierType {
-  @override
-  String get label => 'ASIN';
-}
-
-class TDPCI extends IdentifierType {
-  @override
-  String get label => 'TDPCI';
-}
-
-class BSKU extends IdentifierType {
-  @override
-  String get label => 'BSKU';
-}
-
-class WSKU extends IdentifierType {
-  @override
-  String get label => 'WSKU';
-}
-
-@JsonSerializable(explicitToJson: true)
-class ItemIdentifier {
-  @IdentifierTypeSerializer()
-  IdentifierType type = UPC();
-  String iuid = '';
-  String value = '';
-
-  ItemIdentifier();
-  ItemIdentifier.withType(this.type);
-
-  factory ItemIdentifier.fromJson(Map<String, dynamic> json) => _$ItemIdentifierFromJson(json);
-  Map<String, dynamic> toJson() => _$ItemIdentifierToJson(this);
+abstract class IdentifierType {
+  String get label;
 }
 
 class IdentifierTypeSerializer implements JsonConverter<IdentifierType, String> {
@@ -96,4 +57,43 @@ class IdentifierTypeSerializer implements JsonConverter<IdentifierType, String> 
 
   @override
   String toJson(IdentifierType identifierType) => identifierType.label;
+}
+
+class ISBN extends IdentifierType {
+  @override
+  String get label => 'ISBN';
+}
+
+@JsonSerializable(explicitToJson: true)
+class ItemIdentifier {
+  @IdentifierTypeSerializer()
+  IdentifierType type = UPC();
+  String uid = '';
+  String value = '';
+
+  ItemIdentifier();
+  factory ItemIdentifier.fromJson(Map<String, dynamic> json) => _$ItemIdentifierFromJson(json);
+
+  ItemIdentifier.withType(this.type);
+  Map<String, dynamic> toJson() => _$ItemIdentifierToJson(this);
+}
+
+class TDPCI extends IdentifierType {
+  @override
+  String get label => 'TDPCI';
+}
+
+class UPC extends IdentifierType {
+  @override
+  String get label => 'UPC';
+}
+
+class UPCE extends IdentifierType {
+  @override
+  String get label => 'UPCE';
+}
+
+class WSKU extends IdentifierType {
+  @override
+  String get label => 'WSKU';
 }

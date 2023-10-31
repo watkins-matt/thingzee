@@ -39,7 +39,7 @@ class Inventory {
   String upc = '';
 
   @JsonKey(defaultValue: '')
-  String iuid = '';
+  String uid = '';
 
   Inventory();
 
@@ -181,7 +181,7 @@ class Inventory {
           locations.equals(other.locations) &&
           restock == other.restock &&
           upc == other.upc &&
-          iuid == other.iuid;
+          uid == other.uid;
 
   Inventory merge(Inventory other) => _$mergeInventory(this, other);
   Map<String, dynamic> toJson() => _$InventoryToJson(this);

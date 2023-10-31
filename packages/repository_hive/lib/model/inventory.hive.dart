@@ -24,7 +24,7 @@ class HiveInventory extends HiveObject {
   @HiveField(7)
   late String upc;
   @HiveField(8)
-  late String iuid;
+  late String uid;
   @HiveField(9)
   late double units;
   HiveInventory();
@@ -39,7 +39,7 @@ class HiveInventory extends HiveObject {
     history = original.history;
     restock = original.restock;
     upc = original.upc;
-    iuid = original.iuid;
+    uid = original.uid;
     units = original.units;
   }
   Inventory toInventory() {
@@ -54,7 +54,7 @@ class HiveInventory extends HiveObject {
       ..history = history
       ..restock = restock
       ..upc = upc
-      ..iuid = iuid
+      ..uid = uid
       ..units = units
     ;
   }

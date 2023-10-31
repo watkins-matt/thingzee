@@ -5,9 +5,9 @@ import 'package:repository/model/product.dart';
 @Entity()
 class ObjectBoxProduct {
   late String name;
-  late String puid;
+  late String uid;
   late String manufacturer;
-  late String muid;
+  late String manufacturerUid;
   late String category;
   List<String> upcs = [];
   @Id()
@@ -15,18 +15,18 @@ class ObjectBoxProduct {
   ObjectBoxProduct();
   ObjectBoxProduct.from(Product original) {
     name = original.name;
-    puid = original.puid;
+    uid = original.uid;
     manufacturer = original.manufacturer;
-    muid = original.muid;
+    manufacturerUid = original.manufacturerUid;
     category = original.category;
     upcs = original.upcs;
   }
   Product toProduct() {
     return Product()
       ..name = name
-      ..puid = puid
+      ..uid = uid
       ..manufacturer = manufacturer
-      ..muid = muid
+      ..manufacturerUid = manufacturerUid
       ..category = category
       ..upcs = upcs
     ;

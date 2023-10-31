@@ -4,7 +4,6 @@ import 'package:hive/hive.dart';
 import 'package:repository/model/item.dart';
 
 part 'item.hive.g.dart';
-
 @HiveType(typeId: 1)
 class HiveItem extends HiveObject {
   @HiveField(0)
@@ -67,10 +66,10 @@ class HiveItem extends HiveObject {
       ..imageUrl = imageUrl
       ..consumable = consumable
       ..languageCode = languageCode
-      ..lastUpdate = lastUpdate;
+      ..lastUpdate = lastUpdate
+    ;
   }
 }
-
 @HiveType(typeId: 2)
 class HiveItemTranslation extends HiveObject {
   @HiveField(0)
@@ -105,6 +104,7 @@ class HiveItemTranslation extends HiveObject {
       ..variety = variety
       ..unitName = unitName
       ..unitPlural = unitPlural
-      ..type = type;
+      ..type = type
+    ;
   }
 }

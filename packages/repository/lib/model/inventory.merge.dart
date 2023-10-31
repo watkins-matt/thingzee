@@ -1,5 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 part of 'inventory.dart';
+
 Inventory _$mergeInventory(Inventory first, Inventory second) {
   final firstUpdate = first.lastUpdate ?? DateTime.fromMillisecondsSinceEpoch(0);
   final secondUpdate = second.lastUpdate ?? DateTime.fromMillisecondsSinceEpoch(0);
@@ -13,6 +14,5 @@ Inventory _$mergeInventory(Inventory first, Inventory second) {
     ..history = newerInventory.history
     ..restock = newerInventory.restock
     ..upc = newerInventory.upc.isNotEmpty ? newerInventory.upc : first.upc
-    ..iuid = newerInventory.iuid.isNotEmpty ? newerInventory.iuid : first.iuid
-  ;
+    ..uid = newerInventory.uid.isNotEmpty ? newerInventory.uid : first.uid;
 }

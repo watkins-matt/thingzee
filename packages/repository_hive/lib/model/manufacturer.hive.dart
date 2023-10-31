@@ -11,26 +11,26 @@ class HiveManufacturer extends HiveObject {
   @HiveField(1)
   late String website;
   @HiveField(2)
-  late String muid;
+  late String uid;
   @HiveField(3)
   late String parentName;
   @HiveField(4)
-  late String parentMuid;
+  late String parentUid;
   HiveManufacturer();
   HiveManufacturer.from(Manufacturer original) {
     name = original.name;
     website = original.website;
-    muid = original.muid;
+    uid = original.uid;
     parentName = original.parentName;
-    parentMuid = original.parentMuid;
+    parentUid = original.parentUid;
   }
   Manufacturer toManufacturer() {
     return Manufacturer()
       ..name = name
       ..website = website
-      ..muid = muid
+      ..uid = uid
       ..parentName = parentName
-      ..parentMuid = parentMuid
+      ..parentUid = parentUid
     ;
   }
 }
