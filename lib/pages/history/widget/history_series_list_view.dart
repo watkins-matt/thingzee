@@ -34,47 +34,48 @@ class HistorySeriesListView extends StatelessWidget {
             .map((entry) => entry.value)
             .toList();
 
-        return Column(
-          children: [
-            MaterialCardWidget(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      TitleHeaderWidget(
-                        title: 'Series $index',
-                        actionButton: IconButton(
-                          icon: const Icon(Icons.delete, color: Colors.blue),
-                          onPressed: () => onDeleteSeries(index),
+        return Dismissible(
+          key: UniqueKey(),
+          background: Container(color: Colors.red),
+          onDismissed: (direction) => onDeleteSeries(index),
+          child: Column(
+            children: [
+              MaterialCardWidget(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(8),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        TitleHeaderWidget(
+                          title: 'Series $index',
                         ),
-                      ),
-                      HistoryListView(
-                        entries: entries,
-                        isScrollable: false,
-                      ),
-                      ...seriesRegressors.map(
-                        (regressor) {
-                          final usageRateDays = regressor.usageRateDays;
-                          final accuracy =
-                              history.evaluator.accuracy['${regressor.type}-$index'] ?? 0;
+                        HistoryListView(
+                          entries: entries,
+                          isScrollable: false,
+                        ),
+                        ...seriesRegressors.map(
+                          (regressor) {
+                            final usageRateDays = regressor.usageRateDays;
+                            final accuracy =
+                                history.evaluator.accuracy['${regressor.type}-$index'] ?? 0;
 
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 4),
-                            child: Text(
-                                'Regressor (${regressor.type}): Usage Rate (Days): ${usageRateDays.toStringAsFixed(2)} Accuracy: ${accuracy.toStringAsFixed(0)}%'),
-                          );
-                        },
-                      ),
-                    ],
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 4),
+                              child: Text(
+                                  'Regressor (${regressor.type}): Usage Rate (Days): ${usageRateDays.toStringAsFixed(2)} Accuracy: ${accuracy.toStringAsFixed(0)}%'),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
-            ),
-            // Add a spacer between each card, but not after the last one
-            if (index < history.series.length - 1) const SizedBox(height: 16),
-          ],
+                ],
+              ),
+              // Add a spacer between each card, but not after the last one
+              if (index < history.series.length - 1) const SizedBox(height: 16),
+            ],
+          ),
         );
       },
     );
