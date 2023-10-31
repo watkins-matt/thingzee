@@ -26,7 +26,6 @@ class _HistoryPageState extends ConsumerState<HistoryPage> {
     final history = ref.watch(editableItemProvider).inventory.history;
 
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
       appBar: AppBar(),
       body: HistorySeriesListView(history: history, onDeleteSeries: onDeleteSeries),
     );

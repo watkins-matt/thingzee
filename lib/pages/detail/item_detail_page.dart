@@ -62,7 +62,6 @@ class ItemDetailPage extends HookConsumerWidget {
     return WillPopScope(
       onWillPop: () async => onBackButtonPressed(context, ref),
       child: Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
         appBar: AppBar(
           leadingWidth: 120,
           leading: Align(

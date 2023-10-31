@@ -13,18 +13,34 @@ class InventoryViewWidget extends ConsumerWidget {
 
     return Padding(
       padding: const EdgeInsets.only(top: 10),
-      child: Column(
-        children: [
-          Expanded(
-              child: ListView.separated(
-            padding: const EdgeInsets.all(8),
-            itemCount: products.length + 1,
-            itemBuilder: (context, index) => buildItem(context, ref, index),
-            separatorBuilder: (context, index) => const Divider(
-              color: Colors.grey,
+      child: ListView.builder(
+        padding: const EdgeInsets.all(0),
+        itemCount: products.length + 1,
+        itemBuilder: (context, index) {
+          if (index == 0) {
+            return const SizedBox(
+              height: 80,
+            );
+          }
+
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 4),
+            child: Card(
+              margin: EdgeInsets.zero,
+              elevation: 1,
+              shape: const RoundedRectangleBorder(),
+              child: SizedBox(
+                width: double.infinity,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildItem(context, ref, index),
+                  ],
+                ),
+              ),
             ),
-          )),
-        ],
+          );
+        },
       ),
     );
   }

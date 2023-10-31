@@ -31,7 +31,6 @@ class _HouseholdPageState extends ConsumerState<HouseholdPage> {
     final householdId = ref.watch(householdProvider.notifier).household.id;
 
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
       appBar: AppBar(
         title: const Text('Household'),
         actions: [

@@ -16,6 +16,9 @@ class ShoppingListPage extends ConsumerWidget {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
+        backgroundColor: Theme.of(context).brightness == Brightness.light
+            ? Colors.white
+            : Theme.of(context).scaffoldBackgroundColor,
         appBar: AppBar(
           elevation: 0,
           title: const Text('Shopping'),

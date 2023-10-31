@@ -4,6 +4,7 @@ import 'package:repository/model/inventory.dart';
 import 'package:repository/model/item.dart';
 import 'package:thingzee/pages/detail/item_detail_page.dart';
 import 'package:thingzee/pages/inventory/state/item_thumbnail_cache.dart';
+import 'package:thingzee/pages/settings/state/settings_state.dart';
 
 class ItemListTile extends ConsumerWidget {
   final Item item;
@@ -34,6 +35,27 @@ class ItemListTile extends ConsumerWidget {
       amountString += '*';
     }
 
+    final isDarkMode = ref.watch(isDarkModeProvider(context));
+
+    Widget imageWidget = imageProvider != null && image
+        ? isDarkMode
+            ? Image(
+                image: imageProvider,
+                fit: BoxFit.contain,
+              )
+            : Ink.image(
+                image: imageProvider,
+                fit: BoxFit.contain,
+              )
+        : Container();
+
+    Widget roundedWidget = isDarkMode
+        ? ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: imageWidget,
+          )
+        : imageWidget;
+
     return Material(
       child: InkWell(
           onTap: () => onTap(context, ref),
@@ -50,9 +72,7 @@ class ItemListTile extends ConsumerWidget {
                             maxWidth: 100,
                             maxHeight: 100,
                           ),
-                          child: imageProvider != null && image
-                              ? Ink.image(image: imageProvider, fit: BoxFit.contain)
-                              : Container()),
+                          child: roundedWidget),
                       const SizedBox(width: 10),
                     ],
                   ),

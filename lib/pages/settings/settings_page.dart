@@ -4,6 +4,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:settings_ui/settings_ui.dart';
 import 'package:thingzee/data/csv_export_service.dart';
 import 'package:thingzee/data/csv_import_service.dart';
+import 'package:thingzee/extension/string.dart';
 import 'package:thingzee/main.dart';
 import 'package:thingzee/pages/inventory/state/inventory_view.dart';
 import 'package:thingzee/pages/inventory/state/item_thumbnail_cache.dart';
@@ -11,6 +12,7 @@ import 'package:thingzee/pages/log/log_viewer_page.dart';
 import 'package:thingzee/pages/settings/state/preference_keys.dart';
 import 'package:thingzee/pages/settings/state/settings_state.dart';
 import 'package:thingzee/pages/settings/widget/text_entry_dialog.dart';
+import 'package:thingzee/pages/settings/widget/theme_picker_dialog.dart';
 import 'package:thingzee/pages/shopping/state/shopping_list.dart';
 
 // Settings page
@@ -37,6 +39,7 @@ class SettingsPage extends ConsumerStatefulWidget {
 class _SettingsPageState extends ConsumerState<SettingsPage> {
   @override
   Widget build(BuildContext context) {
+    final themeMode = ref.watch(themeModeProvider);
     final mealieUrlText =
         ref.watch(settingsProvider.select((s) => s.settings[PreferenceKey.mealieURL]));
     final mealieApiKeyText = ref
@@ -88,6 +91,16 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                         'For example, if set to 7, items running out within the next 7 days will be added to the shopping list.'),
                     onPressed: onRestockDayCountPressed,
                     value: Text(restockDayCount)),
+              ],
+            ),
+            SettingsSection(
+              title: const Text('Theme'),
+              tiles: [
+                SettingsTile(
+                  title: const Text('App Theme'),
+                  value: Text(themeMode.toString().split('.').last.titleCase),
+                  onPressed: (BuildContext context) => onThemeButtonPressed(context),
+                ),
               ],
             ),
             SettingsSection(
@@ -178,6 +191,26 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       // Update the shopping list
       ref.read(shoppingListProvider.notifier).refresh();
     }
+  }
+
+  Future<void> onThemeButtonPressed(BuildContext context) async {
+    final currentTheme = ref.read(themeModeProvider);
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return ThemePickerDialog(
+          initialTheme: currentTheme,
+          onThemeSelected: (selectedTheme) async {
+            // Update the theme if different
+            if (selectedTheme != currentTheme) {
+              await ref
+                  .read(settingsProvider.notifier)
+                  .setInt(PreferenceKey.appTheme, selectedTheme.index);
+            }
+          },
+        );
+      },
+    );
   }
 
   Future<String?> pickFilePath() async {

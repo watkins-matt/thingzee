@@ -8,6 +8,9 @@ class RecipeBrowser extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
+      backgroundColor: Theme.of(context).brightness == Brightness.light
+          ? Colors.white
+          : Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text('Recipe Browser'),
       ),

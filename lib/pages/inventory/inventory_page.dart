@@ -67,6 +67,7 @@ class _InventoryPageState extends ConsumerState<InventoryPage> {
           setState(() {});
         },
         backdropColor: Colors.black26,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         controller: _controller,
       ),
       floatingActionButton: FloatingActionButton(

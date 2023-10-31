@@ -1,11 +1,37 @@
+import 'dart:ui';
+
+import 'package:flutter/widgets.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:repository/database/preferences.dart';
+import 'package:thingzee/extension/enum.dart';
 import 'package:thingzee/main.dart';
 import 'package:thingzee/pages/settings/state/preference_keys.dart';
+
+final isDarkModeProvider = Provider.family<bool, BuildContext>((ref, context) {
+  final themeMode = ref.watch(themeModeProvider);
+
+  switch (themeMode) {
+    case AppTheme.dark:
+      return true;
+    case AppTheme.light:
+      return false;
+    case AppTheme.system:
+      final brightnessValue = MediaQuery.of(context).platformBrightness;
+      return brightnessValue == Brightness.dark;
+  }
+});
 
 final settingsProvider = StateNotifierProvider<SettingsNotifier, SettingsState>((ref) {
   final repo = ref.watch(repositoryProvider);
   return SettingsNotifier(repo.prefs, repo.securePrefs);
+});
+
+final themeModeProvider = Provider<AppTheme>((ref) {
+  final appThemeString =
+      ref.watch(settingsProvider.select((s) => s.settings[PreferenceKey.appTheme]));
+  int? appTheme = int.tryParse(appThemeString ?? '');
+
+  return enumFromIndex(AppTheme.values, appTheme, PreferenceKeyDefault.appTheme);
 });
 
 class SettingsNotifier extends StateNotifier<SettingsState> {
@@ -13,7 +39,7 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
   final Preferences _securePrefs;
   final Set<String> _monitored = {PreferenceKey.mealieURL};
   final Set<String> _monitoredSecure = {SecurePreferenceKey.mealieApiKey};
-  final Set<String> _monitoredInt = {PreferenceKey.restockDayCount};
+  final Set<String> _monitoredInt = {PreferenceKey.restockDayCount, PreferenceKey.appTheme};
 
   SettingsNotifier(this._prefs, this._securePrefs) : super(SettingsState()) {
     for (final key in _monitored) {
