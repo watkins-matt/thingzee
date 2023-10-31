@@ -4,6 +4,7 @@ import 'package:hive/hive.dart';
 import 'package:repository/model/location.dart';
 
 part 'location.hive.g.dart';
+
 @HiveType(typeId: 6)
 class HiveLocation extends HiveObject {
   @HiveField(0)
@@ -25,12 +26,6 @@ class HiveLocation extends HiveObject {
     updated = original.updated;
   }
   Location toLocation() {
-    return Location(
-      upc: upc,
-      name: name,
-      quantity: quantity,
-      created: created,
-      updated: updated
-    );
+    return Location(upc: upc, name: name, quantity: quantity, created: created, updated: updated);
   }
 }

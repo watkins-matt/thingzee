@@ -4,6 +4,7 @@ import 'package:hive/hive.dart';
 import 'package:repository/model/expiration_date.dart';
 
 part 'expiration_date.hive.g.dart';
+
 @HiveType(typeId: 7)
 class HiveExpirationDate extends HiveObject {
   @HiveField(0)
@@ -19,10 +20,6 @@ class HiveExpirationDate extends HiveObject {
     created = original.created;
   }
   ExpirationDate toExpirationDate() {
-    return ExpirationDate(
-      upc: upc,
-      date: date,
-      created: created
-    );
+    return ExpirationDate(upc: upc, date: date, created: created);
   }
 }

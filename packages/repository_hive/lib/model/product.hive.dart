@@ -1,7 +1,10 @@
+import 'dart:core';
+
 import 'package:hive/hive.dart';
 import 'package:repository/model/product.dart';
-import 'dart:core';
+
 part 'product.hive.g.dart';
+
 @HiveType(typeId: 4)
 class HiveProduct extends HiveObject {
   @HiveField(0)
@@ -32,7 +35,6 @@ class HiveProduct extends HiveObject {
       ..manufacturer = manufacturer
       ..manufacturerUid = manufacturerUid
       ..category = category
-      ..upcs = upcs
-    ;
+      ..upcs = upcs;
   }
 }

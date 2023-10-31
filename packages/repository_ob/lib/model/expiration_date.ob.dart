@@ -2,6 +2,7 @@ import 'dart:core';
 
 import 'package:objectbox/objectbox.dart';
 import 'package:repository/model/expiration_date.dart';
+
 @Entity()
 class ObjectBoxExpirationDate {
   late String upc;
@@ -16,10 +17,6 @@ class ObjectBoxExpirationDate {
     created = original.created;
   }
   ExpirationDate toExpirationDate() {
-    return ExpirationDate(
-      upc: upc,
-      date: date,
-      created: created
-    );
+    return ExpirationDate(upc: upc, date: date, created: created);
   }
 }

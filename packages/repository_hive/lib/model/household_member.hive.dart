@@ -4,6 +4,7 @@ import 'package:hive/hive.dart';
 import 'package:repository/model/household_member.dart';
 
 part 'household_member.hive.g.dart';
+
 @HiveType(typeId: 5)
 class HiveHouseholdMember extends HiveObject {
   @HiveField(0)
@@ -29,12 +30,11 @@ class HiveHouseholdMember extends HiveObject {
   }
   HouseholdMember toHouseholdMember() {
     return HouseholdMember(
-      isAdmin: isAdmin,
-      timestamp: timestamp,
-      email: email,
-      householdId: householdId,
-      name: name,
-      userId: userId
-    );
+        isAdmin: isAdmin,
+        timestamp: timestamp,
+        email: email,
+        householdId: householdId,
+        name: name,
+        userId: userId);
   }
 }

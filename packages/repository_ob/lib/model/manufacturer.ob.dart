@@ -2,6 +2,7 @@ import 'dart:core';
 
 import 'package:objectbox/objectbox.dart';
 import 'package:repository/model/manufacturer.dart';
+
 @Entity()
 class ObjectBoxManufacturer {
   late String name;
@@ -25,7 +26,6 @@ class ObjectBoxManufacturer {
       ..website = website
       ..uid = uid
       ..parentName = parentName
-      ..parentUid = parentUid
-    ;
+      ..parentUid = parentUid;
   }
 }

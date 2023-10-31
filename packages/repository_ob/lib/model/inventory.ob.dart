@@ -3,6 +3,7 @@ import 'dart:core';
 import 'package:objectbox/objectbox.dart';
 import 'package:repository/ml/history.dart';
 import 'package:repository/model/inventory.dart';
+
 @Entity()
 class ObjectBoxInventory {
   late double amount;
@@ -34,6 +35,35 @@ class ObjectBoxInventory {
     uid = original.uid;
     units = original.units;
   }
+  List<String> get dbExpirationDates {
+    List<String> dates = [];
+    for (final exp in expirationDates) {
+      dates.add(exp.millisecondsSinceEpoch.toString());
+    }
+
+    return dates;
+  }
+
+  set dbExpirationDates(List<String> dates) {
+    expirationDates.clear();
+
+    for (final date in dates) {
+      int? timestamp = int.tryParse(date);
+
+      if (timestamp != null) {
+        expirationDates.add(DateTime.fromMillisecondsSinceEpoch(timestamp));
+      }
+    }
+  }
+
+  int get dbLastUpdate {
+    return lastUpdate != null ? lastUpdate!.millisecondsSinceEpoch : 0;
+  }
+
+  set dbLastUpdate(int value) {
+    lastUpdate = value != 0 ? DateTime.fromMillisecondsSinceEpoch(value) : null;
+  }
+
   Inventory toInventory() {
     // Ensure history is in a consistent state
     history.upc = upc;
@@ -47,38 +77,6 @@ class ObjectBoxInventory {
       ..restock = restock
       ..upc = upc
       ..uid = uid
-      ..units = units
-    ;
+      ..units = units;
   }
-int get dbLastUpdate {
-  return lastUpdate != null ? lastUpdate!.millisecondsSinceEpoch : 0;
-}
-
-set dbLastUpdate(int value) {
-  lastUpdate = value != 0
-      ? DateTime.fromMillisecondsSinceEpoch(value)
-      : null;
-}
-
-List<String> get dbExpirationDates {
-  List<String> dates = [];
-  for (final exp in expirationDates) {
-    dates.add(exp.millisecondsSinceEpoch.toString());
-  }
-
-  return dates;
-}
-
-set dbExpirationDates(List<String> dates) {
-  expirationDates.clear();
-
-  for (final date in dates) {
-    int? timestamp = int.tryParse(date);
-
-    if (timestamp != null) {
-      expirationDates.add(DateTime.fromMillisecondsSinceEpoch(timestamp));
-    }
-  }
-}
-
 }

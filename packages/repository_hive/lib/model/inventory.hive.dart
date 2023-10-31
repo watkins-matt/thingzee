@@ -5,6 +5,7 @@ import 'package:repository/ml/history.dart';
 import 'package:repository/model/inventory.dart';
 
 part 'inventory.hive.g.dart';
+
 @HiveType(typeId: 0)
 class HiveInventory extends HiveObject {
   @HiveField(0)
@@ -55,7 +56,6 @@ class HiveInventory extends HiveObject {
       ..restock = restock
       ..upc = upc
       ..uid = uid
-      ..units = units
-    ;
+      ..units = units;
   }
 }

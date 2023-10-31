@@ -2,6 +2,7 @@ import 'dart:core';
 
 import 'package:objectbox/objectbox.dart';
 import 'package:repository/model/household_member.dart';
+
 @Entity()
 class ObjectBoxHouseholdMember {
   late bool isAdmin;
@@ -23,12 +24,11 @@ class ObjectBoxHouseholdMember {
   }
   HouseholdMember toHouseholdMember() {
     return HouseholdMember(
-      isAdmin: isAdmin,
-      timestamp: timestamp,
-      email: email,
-      householdId: householdId,
-      name: name,
-      userId: userId
-    );
+        isAdmin: isAdmin,
+        timestamp: timestamp,
+        email: email,
+        householdId: householdId,
+        name: name,
+        userId: userId);
   }
 }

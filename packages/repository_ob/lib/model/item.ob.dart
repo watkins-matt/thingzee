@@ -2,6 +2,7 @@ import 'dart:core';
 
 import 'package:objectbox/objectbox.dart';
 import 'package:repository/model/item.dart';
+
 @Entity()
 class ObjectBoxItem {
   @Unique(onConflict: ConflictStrategy.replace)
@@ -53,10 +54,10 @@ class ObjectBoxItem {
       ..imageUrl = imageUrl
       ..consumable = consumable
       ..languageCode = languageCode
-      ..lastUpdate = lastUpdate
-    ;
+      ..lastUpdate = lastUpdate;
   }
 }
+
 @Entity()
 class ObjectBoxItemTranslation {
   @Unique(onConflict: ConflictStrategy.replace)
@@ -87,7 +88,6 @@ class ObjectBoxItemTranslation {
       ..variety = variety
       ..unitName = unitName
       ..unitPlural = unitPlural
-      ..type = type
-    ;
+      ..type = type;
   }
 }
