@@ -32,7 +32,7 @@ class ShoppingCartListTile extends ConsumerWidget {
           ref.read(shoppingCartProvider.notifier).removeAt(index);
         },
         child: ListTile(
-            title: Expanded(flex: 2, child: Text(item.name)),
+            title: Text(item.name),
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
