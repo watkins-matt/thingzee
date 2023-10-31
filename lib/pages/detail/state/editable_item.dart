@@ -23,6 +23,7 @@ class EditableItem extends StateNotifier<EditableItemState> {
   }
 
   double get amount => state.inventory.amount;
+
   set amount(double amount) {
     final inv = state.inventory;
     inv.amount = amount;
@@ -32,12 +33,21 @@ class EditableItem extends StateNotifier<EditableItemState> {
   }
 
   bool get consumable => state.item.consumable;
+
   set consumable(bool consumable) {
     final item = state.item;
     item.consumable = consumable;
 
     state.changedFields.add('consumable');
     state = EditableItemState(item, state.inventory, state.changedFields);
+  }
+
+  List<MapEntry<int, double>> get currentHistorySeries {
+    final series = state.inventory.history.series.last;
+    final entries =
+        series.observations.map((o) => MapEntry(o.timestamp.toInt(), o.amount)).toList();
+    entries.sort((a, b) => a.key.compareTo(b.key));
+    return entries;
   }
 
   String get imageUrl => state.item.imageUrl;

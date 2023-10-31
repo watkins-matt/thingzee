@@ -281,11 +281,11 @@ class ItemDetailPage extends HookConsumerWidget {
                           onPressed: () async => await onCleanUpHistory(ref),
                           icon: const Icon(Icons.cleaning_services, color: Colors.blue))),
                   HistoryListView(
-                      entries: ref.watch(editableItemProvider.notifier).allHistoryEntries,
+                      entries: ref.watch(editableItemProvider.notifier).currentHistorySeries,
                       isScrollable: false),
                   Center(
                       child: TextButton(
-                          child: const Text('View History Detail'),
+                          child: const Text('View Full History Detail'),
                           onPressed: () async => onHistoryDetailPressed(context, ref))),
                 ]),
               ],
