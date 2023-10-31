@@ -33,10 +33,12 @@ class TextFieldColumnWidget extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
             labelText,
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodyLarge!.copyWith(fontWeight: FontWeight.bold),
           ),
           TextField(
             decoration: const InputDecoration(border: InputBorder.none),
