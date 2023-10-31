@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:repository/ml/history.dart';
-import 'package:repository/ml/regressor.dart';
 import 'package:thingzee/pages/detail/widget/material_card_widget.dart';
 import 'package:thingzee/pages/detail/widget/title_header_widget.dart';
 import 'package:thingzee/pages/history/widget/history_list_view.dart';
+import 'package:thingzee/pages/history/widget/regressor_view_widget.dart';
 
 class HistorySeriesListView extends StatelessWidget {
   final History history;
@@ -43,10 +43,8 @@ class HistorySeriesListView extends StatelessWidget {
               MaterialCardWidget(
                 children: [
                   Padding(
-                    padding: const EdgeInsets.all(8),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
+                      padding: const EdgeInsets.all(8),
+                      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                         TitleHeaderWidget(
                           title: 'Series $index',
                         ),
@@ -54,22 +52,15 @@ class HistorySeriesListView extends StatelessWidget {
                           entries: entries,
                           isScrollable: false,
                         ),
-                        ...seriesRegressors.map(
-                          (regressor) {
-                            final usageRateDays = regressor.usageRateDays;
-                            final accuracy =
-                                history.evaluator.accuracy['${regressor.type}-$index'] ?? 0;
-
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 4),
-                              child: Text(
-                                  'Regressor (${regressor.type}): Usage Rate (Days): ${usageRateDays.toStringAsFixed(2)} Accuracy: ${accuracy.toStringAsFixed(0)}%'),
-                            );
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
+                        Visibility(
+                          visible: seriesRegressors.isNotEmpty,
+                          child: RegressorViewWidget(
+                            seriesRegressors: seriesRegressors,
+                            evaluatorAccuracy: history.evaluator.accuracy,
+                            index: index,
+                          ),
+                        )
+                      ]))
                 ],
               ),
               // Add a spacer between each card, but not after the last one
