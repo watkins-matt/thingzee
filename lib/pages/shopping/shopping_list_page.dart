@@ -106,9 +106,6 @@ class ShoppingListPage extends ConsumerWidget {
 
       // Switch back to the inventory view tab
       ref.read(bottomNavBarIndexProvider.notifier).state = 0;
-
-      // Hide the shopping cart page
-      if (context.mounted) Navigator.pop(context);
     }
   }
 
