@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:log/log.dart';
 import 'package:repository/ml/history.dart';
 import 'package:repository/ml/history_series.dart';
@@ -12,6 +14,9 @@ class Evaluator {
   bool _trained = false;
   final String defaultType = 'Simple';
   History history;
+
+  /// Holds the indices of series considered to be outliers.
+  Set<int> outlierSeriesIndices = {};
 
   Evaluator(this.history);
 
@@ -65,6 +70,19 @@ class Evaluator {
     return predictions;
   }
 
+  /// Identifies outlier series based on the mean usageRateDays of their regressors.
+  /// Stores the indices of these series in `outlierSeriesIndices`.
+  void identifyOutlierSeries() {
+    // Compute the mean usageRateDays for each series
+    final meanUsageRateDaysPerSeries = _computeMeanUsageRateDaysPerSeries();
+
+    // Compute global mean and standard deviation for usageRateDays
+    final metrics = _computeUsageRateDaysMetrics(meanUsageRateDaysPerSeries);
+
+    // Identify and store the indices of outlier series
+    _updateOutliers(meanUsageRateDaysPerSeries, metrics['mean']!, metrics['stdDev']!);
+  }
+
   double predict(double timestamp) {
     if (!_trained) {
       throw Exception('Evaluator has not been trained. Train before predicting.');
@@ -103,7 +121,11 @@ class Evaluator {
       return;
     }
 
+    // Look for any outliers in the series data
+    identifyOutlierSeries();
+
     // Store the average accuracy of each regressor
+
     accuracy = _computeAccuracy();
 
     // Set the best regressor to the one with the highest accuracy
@@ -124,12 +146,31 @@ class Evaluator {
     _trained = true;
   }
 
+  /// Calculates mean usageRateDays for a list of regressors.
+  double _calculateMeanUsageRateDays(List<Regressor> regressors) {
+    final total = regressors.map((r) => r.usageRateDays).reduce((a, b) => a + b);
+    return total / regressors.length;
+  }
+
+  // TwoPointLinearRegressor _createAverageRegressor(
+  //     Map<int, double> points, List<Regressor> regressors) {
+  //   List<double> slopes = regressors.map((regressor) => regressor.slope).toList();
+  //   double averageSlope = slopes.reduce((a, b) => a + b) / slopes.length;
+
+  //   int x1 = points.keys.first;
+  //   double y1 = points.values.first;
+  //   double intercept = y1 - averageSlope * x1;
+
+  //   return TwoPointLinearRegressor(averageSlope, intercept);
+  // }
+
   Map<String, double> _computeAccuracy() {
     Map<String, double> accuracyMap = {};
 
     for (final regressorId in regressors.keys) {
       var regressor = regressors[regressorId]!;
       double totalAccuracy = 0;
+      int seriesCount = 0;
 
       // Only compute accuracy for normalized regressors
       if (regressor is! NormalizedRegressor) {
@@ -138,11 +179,19 @@ class Evaluator {
         continue;
       }
 
-      for (final series in history.series) {
+      for (int i = 0; i < history.series.length; i++) {
+        final series = history.series[i];
+
+        // Skip outlier series
+        if (outlierSeriesIndices.contains(i)) {
+          continue;
+        }
+
         double mape = _computeMAPE(regressor, series);
         double accuracy = 100 - mape;
         accuracy = accuracy.clamp(0, 100);
         totalAccuracy += accuracy;
+        seriesCount++;
 
         // Store the latest accuracy for each regressor
         if (series == history.series.last) {
@@ -150,7 +199,7 @@ class Evaluator {
         }
       }
 
-      double averageAccuracy = totalAccuracy / history.series.length;
+      double averageAccuracy = (seriesCount > 0) ? totalAccuracy / seriesCount : 0;
       accuracyMap[regressorId] = averageAccuracy;
     }
 
@@ -194,6 +243,24 @@ class Evaluator {
     return averageError;
   }
 
+  /// Computes the mean usageRateDays for each series.
+  List<double> _computeMeanUsageRateDaysPerSeries() {
+    return List.generate(history.series.length, (i) {
+      final seriesRegressors = _getRegressorsForSeries(i);
+      return _calculateMeanUsageRateDays(seriesRegressors);
+    });
+  }
+
+  /// Computes global mean and standard deviation for usageRateDays.
+  Map<String, double> _computeUsageRateDaysMetrics(List<double> meanUsageRateDaysPerSeries) {
+    final mean =
+        meanUsageRateDaysPerSeries.reduce((a, b) => a + b) / meanUsageRateDaysPerSeries.length;
+    final variance =
+        meanUsageRateDaysPerSeries.map((x) => (x - mean) * (x - mean)).reduce((a, b) => a + b) /
+            meanUsageRateDaysPerSeries.length;
+    return {'mean': mean, 'stdDev': sqrt(variance)};
+  }
+
   Map<String, Regressor> _createRegressors() {
     Map<String, Regressor> regressorMap = {};
 
@@ -211,18 +278,6 @@ class Evaluator {
 
     return regressorMap;
   }
-
-  // TwoPointLinearRegressor _createAverageRegressor(
-  //     Map<int, double> points, List<Regressor> regressors) {
-  //   List<double> slopes = regressors.map((regressor) => regressor.slope).toList();
-  //   double averageSlope = slopes.reduce((a, b) => a + b) / slopes.length;
-
-  //   int x1 = points.keys.first;
-  //   double y1 = points.values.first;
-  //   double intercept = y1 - averageSlope * x1;
-
-  //   return TwoPointLinearRegressor(averageSlope, intercept);
-  // }
 
   List<Regressor> _generateRegressors(HistorySeries series) {
     List<Regressor> regressors = [];
@@ -293,5 +348,26 @@ class Evaluator {
     }
 
     return regressors;
+  }
+
+  /// Retrieves regressors corresponding to a series index.
+  List<Regressor> _getRegressorsForSeries(int seriesIndex) {
+    final pattern = '-$seriesIndex';
+    return history.evaluator.regressors.entries
+        .where((entry) => entry.key.endsWith(pattern))
+        .map((entry) => entry.value)
+        .toList();
+  }
+
+  /// Identifies outlier series based on their mean usageRateDays and stores their indices.
+  void _updateOutliers(List<double> meanUsageRateDaysPerSeries, double mean, double stdDev) {
+    outlierSeriesIndices.clear();
+
+    for (var i = 0; i < meanUsageRateDaysPerSeries.length; i++) {
+      final zScore = (meanUsageRateDaysPerSeries[i] - mean) / stdDev;
+      if (zScore.abs() > 3) {
+        outlierSeriesIndices.add(i);
+      }
+    }
   }
 }
