@@ -193,7 +193,7 @@ class EditableItem extends StateNotifier<EditableItemState> {
 
   void deleteHistorySeries(int index) {
     final inv = state.inventory;
-    inv.history.series.removeAt(index);
+    inv.history.delete(index);
 
     state = EditableItemState(state.item, inv, state.changedFields);
   }

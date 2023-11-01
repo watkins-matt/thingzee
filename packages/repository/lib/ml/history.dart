@@ -295,6 +295,11 @@ class History {
       ..evaluator = evaluator;
   }
 
+  void delete(int series) {
+    this.series.removeAt(series);
+    evaluator.train(this);
+  }
+
   bool equalTo(History other) =>
       identical(this, other) || upc == other.upc && series.equals(other.series);
 
