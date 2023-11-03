@@ -198,6 +198,25 @@ class AppwriteHouseholdDatabase extends HouseholdDatabase {
     }
   }
 
+  Future<bool> _createTeam() async {
+    try {
+      await _teams.create(teamId: _householdId, name: _householdId);
+      return true;
+    } on AppwriteException catch (e) {
+      // Team already exists
+      if (e.code == 409) {
+        Log.w('Team already exists, not creating anything.', e.toString());
+        return true;
+      }
+      // Another AppwriteException occurred
+      Log.e('Error while creating team: [AppwriteException]', e.toString());
+      return false;
+    } on Exception catch (e) {
+      Log.e('Error while creating team: [Exception]', e.toString());
+      return false;
+    }
+  }
+
   List<HouseholdMember> _documentsToMembers(DocumentList documentList) {
     return documentList.documents.map((document) {
       return HouseholdMember.fromJson(document.data);
@@ -213,10 +232,8 @@ class AppwriteHouseholdDatabase extends HouseholdDatabase {
       await _teams.get(teamId: _householdId);
     } on AppwriteException catch (e) {
       if (e.code == 404) {
-        try {
-          await _teams.create(teamId: _householdId, name: _householdId);
-        } on Exception catch (e) {
-          Log.e('Error while creating team: [Exception]', e.toString());
+        final success = await _createTeam();
+        if (!success) {
           rethrow;
         }
       } else {
