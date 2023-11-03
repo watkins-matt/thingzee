@@ -1,16 +1,16 @@
 import 'package:repository/ml/regressor/regressor.dart';
 
-class UsageRateDaysRegressor implements Regressor {
+class UsageRateRegressor implements Regressor {
   final double _slope;
   final double _intercept;
 
-  factory UsageRateDaysRegressor(double usageRateDays, double x1, double y1) {
+  factory UsageRateRegressor(double usageRateDays, double x1, double y1) {
     final slope = -1 / (usageRateDays * 24 * 60 * 60 * 1000);
     final intercept = y1 + (x1 * slope);
-    return UsageRateDaysRegressor._(slope, intercept);
+    return UsageRateRegressor._(slope, intercept);
   }
 
-  UsageRateDaysRegressor._(this._slope, this._intercept);
+  UsageRateRegressor._(this._slope, this._intercept);
 
   @override
   bool get hasSlope => true;
