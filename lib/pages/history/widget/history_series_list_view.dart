@@ -34,6 +34,9 @@ class HistorySeriesListView extends StatelessWidget {
             .map((entry) => entry.value)
             .toList();
 
+        // Determine if this series is an outlier
+        final isOutlier = history.evaluator.outlierSeriesIndices.contains(index);
+
         return Dismissible(
           key: UniqueKey(),
           background: Container(color: Colors.red),
@@ -45,8 +48,24 @@ class HistorySeriesListView extends StatelessWidget {
                   Padding(
                       padding: const EdgeInsets.all(8),
                       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                        TitleHeaderWidget(
-                          title: 'Series $index',
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Expanded(
+                              child: TitleHeaderWidget(
+                                title: 'Series $index',
+                              ),
+                            ),
+                            if (isOutlier)
+                              const Text(
+                                'Outlier Series',
+                                style: TextStyle(
+                                  color: Colors.red,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                          ],
                         ),
                         HistoryListView(
                           entries: entries,
