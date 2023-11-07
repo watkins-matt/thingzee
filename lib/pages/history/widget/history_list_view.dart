@@ -6,10 +6,10 @@ class HistoryListView extends StatelessWidget {
   final bool isScrollable;
 
   const HistoryListView({
-    Key? key,
+    super.key,
     required this.entries,
     this.isScrollable = true,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

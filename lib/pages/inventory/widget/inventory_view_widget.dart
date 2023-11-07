@@ -5,7 +5,7 @@ import 'package:thingzee/pages/inventory/state/inventory_view.dart';
 import 'package:thingzee/pages/inventory/widget/item_list_tile.dart';
 
 class InventoryViewWidget extends ConsumerWidget {
-  const InventoryViewWidget({Key? key}) : super(key: key);
+  const InventoryViewWidget({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

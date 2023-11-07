@@ -9,7 +9,7 @@ import 'package:thingzee/pages/shopping/widget/shopping_cart_list_tile.dart';
 import 'package:thingzee/pages/shopping/widget/shopping_list_tile.dart';
 
 class ShoppingListPage extends ConsumerWidget {
-  const ShoppingListPage({Key? key}) : super(key: key);
+  const ShoppingListPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

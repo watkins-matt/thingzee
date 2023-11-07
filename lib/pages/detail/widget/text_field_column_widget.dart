@@ -10,14 +10,14 @@ class TextFieldColumnWidget extends StatelessWidget {
   final ValueChanged<String>? onChanged;
 
   const TextFieldColumnWidget({
-    Key? key,
+    super.key,
     required this.labelText,
     required this.controller,
     this.readOnly = false,
     this.inputFormat,
     this.keyboardType = TextInputType.text,
     this.onChanged,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

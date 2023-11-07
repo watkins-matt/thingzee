@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class AddMemberDialog extends StatefulWidget {
-  const AddMemberDialog({Key? key}) : super(key: key);
+  const AddMemberDialog({super.key});
 
   @override
   State<AddMemberDialog> createState() => _AddMemberDialogState();

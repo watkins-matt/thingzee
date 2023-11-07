@@ -28,7 +28,7 @@ import 'package:thingzee/pages/shopping/state/shopping_list.dart';
 
 class ItemDetailPage extends HookConsumerWidget {
   final Item item;
-  const ItemDetailPage(this.item, {Key? key}) : super(key: key);
+  const ItemDetailPage(this.item, {super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

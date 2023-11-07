@@ -8,7 +8,7 @@ import 'package:thingzee/pages/settings/state/settings_state.dart';
 class LoginPage extends ConsumerWidget {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  LoginPage({Key? key}) : super(key: key);
+  LoginPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

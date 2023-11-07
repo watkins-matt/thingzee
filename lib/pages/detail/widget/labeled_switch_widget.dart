@@ -6,11 +6,11 @@ class LabeledSwitchWidget extends StatelessWidget {
   final ValueChanged<bool> onChanged;
 
   const LabeledSwitchWidget({
-    Key? key,
+    super.key,
     required this.labelText,
     required this.value,
     required this.onChanged,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

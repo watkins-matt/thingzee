@@ -4,7 +4,7 @@ import 'package:thingzee/pages/inventory/widget/item_grid_tile.dart';
 import 'package:thingzee/pages/location/state/location_view_state.dart';
 
 class LocationGridView extends ConsumerWidget {
-  const LocationGridView({Key? key}) : super(key: key);
+  const LocationGridView({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

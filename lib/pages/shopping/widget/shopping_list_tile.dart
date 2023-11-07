@@ -14,13 +14,13 @@ class ShoppingListTile extends StatelessWidget {
   final WidgetRef ref;
 
   const ShoppingListTile({
-    Key? key,
+    super.key,
     required this.index,
     required this.joinedItem,
     required this.sl,
     required this.sc,
     required this.ref,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

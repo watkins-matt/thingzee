@@ -6,7 +6,7 @@ import 'package:thingzee/pages/login/state/register_state.dart';
 import 'package:thingzee/pages/settings/state/settings_state.dart';
 
 class RegisterPage extends ConsumerStatefulWidget {
-  const RegisterPage({Key? key}) : super(key: key);
+  const RegisterPage({super.key});
 
   @override
   ConsumerState<RegisterPage> createState() => _RegisterPageState();

@@ -5,10 +5,10 @@ class MaterialCardWidget extends StatelessWidget {
   final int padding;
 
   const MaterialCardWidget({
-    Key? key,
+    super.key,
     required this.children,
     this.padding = 8,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

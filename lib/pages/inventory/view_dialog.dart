@@ -8,10 +8,10 @@ class ViewDialog extends ConsumerStatefulWidget {
   final bool defaultDisplayBranded;
 
   const ViewDialog({
-    Key? key,
+    super.key,
     this.defaultDisplayImages = true,
     this.defaultDisplayBranded = true,
-  }) : super(key: key);
+  });
 
   @override
   ConsumerState<ViewDialog> createState() => _ViewDialogState();

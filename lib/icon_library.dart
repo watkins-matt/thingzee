@@ -17,6 +17,7 @@
 ///         License:   SIL (http://scripts.sil.org/OFL)
 ///         Homepage:  http://aristeides.com/
 ///
+library;
 import 'package:flutter/widgets.dart';
 
 class IconLibrary {

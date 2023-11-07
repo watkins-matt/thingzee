@@ -6,7 +6,7 @@ import 'package:thingzee/pages/location/widgets/location_view_list.dart';
 import 'package:thingzee/pages/location/widgets/path_chip_widget.dart';
 
 class LocationPage extends ConsumerStatefulWidget {
-  const LocationPage({Key? key}) : super(key: key);
+  const LocationPage({super.key});
 
   @override
   ConsumerState<LocationPage> createState() => _LocationPageState();

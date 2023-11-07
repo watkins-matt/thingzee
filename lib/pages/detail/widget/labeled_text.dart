@@ -9,7 +9,7 @@ class LabeledText extends StatelessWidget {
   final TextAlign valueTextAlign;
 
   const LabeledText({
-    Key? key,
+    super.key,
     required this.labelText,
     required this.value,
     this.labelTextStyle = const TextStyle(
@@ -19,7 +19,7 @@ class LabeledText extends StatelessWidget {
     this.valueTextStyle = const TextStyle(fontStyle: FontStyle.italic, color: Colors.blue),
     this.textScaleFactor = 0.9,
     this.valueTextAlign = TextAlign.start,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

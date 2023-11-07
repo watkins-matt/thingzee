@@ -10,8 +10,7 @@ class ItemGridTile extends ConsumerWidget {
   final Inventory inventory;
   final bool brandedName;
 
-  const ItemGridTile(this.item, this.inventory, {Key? key, this.brandedName = true})
-      : super(key: key);
+  const ItemGridTile(this.item, this.inventory, {super.key, this.brandedName = true});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

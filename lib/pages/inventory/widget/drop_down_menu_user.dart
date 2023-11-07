@@ -14,12 +14,10 @@ class UserDropdownMenu extends BaseDropdownMenu {
   final WidgetRef ref;
 
   UserDropdownMenu({
-    Key? key,
-    required child,
+    super.key,
+    required super.child,
     required this.ref,
   }) : super(
-          key: key,
-          child: child,
           onSelected: (value) => _onSelected(value, ref),
           itemBuilder: (context) => _itemBuilder(ref, context),
         );

@@ -6,8 +6,8 @@ import 'package:thingzee/pages/inventory/view_dialog.dart';
 
 class ViewButton extends ConsumerWidget {
   const ViewButton({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

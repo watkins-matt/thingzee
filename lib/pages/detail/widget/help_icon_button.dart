@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 class HelpIconButton extends StatelessWidget {
   final String message;
 
-  const HelpIconButton({Key? key, required this.message}) : super(key: key);
+  const HelpIconButton({super.key, required this.message});
 
   @override
   Widget build(BuildContext context) {

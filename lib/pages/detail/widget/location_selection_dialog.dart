@@ -37,7 +37,7 @@ class LocationSelectorDialog extends HookWidget {
     'Garage': {'Cabinet': [], 'Shelf': [], 'Workbench': []},
   };
 
-  LocationSelectorDialog({Key? key}) : super(key: key);
+  LocationSelectorDialog({super.key});
 
   @override
   Widget build(BuildContext context) {

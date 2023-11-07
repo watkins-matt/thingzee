@@ -5,7 +5,7 @@ import 'package:thingzee/pages/history/widget/history_series_list_view.dart';
 
 class HistoryPage extends ConsumerStatefulWidget {
   final String upc;
-  const HistoryPage(this.upc, {Key? key}) : super(key: key);
+  const HistoryPage(this.upc, {super.key});
 
   @override
   ConsumerState<HistoryPage> createState() => _HistoryPageState();

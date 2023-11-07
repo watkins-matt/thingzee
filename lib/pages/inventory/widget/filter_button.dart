@@ -5,8 +5,8 @@ import 'package:thingzee/pages/inventory/state/inventory_view.dart';
 
 class FilterButton extends ConsumerWidget {
   const FilterButton({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

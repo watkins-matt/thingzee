@@ -8,12 +8,12 @@ class ChoiceBoxEditableText extends ConsumerStatefulWidget {
   final void Function(String) onChanged;
 
   const ChoiceBoxEditableText({
-    Key? key,
+    super.key,
     required this.choices,
     required this.keyboardType,
     required this.controller,
     required this.onChanged,
-  }) : super(key: key);
+  });
 
   @override
   ConsumerState<ChoiceBoxEditableText> createState() => _ChoiceBoxEditableTextState();

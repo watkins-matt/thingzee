@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class TripCompletedConfirmationDialog extends StatefulWidget {
-  const TripCompletedConfirmationDialog({Key? key}) : super(key: key);
+  const TripCompletedConfirmationDialog({super.key});
 
   static Future<bool> show(BuildContext context) async {
     final result = await showDialog<bool>(

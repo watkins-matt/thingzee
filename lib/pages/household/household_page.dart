@@ -9,7 +9,7 @@ import 'package:thingzee/pages/household/state/invitation_state.dart';
 import 'package:thingzee/pages/household/widget/add_member_dialog.dart';
 
 class HouseholdPage extends ConsumerStatefulWidget {
-  const HouseholdPage({Key? key}) : super(key: key);
+  const HouseholdPage({super.key});
 
   @override
   ConsumerState<HouseholdPage> createState() => _HouseholdPageState();

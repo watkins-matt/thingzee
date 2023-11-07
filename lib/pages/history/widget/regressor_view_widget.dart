@@ -7,11 +7,11 @@ class RegressorViewWidget extends StatelessWidget {
   final int index;
 
   const RegressorViewWidget({
-    Key? key,
+    super.key,
     required this.seriesRegressors,
     required this.evaluatorAccuracy,
     required this.index,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

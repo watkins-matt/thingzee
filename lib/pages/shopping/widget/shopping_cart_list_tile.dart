@@ -9,8 +9,7 @@ class ShoppingCartListTile extends ConsumerWidget {
   final JoinedItem joinedItem;
   final int index;
 
-  const ShoppingCartListTile({Key? key, required this.joinedItem, required this.index})
-      : super(key: key);
+  const ShoppingCartListTile({super.key, required this.joinedItem, required this.index});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

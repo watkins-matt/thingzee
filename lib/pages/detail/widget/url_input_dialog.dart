@@ -6,11 +6,11 @@ class UrlInputDialog extends StatefulWidget {
   final Future<String?> Function()? customButtonAction;
 
   const UrlInputDialog({
-    Key? key,
+    super.key,
     this.existingUrl,
     this.customButton,
     this.customButtonAction,
-  }) : super(key: key);
+  });
 
   @override
   State<UrlInputDialog> createState() => _UrlInputDialogState();

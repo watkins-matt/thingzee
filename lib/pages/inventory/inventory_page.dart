@@ -10,7 +10,7 @@ import 'package:thingzee/pages/inventory/widget/user_profile_button.dart';
 import 'package:thingzee/pages/inventory/widget/view_button.dart';
 
 class InventoryPage extends ConsumerStatefulWidget {
-  const InventoryPage({Key? key}) : super(key: key);
+  const InventoryPage({super.key});
 
   @override
   ConsumerState<InventoryPage> createState() => _InventoryPageState();

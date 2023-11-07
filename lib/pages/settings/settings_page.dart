@@ -23,7 +23,7 @@ import 'package:thingzee/pages/shopping/state/shopping_list.dart';
 // - Debug functionality to reset db
 
 class SettingsPage extends ConsumerStatefulWidget {
-  const SettingsPage({Key? key}) : super(key: key);
+  const SettingsPage({super.key});
 
   @override
   ConsumerState<SettingsPage> createState() => _SettingsPageState();

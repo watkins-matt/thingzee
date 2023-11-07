@@ -6,10 +6,9 @@ import 'package:thingzee/pages/inventory/state/inventory_view.dart';
 class FilterDialog extends ConsumerStatefulWidget {
   final Filter defaultFilter;
 
-  const FilterDialog({Key? key})
-      : defaultFilter = const Filter(),
-        super(key: key);
-  const FilterDialog.fromFilter(this.defaultFilter, {Key? key}) : super(key: key);
+  const FilterDialog({super.key})
+      : defaultFilter = const Filter();
+  const FilterDialog.fromFilter(this.defaultFilter, {super.key});
 
   @override
   ConsumerState<FilterDialog> createState() => _FilterDialogState();

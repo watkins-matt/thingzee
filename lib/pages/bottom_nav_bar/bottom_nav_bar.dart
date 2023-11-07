@@ -7,7 +7,7 @@ import 'package:thingzee/pages/recipe_browser/recipe_browser.dart';
 import 'package:thingzee/pages/shopping/shopping_list_page.dart';
 
 class BottomNavBar extends ConsumerWidget {
-  const BottomNavBar({Key? key}) : super(key: key);
+  const BottomNavBar({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

@@ -36,7 +36,7 @@ class BarcodeScannerPage extends ConsumerStatefulWidget {
   final BarcodeScannerMode mode;
   final String location;
 
-  const BarcodeScannerPage(this.mode, {Key? key, this.location = ''}) : super(key: key);
+  const BarcodeScannerPage(this.mode, {super.key, this.location = ''});
 
   @override
   ConsumerState<BarcodeScannerPage> createState() => _BarcodeScannerPageState();

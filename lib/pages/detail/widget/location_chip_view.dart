@@ -4,8 +4,7 @@ class LocationChipView extends StatelessWidget {
   final Set<String> locations;
   final Function(String) onLocationRemove;
 
-  const LocationChipView({Key? key, required this.locations, required this.onLocationRemove})
-      : super(key: key);
+  const LocationChipView({super.key, required this.locations, required this.onLocationRemove});
 
   @override
   Widget build(BuildContext context) {

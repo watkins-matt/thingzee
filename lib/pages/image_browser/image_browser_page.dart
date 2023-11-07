@@ -3,7 +3,7 @@ import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
 class ImageBrowserPage extends StatefulWidget {
   final String upc;
-  const ImageBrowserPage(this.upc, {Key? key}) : super(key: key);
+  const ImageBrowserPage(this.upc, {super.key});
 
   @override
   State<ImageBrowserPage> createState() => _ImageBrowserPageState();

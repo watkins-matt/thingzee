@@ -11,13 +11,13 @@ class LabeledEditableText extends StatelessWidget {
   final String? helpTooltip;
 
   const LabeledEditableText({
-    Key? key,
+    super.key,
     required this.labelText,
     required this.keyboardType,
     required this.controller,
     required this.onChanged,
     this.helpTooltip,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

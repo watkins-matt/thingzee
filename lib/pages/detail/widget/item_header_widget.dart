@@ -8,13 +8,13 @@ class ItemHeaderWidget extends StatelessWidget {
   final bool isDarkMode;
 
   const ItemHeaderWidget({
-    Key? key,
+    super.key,
     required this.image,
     required this.nameController,
     required this.onImagePressed,
     required this.onNameChanged,
     this.isDarkMode = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

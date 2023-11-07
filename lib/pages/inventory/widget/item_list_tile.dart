@@ -13,8 +13,7 @@ class ItemListTile extends ConsumerWidget {
   final bool image;
 
   const ItemListTile(this.item, this.inventory,
-      {Key? key, this.brandedName = true, this.image = true})
-      : super(key: key);
+      {super.key, this.brandedName = true, this.image = true});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

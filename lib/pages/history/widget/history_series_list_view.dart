@@ -10,10 +10,10 @@ class HistorySeriesListView extends StatelessWidget {
   final Function(int) onDeleteSeries;
 
   const HistorySeriesListView({
-    Key? key,
+    super.key,
     required this.history,
     required this.onDeleteSeries,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
