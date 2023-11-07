@@ -88,7 +88,7 @@ class _LogViewerPageState extends ConsumerState<LogViewerPage> {
 
   Color _getColor(Level level) {
     switch (level) {
-      case Level.verbose:
+      case Level.trace:
         return Colors.blue;
       case Level.debug:
         return Colors.green;
@@ -98,7 +98,7 @@ class _LogViewerPageState extends ConsumerState<LogViewerPage> {
         return Colors.orange;
       case Level.error:
         return Colors.red;
-      case Level.wtf:
+      case Level.fatal:
         return Colors.purple;
       default:
         return Colors.grey;
