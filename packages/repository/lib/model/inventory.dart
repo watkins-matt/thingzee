@@ -130,9 +130,7 @@ class Inventory {
     // the units instead of something like 350% which doesn't make
     // much sense.
     if (unitCount == 1 && (preferredAmount.roundTo(1) > 0)) {
-      return preferredAmount <= 1.0
-          ? '${(preferredAmount * 100).roundTo(0).toStringAsFixed(0)}%'
-          : preferredAmount.toStringAsFixed(2);
+      return preferredAmount.toStringAsFixed(2);
     }
 
     // There is a unit count specified, so we show the
