@@ -1,6 +1,6 @@
-import 'dart:math';
-
+import 'package:kmeans_cluster/kmeans.dart';
 import 'package:log/log.dart';
+import 'package:repository/extension/list.dart';
 import 'package:repository/ml/history.dart';
 import 'package:repository/ml/history_series.dart';
 import 'package:repository/ml/observation.dart';
@@ -10,13 +10,15 @@ class Evaluator {
   Map<String, Regressor> regressors = {};
   Map<String, double> accuracy = {};
   Map<String, double> latestAccuracy = {};
+  Map<String, double> clusterAccuracy = {};
+  KMeansClusterer clusterer = KMeansClusterer({});
+
+  /// Holds the indices of series considered to be outliers.
+  Set<int> outlierSeriesIndices = {};
   String _best = '';
   bool _trained = false;
   final String defaultType = 'Simple';
   History history;
-
-  /// Holds the indices of series considered to be outliers.
-  Set<int> outlierSeriesIndices = {};
 
   Evaluator(this.history);
 
@@ -52,7 +54,33 @@ class Evaluator {
     return '${accuracy[_best]!.toStringAsFixed(2)}%';
   }
 
+  /// Returns a cluster that represents an aggregation of all
+  /// regressors that are most similar to the recent trend.
+  Cluster? get mostRecentCluster {
+    int seriesCount = history.series.length;
+
+    // Go backwards through the series list to find the
+    // first one represented in a cluster
+    for (int index = seriesCount - 1; index >= 0; index--) {
+      Cluster? current = clusterer['$index'];
+
+      if (current != null) {
+        return current;
+      }
+    }
+
+    return null;
+  }
+
   bool get trained => _trained;
+
+  // Contains the indices of series are most similar to recent data.
+  Set<int> get trendingSeries {
+    final recentCluster = mostRecentCluster;
+    return recentCluster != null
+        ? recentCluster.members.map((member) => int.parse(member)).toSet()
+        : <int>{};
+  }
 
   Map<String, double> allPredictions(double timestamp) {
     if (!_trained) {
@@ -70,17 +98,30 @@ class Evaluator {
     return predictions;
   }
 
-  /// Identifies outlier series based on the mean usageRateDays of their regressors.
-  /// Stores the indices of these series in `outlierSeriesIndices`.
-  void identifyOutlierSeries() {
-    // Compute the mean usageRateDays for each series
-    final meanUsageRateDaysPerSeries = _computeMeanUsageRateDaysPerSeries();
+  /// Clusters the series data to identify similar trends
+  void cluster() {
+    final seriesUsageRateDays = <String, double>{};
 
-    // Compute global mean and standard deviation for usageRateDays
-    final metrics = _computeUsageRateDaysMetrics(meanUsageRateDaysPerSeries);
+    // Iterate over each series to find the median usageRateDays
+    for (int i = 0; i < history.series.length; i++) {
+      var regressorsForSeries = _getRegressorsForSeries(i);
 
-    // Identify and store the indices of outlier series
-    _updateOutliers(meanUsageRateDaysPerSeries, metrics['mean']!, metrics['stdDev']!);
+      // Extract the usageRateDays for the series
+      var usageRateDaysList = regressorsForSeries
+          .whereType<NormalizedRegressor>()
+          .map((regressor) => regressor.usageRateDays)
+          .toList();
+
+      if (usageRateDaysList.isNotEmpty) {
+        // Calculate the median usageRateDays for the series
+        double medianUsageRateDays = usageRateDaysList.median;
+        seriesUsageRateDays['$i'] = medianUsageRateDays;
+      }
+    }
+
+    // Cluster each series based on the median usageRateDays
+    clusterer = KMeansClusterer(seriesUsageRateDays);
+    clusterer.cluster();
   }
 
   double predict(double timestamp) {
@@ -121,35 +162,36 @@ class Evaluator {
       return;
     }
 
-    // Look for any outliers in the series data
-    identifyOutlierSeries();
+    // Cluster the regressors
+    cluster();
 
-    // Store the average accuracy of each regressor
+    // Update the accuracy and latestAccuracy maps
+    _updateAccuracy();
 
-    accuracy = _computeAccuracy();
+    // Update the cluster accuracy map
+    _updateClusterAccuracy();
 
-    // Set the best regressor to the one with the highest accuracy
-    // First sort the map, then take the last item
-    accuracy =
-        Map.fromEntries(accuracy.entries.toList()..sort((a, b) => a.value.compareTo(b.value)));
-    latestAccuracy = Map.fromEntries(
-        latestAccuracy.entries.toList()..sort((a, b) => a.value.compareTo(b.value)));
+    // Note that we sort the accuracy maps within _updateAccuracy and
+    // _updateClusterAccuracy, so the last entry in each map is the best
+
     // Set the best regressor the the one with the highest accuracy
     // if there is only 1 data point in the last series, otherwise set
     // it to whichever regressor has the highest accuracy on the latest data
     // point.
-    if (history.series.isNotEmpty && history.series.last.observations.length == 1) {
+    if (clusterAccuracy.isNotEmpty) {
+      double bestClusterAccuracy = clusterAccuracy.values.last;
+      if (bestClusterAccuracy > latestAccuracy.values.last) {
+        _best = clusterAccuracy.keys.last;
+      } else {
+        _best = latestAccuracy.keys.last;
+      }
+    } else if (history.series.isNotEmpty && history.series.last.observations.length == 1) {
       _best = accuracy.keys.last;
     } else {
       _best = latestAccuracy.keys.last;
     }
-    _trained = true;
-  }
 
-  /// Calculates mean usageRateDays for a list of regressors.
-  double _calculateMeanUsageRateDays(List<Regressor> regressors) {
-    final total = regressors.map((r) => r.usageRateDays).reduce((a, b) => a + b);
-    return total / regressors.length;
+    _trained = true;
   }
 
   // TwoPointLinearRegressor _createAverageRegressor(
@@ -163,48 +205,6 @@ class Evaluator {
 
   //   return TwoPointLinearRegressor(averageSlope, intercept);
   // }
-
-  Map<String, double> _computeAccuracy() {
-    Map<String, double> accuracyMap = {};
-
-    for (final regressorId in regressors.keys) {
-      var regressor = regressors[regressorId]!;
-      double totalAccuracy = 0;
-      int seriesCount = 0;
-
-      // Only compute accuracy for normalized regressors
-      if (regressor is! NormalizedRegressor) {
-        Log.w(
-            'Regressor ${regressor.type} for upc ${history.upc} is not a NormalizedRegressor. Cannot evaluate.');
-        continue;
-      }
-
-      for (int i = 0; i < history.series.length; i++) {
-        final series = history.series[i];
-
-        // Skip outlier series
-        if (outlierSeriesIndices.contains(i)) {
-          continue;
-        }
-
-        double mape = _computeMAPE(regressor, series);
-        double accuracy = 100 - mape;
-        accuracy = accuracy.clamp(0, 100);
-        totalAccuracy += accuracy;
-        seriesCount++;
-
-        // Store the latest accuracy for each regressor
-        if (series == history.series.last) {
-          latestAccuracy[regressorId] = accuracy;
-        }
-      }
-
-      double averageAccuracy = (seriesCount > 0) ? totalAccuracy / seriesCount : 0;
-      accuracyMap[regressorId] = averageAccuracy;
-    }
-
-    return accuracyMap;
-  }
 
   double _computeMAPE(NormalizedRegressor regressor, HistorySeries series) {
     double errorSum = 0;
@@ -241,24 +241,6 @@ class Evaluator {
     // Convert to percentage
     double averageError = (count > 0 ? (errorSum / count) : 0) * 100;
     return averageError;
-  }
-
-  /// Computes the mean usageRateDays for each series.
-  List<double> _computeMeanUsageRateDaysPerSeries() {
-    return List.generate(history.series.length, (i) {
-      final seriesRegressors = _getRegressorsForSeries(i);
-      return _calculateMeanUsageRateDays(seriesRegressors);
-    });
-  }
-
-  /// Computes global mean and standard deviation for usageRateDays.
-  Map<String, double> _computeUsageRateDaysMetrics(List<double> meanUsageRateDaysPerSeries) {
-    final mean =
-        meanUsageRateDaysPerSeries.reduce((a, b) => a + b) / meanUsageRateDaysPerSeries.length;
-    final variance =
-        meanUsageRateDaysPerSeries.map((x) => (x - mean) * (x - mean)).reduce((a, b) => a + b) /
-            meanUsageRateDaysPerSeries.length;
-    return {'mean': mean, 'stdDev': sqrt(variance)};
   }
 
   Map<String, Regressor> _createRegressors() {
@@ -353,21 +335,104 @@ class Evaluator {
   /// Retrieves regressors corresponding to a series index.
   List<Regressor> _getRegressorsForSeries(int seriesIndex) {
     final pattern = '-$seriesIndex';
-    return history.evaluator.regressors.entries
+    return regressors.entries
         .where((entry) => entry.key.endsWith(pattern))
         .map((entry) => entry.value)
         .toList();
   }
 
-  /// Identifies outlier series based on their mean usageRateDays and stores their indices.
-  void _updateOutliers(List<double> meanUsageRateDaysPerSeries, double mean, double stdDev) {
-    outlierSeriesIndices.clear();
+  void _updateAccuracy() {
+    for (final regressorId in regressors.keys) {
+      var regressor = regressors[regressorId]!;
+      double totalAccuracy = 0;
+      int seriesCount = 0;
 
-    for (var i = 0; i < meanUsageRateDaysPerSeries.length; i++) {
-      final zScore = (meanUsageRateDaysPerSeries[i] - mean) / stdDev;
-      if (zScore.abs() > 3) {
-        outlierSeriesIndices.add(i);
+      // Only compute accuracy for normalized regressors
+      if (regressor is! NormalizedRegressor) {
+        Log.w(
+            'Regressor ${regressor.type} for upc ${history.upc} is not a NormalizedRegressor. Cannot evaluate.');
+        continue;
+      }
+
+      // Last series is the most recent one with > 1 data point
+      int lastSeriesIndex = history.series.length - 1;
+      while (lastSeriesIndex >= 0 && history.series[lastSeriesIndex].observations.length <= 1) {
+        lastSeriesIndex--;
+      }
+
+      for (int i = 0; i < history.series.length; i++) {
+        final series = history.series[i];
+
+        // Skip outlier series
+        if (outlierSeriesIndices.contains(i)) {
+          continue;
+        }
+
+        double mape = _computeMAPE(regressor, series);
+        double accuracy = 100 - mape;
+        accuracy = accuracy.clamp(0, 100);
+        totalAccuracy += accuracy;
+        seriesCount++;
+
+        // Store the latest accuracy for each regressor
+        if (i == lastSeriesIndex) {
+          // Penalize regressors by 20% if they originated with the same
+          // series to avoid overfitting
+          if (regressorId.endsWith('-$i')) {
+            accuracy *= .8;
+          }
+
+          latestAccuracy[regressorId] = accuracy;
+        }
+      }
+
+      double averageAccuracy = (seriesCount > 0) ? totalAccuracy / seriesCount : 0;
+      accuracy[regressorId] = averageAccuracy;
+    }
+
+    accuracy =
+        Map.fromEntries(accuracy.entries.toList()..sort((a, b) => a.value.compareTo(b.value)));
+    latestAccuracy = Map.fromEntries(
+        latestAccuracy.entries.toList()..sort((a, b) => a.value.compareTo(b.value)));
+  }
+
+  /// Calculates the accuracy for regressors based on the series in the mostRecentCluster.
+  void _updateClusterAccuracy() {
+    final Set<int> trendingSeriesIndices = trendingSeries;
+    clusterAccuracy.clear();
+
+    for (final entry in regressors.entries) {
+      final regressorId = entry.key;
+      final regressor = entry.value;
+
+      // Only consider normalized regressors
+      if (regressor is! NormalizedRegressor) continue;
+
+      double totalAccuracy = 0;
+      int count = 0;
+
+      // Compute the accuracy for each trending series
+      for (final seriesIndex in trendingSeriesIndices) {
+        final series = history.series[seriesIndex];
+
+        // Skip outlier series
+        if (outlierSeriesIndices.contains(seriesIndex)) continue;
+
+        double mape = _computeMAPE(regressor, series);
+        double accuracy = 100 - mape;
+        totalAccuracy += accuracy.clamp(0, 100);
+        count++;
+      }
+
+      // Calculate and store the average accuracy for the regressor
+      if (count > 0) {
+        double averageAccuracy = totalAccuracy / count;
+        clusterAccuracy[regressorId] = averageAccuracy;
       }
     }
+
+    // Sort the map by accuracy
+    clusterAccuracy = Map.fromEntries(
+        clusterAccuracy.entries.toList()..sort((a, b) => a.value.compareTo(b.value)));
   }
 }
