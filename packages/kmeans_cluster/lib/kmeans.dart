@@ -99,6 +99,7 @@ class KMeansClusterer {
     if (data.length == 1) {
       String key = data.keys.first;
       clusters = [Cluster(0)];
+      clusters.first.add(key, data[key]!);
       index = {key: clusters.first};
       return;
     }
