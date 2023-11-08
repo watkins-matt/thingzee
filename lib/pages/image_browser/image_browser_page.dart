@@ -30,11 +30,9 @@ class _ImageBrowserPageState extends State<ImageBrowserPage> {
     String url = '$imageSearchUrl$query';
 
     return Scaffold(
-        backgroundColor: Colors.white,
         appBar: AppBar(
           titleSpacing: 0,
           leadingWidth: 40,
-          backgroundColor: Colors.white,
           leading: Align(
               alignment: Alignment.centerLeft,
               child: IconButton(
