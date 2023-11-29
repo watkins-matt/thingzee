@@ -1,5 +1,5 @@
 name: kmeans_cluster
-description: A easy to use, thin wrapper around the kmeans package
+description: A basic KMeans clustering library.
 publish_to: "none"
 
 version: 1.0.0+1
