@@ -31,11 +31,11 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
     final registerState = ref.watch(registerStateProvider);
     final isDarkMode = ref.watch(isDarkModeProvider(context));
 
-    return WillPopScope(
-      onWillPop: () async {
+    return PopScope(
+      canPop: true,
+      onPopInvoked: (pop) async {
         // Clear any error messages when we leave the page
         ref.read(registerStateProvider.notifier).clearErrorMessage();
-        return true;
       },
       child: Scaffold(
         backgroundColor: !isDarkMode ? Colors.blue : Theme.of(context).scaffoldBackgroundColor,
