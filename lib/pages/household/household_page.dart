@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:repository/model/cloud/invitation.dart';
 import 'package:repository/model/household_member.dart';
 import 'package:thingzee/pages/detail/widget/labeled_text.dart';
 import 'package:thingzee/pages/detail/widget/material_card_widget.dart';
@@ -29,6 +30,37 @@ class _HouseholdPageState extends ConsumerState<HouseholdPage> {
     final householdMembers = ref.watch(householdProvider);
     final householdCreatedDate = ref.watch(householdProvider.notifier).household.created;
     final householdId = ref.watch(householdProvider.notifier).household.id;
+    final invitations = ref.watch(invitationsProvider);
+
+    List<Widget> content = [];
+
+    if (invitations.isNotEmpty) {
+      content.add(MaterialCardWidget(children: [
+        const TitleHeaderWidget(title: 'Invitations'),
+        ..._buildInvitationsList(invitations),
+      ]));
+    }
+
+    content.addAll([
+      MaterialCardWidget(children: [
+        const TitleHeaderWidget(title: 'Information'),
+        LabeledText(labelText: 'ID', value: householdId),
+        LabeledText(labelText: 'Created', value: householdCreatedDate.toIso8601String()),
+      ]),
+      const SizedBox(
+        height: 8,
+      ),
+      MaterialCardWidget(children: [
+        TitleHeaderWidget(
+          title: 'Members',
+          actionButton: IconButton(
+            onPressed: _showAddMemberDialog,
+            icon: const Icon(Icons.add),
+          ),
+        ),
+        ..._buildMembersList(householdMembers),
+      ])
+    ]);
 
     return Scaffold(
       appBar: AppBar(
@@ -44,49 +76,43 @@ class _HouseholdPageState extends ConsumerState<HouseholdPage> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          MaterialCardWidget(children: [
-            const TitleHeaderWidget(title: 'Information'),
-            LabeledText(labelText: 'ID', value: householdId),
-            LabeledText(labelText: 'Created', value: householdCreatedDate.toIso8601String()),
-          ]),
-          const SizedBox(
-            height: 8,
-          ),
-          MaterialCardWidget(children: [
-            TitleHeaderWidget(
-              title: 'Members',
-              actionButton: IconButton(
-                onPressed: _showAddMemberDialog,
-                icon: const Icon(Icons.add),
-              ),
-            ),
-            ..._buildMembersList(householdMembers),
-          ])
-        ],
+        children: content,
       ),
     );
+  }
+
+  void _acceptInvitation(Invitation invitation) {
+    ref.read(invitationsProvider.notifier).acceptInvite(invitation);
+    ref.read(householdProvider.notifier).refreshMembers();
+  }
+
+  List<Widget> _buildInvitationsList(List<Invitation> invitations) {
+    return invitations.map((invitation) {
+      return ListTile(
+        title: Text(invitation.inviterEmail),
+        trailing: ElevatedButton(
+          onPressed: () => _acceptInvitation(invitation),
+          child: const Text('Accept'),
+        ),
+      );
+    }).toList();
   }
 
   List<Widget> _buildMembersList(List<HouseholdMember> members) {
     return members.map((member) {
       bool userInvited = ref.watch(invitationsProvider.notifier).isUserInvited(member.email);
 
+      // Since all members are either invited or already part of the household,
+      // we can simply show a text label indicating 'Invite Sent' for those
+      // who have been invited.
+      Widget trailingWidget = userInvited
+          ? const Text('Invite Sent', style: TextStyle(color: Colors.green))
+          : Container();
+
       return ListTile(
         title: Text(member.name),
         subtitle: Text(member.email),
-        trailing: userInvited
-            ? ElevatedButton(
-                onPressed: null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.grey,
-                ),
-                child: const Text('Invite Sent'),
-              )
-            : ElevatedButton(
-                onPressed: () => _inviteUser(member.email),
-                child: const Text('Send Invite'),
-              ),
+        trailing: trailingWidget,
       );
     }).toList();
   }
@@ -95,16 +121,13 @@ class _HouseholdPageState extends ConsumerState<HouseholdPage> {
     ref.read(householdProvider.notifier).leave();
   }
 
-  void _inviteUser(String email) {
-    ref.read(invitationsProvider.notifier).sendInvite(email);
-  }
-
   Future<void> _showAddMemberDialog() async {
     final result = await AddMemberDialog.show(context);
     if (result != null && result.containsKey('name') && result.containsKey('email')) {
       final name = result['name']!;
       final email = result['email']!;
       ref.read(householdProvider.notifier).addMember(name, email);
+      ref.read(invitationsProvider.notifier).sendInvite(email);
     }
   }
 }

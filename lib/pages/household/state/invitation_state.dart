@@ -17,6 +17,11 @@ class InvitationState extends StateNotifier<List<Invitation>> {
   bool get canSendInvites =>
       cloudRepo.isMultiUser && cloudRepo.isUserVerified && cloudRepo.loggedIn;
 
+  void acceptInvite(Invitation invitation) {
+    cloudRepo.invitation.accept(invitation);
+    refreshInvitations();
+  }
+
   bool isUserInvited(String email) {
     assert(canSendInvites);
     InvitationDatabase invitation = cloudRepo.invitation;

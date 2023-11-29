@@ -26,4 +26,8 @@ class HouseholdState extends StateNotifier<List<HouseholdMember>> {
     household.leave();
     state = household.members;
   }
+
+  void refreshMembers() {
+    state = household.members;
+  }
 }
