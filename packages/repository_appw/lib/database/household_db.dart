@@ -22,8 +22,8 @@ class AppwriteHouseholdDatabase extends HouseholdDatabase {
   final String collectionId;
   final String databaseId;
   final Teams _teams;
-  late final DateTime _created;
-  late final String _householdId;
+  DateTime _created = DateTime.now();
+  String _householdId = '';
   String lastSyncKey = 'AppwriteHouseholdDatabase.lastSync';
   String userId = '';
 
@@ -33,13 +33,6 @@ class AppwriteHouseholdDatabase extends HouseholdDatabase {
     int? lastSyncMillis = prefs.getInt(lastSyncKey);
     if (lastSyncMillis != null) {
       lastSync = DateTime.fromMillisecondsSinceEpoch(lastSyncMillis);
-    }
-
-    // Update the household information
-    if (!prefs.containsKey('household_id') || !prefs.containsKey('household_created')) {
-      _createNewHousehold();
-    } else {
-      _loadHousehold();
     }
   }
 
@@ -57,6 +50,14 @@ class AppwriteHouseholdDatabase extends HouseholdDatabase {
 
   @override
   void addMember(String name, String email, {bool isAdmin = false}) {
+    if (!_online) {
+      throw Exception('Cannot add member while offline.');
+    }
+
+    if (_householdId.isEmpty) {
+      throw Exception('Household is not initialized.');
+    }
+
     if (members.any((element) => element.email == email)) {
       throw Exception('User already exists in household.');
     }
@@ -146,6 +147,8 @@ class AppwriteHouseholdDatabase extends HouseholdDatabase {
       return;
     }
 
+    await _initializeHousehold();
+
     final timer = Log.timerStart();
     String? cursor;
     List<HouseholdMember> allMembers = [];
@@ -223,26 +226,45 @@ class AppwriteHouseholdDatabase extends HouseholdDatabase {
     }).toList();
   }
 
-  Future<void> _loadHousehold() async {
-    _householdId = prefs.getString('household_id')!;
-    _created = DateTime.fromMillisecondsSinceEpoch(prefs.getInt('household_created')!);
+  Future<void> _initializeHousehold() async {
+    if (!_online) {
+      throw Exception('Cannot initialize household while offline.');
+    }
 
-    // Check if the team exists, and save it or create it if necessary
-    try {
-      await _teams.get(teamId: _householdId);
-    } on AppwriteException catch (e) {
-      if (e.code == 404) {
-        final success = await _createTeam();
-        if (!success) {
+    final householdId = prefs.getString('household_id');
+    final householdCreated = prefs.getInt('household_created');
+
+    // Household is already initialized
+    if (_householdId == householdId && _created.millisecondsSinceEpoch == householdCreated) {
+      return;
+    }
+    // Missing household information, need to create a new household
+    else if (householdId == null || householdCreated == null) {
+      await _createNewHousehold();
+    }
+    // Household information exists, load the household
+    else {
+      _householdId = householdId;
+      _created = DateTime.fromMillisecondsSinceEpoch(householdCreated);
+
+      try {
+        await _teams.get(teamId: _householdId);
+      } on AppwriteException catch (e) {
+        // Team does not exist, create it
+        if (e.code == 404) {
+          final success = await _createTeam();
+          if (!success) {
+            throw Exception('Failed to create Appwrite team for existing household');
+          }
+        }
+        // Other errors
+        else {
+          Log.e('Failed to load team: [AppwriteException]', e.message);
           rethrow;
         }
-      } else {
-        // TODO: Handle team name conflict and recreate team with a new id
-        Log.e('Failed to load team: [AppwriteException]', e.message);
-        rethrow;
+      } on TypeError catch (e) {
+        Log.e('[TypeError] Appwrite:', e.toString());
       }
-    } on TypeError catch (e) {
-      Log.e('[TypeError] Appwrite:', e.toString());
     }
   }
 
