@@ -85,10 +85,10 @@ class ItemListTile extends ConsumerWidget {
                     child: Text(
                       amountString,
                       textAlign: TextAlign.right,
-                      textScaleFactor: 1.5,
                       style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          color: inventory.predictedAmount > 0.5 ? Colors.green : Colors.red),
+                          color: inventory.predictedAmount > 0.5 ? Colors.green : Colors.red,
+                          fontSize: 24),
                     ),
                   ),
                 ),

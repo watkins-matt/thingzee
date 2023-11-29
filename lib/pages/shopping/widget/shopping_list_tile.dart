@@ -70,8 +70,8 @@ class ShoppingListTile extends StatelessWidget {
               : null,
           secondary: Text(
             inventory.preferredAmountString,
-            textScaleFactor: 1.5,
-            style: TextStyle(color: inventory.predictedAmount > 0.5 ? Colors.green : Colors.red),
+            style: TextStyle(
+                color: inventory.predictedAmount > 0.5 ? Colors.green : Colors.red, fontSize: 24),
           ),
         ),
       ),

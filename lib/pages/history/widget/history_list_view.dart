@@ -27,7 +27,10 @@ class HistoryListView extends StatelessWidget {
             DateFormat.yMMMd().add_jm().format(date),
             softWrap: true,
           ),
-          trailing: Text(amount.toStringAsFixed(2), textScaleFactor: 1.5),
+          trailing: Text(
+            amount.toStringAsFixed(2),
+            style: const TextStyle(fontSize: 21),
+          ),
         );
       },
       separatorBuilder: (context, index) => const Divider(

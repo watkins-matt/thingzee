@@ -47,7 +47,6 @@ class ItemGridTile extends ConsumerWidget {
               title: Text(
                 brandedName || item.type.isEmpty ? item.name : item.type,
                 style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-                textScaleFactor: 1,
                 textAlign: TextAlign.center,
                 softWrap: true,
                 maxLines: 2,
@@ -55,10 +54,9 @@ class ItemGridTile extends ConsumerWidget {
               trailing: Text(
                 amountString,
                 textAlign: TextAlign.left,
-                textScaleFactor: 1.5,
                 style: TextStyle(
-                  color: inventory.predictedAmount > 0.5 ? Colors.green : Colors.red,
-                ),
+                    color: inventory.predictedAmount > 0.5 ? Colors.green : Colors.red,
+                    fontSize: 24),
               ),
             ),
             child: Padding(
