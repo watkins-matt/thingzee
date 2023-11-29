@@ -61,18 +61,16 @@ Future<void> main() async {
 final initializationProvider = FutureProvider<Repository>((ref) async {
   final connectivity = ConnectivityService();
   await connectivity.ensureRunning();
-  connectivity.addListener((status) {
-    Log.d('Connectivity changed: $status');
-  });
+  await _waitForOnlineStatus(connectivity);
 
   final objectbox = ref.watch(offlineDatabaseProvider);
   if (objectbox is MockRepository) {
     throw Exception('Offline database is not ready yet.');
   }
 
-  final appwrite = await AppwriteRepository.create(connectivity) as AppwriteRepository;
+  final appwrite = await _retryOnFailure(() => AppwriteRepository.create(connectivity));
   Log.i('initializationProvider: AppwriteRepository initialization complete.');
-  final repo = await SynchronizedRepository.create(objectbox, appwrite);
+  final repo = await SynchronizedRepository.create(objectbox, appwrite as AppwriteRepository);
   Log.i('initializationProvider: SynchronizedRepository initialization complete.');
 
   assert(repo.ready);
@@ -120,4 +118,43 @@ Future<ItemThumbnailCache> createThumbnailCache() async {
   final preloadedThumbnailCache = await ItemThumbnailCache.withPreload(upcListToPreload);
 
   return preloadedThumbnailCache;
+}
+
+Future<T> _retryOnFailure<T>(Future<T> Function() operation,
+    {int maxAttempts = 3, Duration initialDelay = const Duration(seconds: 2)}) async {
+  int attempts = 0;
+  Duration delay = initialDelay;
+
+  while (true) {
+    try {
+      return await operation();
+    } catch (e) {
+      if (++attempts >= maxAttempts) rethrow;
+      Log.w('Operation failed, retrying attempt $attempts after ${delay.inSeconds} seconds', e);
+      await Future.delayed(delay);
+
+      // Increase the delay for the next attempt
+      delay *= 2;
+    }
+  }
+}
+
+Future<void> _waitForOnlineStatus(ConnectivityService connectivity) async {
+  Completer<void> completer = Completer();
+
+  void listener(ConnectivityStatus status) {
+    if (status == ConnectivityStatus.online && !completer.isCompleted) {
+      completer.complete();
+      connectivity.removeListener(listener);
+    }
+  }
+
+  connectivity.addListener(listener);
+
+  // If already online, complete immediately
+  if (connectivity.status == ConnectivityStatus.online && !completer.isCompleted) {
+    completer.complete();
+  }
+
+  return completer.future;
 }

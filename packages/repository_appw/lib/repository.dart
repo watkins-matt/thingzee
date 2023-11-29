@@ -332,6 +332,11 @@ class AppwriteRepository extends CloudRepository {
         await prefs.setString('appwrite_session_user', _userId);
         await prefs.setString('appwrite_session_email', _userEmail);
       } on AppwriteException catch (e) {
+        if (e.code == 401) {
+          Log.i('AppwriteRepository._loadUserInfo: User not logged in.');
+          return;
+        }
+
         Log.e('AppwriteRepository._loadUserInfo: Failed to load user: [AppwriteException]',
             e.message);
         _session = null;
