@@ -111,8 +111,12 @@ Future<ItemThumbnailCache> createThumbnailCache() async {
   List<JoinedItem> joinedItems = joinedItemDb.filter(defaultFilter);
   List<String> upcListToPreload = joinedItems.map((e) => e.item.upc).toList();
 
-  // Limit the list to the preload count
-  upcListToPreload = upcListToPreload.sublist(0, preloadCount);
+  // If the list is long, only preload up to preloadCount. Otherwise
+  // we don't need a sublist because the list is small enough already.
+  if (upcListToPreload.length > preloadCount) {
+    upcListToPreload = upcListToPreload.sublist(0, preloadCount);
+  }
+
   final preloadedThumbnailCache = await ItemThumbnailCache.withPreload(upcListToPreload);
 
   return preloadedThumbnailCache;
