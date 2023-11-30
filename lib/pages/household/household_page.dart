@@ -102,12 +102,15 @@ class _HouseholdPageState extends ConsumerState<HouseholdPage> {
     return members.map((member) {
       bool userInvited = ref.watch(invitationsProvider.notifier).isUserInvited(member.email);
 
-      // Since all members are either invited or already part of the household,
-      // we can simply show a text label indicating 'Invite Sent' for those
-      // who have been invited.
-      Widget trailingWidget = userInvited
-          ? const Text('Invite Sent', style: TextStyle(color: Colors.green))
-          : Container();
+      Widget? trailingWidget = userInvited
+          ? ElevatedButton(
+              onPressed: null,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.grey,
+              ),
+              child: const Text('Invite Sent'),
+            )
+          : null;
 
       return ListTile(
         title: Text(member.name),
