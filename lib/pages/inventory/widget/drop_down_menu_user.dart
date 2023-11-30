@@ -39,7 +39,11 @@ class UserDropdownMenu extends BaseDropdownMenu {
       loginOption = 'Verify Your Account';
     }
 
-    final choices = {'Household', 'Settings', loginOption};
+    final choices = {
+      if (loggedIn && verified) 'Household',
+      'Settings',
+      loginOption,
+    };
 
     return choices.map((String choice) {
       return PopupMenuItem<String>(
