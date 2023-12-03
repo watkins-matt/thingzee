@@ -13,10 +13,11 @@ Manufacturer _$ManufacturerFromJson(Map<String, dynamic> json) => Manufacturer()
   ..parentName = json['parentName'] as String
   ..parentUid = json['parentUid'] as String;
 
-Map<String, dynamic> _$ManufacturerToJson(Manufacturer instance) => <String, dynamic>{
+Map<String, dynamic> _$ManufacturerToJson(Manufacturer instance) =>
+    <String, dynamic>{
       'name': instance.name,
       'website': instance.website,
-      'muid': instance.uid,
+      'uid': instance.uid,
       'parentName': instance.parentName,
       'parentUid': instance.parentUid,
     };

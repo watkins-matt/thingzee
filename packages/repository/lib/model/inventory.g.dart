@@ -15,20 +15,24 @@ Inventory _$InventoryFromJson(Map<String, dynamic> json) => Inventory()
           ?.map((e) => DateTime.parse(e as String))
           .toList() ??
       []
-  ..locations = (json['locations'] as List<dynamic>?)?.map((e) => e as String).toList() ?? []
+  ..locations =
+      (json['locations'] as List<dynamic>?)?.map((e) => e as String).toList() ??
+          []
   ..restock = json['restock'] as bool? ?? true
-  ..upc = json['upc'] as String? ?? ''
-  ..uid = json['uid'] as String? ?? '';
+  ..uid = json['uid'] as String? ?? ''
+  ..upc = json['upc'] as String;
 
 Map<String, dynamic> _$InventoryToJson(Inventory instance) => <String, dynamic>{
       'amount': instance.amount,
       'unitCount': instance.unitCount,
-      'lastUpdate': const NullableDateTimeSerializer().toJson(instance.lastUpdate),
-      'expirationDates': instance.expirationDates.map((e) => e.toIso8601String()).toList(),
+      'lastUpdate':
+          const NullableDateTimeSerializer().toJson(instance.lastUpdate),
+      'expirationDates':
+          instance.expirationDates.map((e) => e.toIso8601String()).toList(),
       'locations': instance.locations,
       'restock': instance.restock,
-      'upc': instance.upc,
       'uid': instance.uid,
+      'upc': instance.upc,
     };
 
 Value? _$JsonConverterFromJson<Json, Value>(
