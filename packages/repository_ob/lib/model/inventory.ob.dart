@@ -15,15 +15,12 @@ class ObjectBoxInventory {
   History history = History();
   late bool restock;
   @Unique(onConflict: ConflictStrategy.replace)
-  late String upc;
+  late String _upc;
   late String uid;
-  late double units;
   @Id()
   int objectBoxId = 0;
   ObjectBoxInventory();
   ObjectBoxInventory.from(Inventory original) {
-    // Ensure history is in a consistent state
-    history.upc = original.upc;
     amount = original.amount;
     unitCount = original.unitCount;
     lastUpdate = original.lastUpdate;
@@ -33,8 +30,20 @@ class ObjectBoxInventory {
     restock = original.restock;
     upc = original.upc;
     uid = original.uid;
-    units = original.units;
   }
+  Inventory toInventory() {
+    return Inventory()
+      ..amount = amount
+      ..unitCount = unitCount
+      ..lastUpdate = lastUpdate
+      ..expirationDates = expirationDates
+      ..locations = locations
+      ..history = history
+      ..restock = restock
+      ..upc = upc
+      ..uid = uid;
+  }
+
   List<String> get dbExpirationDates {
     List<String> dates = [];
     for (final exp in expirationDates) {
@@ -64,19 +73,10 @@ class ObjectBoxInventory {
     lastUpdate = value != 0 ? DateTime.fromMillisecondsSinceEpoch(value) : null;
   }
 
-  Inventory toInventory() {
-    // Ensure history is in a consistent state
-    history.upc = upc;
-    return Inventory()
-      ..amount = amount
-      ..unitCount = unitCount
-      ..lastUpdate = lastUpdate
-      ..expirationDates = expirationDates
-      ..locations = locations
-      ..history = history
-      ..restock = restock
-      ..upc = upc
-      ..uid = uid
-      ..units = units;
+  String get upc => _upc;
+
+  set upc(String value) {
+    _upc = value;
+    history.upc = value;
   }
 }

@@ -1,4 +1,4 @@
-import 'dart:core';
+
 
 import 'package:objectbox/objectbox.dart';
 import 'package:repository/model/manufacturer.dart';

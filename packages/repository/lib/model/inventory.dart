@@ -30,13 +30,13 @@ class Inventory {
   List<String> locations = <String>[];
 
   @JsonKey(includeFromJson: false, includeToJson: false, defaultValue: null)
-  History history = History();
+  History history = History(); // generator:transient
 
   @JsonKey(defaultValue: true)
   bool restock = true;
 
-  @JsonKey(defaultValue: '')
-  String upc = '';
+  @JsonKey(defaultValue: '', name: 'upc')
+  String _upc = ''; // generator:unique, generator:property
 
   @JsonKey(defaultValue: '')
   String uid = '';
@@ -44,8 +44,8 @@ class Inventory {
   Inventory();
 
   factory Inventory.fromJson(Map<String, dynamic> json) => _$InventoryFromJson(json);
-  Inventory.withUPC(this.upc) {
-    history.upc = upc;
+  Inventory.withUPC(String newUpc) {
+    upc = newUpc;
   }
 
   bool get canPredict {
@@ -161,6 +161,13 @@ class Inventory {
   set units(double value) {
     assert(unitCount != 0);
     amount = value / unitCount;
+  }
+
+  String get upc => _upc;
+
+  set upc(String value) {
+    _upc = value;
+    history.upc = value;
   }
 
   double get usageRateDays {

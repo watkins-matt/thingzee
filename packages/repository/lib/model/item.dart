@@ -9,7 +9,7 @@ part 'item.merge.dart';
 @Mergeable()
 class Item implements Comparable<Item> {
   @JsonKey(defaultValue: '')
-  String upc = '';
+  String upc = ''; // generator:unique
 
   @JsonKey(defaultValue: '')
   String id = '';
@@ -88,7 +88,7 @@ class Item implements Comparable<Item> {
 
 @JsonSerializable(explicitToJson: true)
 class ItemTranslation {
-  String upc = '';
+  String upc = ''; // generator:unique
   String languageCode = 'en';
   String name = '';
   String variety = '';

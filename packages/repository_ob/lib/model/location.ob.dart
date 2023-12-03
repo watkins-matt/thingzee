@@ -21,6 +21,11 @@ class ObjectBoxLocation {
     updated = original.updated;
   }
   Location toLocation() {
-    return Location(upc: upc, name: name, quantity: quantity, created: created, updated: updated);
+    return Location(
+        upc: upc,
+        name: name,
+        quantity: quantity,
+        created: created,
+        updated: updated);
   }
 }

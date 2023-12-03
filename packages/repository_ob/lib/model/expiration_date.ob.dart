@@ -17,6 +17,9 @@ class ObjectBoxExpirationDate {
     created = original.created;
   }
   ExpirationDate toExpirationDate() {
-    return ExpirationDate(upc: upc, date: date, created: created);
+    return ExpirationDate(
+        upc: upc,
+        date: date,
+        created: created);
   }
 }

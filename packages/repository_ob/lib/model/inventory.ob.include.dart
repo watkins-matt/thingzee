@@ -1,13 +1,4 @@
-int get dbLastUpdate {
-  return lastUpdate != null ? lastUpdate!.millisecondsSinceEpoch : 0;
-}
-
-set dbLastUpdate(int value) {
-  lastUpdate = value != 0
-      ? DateTime.fromMillisecondsSinceEpoch(value)
-      : null;
-}
-
+// ignore_for_file: undefined_identifier,undefined_class,undefined_getter,undefined_setter
 List<String> get dbExpirationDates {
   List<String> dates = [];
   for (final exp in expirationDates) {
@@ -27,4 +18,19 @@ set dbExpirationDates(List<String> dates) {
       expirationDates.add(DateTime.fromMillisecondsSinceEpoch(timestamp));
     }
   }
+}
+
+int get dbLastUpdate {
+  return lastUpdate != null ? lastUpdate!.millisecondsSinceEpoch : 0;
+}
+
+set dbLastUpdate(int value) {
+  lastUpdate = value != 0 ? DateTime.fromMillisecondsSinceEpoch(value) : null;
+}
+
+String get upc => _upc;
+
+set upc(String value) {
+  _upc = value;
+  history.upc = value;
 }
