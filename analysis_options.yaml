@@ -1,5 +1,8 @@
 include: package:flutter_lints/flutter.yaml
 
+analyzer:
+  exclude: [build/**, lib/**.include.dart, lib/**.g.dart]
+
 linter:
   rules:
     - always_declare_return_types
