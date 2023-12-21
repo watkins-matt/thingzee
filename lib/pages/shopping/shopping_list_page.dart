@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:thingzee/pages/bottom_nav_bar/state/bottom_nav_state.dart';
 import 'package:thingzee/pages/inventory/state/inventory_view.dart';
+import 'package:thingzee/pages/receipt_scanner/post_scan_handler.dart';
+import 'package:thingzee/pages/receipt_scanner/receipt_scanner.dart';
 import 'package:thingzee/pages/shopping/confirmation_dialog.dart';
 import 'package:thingzee/pages/shopping/state/shopping_cart.dart';
 import 'package:thingzee/pages/shopping/state/shopping_list.dart';
@@ -29,9 +31,20 @@ class ShoppingListPage extends ConsumerWidget {
             ],
           ),
           actions: [
+            IconButton(
+              style: IconButton.styleFrom(
+                  foregroundColor: Theme.of(context).bottomNavigationBarTheme.selectedItemColor),
+              icon: const Icon(Icons.camera_alt),
+              tooltip: 'Scan Receipt',
+              onPressed: () => _navigateToReceiptScannerPage(context),
+            ),
             TextButton.icon(
+                style: TextButton.styleFrom(
+                    foregroundColor: Theme.of(context).bottomNavigationBarTheme.selectedItemColor),
                 onPressed: () => _handleTripCompleted(context, ref),
-                icon: const Icon(Icons.check),
+                icon: const Icon(
+                  Icons.check,
+                ),
                 label: const Text('Done'))
           ],
         ),
@@ -107,6 +120,20 @@ class ShoppingListPage extends ConsumerWidget {
       // Switch back to the inventory view tab
       ref.read(bottomNavBarIndexProvider.notifier).state = 0;
     }
+  }
+
+  void _navigateToReceiptScannerPage(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => ReceiptScannerPage(
+                postScanHandler: ParsingPostScanHandler(),
+              )),
+    );
+    // Navigator.push(
+    //     context,
+    //     MaterialPageRoute(
+    //         builder: (context) => LiveReceiptScannerPage(postScanHandler: DebugPostScanHandler())));
   }
 
   static Future<void> push(BuildContext context) async {
