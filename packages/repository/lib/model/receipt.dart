@@ -22,6 +22,14 @@ class Receipt {
     return items.fold(0, (previousValue, element) => previousValue + element.totalPrice);
   }
 
+  Receipt copyAndReplaceItem(int index, ReceiptItem newItem) {
+    var newItems = List<ReceiptItem>.from(items);
+    if (index >= 0 && index < items.length) {
+      newItems[index] = newItem;
+    }
+    return copyWith(items: newItems);
+  }
+
   Receipt copyWith({
     List<ReceiptItem>? items,
     DateTime? date,
@@ -38,14 +46,6 @@ class Receipt {
       tax: tax ?? this.tax,
       total: total ?? this.total,
     );
-  }
-
-  Receipt replaceItem(int index, ReceiptItem newItem) {
-    var newItems = List<ReceiptItem>.from(items);
-    if (index >= 0 && index < items.length) {
-      newItems[index] = newItem;
-    }
-    return copyWith(items: newItems);
   }
 }
 
