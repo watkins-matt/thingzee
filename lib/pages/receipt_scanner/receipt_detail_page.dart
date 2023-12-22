@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:repository/model/receipt.dart';
 import 'package:thingzee/pages/receipt_scanner/edit_item_dialog.dart';
 import 'package:thingzee/pages/receipt_scanner/parser/parser.dart';
@@ -18,6 +19,12 @@ class ReceiptDetailsPage extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Receipt Details'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.help_outline),
+            onPressed: () => _showInfoDialog(context, receipt),
+          ),
+        ],
       ),
       body: Container(
         padding: const EdgeInsets.all(16),
@@ -33,6 +40,7 @@ class ReceiptDetailsPage extends ConsumerWidget {
                     title: Text(item.name, style: const TextStyle(fontSize: 16)),
                     subtitle: Text('Barcode: ${item.barcode}'),
                     trailing: Text('x ${item.quantity} - \$${item.price.toStringAsFixed(2)}'),
+                    onLongPress: () => _showLongPressMenu(context, ref, index),
                     onTap: () {
                       // Show the edit item dialog
                       showDialog(
@@ -53,13 +61,6 @@ class ReceiptDetailsPage extends ConsumerWidget {
                 },
               ),
             ),
-            // Text('Date: ${receipt.date}'),
-            // Text('Item Count: ${receipt.items.length}'),
-            // Text('Calculated Subtotal: \$${receipt.calculatedSubtotal.toStringAsFixed(2)}'),
-            // if (receipt.subtotal > 0.0) Text('Subtotal: \$${receipt.subtotal.toStringAsFixed(2)}'),
-            // if (receipt.discounts.isNotEmpty) Text('Discounts: \$${receipt.discounts.join(", ")}'),
-            // if (receipt.tax > 0.0) Text('Tax: ${receipt.tax.toStringAsFixed(2)}%'),
-            // if (receipt.total > 0.0) Text('Total: \$${receipt.total.toStringAsFixed(2)}'),
             _buildComparisonTable(context, ref, receipt),
           ],
         ),
@@ -72,6 +73,31 @@ class ReceiptDetailsPage extends ConsumerWidget {
           child: const Icon(Icons.camera_alt),
         ),
       ),
+    );
+  }
+
+  void confirmDelete(BuildContext context, WidgetRef ref, int index) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm Deletion'),
+          content: const Text('Are you sure you want to delete this item?'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            TextButton(
+              child: const Text('Delete'),
+              onPressed: () {
+                ref.read(editableReceiptProvider.notifier).deleteItem(index);
+                Navigator.of(context).pop(); // Close the confirmation dialog
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -137,11 +163,50 @@ class ReceiptDetailsPage extends ConsumerWidget {
       },
       children: [
         _buildComparisonHeader(),
-        _buildComparisonRow(context, ref, 'Item Count', receipt.items.length, receipt.items.length,
-            isInt: true),
         _buildComparisonRow(context, ref, 'Subtotal', receipt.calculatedSubtotal, receipt.subtotal,
             isInt: false),
       ],
+    );
+  }
+
+  TableRow _buildTableRow(String label, String value) {
+    return TableRow(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(8),
+          child: Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8),
+          child: Text(value),
+        ),
+      ],
+    );
+  }
+
+  void _insertNewItem(BuildContext context, WidgetRef ref, int index, {required bool before}) {
+    ReceiptItem newItem = const ReceiptItem(
+      name: '',
+      barcode: '',
+      quantity: 1,
+      price: 0,
+      taxable: false,
+      bottleDeposit: 0,
+    );
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return EditItemDialog(
+          item: newItem,
+          onItemEdited: (editedItem) {
+            // Call the insertItem method with the edited item
+            ref
+                .read(editableReceiptProvider.notifier)
+                .insertItem(before ? index : index + 1, editedItem);
+          },
+        );
+      },
     );
   }
 
@@ -186,6 +251,82 @@ class ReceiptDetailsPage extends ConsumerWidget {
                   ref.read(editableReceiptProvider.notifier).updateSubtotal(newValue.toDouble());
                 }
                 Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showInfoDialog(BuildContext context, Receipt receipt) {
+    // Format the date to a more readable form
+    String formattedDate = DateFormat('MMM dd, yyyy hh:mm a').format(receipt.date);
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Receipt Information'),
+          content: SingleChildScrollView(
+            child: Table(
+              // Define column widths for alignment
+              columnWidths: const {
+                0: IntrinsicColumnWidth(),
+                1: FlexColumnWidth(),
+              },
+              // Add a border to the table for better visual separation
+              border: TableBorder.all(color: Colors.grey, width: 0.5),
+              children: [
+                _buildTableRow('Date:', formattedDate),
+                _buildTableRow('Item Count:', '${receipt.items.length}'),
+                if (receipt.discounts.isNotEmpty)
+                  _buildTableRow('Discounts:', '\$${receipt.discounts.join(", ")}'),
+                _buildTableRow('Tax:', '${receipt.tax.toStringAsFixed(2)}%'),
+                _buildTableRow('Total:', '\$${receipt.total.toStringAsFixed(2)}'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Close'),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showLongPressMenu(BuildContext context, WidgetRef ref, int index) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Wrap(
+          children: [
+            ListTile(
+              leading: const Icon(Icons.add),
+              title: const Text('Insert New Item Before'),
+              onTap: () {
+                Navigator.pop(context); // Close the menu
+                _insertNewItem(context, ref, index, before: true);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.add),
+              title: const Text('Insert New Item After'),
+              onTap: () {
+                Navigator.pop(context); // Close the menu
+                _insertNewItem(context, ref, index, before: false);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.delete),
+              title: const Text('Delete Item'),
+              onTap: () {
+                Navigator.pop(context); // Close the menu
+                // Ask for confirmation first
+                confirmDelete(context, ref, index);
               },
             ),
           ],
