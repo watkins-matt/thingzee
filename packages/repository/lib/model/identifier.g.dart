@@ -7,14 +7,15 @@ part of 'identifier.dart';
 // **************************************************************************
 
 ItemIdentifier _$ItemIdentifierFromJson(Map<String, dynamic> json) =>
-    ItemIdentifier()
-      ..type = const IdentifierTypeSerializer().fromJson(json['type'] as String)
-      ..uid = json['uid'] as String
-      ..value = json['value'] as String;
+    ItemIdentifier(
+      type: json['type'] as String? ?? '',
+      value: json['value'] as String? ?? '',
+      uid: json['uid'] as String? ?? '',
+    );
 
 Map<String, dynamic> _$ItemIdentifierToJson(ItemIdentifier instance) =>
     <String, dynamic>{
-      'type': const IdentifierTypeSerializer().toJson(instance.type),
-      'uid': instance.uid,
+      'type': instance.type,
       'value': instance.value,
+      'uid': instance.uid,
     };
