@@ -8,7 +8,15 @@ final editableReceiptProvider = StateNotifierProvider<EditableReceipt, Receipt>(
 class EditableReceipt extends StateNotifier<Receipt> {
   EditableReceipt(super.state);
 
+  void copyFrom(Receipt receipt) {
+    state = receipt;
+  }
+
   void updateItem(int index, ReceiptItem newItem) {
-    state = state.replaceItem(index, newItem);
+    state = state.copyAndReplaceItem(index, newItem);
+  }
+
+  void updateSubtotal(double newSubtotal) {
+    state = state.copyWith(subtotal: newSubtotal);
   }
 }

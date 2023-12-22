@@ -63,7 +63,7 @@ class LiveReceiptScannerPage extends ConsumerWidget {
   }
 }
 
-class LiveTextScanner extends StatefulWidget {
+class LiveTextScanner extends ConsumerStatefulWidget {
   final CameraController controller;
   final PostScanHandler postScanHandler;
   final TextRecognizer textRecognizer;
@@ -78,10 +78,10 @@ class LiveTextScanner extends StatefulWidget {
   });
 
   @override
-  State<LiveTextScanner> createState() => _LiveTextScannerState();
+  ConsumerState<LiveTextScanner> createState() => _LiveTextScannerState();
 }
 
-class _LiveTextScannerState extends State<LiveTextScanner> with WidgetsBindingObserver {
+class _LiveTextScannerState extends ConsumerState<LiveTextScanner> with WidgetsBindingObserver {
   bool _isProcessing = false;
   TargetParser parser = TargetParser();
   Receipt currentReceipt = Receipt(items: const [], date: DateTime.now());
@@ -100,11 +100,7 @@ class _LiveTextScannerState extends State<LiveTextScanner> with WidgetsBindingOb
             builder: (context, receipt, child) {
               return ElevatedButton(
                 onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) =>
-                              ReceiptDetailsPage(receipt: parser.sortedReceipt, parser: parser)));
+                  ReceiptDetailsPage.push(context, ref, parser);
                 },
                 child: Text(
                   'Items: ${receipt.items.length}, Total: \$${receipt.calculatedSubtotal.toStringAsFixed(2)}',

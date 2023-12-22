@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:repository/model/receipt.dart';
 import 'package:thingzee/pages/receipt_scanner/edit_item_dialog.dart';
 import 'package:thingzee/pages/receipt_scanner/parser/parser.dart';
 import 'package:thingzee/pages/receipt_scanner/post_scan_handler.dart';
 import 'package:thingzee/pages/receipt_scanner/receipt_scanner.dart';
+import 'package:thingzee/pages/receipt_scanner/state/editable_receipt.dart';
 
-class ReceiptDetailsPage extends StatelessWidget {
-  final Receipt receipt;
+class ReceiptDetailsPage extends ConsumerWidget {
   final ReceiptParser parser;
-
-  const ReceiptDetailsPage({super.key, required this.receipt, required this.parser});
+  const ReceiptDetailsPage({super.key, required this.parser});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final receipt = ref.watch(editableReceiptProvider);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Receipt Details'),
@@ -39,7 +41,9 @@ class ReceiptDetailsPage extends StatelessWidget {
                           return EditItemDialog(
                             item: item,
                             onItemEdited: (editedItem) {
-                              // Update the item in the receipt and refresh the UI as needed.
+                              ref
+                                  .read(editableReceiptProvider.notifier)
+                                  .updateItem(index, editedItem);
                             },
                           );
                         },
@@ -56,7 +60,7 @@ class ReceiptDetailsPage extends StatelessWidget {
             // if (receipt.discounts.isNotEmpty) Text('Discounts: \$${receipt.discounts.join(", ")}'),
             // if (receipt.tax > 0.0) Text('Tax: ${receipt.tax.toStringAsFixed(2)}%'),
             // if (receipt.total > 0.0) Text('Total: \$${receipt.total.toStringAsFixed(2)}'),
-            _buildComparisonTable(context, receipt),
+            _buildComparisonTable(context, ref, receipt),
           ],
         ),
       ),
@@ -82,29 +86,48 @@ class ReceiptDetailsPage extends StatelessWidget {
   }
 
   TableRow _buildComparisonRow(
-      BuildContext context, String label, String calculatedValue, num actualValue,
+      BuildContext context, WidgetRef ref, String label, num calculatedValue, num actualValue,
       {required bool isInt}) {
+    // Determine if the calculated and actual values match or are very close
+    final difference = (calculatedValue - actualValue).abs();
+    bool valuesMatch = difference < 0.001;
+
+    // Decide the display format for actualValue
     String actualValueDisplay =
         isInt ? actualValue.toString() : '\$${actualValue.toStringAsFixed(2)}';
+    String calculatedValueDisplay =
+        isInt ? calculatedValue.toString() : '\$${calculatedValue.toStringAsFixed(2)}';
+
     return TableRow(
       children: [
         Padding(padding: const EdgeInsets.all(8), child: Text(label)),
-        Center(child: Padding(padding: const EdgeInsets.all(8), child: Text(calculatedValue))),
+        Center(
+            child: Padding(padding: const EdgeInsets.all(8), child: Text(calculatedValueDisplay))),
         InkWell(
           onTap: () {
-            _showEditActualValueDialog(context, label, actualValue, isInt: isInt);
+            _showEditActualValueDialog(context, ref, label, actualValue, isInt: isInt);
           },
           child: Center(
               child: Padding(
                   padding: const EdgeInsets.all(8),
-                  child: Text(actualValueDisplay,
-                      style: const TextStyle(decoration: TextDecoration.underline)))),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min, // To keep icon next to the text
+                    children: [
+                      Text(actualValueDisplay,
+                          style: const TextStyle(decoration: TextDecoration.underline)),
+                      const SizedBox(width: 8), // Space between text and icon
+                      Icon(
+                        valuesMatch ? Icons.check : Icons.close,
+                        color: valuesMatch ? Colors.green : Colors.red,
+                      )
+                    ],
+                  ))),
         ),
       ],
     );
   }
 
-  Widget _buildComparisonTable(BuildContext context, Receipt receipt) {
+  Widget _buildComparisonTable(BuildContext context, WidgetRef ref, Receipt receipt) {
     return Table(
       border: TableBorder.all(color: Colors.grey),
       columnWidths: const {
@@ -114,12 +137,10 @@ class ReceiptDetailsPage extends StatelessWidget {
       },
       children: [
         _buildComparisonHeader(),
-        _buildComparisonRow(
-            context, 'Item Count', receipt.items.length.toString(), receipt.items.length,
-            isInt: true), // Item count shown as an integer
-        _buildComparisonRow(context, 'Subtotal',
-            '\$${receipt.calculatedSubtotal.toStringAsFixed(2)}', receipt.subtotal,
-            isInt: false), // Subtotal shown as a price
+        _buildComparisonRow(context, ref, 'Item Count', receipt.items.length, receipt.items.length,
+            isInt: true),
+        _buildComparisonRow(context, ref, 'Subtotal', receipt.calculatedSubtotal, receipt.subtotal,
+            isInt: false),
       ],
     );
   }
@@ -135,7 +156,8 @@ class ReceiptDetailsPage extends StatelessWidget {
     );
   }
 
-  void _showEditActualValueDialog(BuildContext context, String label, num currentValue,
+  void _showEditActualValueDialog(
+      BuildContext context, WidgetRef ref, String label, num currentValue,
       {required bool isInt}) {
     TextEditingController controller = TextEditingController(text: currentValue.toString());
     showDialog(
@@ -157,13 +179,46 @@ class ReceiptDetailsPage extends StatelessWidget {
             TextButton(
               child: const Text('Save'),
               onPressed: () {
-                // Update the actual value and refresh the UI as needed.
+                num? newValue =
+                    isInt ? int.tryParse(controller.text) : double.tryParse(controller.text);
+                if (label == 'Item Count') {
+                } else if (label == 'Subtotal' && newValue != null) {
+                  ref.read(editableReceiptProvider.notifier).updateSubtotal(newValue.toDouble());
+                }
                 Navigator.of(context).pop();
               },
             ),
           ],
         );
       },
+    );
+  }
+
+  static Future<void> push(
+    BuildContext context,
+    WidgetRef ref,
+    ReceiptParser parser,
+  ) async {
+    final receiptNotifier = ref.watch(editableReceiptProvider.notifier);
+    receiptNotifier.copyFrom(parser.receipt);
+
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => ReceiptDetailsPage(parser: parser)),
+    );
+  }
+
+  static Future<void> pushReplacement(
+    BuildContext context,
+    WidgetRef ref,
+    ReceiptParser parser,
+  ) async {
+    final receiptNotifier = ref.watch(editableReceiptProvider.notifier);
+    receiptNotifier.copyFrom(parser.receipt);
+
+    await Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => ReceiptDetailsPage(parser: parser)),
     );
   }
 }

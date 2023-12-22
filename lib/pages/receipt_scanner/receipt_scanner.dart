@@ -67,7 +67,7 @@ class ReceiptScannerPage extends ConsumerWidget {
       final String text = await _recognizeText(ref, image);
 
       if (context.mounted) {
-        postScanHandler.handleScannedText(context, text);
+        postScanHandler.handleScannedText(context, ref, text);
       }
     } catch (e) {
       Log.e(e);
