@@ -1,4 +1,5 @@
 import 'package:repository/model/receipt.dart';
+import 'package:repository/model/receipt_item.dart';
 import 'package:thingzee/pages/receipt_scanner/parser/order_tracker.dart';
 
 abstract class ReceiptParser {

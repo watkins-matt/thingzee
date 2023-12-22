@@ -1,4 +1,4 @@
-import 'package:repository/model/receipt.dart';
+import 'package:repository/model/receipt_item.dart';
 import 'package:thingzee/pages/receipt_scanner/util/frequency_tracker.dart';
 
 class ReceiptItemFrequencies {

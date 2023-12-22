@@ -1,6 +1,7 @@
 import 'package:intl/intl.dart';
 import 'package:log/log.dart';
 import 'package:repository/model/receipt.dart';
+import 'package:repository/model/receipt_item.dart';
 import 'package:thingzee/pages/receipt_scanner/parser/error_corrector.dart';
 import 'package:thingzee/pages/receipt_scanner/parser/order_tracker.dart';
 import 'package:thingzee/pages/receipt_scanner/parser/parser.dart';

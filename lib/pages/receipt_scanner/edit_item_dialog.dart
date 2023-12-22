@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:repository/model/receipt.dart';
+import 'package:repository/model/receipt_item.dart';
 
 class EditItemDialog extends StatefulWidget {
   final ReceiptItem item;

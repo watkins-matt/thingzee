@@ -1,5 +1,6 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:repository/model/receipt.dart';
+import 'package:repository/model/receipt_item.dart';
 
 final editableReceiptProvider = StateNotifierProvider<EditableReceipt, Receipt>(
   (ref) => EditableReceipt(Receipt(items: const [], date: DateTime.now())),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:repository/model/receipt.dart';
+import 'package:repository/model/receipt_item.dart';
 import 'package:thingzee/pages/receipt_scanner/edit_item_dialog.dart';
 import 'package:thingzee/pages/receipt_scanner/parser/parser.dart';
 import 'package:thingzee/pages/receipt_scanner/post_scan_handler.dart';
