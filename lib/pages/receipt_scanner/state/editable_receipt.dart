@@ -12,6 +12,25 @@ class EditableReceipt extends StateNotifier<Receipt> {
     state = receipt;
   }
 
+  void deleteItem(int index) {
+    List<ReceiptItem> newItems = List<ReceiptItem>.from(state.items);
+    if (index >= 0 && index < newItems.length) {
+      newItems.removeAt(index);
+      state = state.copyWith(items: newItems);
+    }
+  }
+
+  void insertItem(int index, ReceiptItem newItem) {
+    // Ensure the index is within the bounds of the list
+    index = index.clamp(0, state.items.length);
+
+    // Create a new list of items with the new item inserted
+    List<ReceiptItem> newItems = List<ReceiptItem>.from(state.items)..insert(index, newItem);
+
+    // Update the state with the new list of items
+    state = state.copyWith(items: newItems);
+  }
+
   void updateItem(int index, ReceiptItem newItem) {
     state = state.copyAndReplaceItem(index, newItem);
   }
