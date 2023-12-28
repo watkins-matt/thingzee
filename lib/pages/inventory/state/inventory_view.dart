@@ -51,6 +51,17 @@ class InventoryView extends StateNotifier<List<JoinedItem>> {
     }
   }
 
+  Future<void> fuzzySearch(String value) async {
+    query = value;
+
+    if (value.isEmpty) {
+      await refresh();
+      return;
+    }
+
+    state = joinedItemDb.fuzzySearch(query);
+  }
+
   Future<void> refresh() async {
     // We should keep the query loaded unless the user deletes it
     if (query.isNotEmpty) {
