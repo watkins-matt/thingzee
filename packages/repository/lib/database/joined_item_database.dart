@@ -82,7 +82,6 @@ class JoinedItemDatabase {
   }
 
   List<JoinedItem> fuzzySearch(String query) {
-    // Get all JoinedItems from the database.
     List<JoinedItem> allItems = all();
 
     // If the query is empty, return all items.
@@ -90,20 +89,15 @@ class JoinedItemDatabase {
       return allItems;
     }
 
-    // Prepare the list of names for the fuzzy search.
     List<String> itemNames = allItems.map((e) => e.item.name).toList();
 
-    // Setup fuzzy search options, adjust according to your needs.
     final options = FuzzyOptions(
       findAllMatches: true,
-      threshold: 0.6, // Adjust the threshold to change sensitivity, lower is more strict
+      threshold: 0.6,
       isCaseSensitive: false,
     );
 
-    // Initialize Fuzzy with your list of names and options.
     final fuse = Fuzzy(itemNames, options: options);
-
-    // Perform the search.
     final result = fuse.search(query);
 
     // Map the results back to JoinedItems.
