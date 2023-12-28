@@ -89,22 +89,36 @@ class JoinedItemDatabase {
       return allItems;
     }
 
+    // Prepare the list of names for fuzzy searching.
     List<String> itemNames = allItems.map((e) => e.item.name).toList();
 
     final options = FuzzyOptions(
       findAllMatches: true,
-      threshold: 0.6,
+      threshold: 0.3,
       isCaseSensitive: false,
     );
 
-    final fuse = Fuzzy(itemNames, options: options);
-    final result = fuse.search(query);
+    // Initialize Fuzzy with the list of item names.
+    final fuzzy = Fuzzy(itemNames, options: options);
 
-    // Map the results back to JoinedItems.
+    // Perform the search.
+    final result = fuzzy.search(query);
+
+    // Prepare a map for quick lookup from item name to a list of JoinedItems.
+    Map<String, List<JoinedItem>> nameToItemsMap = {};
+    for (final item in allItems) {
+      nameToItemsMap.putIfAbsent(item.item.name, () => []).add(item);
+    }
+
+    // Map the results back to JoinedItems using the item name for lookup.
     List<JoinedItem> matchedItems = [];
     for (final r in result) {
-      int index = r.item; // The index of the original list that was passed to Fuzzy.
-      matchedItems.add(allItems[index]);
+      String matchedName = r.item; // The matched item name.
+      // Check if the matched name exists in the map and add all corresponding JoinedItems to the results.
+      List<JoinedItem>? items = nameToItemsMap[matchedName];
+      if (items != null) {
+        matchedItems.addAll(items);
+      }
     }
 
     return matchedItems;

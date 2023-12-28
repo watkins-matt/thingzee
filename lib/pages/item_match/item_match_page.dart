@@ -92,14 +92,18 @@ class _ItemMatchPageState extends ConsumerState<ItemMatchPage> {
       searchQuery = '';
     }
 
-    // Update the inventory provider with the initial search query.
+    _controller.text = searchQuery;
     ref.read(inventoryProvider.notifier).fuzzySearch(searchQuery);
   }
 
   @override
   void initState() {
     super.initState();
-    initializeSearchQuery();
-    _controller = TextEditingController(text: searchQuery);
+    _controller = TextEditingController();
+
+    // Schedule a microtask to perform initial search after the build phase.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      initializeSearchQuery();
+    });
   }
 }
