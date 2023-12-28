@@ -6,6 +6,7 @@ import 'package:repository/model/receipt_item.dart';
 import 'package:thingzee/pages/receipt_scanner/edit_item_dialog.dart';
 import 'package:thingzee/pages/receipt_scanner/parser/parser.dart';
 import 'package:thingzee/pages/receipt_scanner/post_scan_handler.dart';
+import 'package:thingzee/pages/receipt_scanner/receipt_confirmation_page.dart';
 import 'package:thingzee/pages/receipt_scanner/receipt_scanner.dart';
 import 'package:thingzee/pages/receipt_scanner/state/editable_receipt.dart';
 
@@ -24,6 +25,12 @@ class ReceiptDetailsPage extends ConsumerWidget {
           IconButton(
             icon: const Icon(Icons.help_outline),
             onPressed: () => _showInfoDialog(context, receipt),
+          ),
+          IconButton(
+            icon: const Icon(Icons.check, color: Colors.green),
+            onPressed: () async {
+              await ReceiptConfirmationPage.push(context, receipt);
+            },
           ),
         ],
       ),
