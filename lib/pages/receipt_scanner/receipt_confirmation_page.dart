@@ -50,12 +50,25 @@ class _ReceiptConfirmationPageState extends ConsumerState<ReceiptConfirmationPag
 
           return ListTile(
             title: Text(item.name),
-            subtitle: Text(matchStatus,
-                style: TextStyle(
-                    color: matchStatus.startsWith('Matched') ? Colors.green : Colors.red)),
-            onTap: () {
-              if (matchStatus == 'No Match') {
-                ItemMatchPage.push(context, item);
+            subtitle: Text(
+              matchStatus,
+              style: TextStyle(
+                  color: matchStatus.startsWith('Matched')
+                      ? Colors.green
+                      : matchStatus.startsWith('Confirmed')
+                          ? Colors.blue
+                          : Colors.red),
+            ),
+            onTap: () async {
+              final result = await ItemMatchPage.push(context, item);
+
+              // Update the status when an item is confirmed.
+              if (result != null) {
+                ref.read(itemMatchProvider(widget.receipt.items).notifier).update((state) {
+                  state[index] = 'Confirmed ${result.item.name}';
+                  return state;
+                });
+                setState(() {});
               }
             },
           );
@@ -67,12 +80,23 @@ class _ReceiptConfirmationPageState extends ConsumerState<ReceiptConfirmationPag
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => performInitialFuzzySearch());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      setState(() {
+        performInitialFuzzySearch();
+      });
+    });
   }
 
-  Future<void> performInitialFuzzySearch() async {
-    // Iterate through each item and perform a fuzzy search.
+  void performInitialFuzzySearch() {
+    final currentStatuses = ref.read(itemMatchProvider(widget.receipt.items));
+
+    // Iterate through each item and perform a fuzzy search if not already matched or confirmed.
     for (int i = 0; i < widget.receipt.items.length; i++) {
+      // Skip if already matched or confirmed.
+      if (currentStatuses[i].startsWith('Matched') || currentStatuses[i].startsWith('Confirmed')) {
+        continue;
+      }
+
       ReceiptItem item = widget.receipt.items[i];
       final provider = ref.read(inventoryProvider.notifier);
       final joinedItemDb = provider.joinedItemDb;
