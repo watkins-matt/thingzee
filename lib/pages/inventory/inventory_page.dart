@@ -71,7 +71,7 @@ class _InventoryPageState extends ConsumerState<InventoryPage> {
         controller: _controller,
       ),
       floatingActionButton: FloatingActionButton(
-        heroTag: 'InventoryBarcodeScan',
+        heroTag: 'FabInventoryPageBarcodeScan',
         onPressed: () async {
           await Navigator.push(
             context,
