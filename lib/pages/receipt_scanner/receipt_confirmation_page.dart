@@ -65,8 +65,8 @@ class _ReceiptConfirmationPageState extends ConsumerState<ReceiptConfirmationPag
                           : Colors.red),
             ),
             onTap: () async {
-              final result =
-                  await ItemMatchPage.push(context, item, widget.parser.getSearchUrl(item.barcode));
+              final result = await ItemMatchPage.push(context, item,
+                  widget.parser.getSearchUrl(item.barcode.isNotEmpty ? item.barcode : item.name));
 
               // Update the status when an item is confirmed.
               if (result != null) {
