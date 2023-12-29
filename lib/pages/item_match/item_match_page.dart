@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:repository/database/joined_item_database.dart';
 import 'package:repository/model/receipt_item.dart';
+import 'package:thingzee/icon_library.dart';
+import 'package:thingzee/pages/barcode/barcode_scanner_page.dart';
 import 'package:thingzee/pages/detail/widget/material_card_widget.dart';
 import 'package:thingzee/pages/inventory/state/inventory_view.dart';
 import 'package:thingzee/pages/receipt_scanner/widget/browser_page.dart';
@@ -51,6 +53,19 @@ class _ItemMatchPageState extends ConsumerState<ItemMatchPage> {
             tooltip: 'Open Link',
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'FabItemMatchAddNewBarcode',
+        onPressed: () async {
+          await Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => const BarcodeScannerPage(BarcodeScannerMode.showItemDetail)),
+          );
+        },
+        tooltip: 'New Item',
+        icon: const Icon(IconLibrary.barcode),
+        label: const Text('New Item'),
       ),
       body: Column(
         children: [

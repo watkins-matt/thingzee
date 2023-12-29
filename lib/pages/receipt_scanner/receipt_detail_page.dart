@@ -75,10 +75,12 @@ class ReceiptDetailsPage extends ConsumerWidget {
       ),
       floatingActionButton: Padding(
         padding: const EdgeInsets.only(bottom: 120),
-        child: FloatingActionButton(
+        child: FloatingActionButton.extended(
+          heroTag: 'FabReceiptDetailAddPage',
           onPressed: () => _scanAnotherPage(context),
-          tooltip: 'Scan Another Page',
-          child: const Icon(Icons.camera_alt),
+          tooltip: 'Add Page',
+          icon: const Icon(Icons.camera_alt),
+          label: const Text('Add Page'),
         ),
       ),
     );
