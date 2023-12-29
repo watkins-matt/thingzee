@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:repository/database/joined_item_database.dart';
 import 'package:repository/model/receipt_item.dart';
+import 'package:thingzee/pages/detail/widget/material_card_widget.dart';
 import 'package:thingzee/pages/inventory/state/inventory_view.dart';
 
 class ItemMatchPage extends ConsumerStatefulWidget {
@@ -11,14 +12,14 @@ class ItemMatchPage extends ConsumerStatefulWidget {
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _ItemMatchPageState();
 
-  static Future<void> push(BuildContext context, ReceiptItem receiptItem) async {
-    await Navigator.of(context).push(
+  static Future<JoinedItem?> push(BuildContext context, ReceiptItem receiptItem) async {
+    return await Navigator.of(context).push(
       MaterialPageRoute(builder: (context) => ItemMatchPage(receiptItem: receiptItem)),
     );
   }
 
-  static Future<void> pushReplacement(BuildContext context, ReceiptItem receiptItem) async {
-    await Navigator.of(context).pushReplacement(
+  static Future<JoinedItem?> pushReplacement(BuildContext context, ReceiptItem receiptItem) async {
+    return await Navigator.of(context).pushReplacement(
       MaterialPageRoute(builder: (context) => ItemMatchPage(receiptItem: receiptItem)),
     );
   }
@@ -31,15 +32,17 @@ class _ItemMatchPageState extends ConsumerState<ItemMatchPage> {
   @override
   Widget build(BuildContext context) {
     List<JoinedItem> items = ref.watch(inventoryProvider);
+    ThemeData theme = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(
         title: Text('Match Item: ${widget.receiptItem.name}'),
+        backgroundColor: theme.appBarTheme.backgroundColor,
       ),
       body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(8),
+          Container(
+            padding: const EdgeInsets.all(10),
             child: TextField(
               controller: _controller,
               onChanged: (value) {
@@ -48,28 +51,35 @@ class _ItemMatchPageState extends ConsumerState<ItemMatchPage> {
                 });
                 ref.read(inventoryProvider.notifier).fuzzySearch(value);
               },
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Search',
-                border: OutlineInputBorder(),
-                suffixIcon: Icon(Icons.search),
+                hintText: 'Type to search items',
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(30)),
+                prefixIcon: Icon(Icons.search, color: theme.iconTheme.color),
+                filled: true,
+                fillColor: theme.inputDecorationTheme.fillColor ?? theme.canvasColor,
               ),
             ),
           ),
           Expanded(
-            child: ListView.builder(
-              itemCount: items.length,
-              itemBuilder: (context, index) {
-                JoinedItem item = items[index];
-                return ListTile(
-                  title: Text(item.item.name),
-                  subtitle: Text(item.item.type),
-                  onTap: () {
-                    // Handle item selection by popping the current page
-                    // and returning the selected item
-                    Navigator.of(context).pop(item);
-                  },
-                );
-              },
+            child: Container(
+              color: theme.colorScheme.background,
+              child: ListView.builder(
+                itemCount: items.length,
+                itemBuilder: (context, index) {
+                  JoinedItem item = items[index];
+                  return MaterialCardWidget(
+                    children: [
+                      ListTile(
+                        title: Text(item.item.name, style: theme.textTheme.titleMedium),
+                        onTap: () {
+                          Navigator.of(context).pop(item);
+                        },
+                      ),
+                    ],
+                  );
+                },
+              ),
             ),
           ),
         ],
