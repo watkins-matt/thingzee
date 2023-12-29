@@ -29,7 +29,7 @@ class ReceiptDetailsPage extends ConsumerWidget {
           IconButton(
             icon: const Icon(Icons.check, color: Colors.green),
             onPressed: () async {
-              await ReceiptConfirmationPage.push(context, receipt);
+              await ReceiptConfirmationPage.push(context, receipt, parser);
             },
           ),
         ],

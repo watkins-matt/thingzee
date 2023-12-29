@@ -5,6 +5,7 @@ import 'package:repository/model/receipt.dart';
 import 'package:repository/model/receipt_item.dart';
 import 'package:thingzee/pages/inventory/state/inventory_view.dart';
 import 'package:thingzee/pages/item_match/item_match_page.dart';
+import 'package:thingzee/pages/receipt_scanner/parser/parser.dart';
 
 // A provider that holds the match status for each receipt item.
 final itemMatchProvider = StateProvider.family<List<String>, List<ReceiptItem>>((ref, items) {
@@ -13,22 +14,26 @@ final itemMatchProvider = StateProvider.family<List<String>, List<ReceiptItem>>(
 
 class ReceiptConfirmationPage extends ConsumerStatefulWidget {
   final Receipt receipt;
-  const ReceiptConfirmationPage({super.key, required this.receipt});
+  final ReceiptParser parser;
+  const ReceiptConfirmationPage({super.key, required this.receipt, required this.parser});
 
   @override
   ConsumerState<ReceiptConfirmationPage> createState() => _ReceiptConfirmationPageState();
 
-  static Future<void> push(BuildContext context, Receipt receipt) async {
+  static Future<void> push(BuildContext context, Receipt receipt, ReceiptParser parser) async {
     await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => ReceiptConfirmationPage(receipt: receipt)),
+      MaterialPageRoute(
+          builder: (context) => ReceiptConfirmationPage(receipt: receipt, parser: parser)),
     );
   }
 
-  static Future<void> pushReplacement(BuildContext context, Receipt receipt) async {
+  static Future<void> pushReplacement(
+      BuildContext context, Receipt receipt, ReceiptParser parser) async {
     await Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => ReceiptConfirmationPage(receipt: receipt)),
+      MaterialPageRoute(
+          builder: (context) => ReceiptConfirmationPage(receipt: receipt, parser: parser)),
     );
   }
 }
@@ -60,7 +65,8 @@ class _ReceiptConfirmationPageState extends ConsumerState<ReceiptConfirmationPag
                           : Colors.red),
             ),
             onTap: () async {
-              final result = await ItemMatchPage.push(context, item);
+              final result =
+                  await ItemMatchPage.push(context, item, widget.parser.getSearchUrl(item.barcode));
 
               // Update the status when an item is confirmed.
               if (result != null) {

@@ -4,23 +4,29 @@ import 'package:repository/database/joined_item_database.dart';
 import 'package:repository/model/receipt_item.dart';
 import 'package:thingzee/pages/detail/widget/material_card_widget.dart';
 import 'package:thingzee/pages/inventory/state/inventory_view.dart';
+import 'package:thingzee/pages/receipt_scanner/widget/browser_page.dart';
 
 class ItemMatchPage extends ConsumerStatefulWidget {
   final ReceiptItem receiptItem;
-  const ItemMatchPage({super.key, required this.receiptItem});
+  final String searchUrl;
+  const ItemMatchPage({super.key, required this.receiptItem, required this.searchUrl});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _ItemMatchPageState();
 
-  static Future<JoinedItem?> push(BuildContext context, ReceiptItem receiptItem) async {
+  static Future<JoinedItem?> push(
+      BuildContext context, ReceiptItem receiptItem, String searchUrl) async {
     return await Navigator.of(context).push(
-      MaterialPageRoute(builder: (context) => ItemMatchPage(receiptItem: receiptItem)),
+      MaterialPageRoute(
+          builder: (context) => ItemMatchPage(receiptItem: receiptItem, searchUrl: searchUrl)),
     );
   }
 
-  static Future<JoinedItem?> pushReplacement(BuildContext context, ReceiptItem receiptItem) async {
+  static Future<JoinedItem?> pushReplacement(
+      BuildContext context, ReceiptItem receiptItem, String searchUrl) async {
     return await Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (context) => ItemMatchPage(receiptItem: receiptItem)),
+      MaterialPageRoute(
+          builder: (context) => ItemMatchPage(receiptItem: receiptItem, searchUrl: searchUrl)),
     );
   }
 }
@@ -36,8 +42,15 @@ class _ItemMatchPageState extends ConsumerState<ItemMatchPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Match Item: ${widget.receiptItem.name}'),
+        title: Text('Match: ${widget.receiptItem.name}'),
         backgroundColor: theme.appBarTheme.backgroundColor,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.open_in_browser),
+            onPressed: () => openSearchUrl(context, widget.searchUrl),
+            tooltip: 'Open Link',
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -60,6 +73,14 @@ class _ItemMatchPageState extends ConsumerState<ItemMatchPage> {
                 fillColor: theme.inputDecorationTheme.fillColor ?? theme.canvasColor,
               ),
             ),
+          ),
+          ElevatedButton(
+            onPressed: () => openSearchUrl(context, widget.searchUrl),
+            style: ElevatedButton.styleFrom(
+              foregroundColor: theme.colorScheme.onPrimary,
+              backgroundColor: theme.primaryColor,
+            ),
+            child: const Text('Find Images'),
           ),
           Expanded(
             child: Container(
@@ -115,5 +136,15 @@ class _ItemMatchPageState extends ConsumerState<ItemMatchPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       initializeSearchQuery();
     });
+  }
+
+  Future<void> openSearchUrl(BuildContext context, String url) async {
+    if (url.isNotEmpty) {
+      await BrowserPage.push(context, url);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error: No search URL available.')),
+      );
+    }
   }
 }
