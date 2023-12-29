@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:log/log.dart';
+import 'package:repository/database/joined_item_database.dart';
 import 'package:repository/model/inventory.dart';
 import 'package:repository/model/item.dart';
 import 'package:repository/model/location.dart';
@@ -368,11 +369,14 @@ class ItemDetailPage extends HookConsumerWidget {
     shoppingList.refresh();
 
     if (context.mounted) {
-      Navigator.pop(context);
+      // Return a JoinedItem to the previous page
+      final state = ref.read(editableItemProvider);
+      final item = JoinedItem(state.item, state.inventory);
+      Navigator.pop(context, item);
     }
   }
 
-  static Future<void> push(
+  static Future<JoinedItem?> push(
     BuildContext context,
     WidgetRef ref,
     Item item,
@@ -381,7 +385,7 @@ class ItemDetailPage extends HookConsumerWidget {
     final itemProv = ref.read(editableItemProvider.notifier);
     itemProv.copyFrom(item, inventory);
 
-    await Navigator.push(
+    return await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => ItemDetailPage(item)),
     );
