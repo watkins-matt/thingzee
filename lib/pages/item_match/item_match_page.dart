@@ -74,14 +74,6 @@ class _ItemMatchPageState extends ConsumerState<ItemMatchPage> {
               ),
             ),
           ),
-          ElevatedButton(
-            onPressed: () => openSearchUrl(context, widget.searchUrl),
-            style: ElevatedButton.styleFrom(
-              foregroundColor: theme.colorScheme.onPrimary,
-              backgroundColor: theme.primaryColor,
-            ),
-            child: const Text('Find Images'),
-          ),
           Expanded(
             child: Container(
               color: theme.colorScheme.background,
