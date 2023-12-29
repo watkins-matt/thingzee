@@ -105,6 +105,11 @@ class TargetParser extends ReceiptParser {
     return codes;
   }
 
+  @override
+  String getSearchUrl(String barcode) {
+    return 'https://www.target.com/s?searchTerm=$barcode';
+  }
+
   String mergePriceLines(String text) {
     List<String> lines = text.split('\n');
     RegExp pricePattern = RegExp(r'^([A-Z]+\s*)*\$\d+\.\d{2}$');

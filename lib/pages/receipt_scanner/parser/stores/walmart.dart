@@ -66,6 +66,11 @@ class WalmartParser extends ReceiptParser {
   }
 
   @override
+  String getSearchUrl(String barcode) {
+    return 'https://www.walmart.com/search/?query=$barcode';
+  }
+
+  @override
   void parse(String text) {
     text = errorCorrection(text);
     final lines = text.split('\n');

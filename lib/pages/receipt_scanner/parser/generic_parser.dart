@@ -41,6 +41,11 @@ class GenericParser extends ReceiptParser {
   }
 
   @override
+  String getSearchUrl(String barcode) {
+    return 'https://www.google.com/search?q=$barcode';
+  }
+
+  @override
   void parse(String text) {
     text = _errorCorrector.correctErrors(text);
 

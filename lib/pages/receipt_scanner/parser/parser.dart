@@ -5,6 +5,7 @@ import 'package:thingzee/pages/receipt_scanner/parser/order_tracker.dart';
 abstract class ReceiptParser {
   RelativeOrderTracker orderTracker = RelativeOrderTracker();
   Receipt get receipt;
+  String getSearchUrl(String barcode);
   void parse(String text);
 
   List<ReceiptItem> sortItems(List<ReceiptItem> items) {
