@@ -262,7 +262,7 @@ class TargetParser extends ReceiptParser {
   }
 
   ReceiptItem? _parseItemLine(String line) {
-    final strictItemRegex = RegExp(r"(\d{9,})\s+([A-Z&'\s]+)\s+\$?(\d*\.\d{2})");
+    final strictItemRegex = RegExp(r"(\d{9,})\s+([A-Za-z&'\s\-]+)\s+\$?(\d*\.\d{2})");
     final strictMatch = strictItemRegex.firstMatch(line);
 
     // If strict regex matches, extract detailed information
@@ -277,12 +277,11 @@ class TargetParser extends ReceiptParser {
 
       bool taxable = !codes.contains('N');
 
-      // print('Found barcode: $barcode, name: $name, price: $price, taxable: $taxable');
       return ReceiptItem(name: name, barcode: barcode, price: price, taxable: taxable);
     }
 
     // If strict regex fails, use a simpler regex
-    final simplerItemRegex = RegExp(r"(\d{9,})\s+([A-Z&'\s]+)");
+    final simplerItemRegex = RegExp(r"(\d{9,})\s+([A-Za-z&'\s\-]+)");
     final simplerMatch = simplerItemRegex.firstMatch(line);
 
     if (simplerMatch != null) {
