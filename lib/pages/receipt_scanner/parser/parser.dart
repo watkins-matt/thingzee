@@ -4,6 +4,7 @@ import 'package:thingzee/pages/receipt_scanner/parser/order_tracker.dart';
 
 abstract class ReceiptParser {
   RelativeOrderTracker orderTracker = RelativeOrderTracker();
+  String get rawText;
   Receipt get receipt;
   String getSearchUrl(String barcode);
   void parse(String text);

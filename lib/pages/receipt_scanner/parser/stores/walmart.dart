@@ -8,6 +8,7 @@ import 'package:thingzee/pages/receipt_scanner/util/frequency_tracker.dart';
 import 'package:thingzee/pages/receipt_scanner/util/receipt_item_frequency.dart';
 
 class WalmartParser extends ReceiptParser {
+  String _rawText = '';
   final List<String> commonWords = [
     'SUBTOTAL',
     'SAVINGS',
@@ -25,15 +26,18 @@ class WalmartParser extends ReceiptParser {
   ];
 
   final FrequencyTracker<double> _totalTracker = FrequencyTracker<double>();
+
   final FrequencyTracker<double> _subtotalTracker = FrequencyTracker<double>();
   final FrequencyTracker<double> _taxTracker = FrequencyTracker<double>();
   final FrequencyTracker<DateTime> _dateTracker = FrequencyTracker<DateTime>();
   final ReceiptItemFrequencySet _frequencySet = ReceiptItemFrequencySet();
   final ErrorCorrector _errorCorrector = ErrorCorrector();
-
   WalmartParser() {
     _errorCorrector.addWords(commonWords);
   }
+
+  @override
+  String get rawText => _rawText;
 
   @override
   Receipt get receipt {
@@ -73,6 +77,8 @@ class WalmartParser extends ReceiptParser {
   @override
   void parse(String text) {
     text = errorCorrection(text);
+    _rawText = text;
+
     final lines = text.split('\n');
 
     for (final line in lines) {

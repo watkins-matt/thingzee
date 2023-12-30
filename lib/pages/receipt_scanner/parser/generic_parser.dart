@@ -8,25 +8,29 @@ import 'package:thingzee/pages/receipt_scanner/util/frequency_tracker.dart';
 import 'package:thingzee/pages/receipt_scanner/util/receipt_item_frequency.dart';
 
 class GenericParser extends ReceiptParser {
+  String _rawText = '';
   final FrequencyTracker<double> _totalTracker = FrequencyTracker<double>();
+
   final FrequencyTracker<double> _subtotalTracker = FrequencyTracker<double>();
   final FrequencyTracker<double> _taxTracker = FrequencyTracker<double>();
   final FrequencyTracker<DateTime> _dateTracker = FrequencyTracker<DateTime>();
   final FrequencyTracker<double> _discountTracker = FrequencyTracker<double>();
   final ReceiptItemFrequencySet _frequencySet = ReceiptItemFrequencySet();
-
   // final RegExp _phonePattern = RegExp(r'\d{3}-\d{3}-\d{4}');
   final RegExp _datePattern = RegExp(r'\d{1,2}/\d{1,2}/\d{2,4}|\d{1,2}-\d{1,2}-\d{2,4}');
+
   final RegExp _timePattern = RegExp(r'\d{1,2}:\d{2} (AM|PM|am|pm)');
   final RegExp _itemNamePattern = RegExp(r'[A-Za-z0-9\s]+');
   final RegExp _pricePattern = RegExp(r'\$?(\d+\.\d{2})');
   final RegExp _barcodePattern = RegExp(r'\b\d{6,}\b');
   final RegExp _quantityPattern = RegExp(r'\b\d{1,2}\b');
-
   final RegExp _subtotalPattern = RegExp(r'subtotal', caseSensitive: false);
+
   final RegExp _taxPattern = RegExp(r'tax', caseSensitive: false);
   final RegExp _totalPattern = RegExp(r'total', caseSensitive: false);
   final ErrorCorrector _errorCorrector = ErrorCorrector();
+  @override
+  String get rawText => _rawText;
 
   @override
   Receipt get receipt {
@@ -48,6 +52,7 @@ class GenericParser extends ReceiptParser {
   @override
   void parse(String text) {
     text = _errorCorrector.correctErrors(text);
+    _rawText = text;
 
     final lines = text.split('\n');
     ReceiptItem? lastItem;

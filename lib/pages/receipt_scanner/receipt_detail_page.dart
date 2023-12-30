@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -9,6 +10,7 @@ import 'package:thingzee/pages/receipt_scanner/post_scan_handler.dart';
 import 'package:thingzee/pages/receipt_scanner/receipt_confirmation_page.dart';
 import 'package:thingzee/pages/receipt_scanner/receipt_scanner.dart';
 import 'package:thingzee/pages/receipt_scanner/state/editable_receipt.dart';
+import 'package:thingzee/pages/receipt_scanner/widget/ocr_text_view.dart';
 
 class ReceiptDetailsPage extends ConsumerWidget {
   final ReceiptParser parser;
@@ -22,6 +24,18 @@ class ReceiptDetailsPage extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('Receipt Details'),
         actions: [
+          if (kDebugMode)
+            IconButton(
+              icon: const Icon(Icons.text_fields),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => OCRTextView(text: parser.rawText),
+                  ),
+                );
+              },
+            ),
           IconButton(
             icon: const Icon(Icons.help_outline),
             onPressed: () => _showInfoDialog(context, receipt),
