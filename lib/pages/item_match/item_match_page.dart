@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:log/log.dart';
 import 'package:repository/database/joined_item_database.dart';
 import 'package:repository/model/receipt_item.dart';
 import 'package:thingzee/icon_library.dart';
 import 'package:thingzee/pages/barcode/barcode_scanner_page.dart';
 import 'package:thingzee/pages/detail/widget/material_card_widget.dart';
 import 'package:thingzee/pages/inventory/state/inventory_view.dart';
-import 'package:thingzee/pages/receipt_scanner/widget/browser_page.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ItemMatchPage extends ConsumerStatefulWidget {
   final ReceiptItem receiptItem;
@@ -147,7 +148,11 @@ class _ItemMatchPageState extends ConsumerState<ItemMatchPage> {
 
   Future<void> openSearchUrl(BuildContext context, String url) async {
     if (url.isNotEmpty) {
-      await BrowserPage.push(context, url);
+      // await BrowserPage.push(context, url);
+      final Uri uri = Uri.parse(url);
+      if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+        Log.e('Could not launch $uri');
+      }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Error: No search URL available.')),
