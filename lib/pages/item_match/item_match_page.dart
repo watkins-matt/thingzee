@@ -3,8 +3,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:log/log.dart';
 import 'package:repository/model/item.dart';
 import 'package:repository/model/receipt_item.dart';
-import 'package:thingzee/icon_library.dart';
-import 'package:thingzee/pages/barcode/barcode_scanner_page.dart';
 import 'package:thingzee/pages/detail/widget/material_card_widget.dart';
 import 'package:thingzee/pages/inventory/state/item_view.dart';
 import 'package:thingzee/pages/item_match/widget/add_item_browser_page.dart';
@@ -72,19 +70,19 @@ class _ItemMatchPageState extends ConsumerState<ItemMatchPage> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        heroTag: 'FabItemMatchAddNewBarcode',
-        onPressed: () async {
-          await Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => const BarcodeScannerPage(BarcodeScannerMode.showItemDetail)),
-          );
-        },
-        tooltip: 'New Item',
-        icon: const Icon(IconLibrary.barcode),
-        label: const Text('New Item'),
-      ),
+      // floatingActionButton: FloatingActionButton.extended(
+      //   heroTag: 'FabItemMatchAddNewBarcode',
+      //   onPressed: () async {
+      //     await Navigator.push(
+      //       context,
+      //       MaterialPageRoute(
+      //           builder: (context) => const BarcodeScannerPage(BarcodeScannerMode.showItemDetail)),
+      //     );
+      //   },
+      //   tooltip: 'New Item',
+      //   icon: const Icon(IconLibrary.barcode),
+      //   label: const Text('New Item'),
+      // ),
       body: Column(
         children: [
           Container(
@@ -156,6 +154,11 @@ class _ItemMatchPageState extends ConsumerState<ItemMatchPage> {
     if (match != null) {
       // Set the found word as the initial search query
       searchQuery = name.substring(match.start, match.end);
+
+      // Remove trailing 's' if it exists
+      if (searchQuery.endsWith('s') || searchQuery.endsWith('S')) {
+        searchQuery = searchQuery.substring(0, searchQuery.length - 1);
+      }
     } else {
       // Default to an empty string if no matching word is found
       searchQuery = '';
@@ -178,7 +181,6 @@ class _ItemMatchPageState extends ConsumerState<ItemMatchPage> {
 
   Future<void> openSearchUrl(BuildContext context, String url) async {
     if (url.isNotEmpty) {
-      // await BrowserPage.push(context, url);
       final Uri uri = Uri.parse(url);
       if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
         Log.e('Could not launch $uri');
