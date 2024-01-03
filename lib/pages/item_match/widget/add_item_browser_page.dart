@@ -42,60 +42,53 @@ class _AddItemBrowserPageState extends ConsumerState<AddItemBrowserPage> {
               })
         ],
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: itemNameController,
-                    decoration: const InputDecoration(
-                      labelText: 'Item Name',
-                    ),
+      body: Column(children: [
+        Padding(
+          padding: const EdgeInsets.all(8),
+          child: Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: itemNameController,
+                  decoration: const InputDecoration(
+                    labelText: 'Item Name',
                   ),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.content_paste),
-                  onPressed: () {
-                    pasteSelectedText();
-                  },
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8),
-            child: TextField(
-              controller: itemUpcController,
-              decoration: const InputDecoration(
-                labelText: 'Item UPC',
               ),
-            ),
-          ),
-          Expanded(
-            child: InAppWebView(
-              key: webViewKey,
-              initialUrlRequest: URLRequest(url: Uri.parse(widget.initialUrl)),
-              onWebViewCreated: (controller) {
-                webViewController = controller;
-              },
-              initialOptions: InAppWebViewGroupOptions(
-                crossPlatform: InAppWebViewOptions(
-                  useShouldOverrideUrlLoading: true,
-                  javaScriptEnabled: true,
-                ),
-                android: AndroidInAppWebViewOptions(
-                  useHybridComposition: true,
-                ),
+              IconButton(
+                icon: const Icon(Icons.content_paste),
+                onPressed: () {
+                  pasteSelectedText();
+                },
               ),
-              shouldOverrideUrlLoading: shouldOverrideUrlLoading,
-              onLongPressHitTestResult: onLongPressHitTestResult,
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8),
+          child: TextField(
+            controller: itemUpcController,
+            decoration: const InputDecoration(
+              labelText: 'Item UPC',
             ),
           ),
-        ],
-      ),
+        ),
+        Expanded(
+          child: InAppWebView(
+            key: webViewKey,
+            shouldOverrideUrlLoading: shouldOverrideUrlLoading,
+            onLongPressHitTestResult: onLongPressHitTestResult,
+            initialUrlRequest: URLRequest(url: WebUri(widget.initialUrl)),
+            onWebViewCreated: (controller) {
+              webViewController = controller;
+            },
+            initialSettings: InAppWebViewSettings(
+                useShouldOverrideUrlLoading: true,
+                javaScriptEnabled: true,
+                useHybridComposition: true),
+          ),
+        ),
+      ]),
     );
   }
 
@@ -162,7 +155,7 @@ class _AddItemBrowserPageState extends ConsumerState<AddItemBrowserPage> {
 
     if (string.startsWith('http://')) {
       final newUrl = string.replaceFirst('http://', 'https://');
-      await controller.loadUrl(urlRequest: URLRequest(url: Uri.parse(newUrl)));
+      await controller.loadUrl(urlRequest: URLRequest(url: WebUri(newUrl)));
       urlController.text = newUrl;
       return NavigationActionPolicy.CANCEL;
     } else {

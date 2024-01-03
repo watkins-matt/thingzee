@@ -61,27 +61,24 @@ class _ImageBrowserPageState extends State<ImageBrowserPage> {
         body: Column(
           children: [
             Expanded(
-                child: InAppWebView(
-              onWebViewCreated: (controller) {
-                webViewController = controller;
-              },
-              key: webViewKey,
-              contextMenu: ContextMenu(
-                  options: ContextMenuOptions(hideDefaultSystemContextMenuItems: false)),
-              initialUrlRequest: URLRequest(url: Uri.parse(url)),
-              initialOptions: InAppWebViewGroupOptions(
-                crossPlatform: InAppWebViewOptions(
-                  useShouldOverrideUrlLoading: true,
-                  javaScriptEnabled: true,
-                  disableContextMenu: false,
+              child: InAppWebView(
+                shouldOverrideUrlLoading: shouldOverrideUrlLoading,
+                onLongPressHitTestResult: onLongPressHitTestResult,
+                onWebViewCreated: (controller) {
+                  webViewController = controller;
+                },
+                key: webViewKey,
+                contextMenu: ContextMenu(
+                  settings: ContextMenuSettings(hideDefaultSystemContextMenuItems: false),
                 ),
-                android: AndroidInAppWebViewOptions(
-                  useHybridComposition: false,
-                ),
+                initialUrlRequest: URLRequest(url: WebUri.uri(Uri.parse(url))),
+                initialSettings: InAppWebViewSettings(
+                    useShouldOverrideUrlLoading: true,
+                    javaScriptEnabled: true,
+                    disableContextMenu: false,
+                    useHybridComposition: true),
               ),
-              shouldOverrideUrlLoading: shouldOverrideUrlLoading,
-              onLongPressHitTestResult: onLongPressHitTestResult,
-            )),
+            ),
           ],
         ));
   }
@@ -129,7 +126,7 @@ class _ImageBrowserPageState extends State<ImageBrowserPage> {
             content: Text(
                 'Image not usable. Please follow the link to the website and try again on that image.')));
       } else {
-        await controller.loadUrl(urlRequest: URLRequest(url: Uri.parse(url)));
+        await controller.loadUrl(urlRequest: URLRequest(url: WebUri(url)));
         selectedUrl = url;
         urlController.text = url;
       }
@@ -146,7 +143,7 @@ class _ImageBrowserPageState extends State<ImageBrowserPage> {
     if (url.isNotEmpty) {
       final parsedUrl = Uri.tryParse(url);
       if (parsedUrl != null) {
-        webViewController?.loadUrl(urlRequest: URLRequest(url: parsedUrl));
+        webViewController?.loadUrl(urlRequest: URLRequest(url: WebUri.uri(parsedUrl)));
       }
     }
   }
@@ -159,7 +156,7 @@ class _ImageBrowserPageState extends State<ImageBrowserPage> {
     if (string.startsWith('http://')) {
       final newUrl = string.replaceFirst('http://', 'https://');
       await controller.stopLoading();
-      await controller.loadUrl(urlRequest: URLRequest(url: Uri.parse(newUrl)));
+      await controller.loadUrl(urlRequest: URLRequest(url: WebUri(newUrl)));
       urlController.text = newUrl;
       return NavigationActionPolicy.CANCEL;
     } else {

@@ -25,45 +25,42 @@ class _BrowserPageState extends State<BrowserPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: TextField(
-            controller: urlController,
-            decoration: const InputDecoration(
-              contentPadding: EdgeInsets.all(12),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.all(Radius.circular(25)),
-              ),
-              hintText: 'Enter URL here',
+      appBar: AppBar(
+        title: TextField(
+          controller: urlController,
+          decoration: const InputDecoration(
+            contentPadding: EdgeInsets.all(12),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.all(Radius.circular(25)),
             ),
-            onSubmitted: onUrlSubmitted,
-            style: const TextStyle(color: Colors.white),
+            hintText: 'Enter URL here',
           ),
-          actions: <Widget>[
-            IconButton(icon: const Icon(Icons.arrow_back), onPressed: onArrowBackPressed),
-            IconButton(
-                icon: const Icon(Icons.home),
-                onPressed: () {
-                  loadInitialUrl();
-                })
-          ],
+          onSubmitted: onUrlSubmitted,
+          style: const TextStyle(color: Colors.white),
         ),
-        body: InAppWebView(
-          key: webViewKey,
-          initialUrlRequest: URLRequest(url: Uri.parse(widget.initialUrl)),
-          onWebViewCreated: (controller) {
-            webViewController = controller;
-          },
-          initialOptions: InAppWebViewGroupOptions(
-            crossPlatform: InAppWebViewOptions(
-              useShouldOverrideUrlLoading: true,
-              javaScriptEnabled: true,
-            ),
-            android: AndroidInAppWebViewOptions(
-              useHybridComposition: true,
-            ),
-          ),
-          shouldOverrideUrlLoading: shouldOverrideUrlLoading,
-        ));
+        actions: <Widget>[
+          IconButton(icon: const Icon(Icons.arrow_back), onPressed: onArrowBackPressed),
+          IconButton(
+              icon: const Icon(Icons.home),
+              onPressed: () {
+                loadInitialUrl();
+              })
+        ],
+      ),
+      body: InAppWebView(
+        key: webViewKey,
+        shouldOverrideUrlLoading: shouldOverrideUrlLoading,
+        initialUrlRequest: URLRequest(url: WebUri(widget.initialUrl)),
+        onWebViewCreated: (controller) {
+          webViewController = controller;
+        },
+        initialSettings: InAppWebViewSettings(
+          useShouldOverrideUrlLoading: true,
+          javaScriptEnabled: true,
+          useHybridComposition: true,
+        ),
+      ),
+    );
   }
 
   @override
@@ -80,7 +77,7 @@ class _BrowserPageState extends State<BrowserPage> {
     if (url.isNotEmpty) {
       final parsedUrl = Uri.tryParse(url);
       if (parsedUrl != null) {
-        webViewController?.loadUrl(urlRequest: URLRequest(url: parsedUrl));
+        webViewController?.loadUrl(urlRequest: URLRequest(url: WebUri.uri(parsedUrl)));
         urlController.text = parsedUrl.toString();
       }
     }
@@ -102,7 +99,7 @@ class _BrowserPageState extends State<BrowserPage> {
 
     if (string.startsWith('http://')) {
       final newUrl = string.replaceFirst('http://', 'https://');
-      await controller.loadUrl(urlRequest: URLRequest(url: Uri.parse(newUrl)));
+      await controller.loadUrl(urlRequest: URLRequest(url: WebUri(newUrl)));
       urlController.text = newUrl;
       return NavigationActionPolicy.CANCEL;
     } else {
