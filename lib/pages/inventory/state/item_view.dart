@@ -30,12 +30,7 @@ class ItemView extends StateNotifier<List<Item>> {
     refresh();
   }
 
-  void addItem(Item item) {
-    itemDb.put(item);
-    refresh();
-  }
-
-  void deleteItem(Item item) {
+  void delete(Item item) {
     itemDb.delete(item);
     refresh();
   }
@@ -57,6 +52,19 @@ class ItemView extends StateNotifier<List<Item>> {
     }
 
     state = itemDb.fuzzySearch(query);
+  }
+
+  void put(Item item) {
+    final existingItem = itemDb.get(item.upc);
+
+    if (existingItem != null) {
+      final mergedItem = existingItem.merge(item);
+      itemDb.put(mergedItem);
+    } else {
+      itemDb.put(item);
+    }
+
+    refresh();
   }
 
   Future<void> refresh() async {

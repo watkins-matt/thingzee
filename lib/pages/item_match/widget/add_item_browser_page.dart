@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:repository/model/item.dart';
+import 'package:thingzee/pages/inventory/state/item_view.dart';
 
-class AddItemBrowserPage extends StatefulWidget {
+class AddItemBrowserPage extends ConsumerStatefulWidget {
   final String initialUrl;
   const AddItemBrowserPage(this.initialUrl, {super.key});
 
   @override
-  State<AddItemBrowserPage> createState() => _AddItemBrowserPageState();
+  ConsumerState<AddItemBrowserPage> createState() => _AddItemBrowserPageState();
 
   static Future<Item?> push(BuildContext context, String initialUrl) async {
     return await Navigator.push(
@@ -17,7 +19,7 @@ class AddItemBrowserPage extends StatefulWidget {
   }
 }
 
-class _AddItemBrowserPageState extends State<AddItemBrowserPage> {
+class _AddItemBrowserPageState extends ConsumerState<AddItemBrowserPage> {
   final GlobalKey webViewKey = GlobalKey();
   InAppWebViewController? webViewController;
   late final TextEditingController urlController;
@@ -36,7 +38,7 @@ class _AddItemBrowserPageState extends State<AddItemBrowserPage> {
           IconButton(
               icon: const Icon(Icons.save),
               onPressed: () {
-                saveItemAndClose();
+                saveItemAndClose(context);
               })
         ],
       ),
@@ -125,7 +127,7 @@ class _AddItemBrowserPageState extends State<AddItemBrowserPage> {
     }
   }
 
-  void saveItemAndClose() {
+  void saveItemAndClose(BuildContext context) {
     if (itemNameController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -144,9 +146,12 @@ class _AddItemBrowserPageState extends State<AddItemBrowserPage> {
       return;
     }
 
+    final itemView = ref.read(itemViewProvider.notifier);
     final newItem = Item()
       ..upc = itemUpcController.text
       ..name = itemNameController.text;
+
+    itemView.put(newItem);
     Navigator.pop(context, newItem);
   }
 
