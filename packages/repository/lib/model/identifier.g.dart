@@ -11,6 +11,10 @@ ItemIdentifier _$ItemIdentifierFromJson(Map<String, dynamic> json) =>
       type: json['type'] as String? ?? '',
       value: json['value'] as String? ?? '',
       uid: json['uid'] as String? ?? '',
+      created: _$JsonConverterFromJson<int, DateTime?>(
+          json['created'], const NullableDateTimeSerializer().fromJson),
+      updated: _$JsonConverterFromJson<int, DateTime?>(
+          json['updated'], const NullableDateTimeSerializer().fromJson),
     );
 
 Map<String, dynamic> _$ItemIdentifierToJson(ItemIdentifier instance) =>
@@ -18,4 +22,12 @@ Map<String, dynamic> _$ItemIdentifierToJson(ItemIdentifier instance) =>
       'type': instance.type,
       'value': instance.value,
       'uid': instance.uid,
+      'created': const NullableDateTimeSerializer().toJson(instance.created),
+      'updated': const NullableDateTimeSerializer().toJson(instance.updated),
     };
+
+Value? _$JsonConverterFromJson<Json, Value>(
+  Object? json,
+  Value? Function(Json json) fromJson,
+) =>
+    json == null ? null : fromJson(json as Json);
