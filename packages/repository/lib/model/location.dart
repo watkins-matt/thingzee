@@ -95,7 +95,12 @@ class Location {
     this.quantity,
     DateTime? created,
     DateTime? updated,
-  })  : created = created ?? _defaultDateTime(updated),
+  })  :
+        // Initialize 'created' and 'updated' date-times.
+        // If 'created' is not provided, it defaults to the value of 'updated' if that was provided,
+        // otherwise to the current time. If 'updated' is not provided, it defaults to the value of 'created',
+        // ensuring both fields are synchronized and non-null. If both are provided, their values are retained.
+        created = created ?? _defaultDateTime(updated),
         updated = updated ?? _defaultDateTime(created);
 
   factory Location.fromJson(Map<String, dynamic> json) => _$LocationFromJson(json);
