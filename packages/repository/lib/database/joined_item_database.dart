@@ -1,15 +1,18 @@
-import 'package:fuzzy/fuzzy.dart';
 import 'package:repository/database/history_database.dart';
 import 'package:repository/database/inventory_database.dart';
 import 'package:repository/database/item_database.dart';
+import 'package:repository/mixin/fuzzy_searchable.dart';
 import 'package:repository/model/filter.dart';
 import 'package:repository/model/inventory.dart';
 import 'package:repository/model/item.dart';
 
-class JoinedItem implements Comparable<JoinedItem> {
+class JoinedItem implements Comparable<JoinedItem>, Nameable {
   final Item item;
   final Inventory inventory;
   JoinedItem(this.item, this.inventory);
+
+  @override
+  String get name => item.name;
 
   @override
   int compareTo(JoinedItem other) {
@@ -17,12 +20,13 @@ class JoinedItem implements Comparable<JoinedItem> {
   }
 }
 
-class JoinedItemDatabase {
+class JoinedItemDatabase with FuzzySearchable<JoinedItem> {
   final ItemDatabase itemDatabase;
   final InventoryDatabase inventoryDatabase;
 
   JoinedItemDatabase(this.itemDatabase, this.inventoryDatabase);
 
+  @override
   List<JoinedItem> all() {
     List<JoinedItem> joinedItems = [];
     Map<String, Inventory> inventoryMap = inventoryDatabase.map();
@@ -79,49 +83,6 @@ class JoinedItemDatabase {
     }
 
     return joinedItems;
-  }
-
-  List<JoinedItem> fuzzySearch(String query) {
-    List<JoinedItem> allItems = all();
-
-    // If the query is empty, return all items.
-    if (query.isEmpty) {
-      return allItems;
-    }
-
-    // Prepare the list of names for fuzzy searching.
-    List<String> itemNames = allItems.map((e) => e.item.name).toList();
-
-    final options = FuzzyOptions(
-      findAllMatches: true,
-      threshold: 0.3,
-      isCaseSensitive: false,
-    );
-
-    // Initialize Fuzzy with the list of item names.
-    final fuzzy = Fuzzy(itemNames, options: options);
-
-    // Perform the search.
-    final result = fuzzy.search(query);
-
-    // Prepare a map for quick lookup from item name to a list of JoinedItems.
-    Map<String, List<JoinedItem>> nameToItemsMap = {};
-    for (final item in allItems) {
-      nameToItemsMap.putIfAbsent(item.item.name, () => []).add(item);
-    }
-
-    // Map the results back to JoinedItems using the item name for lookup.
-    List<JoinedItem> matchedItems = [];
-    for (final r in result) {
-      String matchedName = r.item; // The matched item name.
-      // Check if the matched name exists in the map and add all corresponding JoinedItems to the results.
-      List<JoinedItem>? items = nameToItemsMap[matchedName];
-      if (items != null) {
-        matchedItems.addAll(items);
-      }
-    }
-
-    return matchedItems;
   }
 
   JoinedItem? get(String upc) {

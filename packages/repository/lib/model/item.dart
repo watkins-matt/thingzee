@@ -7,13 +7,14 @@ part 'item.merge.dart';
 
 @JsonSerializable(explicitToJson: true)
 @Mergeable()
-class Item implements Comparable<Item> {
+class Item implements Comparable<Item>, Nameable {
   @JsonKey(defaultValue: '')
   String upc = ''; // generator:unique
 
   @JsonKey(defaultValue: '')
   String id = '';
 
+  @override
   @JsonKey(defaultValue: '')
   String name = '';
 
@@ -99,4 +100,8 @@ class ItemTranslation {
   ItemTranslation();
   factory ItemTranslation.fromJson(Map<String, dynamic> json) => _$ItemTranslationFromJson(json);
   Map<String, dynamic> toJson() => _$ItemTranslationToJson(this);
+}
+
+abstract class Nameable {
+  String get name;
 }
