@@ -1,5 +1,5 @@
 import 'package:fuzzy/fuzzy.dart';
-import 'package:repository/model/item.dart';
+import 'package:repository/model/abstract/nameable.dart';
 
 mixin FuzzySearchable<T extends Nameable> {
   List<T> all();

@@ -1,5 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:repository/merge_generator.dart';
+import 'package:repository/model/abstract/nameable.dart';
 import 'package:repository/model/serializer_datetime.dart';
 
 part 'item.g.dart';
@@ -100,8 +101,4 @@ class ItemTranslation {
   ItemTranslation();
   factory ItemTranslation.fromJson(Map<String, dynamic> json) => _$ItemTranslationFromJson(json);
   Map<String, dynamic> toJson() => _$ItemTranslationToJson(this);
-}
-
-abstract class Nameable {
-  String get name;
 }
