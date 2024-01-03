@@ -443,9 +443,97 @@
         }
       ],
       "relations": []
+    },
+    {
+      "id": "31:6926162432641687423",
+      "lastPropertyId": "6:8586240948035121702",
+      "name": "ObjectBoxItemIdentifier",
+      "properties": [
+        {
+          "id": "1:5410678726010478738",
+          "name": "type",
+          "type": 9
+        },
+        {
+          "id": "2:1807663967015945579",
+          "name": "value",
+          "type": 9
+        },
+        {
+          "id": "3:9036243146704884821",
+          "name": "uid",
+          "type": 9
+        },
+        {
+          "id": "4:8711475091176549077",
+          "name": "created",
+          "type": 10
+        },
+        {
+          "id": "5:6323250953147892719",
+          "name": "updated",
+          "type": 10
+        },
+        {
+          "id": "6:8586240948035121702",
+          "name": "objectBoxId",
+          "type": 6,
+          "flags": 1
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "32:2424801468099308795",
+      "lastPropertyId": "8:4540687088627323783",
+      "name": "ObjectBoxReceiptItem",
+      "properties": [
+        {
+          "id": "1:1409804839355144907",
+          "name": "name",
+          "type": 9
+        },
+        {
+          "id": "2:4901825100975296988",
+          "name": "price",
+          "type": 8
+        },
+        {
+          "id": "3:4555738625603270309",
+          "name": "regularPrice",
+          "type": 8
+        },
+        {
+          "id": "4:6561748397873684137",
+          "name": "quantity",
+          "type": 6
+        },
+        {
+          "id": "5:310986992928624842",
+          "name": "barcode",
+          "type": 9
+        },
+        {
+          "id": "6:7816061209567866527",
+          "name": "taxable",
+          "type": 1
+        },
+        {
+          "id": "7:7920296738618385040",
+          "name": "bottleDeposit",
+          "type": 8
+        },
+        {
+          "id": "8:4540687088627323783",
+          "name": "objectBoxId",
+          "type": 6,
+          "flags": 1
+        }
+      ],
+      "relations": []
     }
   ],
-  "lastEntityId": "30:8399465274193556283",
+  "lastEntityId": "32:2424801468099308795",
   "lastIndexId": "11:4213499292565708475",
   "lastRelationId": "0:0",
   "lastSequenceId": "0:0",

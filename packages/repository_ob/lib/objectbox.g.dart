@@ -16,11 +16,13 @@ import 'package:objectbox_flutter_libs/objectbox_flutter_libs.dart';
 
 import 'model/expiration_date.ob.dart';
 import 'model/household_member.ob.dart';
+import 'model/identifier.ob.dart';
 import 'model/inventory.ob.dart';
 import 'model/item.ob.dart';
 import 'model/location.ob.dart';
 import 'model/manufacturer.ob.dart';
 import 'model/product.ob.dart';
+import 'model/receipt_item.ob.dart';
 import 'model/shopping_item.ob.dart';
 import 'model_custom/history_ob.dart';
 
@@ -464,6 +466,94 @@ final _entities = <ModelEntity>[
             flags: 1)
       ],
       relations: <ModelRelation>[],
+      backlinks: <ModelBacklink>[]),
+  ModelEntity(
+      id: const IdUid(31, 6926162432641687423),
+      name: 'ObjectBoxItemIdentifier',
+      lastPropertyId: const IdUid(6, 8586240948035121702),
+      flags: 0,
+      properties: <ModelProperty>[
+        ModelProperty(
+            id: const IdUid(1, 5410678726010478738),
+            name: 'type',
+            type: 9,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(2, 1807663967015945579),
+            name: 'value',
+            type: 9,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(3, 9036243146704884821),
+            name: 'uid',
+            type: 9,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(4, 8711475091176549077),
+            name: 'created',
+            type: 10,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(5, 6323250953147892719),
+            name: 'updated',
+            type: 10,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(6, 8586240948035121702),
+            name: 'objectBoxId',
+            type: 6,
+            flags: 1)
+      ],
+      relations: <ModelRelation>[],
+      backlinks: <ModelBacklink>[]),
+  ModelEntity(
+      id: const IdUid(32, 2424801468099308795),
+      name: 'ObjectBoxReceiptItem',
+      lastPropertyId: const IdUid(8, 4540687088627323783),
+      flags: 0,
+      properties: <ModelProperty>[
+        ModelProperty(
+            id: const IdUid(1, 1409804839355144907),
+            name: 'name',
+            type: 9,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(2, 4901825100975296988),
+            name: 'price',
+            type: 8,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(3, 4555738625603270309),
+            name: 'regularPrice',
+            type: 8,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(4, 6561748397873684137),
+            name: 'quantity',
+            type: 6,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(5, 310986992928624842),
+            name: 'barcode',
+            type: 9,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(6, 7816061209567866527),
+            name: 'taxable',
+            type: 1,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(7, 7920296738618385040),
+            name: 'bottleDeposit',
+            type: 8,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(8, 4540687088627323783),
+            name: 'objectBoxId',
+            type: 6,
+            flags: 1)
+      ],
+      relations: <ModelRelation>[],
       backlinks: <ModelBacklink>[])
 ];
 
@@ -494,7 +584,7 @@ Future<Store> openStore(
 ModelDefinition getObjectBoxModel() {
   final model = ModelInfo(
       entities: _entities,
-      lastEntityId: const IdUid(30, 8399465274193556283),
+      lastEntityId: const IdUid(32, 2424801468099308795),
       lastIndexId: const IdUid(11, 4213499292565708475),
       lastRelationId: const IdUid(0, 0),
       lastSequenceId: const IdUid(0, 0),
@@ -1148,6 +1238,100 @@ ModelDefinition getObjectBoxModel() {
                 const fb.Int64Reader().vTableGet(buffer, rootOffset, 16, 0);
 
           return object;
+        }),
+    ObjectBoxItemIdentifier: EntityDefinition<ObjectBoxItemIdentifier>(
+        model: _entities[10],
+        toOneRelations: (ObjectBoxItemIdentifier object) => [],
+        toManyRelations: (ObjectBoxItemIdentifier object) => {},
+        getId: (ObjectBoxItemIdentifier object) => object.objectBoxId,
+        setId: (ObjectBoxItemIdentifier object, int id) {
+          object.objectBoxId = id;
+        },
+        objectToFB: (ObjectBoxItemIdentifier object, fb.Builder fbb) {
+          final typeOffset = fbb.writeString(object.type);
+          final valueOffset = fbb.writeString(object.value);
+          final uidOffset = fbb.writeString(object.uid);
+          fbb.startTable(7);
+          fbb.addOffset(0, typeOffset);
+          fbb.addOffset(1, valueOffset);
+          fbb.addOffset(2, uidOffset);
+          fbb.addInt64(3, object.created?.millisecondsSinceEpoch);
+          fbb.addInt64(4, object.updated?.millisecondsSinceEpoch);
+          fbb.addInt64(5, object.objectBoxId);
+          fbb.finish(fbb.endTable());
+          return object.objectBoxId;
+        },
+        objectFromFB: (Store store, ByteData fbData) {
+          final buffer = fb.BufferContext(fbData);
+          final rootOffset = buffer.derefObject(0);
+          final createdValue =
+              const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 10);
+          final updatedValue =
+              const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 12);
+          final object = ObjectBoxItemIdentifier()
+            ..type = const fb.StringReader(asciiOptimization: true)
+                .vTableGet(buffer, rootOffset, 4, '')
+            ..value = const fb.StringReader(asciiOptimization: true)
+                .vTableGet(buffer, rootOffset, 6, '')
+            ..uid = const fb.StringReader(asciiOptimization: true)
+                .vTableGet(buffer, rootOffset, 8, '')
+            ..created = createdValue == null
+                ? null
+                : DateTime.fromMillisecondsSinceEpoch(createdValue)
+            ..updated = updatedValue == null
+                ? null
+                : DateTime.fromMillisecondsSinceEpoch(updatedValue)
+            ..objectBoxId =
+                const fb.Int64Reader().vTableGet(buffer, rootOffset, 14, 0);
+
+          return object;
+        }),
+    ObjectBoxReceiptItem: EntityDefinition<ObjectBoxReceiptItem>(
+        model: _entities[11],
+        toOneRelations: (ObjectBoxReceiptItem object) => [],
+        toManyRelations: (ObjectBoxReceiptItem object) => {},
+        getId: (ObjectBoxReceiptItem object) => object.objectBoxId,
+        setId: (ObjectBoxReceiptItem object, int id) {
+          object.objectBoxId = id;
+        },
+        objectToFB: (ObjectBoxReceiptItem object, fb.Builder fbb) {
+          final nameOffset = fbb.writeString(object.name);
+          final barcodeOffset = fbb.writeString(object.barcode);
+          fbb.startTable(9);
+          fbb.addOffset(0, nameOffset);
+          fbb.addFloat64(1, object.price);
+          fbb.addFloat64(2, object.regularPrice);
+          fbb.addInt64(3, object.quantity);
+          fbb.addOffset(4, barcodeOffset);
+          fbb.addBool(5, object.taxable);
+          fbb.addFloat64(6, object.bottleDeposit);
+          fbb.addInt64(7, object.objectBoxId);
+          fbb.finish(fbb.endTable());
+          return object.objectBoxId;
+        },
+        objectFromFB: (Store store, ByteData fbData) {
+          final buffer = fb.BufferContext(fbData);
+          final rootOffset = buffer.derefObject(0);
+
+          final object = ObjectBoxReceiptItem()
+            ..name = const fb.StringReader(asciiOptimization: true)
+                .vTableGet(buffer, rootOffset, 4, '')
+            ..price =
+                const fb.Float64Reader().vTableGet(buffer, rootOffset, 6, 0)
+            ..regularPrice =
+                const fb.Float64Reader().vTableGet(buffer, rootOffset, 8, 0)
+            ..quantity =
+                const fb.Int64Reader().vTableGet(buffer, rootOffset, 10, 0)
+            ..barcode = const fb.StringReader(asciiOptimization: true)
+                .vTableGet(buffer, rootOffset, 12, '')
+            ..taxable =
+                const fb.BoolReader().vTableGet(buffer, rootOffset, 14, false)
+            ..bottleDeposit =
+                const fb.Float64Reader().vTableGet(buffer, rootOffset, 16, 0)
+            ..objectBoxId =
+                const fb.Int64Reader().vTableGet(buffer, rootOffset, 18, 0);
+
+          return object;
         })
   };
 
@@ -1458,4 +1642,66 @@ class ObjectBoxProduct_ {
   /// see [ObjectBoxProduct.objectBoxId]
   static final objectBoxId =
       QueryIntegerProperty<ObjectBoxProduct>(_entities[9].properties[6]);
+}
+
+/// [ObjectBoxItemIdentifier] entity fields to define ObjectBox queries.
+class ObjectBoxItemIdentifier_ {
+  /// see [ObjectBoxItemIdentifier.type]
+  static final type =
+      QueryStringProperty<ObjectBoxItemIdentifier>(_entities[10].properties[0]);
+
+  /// see [ObjectBoxItemIdentifier.value]
+  static final value =
+      QueryStringProperty<ObjectBoxItemIdentifier>(_entities[10].properties[1]);
+
+  /// see [ObjectBoxItemIdentifier.uid]
+  static final uid =
+      QueryStringProperty<ObjectBoxItemIdentifier>(_entities[10].properties[2]);
+
+  /// see [ObjectBoxItemIdentifier.created]
+  static final created = QueryIntegerProperty<ObjectBoxItemIdentifier>(
+      _entities[10].properties[3]);
+
+  /// see [ObjectBoxItemIdentifier.updated]
+  static final updated = QueryIntegerProperty<ObjectBoxItemIdentifier>(
+      _entities[10].properties[4]);
+
+  /// see [ObjectBoxItemIdentifier.objectBoxId]
+  static final objectBoxId = QueryIntegerProperty<ObjectBoxItemIdentifier>(
+      _entities[10].properties[5]);
+}
+
+/// [ObjectBoxReceiptItem] entity fields to define ObjectBox queries.
+class ObjectBoxReceiptItem_ {
+  /// see [ObjectBoxReceiptItem.name]
+  static final name =
+      QueryStringProperty<ObjectBoxReceiptItem>(_entities[11].properties[0]);
+
+  /// see [ObjectBoxReceiptItem.price]
+  static final price =
+      QueryDoubleProperty<ObjectBoxReceiptItem>(_entities[11].properties[1]);
+
+  /// see [ObjectBoxReceiptItem.regularPrice]
+  static final regularPrice =
+      QueryDoubleProperty<ObjectBoxReceiptItem>(_entities[11].properties[2]);
+
+  /// see [ObjectBoxReceiptItem.quantity]
+  static final quantity =
+      QueryIntegerProperty<ObjectBoxReceiptItem>(_entities[11].properties[3]);
+
+  /// see [ObjectBoxReceiptItem.barcode]
+  static final barcode =
+      QueryStringProperty<ObjectBoxReceiptItem>(_entities[11].properties[4]);
+
+  /// see [ObjectBoxReceiptItem.taxable]
+  static final taxable =
+      QueryBooleanProperty<ObjectBoxReceiptItem>(_entities[11].properties[5]);
+
+  /// see [ObjectBoxReceiptItem.bottleDeposit]
+  static final bottleDeposit =
+      QueryDoubleProperty<ObjectBoxReceiptItem>(_entities[11].properties[6]);
+
+  /// see [ObjectBoxReceiptItem.objectBoxId]
+  static final objectBoxId =
+      QueryIntegerProperty<ObjectBoxReceiptItem>(_entities[11].properties[7]);
 }

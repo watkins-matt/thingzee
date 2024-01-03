@@ -1,4 +1,4 @@
-
+import 'dart:core';
 
 import 'package:objectbox/objectbox.dart';
 import 'package:repository/model/identifier.dart';
@@ -8,6 +8,8 @@ class ObjectBoxItemIdentifier {
   late String type;
   late String value;
   late String uid;
+  late DateTime? created;
+  late DateTime? updated;
   @Id()
   int objectBoxId = 0;
   ObjectBoxItemIdentifier();
@@ -15,11 +17,15 @@ class ObjectBoxItemIdentifier {
     type = original.type;
     value = original.value;
     uid = original.uid;
+    created = original.created;
+    updated = original.updated;
   }
   ItemIdentifier toItemIdentifier() {
     return ItemIdentifier(
         type: type,
         value: value,
-        uid: uid);
+        uid: uid,
+        created: created,
+        updated: updated);
   }
 }
