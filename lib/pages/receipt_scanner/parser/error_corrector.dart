@@ -57,8 +57,9 @@ class ErrorCorrector {
       return '\$${match[1]!}.${match[2]!}';
     });
 
-    // Correcting ':' within prices, assuming ':' is the first part and should be '1'
-    RegExp priceColonRegExp = RegExp(r':(\d+(?:\.\d{2})?)');
+    // Correcting ':' within prices where ':' is the first part and should be '1',
+    // but avoiding situations where the pattern could be part of a time format.
+    RegExp priceColonRegExp = RegExp(r'\b:(\d+\.\d{2})\b(?!\s*(AM|PM))', caseSensitive: false);
     text = text.replaceAllMapped(priceColonRegExp, (match) {
       // Replace ':' with '1'
       return '1${match[1]}';
