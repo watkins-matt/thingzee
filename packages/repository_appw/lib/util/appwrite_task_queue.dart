@@ -10,6 +10,10 @@ class AppwriteTaskQueue {
   DateTime? _lastRateLimitHit;
   bool _paused = false;
 
+  int get length => _taskQueue.length;
+  bool get paused => _paused;
+  bool get processing => _processingQueue;
+
   void pause() {
     _paused = true;
   }
@@ -62,7 +66,7 @@ class AppwriteTaskQueue {
             _taskQueue.insert(0, task);
           } else {
             Log.e(
-                'Failed to execute task: [AppwriteException] ${e.message}. Retry attempt ${task.retries + 1}');
+                'Failed to execute task (Retry attempt ${task.retries + 1}): [AppwriteException] ${e.message}');
             task.retries += 1;
             _taskQueue.insert(0, task);
           }
