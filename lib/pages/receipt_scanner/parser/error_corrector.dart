@@ -81,6 +81,13 @@ class ErrorCorrector {
       return '\$${matchedPrice.substring(1)}';
     });
 
+    // Correcting 'O' within 9 digit numbers
+    RegExp nineDigitNumberWithO = RegExp(r'\b\d{0,8}[O]\d{0,8}\b');
+    text = text.replaceAllMapped(nineDigitNumberWithO, (match) {
+      // Replace 'O' with '0'
+      return match[0]!.replaceAll('O', '0');
+    });
+
     // Regular expression to find prices starting with 'S'
     // which should be changed to $
     final RegExp priceSRegExp = RegExp(r'S(\d+\.\d{2})');
