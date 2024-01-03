@@ -2,6 +2,7 @@ import 'package:repository/database/history_database.dart';
 import 'package:repository/database/inventory_database.dart';
 import 'package:repository/database/item_database.dart';
 import 'package:repository/mixin/fuzzy_searchable.dart';
+import 'package:repository/model/abstract/nameable.dart';
 import 'package:repository/model/filter.dart';
 import 'package:repository/model/inventory.dart';
 import 'package:repository/model/item.dart';
