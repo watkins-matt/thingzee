@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:repository/database/joined_item_database.dart';
+import 'package:repository/model/item.dart';
 import 'package:repository/model/receipt.dart';
 import 'package:repository/model/receipt_item.dart';
 import 'package:thingzee/pages/inventory/state/inventory_view.dart';
@@ -71,7 +71,7 @@ class _ReceiptConfirmationPageState extends ConsumerState<ReceiptConfirmationPag
               // Update the status when an item is confirmed.
               if (result != null) {
                 ref.read(itemMatchProvider(widget.receipt.items).notifier).update((state) {
-                  state[index] = 'Confirmed ${result.item.name}';
+                  state[index] = 'Confirmed ${result.name}';
                   return state;
                 });
                 setState(() {});
@@ -105,20 +105,20 @@ class _ReceiptConfirmationPageState extends ConsumerState<ReceiptConfirmationPag
 
       ReceiptItem item = widget.receipt.items[i];
       final provider = ref.read(inventoryProvider.notifier);
-      final joinedItemDb = provider.joinedItemDb;
+      final itemDb = provider.r.items;
 
       final query = _getSearchQuery(item);
       if (query.isEmpty) {
         continue;
       }
 
-      List<JoinedItem> matches = joinedItemDb.fuzzySearch(query);
+      List<Item> matches = itemDb.fuzzySearch(query);
 
       // Check if there's a single match or a small number of matches.
       if (matches.length <= 3 && matches.isNotEmpty) {
         // Update the match status for this item.
         ref.read(itemMatchProvider(widget.receipt.items).notifier).update((state) {
-          state[i] = 'Matched ${matches.first.item.name}';
+          state[i] = 'Matched ${matches.first.name}';
           return state;
         });
       }

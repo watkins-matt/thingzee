@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:log/log.dart';
-import 'package:repository/database/joined_item_database.dart';
+import 'package:repository/model/item.dart';
 import 'package:repository/model/receipt_item.dart';
 import 'package:thingzee/icon_library.dart';
 import 'package:thingzee/pages/barcode/barcode_scanner_page.dart';
 import 'package:thingzee/pages/detail/widget/material_card_widget.dart';
-import 'package:thingzee/pages/inventory/state/inventory_view.dart';
+import 'package:thingzee/pages/inventory/state/item_view.dart';
+import 'package:thingzee/pages/item_match/widget/add_item_browser_page.dart';
+import 'package:thingzee/pages/item_match/widget/text_button_with_dropdown.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ItemMatchPage extends ConsumerStatefulWidget {
@@ -17,15 +19,14 @@ class ItemMatchPage extends ConsumerStatefulWidget {
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _ItemMatchPageState();
 
-  static Future<JoinedItem?> push(
-      BuildContext context, ReceiptItem receiptItem, String searchUrl) async {
+  static Future<Item?> push(BuildContext context, ReceiptItem receiptItem, String searchUrl) async {
     return await Navigator.of(context).push(
       MaterialPageRoute(
           builder: (context) => ItemMatchPage(receiptItem: receiptItem, searchUrl: searchUrl)),
     );
   }
 
-  static Future<JoinedItem?> pushReplacement(
+  static Future<Item?> pushReplacement(
       BuildContext context, ReceiptItem receiptItem, String searchUrl) async {
     return await Navigator.of(context).pushReplacement(
       MaterialPageRoute(
@@ -38,20 +39,36 @@ class _ItemMatchPageState extends ConsumerState<ItemMatchPage> {
   String searchQuery = '';
   late TextEditingController _controller;
 
+  void addNewItemFromWeb(BuildContext context) {
+    AddItemBrowserPage.push(context, widget.searchUrl).then((item) {
+      if (item != null) {
+        Navigator.of(context).pop(item);
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    List<JoinedItem> items = ref.watch(inventoryProvider);
+    List<Item> items = ref.watch(itemViewProvider);
     ThemeData theme = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Match: ${widget.receiptItem.name}'),
+        title: Text(widget.receiptItem.name),
         backgroundColor: theme.appBarTheme.backgroundColor,
         actions: [
           IconButton(
-            icon: const Icon(Icons.open_in_browser),
+            icon: const Icon(Icons.app_registration, color: Colors.white),
             onPressed: () => openSearchUrl(context, widget.searchUrl),
-            tooltip: 'Open Link',
+          ),
+          TextButtonWithDropdown<String>(
+            label: 'Add New',
+            icon: Icons.add,
+            menuItems: const {
+              'web': 'From Web',
+              'scan': 'By Scanning Barcode',
+            },
+            onSelected: (string) => handleAddNewAction(context, string),
           ),
         ],
       ),
@@ -78,7 +95,7 @@ class _ItemMatchPageState extends ConsumerState<ItemMatchPage> {
                 setState(() {
                   searchQuery = value;
                 });
-                ref.read(inventoryProvider.notifier).fuzzySearch(value);
+                ref.read(itemViewProvider.notifier).fuzzySearch(value);
               },
               decoration: InputDecoration(
                 labelText: 'Search',
@@ -96,11 +113,11 @@ class _ItemMatchPageState extends ConsumerState<ItemMatchPage> {
               child: ListView.builder(
                 itemCount: items.length,
                 itemBuilder: (context, index) {
-                  JoinedItem item = items[index];
+                  Item item = items[index];
                   return MaterialCardWidget(
                     children: [
                       ListTile(
-                        title: Text(item.item.name, style: theme.textTheme.titleMedium),
+                        title: Text(item.name, style: theme.textTheme.titleMedium),
                         onTap: () {
                           Navigator.of(context).pop(item);
                         },
@@ -114,6 +131,19 @@ class _ItemMatchPageState extends ConsumerState<ItemMatchPage> {
         ],
       ),
     );
+  }
+
+  void handleAddNewAction(BuildContext context, String? action) {
+    switch (action) {
+      case 'web':
+        addNewItemFromWeb(context);
+        break;
+      // case 'scan':
+      //   addNewItemByScanning(context);
+      //   break;
+      default:
+        Log.e('Unknown action: $action');
+    }
   }
 
   void initializeSearchQuery() {
@@ -132,7 +162,7 @@ class _ItemMatchPageState extends ConsumerState<ItemMatchPage> {
     }
 
     _controller.text = searchQuery;
-    ref.read(inventoryProvider.notifier).fuzzySearch(searchQuery);
+    ref.read(itemViewProvider.notifier).fuzzySearch(searchQuery);
   }
 
   @override
