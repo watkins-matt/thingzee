@@ -166,6 +166,12 @@ class TargetParser extends ReceiptParser {
     text = errorCorrection(text);
     _rawText = text;
 
+    // Parse date and time from the entire raw text before processing individual lines
+    final parsedDate = _parseDateFromText(text);
+    if (parsedDate != null) {
+      _dateTracker.add(parsedDate);
+    }
+
     final lines = text.split('\n');
 
     ReceiptItem? currentItem;
@@ -206,9 +212,9 @@ class TargetParser extends ReceiptParser {
     return line.contains(RegExp(r'Bottle Deposit Fee \$\d+\.\d{2}'));
   }
 
-  bool _isDateLine(String line) {
-    return RegExp(r'\d{1,2}/\d{1,2}/\d{4} \d{1,2}:\d{2} [AP]M').hasMatch(line);
-  }
+  // bool _isDateLine(String line) {
+  //   return RegExp(r'\d{1,2}/\d{1,2}/\d{4} \d{1,2}:\d{2} [AP]M').hasMatch(line);
+  // }
 
   bool _isDiscountLine(String line) {
     return RegExp(r'.+ (Discount|Savings) \$\d+\.\d{2}').hasMatch(line);
@@ -247,25 +253,49 @@ class TargetParser extends ReceiptParser {
     return match != null ? double.parse(match.group(1)!) : 0.0;
   }
 
-  DateTime? _parseDateLine(String line) {
-    final dateRegex = RegExp(r'(\d{1,2}/\d{1,2}/\d{4}) (\d{1,2}:\d{2} [AP]M)');
-    final match = dateRegex.firstMatch(line);
+  DateTime? _parseDateFromText(String text) {
+    // Adjust the regex pattern to match your specific date format
+    final dateRegex = RegExp(r'(\d{1,2}/\d{1,2}/\d{4})');
+    final timeRegex = RegExp(r'(\d{1,2}:\d{2}\s*[AP]M)', caseSensitive: false);
 
-    if (match != null) {
-      final dateString = match.group(1)!;
-      final timeString = match.group(2)!;
+    final dateMatch = dateRegex.firstMatch(text);
+    final timeMatch = timeRegex.firstMatch(text);
+
+    if (dateMatch != null && timeMatch != null) {
+      final dateString = dateMatch.group(1)!;
+      final timeString = timeMatch.group(1)!;
 
       try {
         final format = DateFormat('MM/dd/yyyy hh:mm a');
         return format.parse('$dateString $timeString', true);
       } catch (e) {
-        Log.e('Error parsing date: $e');
+        Log.e('Error parsing date and time: $e');
         return null;
       }
     }
 
     return null;
   }
+
+  // DateTime? _parseDateLine(String line) {
+  //   final dateRegex = RegExp(r'(\d{1,2}/\d{1,2}/\d{4}) (\d{1,2}:\d{2} [AP]M)');
+  //   final match = dateRegex.firstMatch(line);
+
+  //   if (match != null) {
+  //     final dateString = match.group(1)!;
+  //     final timeString = match.group(2)!;
+
+  //     try {
+  //       final format = DateFormat('MM/dd/yyyy hh:mm a');
+  //       return format.parse('$dateString $timeString', true);
+  //     } catch (e) {
+  //       Log.e('Error parsing date: $e');
+  //       return null;
+  //     }
+  //   }
+
+  //   return null;
+  // }
 
   ReceiptItem? _parseItemLine(String line) {
     final strictItemRegex = RegExp(r"(\d{9,})\s+([A-Za-z&'\s\-]+)\s+\$?(\d*\.\d{2})");
@@ -305,12 +335,15 @@ class TargetParser extends ReceiptParser {
   }
 
   void _parseNonItemLine(String line) {
-    if (_isDateLine(line)) {
-      final DateTime? parsedDate = _parseDateLine(line);
-      if (parsedDate != null) {
-        _dateTracker.add(parsedDate);
-      }
-    } else if (_isSubtotalLine(line)) {
+    // Testing parsing date/time in parse from the whole string
+    // if (_isDateLine(line)) {
+    //   final DateTime? parsedDate = _parseDateLine(line);
+    //   if (parsedDate != null) {
+    //     _dateTracker.add(parsedDate);
+    //   }
+    // } else
+
+    if (_isSubtotalLine(line)) {
       final double parsedSubtotal = _parsePriceLine(line);
       if (parsedSubtotal != 0) {
         _subtotalTracker.add(parsedSubtotal);
