@@ -12,7 +12,7 @@ import 'package:stack_trace/stack_trace.dart';
 
 class Log {
   static final StoredLogOutput _output = StoredLogOutput(printMethod: PrintMethod.debugPrint);
-  static final Logger _logger = Logger(printer: TimeDisplaySimplePrinter(), output: _output);
+  static Logger _logger = Logger(printer: TimeDisplaySimplePrinter(), output: _output);
   static List<OutputEvent> get logs => _output.logs;
   Log._();
 
@@ -30,6 +30,11 @@ class Log {
 
   static void e(dynamic message, [dynamic error, StackTrace? stackTrace]) {
     _logger.e(message, error: error, stackTrace: stackTrace);
+  }
+
+  // Ensure that we are not trying to write files in unit tests
+  static void enableTestMode() {
+    _logger = Logger(printer: TimeDisplaySimplePrinter(), output: ConsoleOutput());
   }
 
   static void fatal(dynamic message, [dynamic error, StackTrace? stackTrace]) {
