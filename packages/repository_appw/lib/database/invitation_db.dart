@@ -21,10 +21,10 @@ class AppwriteInvitationDatabase extends InvitationDatabase
     String collectionId,
     this.householdId,
   ) : super() {
+    constructDatabase(TAG, database, databaseId, collectionId);
     constructSynchronizable(TAG, prefs, onConnectivityChange: () async {
       await taskQueue.runUntilComplete();
     });
-    constructDatabase(TAG, database, databaseId, collectionId);
   }
 
   @override
