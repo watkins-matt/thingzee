@@ -17,17 +17,16 @@ class AppwriteItemDatabase extends ItemDatabase with AppwriteSynchronizable<Item
 
   final _items = <String, Item>{};
   final Databases _database;
-  final Preferences prefs;
   final String collectionId;
   final String databaseId;
 
   AppwriteItemDatabase(
-    this.prefs,
+    Preferences prefs,
     this._database,
     this.databaseId,
     this.collectionId,
   ) : super() {
-    construct('AppwriteItemDatabase', prefs, onConnectivityChange: () async {
+    constructSynchronizable('AppwriteItemDatabase', prefs, onConnectivityChange: () async {
       await taskQueue.runUntilComplete();
     });
   }
