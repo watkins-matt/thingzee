@@ -39,7 +39,7 @@ class AppwriteHouseholdDatabase extends HouseholdDatabase
   String get id => _householdId;
 
   @override
-  List<HouseholdMember> get members => throw UnimplementedError();
+  List<HouseholdMember> get members => values.toList();
 
   Future<void> connectivityChanged() async {
     await _initializeHousehold();
