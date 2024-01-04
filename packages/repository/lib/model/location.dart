@@ -134,11 +134,22 @@ class Location {
     final secondUpdate = other.updated ?? DateTime.fromMillisecondsSinceEpoch(0);
     final newerLocation = secondUpdate.isAfter(firstUpdate) ? other : this;
 
+    // Determine the older 'created' date, considering null values.
+    DateTime? olderCreatedDate;
+    if (created == null) {
+      olderCreatedDate = newerLocation.created;
+    } else if (newerLocation.created == null) {
+      olderCreatedDate = created;
+    } else {
+      olderCreatedDate =
+          created!.isBefore(newerLocation.created!) ? created : newerLocation.created;
+    }
+
     return Location(
       upc: newerLocation.upc.isNotEmpty ? newerLocation.upc : upc,
       name: newerLocation.name.isNotEmpty ? newerLocation.name : name,
       quantity: newerLocation.quantity ?? quantity,
-      created: newerLocation.created ?? created,
+      created: olderCreatedDate, // Use the older 'created' date.
       updated: newerLocation.updated ?? updated,
     );
   }
