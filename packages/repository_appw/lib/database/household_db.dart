@@ -11,6 +11,7 @@ import 'package:repository_appw/util/appwrite_task_queue.dart';
 import 'package:uuid/uuid.dart';
 
 class AppwriteHouseholdDatabase extends HouseholdDatabase {
+  static const String lastSyncKey = 'AppwriteHouseholdDatabase.lastSync';
   AppwriteTaskQueue taskQueue = AppwriteTaskQueue();
   bool _online = false;
   DateTime? lastSync;
@@ -22,7 +23,6 @@ class AppwriteHouseholdDatabase extends HouseholdDatabase {
   final Teams _teams;
   DateTime _created = DateTime.now();
   String _householdId = '';
-  String lastSyncKey = 'AppwriteHouseholdDatabase.lastSync';
   String userId = '';
 
   AppwriteHouseholdDatabase(

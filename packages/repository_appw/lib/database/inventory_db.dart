@@ -10,11 +10,11 @@ import 'package:repository/util/hash.dart';
 import 'package:repository_appw/util/appwrite_task_queue.dart';
 
 class AppwriteInventoryDatabase extends InventoryDatabase {
+  static const String lastSyncKey = 'AppwriteInventoryDatabase.lastSync';
   bool _online = false;
-  AppwriteTaskQueue taskQueue = AppwriteTaskQueue();
 
+  AppwriteTaskQueue taskQueue = AppwriteTaskQueue();
   DateTime? lastSync;
-  String lastSyncKey = 'AppwriteInventoryDatabase.lastSync';
   final _inventory = <String, Inventory>{};
   final Databases _database;
   final Preferences prefs;

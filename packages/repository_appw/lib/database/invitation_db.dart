@@ -12,10 +12,10 @@ import 'package:uuid/uuid.dart';
 
 class AppwriteInvitationDatabase extends InvitationDatabase {
   static const maxRetries = 3;
+  static const String lastSyncKey = 'AppwriteInvitationDatabase.lastSync';
   bool _online = false;
   AppwriteTaskQueue taskQueue = AppwriteTaskQueue();
   DateTime? lastSync;
-  final String lastSyncKey = 'AppwriteInvitationDatabase.lastSync';
   final Preferences prefs;
   final _invitations = <String, Invitation>{};
 

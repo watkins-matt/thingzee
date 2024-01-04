@@ -12,16 +12,16 @@ import 'package:repository/util/hash.dart';
 import 'package:repository_appw/util/appwrite_task_queue.dart';
 
 class AppwriteItemDatabase extends ItemDatabase {
+  static const String lastSyncKey = 'AppwriteItemDatabase.lastSync';
   bool _online = false;
   AppwriteTaskQueue taskQueue = AppwriteTaskQueue();
   DateTime? lastSync;
-  final _items = <String, Item>{};
 
+  final _items = <String, Item>{};
   final Databases _database;
   final Preferences prefs;
   final String collectionId;
   final String databaseId;
-  String lastSyncKey = 'AppwriteItemDatabase.lastSync';
   String userId = '';
 
   AppwriteItemDatabase(
