@@ -7,15 +7,13 @@ import 'package:repository/database/household_database.dart';
 import 'package:repository/database/preferences.dart';
 import 'package:repository/model/household_member.dart';
 import 'package:repository/util/hash.dart';
+import 'package:repository_appw/util/appwrite_task_queue.dart';
 import 'package:uuid/uuid.dart';
 
 class AppwriteHouseholdDatabase extends HouseholdDatabase {
-  static const maxRetries = 3;
+  AppwriteTaskQueue taskQueue = AppwriteTaskQueue();
   bool _online = false;
-  bool _processingQueue = false;
-  DateTime? _lastRateLimitHit;
   DateTime? lastSync;
-  final _taskQueue = <_QueueTask>[];
   final Databases _database;
   final List<HouseholdMember> _members = [];
   final Preferences prefs;
@@ -72,7 +70,7 @@ class AppwriteHouseholdDatabase extends HouseholdDatabase {
 
     _members.add(member);
 
-    queueTask(() async {
+    taskQueue.queueTask(() async {
       try {
         await _database.updateDocument(
             databaseId: databaseId,
@@ -112,8 +110,9 @@ class AppwriteHouseholdDatabase extends HouseholdDatabase {
     if (online && session != null) {
       _online = true;
       userId = session.userId;
+
+      await taskQueue.runUntilComplete();
       await sync();
-      scheduleMicrotask(_processQueue);
     } else {
       _online = false;
       userId = '';
@@ -122,18 +121,13 @@ class AppwriteHouseholdDatabase extends HouseholdDatabase {
 
   @override
   void leave() {
-    queueTask(() async {
+    taskQueue.queueTask(() async {
       // Logic to leave the household:
       // 1. Remove the user from the team.
       // 2. Delete or update the household document in the database.
       // 3. Update the preferences to remove householdId.
     });
     prefs.remove('householdId');
-  }
-
-  void queueTask(Future<void> Function() operation) {
-    _taskQueue.add(_QueueTask(operation));
-    scheduleMicrotask(_processQueue);
   }
 
   Map<String, dynamic> serializeMember(HouseholdMember member) {
@@ -268,50 +262,8 @@ class AppwriteHouseholdDatabase extends HouseholdDatabase {
     }
   }
 
-  Future<void> _processQueue() async {
-    if (_processingQueue || !_online) return;
-    _processingQueue = true;
-
-    try {
-      while (_taskQueue.isNotEmpty) {
-        if (_lastRateLimitHit != null) {
-          final difference = DateTime.now().difference(_lastRateLimitHit!);
-          if (difference < Duration(minutes: 1)) {
-            final timeToWait = Duration(minutes: 1) - difference;
-            await Future.delayed(timeToWait);
-            _lastRateLimitHit = null;
-          }
-        }
-
-        _QueueTask task = _taskQueue.removeAt(0);
-
-        if (task.retries >= maxRetries) {
-          // Log the error: Failed to execute task after $maxRetries attempts.
-          continue;
-        }
-
-        try {
-          await task.operation();
-        } catch (e) {
-          // Adjust the error handling based on the exceptions you expect
-          task.retries += 1;
-          _taskQueue.add(task);
-        }
-      }
-    } finally {
-      _processingQueue = false;
-    }
-  }
-
   void _updateSyncTime() {
     lastSync = DateTime.now();
     prefs.setInt(lastSyncKey, lastSync!.millisecondsSinceEpoch);
   }
-}
-
-class _QueueTask {
-  final Future<void> Function() operation;
-  int retries = 0;
-
-  _QueueTask(this.operation);
 }
