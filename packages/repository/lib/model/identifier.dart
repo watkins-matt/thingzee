@@ -61,3 +61,33 @@ class ItemIdentifier {
   /// one or both are null.
   static DateTime _defaultDateTime(DateTime? dateTime) => dateTime ?? DateTime.now();
 }
+
+extension ItemIdentifierMerge on ItemIdentifier {
+  ItemIdentifier merge(ItemIdentifier other) {
+    // Determine the older 'created' date, considering null values.
+    DateTime? olderCreatedDate;
+    if (created == null) {
+      olderCreatedDate = other.created;
+    } else if (other.created == null) {
+      olderCreatedDate = created;
+    } else {
+      olderCreatedDate = created!.isBefore(other.created!) ? created : other.created;
+    }
+
+    // Determine the newer 'updated' date.
+    final newerUpdatedDate = updated == null
+        ? other.updated
+        : (other.updated == null
+            ? updated
+            : (updated!.isAfter(other.updated!) ? updated : other.updated));
+
+    // Merge the fields.
+    return ItemIdentifier(
+      type: other.type.isNotEmpty ? other.type : type,
+      value: other.value.isNotEmpty ? other.value : value,
+      uid: other.uid.isNotEmpty ? other.uid : uid,
+      created: olderCreatedDate,
+      updated: newerUpdatedDate,
+    );
+  }
+}
