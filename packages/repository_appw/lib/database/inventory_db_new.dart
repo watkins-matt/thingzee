@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_renaming_method_parameters
+
 import 'package:appwrite/appwrite.dart';
 import 'package:repository/database/inventory_database.dart';
 import 'package:repository/database/preferences.dart';
@@ -25,10 +27,10 @@ class AppwriteInventoryDatabase extends InventoryDatabase
   Inventory deserialize(Map<String, dynamic> json) => Inventory.fromJson(json);
 
   @override
-  String getKey(Inventory item) => item.upc;
+  String getKey(Inventory inventory) => inventory.upc;
 
   @override
-  DateTime? getUpdated(Inventory item) => item.lastUpdate;
+  DateTime? getUpdated(Inventory inventory) => inventory.lastUpdate;
 
   @override
   Inventory merge(Inventory existingItem, Inventory newItem) => existingItem.merge(newItem);
@@ -37,8 +39,8 @@ class AppwriteInventoryDatabase extends InventoryDatabase
   List<Inventory> outs() => values.where((inv) => inv.amount <= 0 && inv.restock).toList();
 
   @override
-  Map<String, dynamic> serialize(Inventory item) {
-    var json = item.toJson();
+  Map<String, dynamic> serialize(Inventory inventory) {
+    var json = inventory.toJson();
     json['userId'] = userId;
     json.remove('history');
     json.remove('units');

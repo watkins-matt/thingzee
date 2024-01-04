@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_renaming_method_parameters
+
 import 'dart:convert';
 
 import 'package:appwrite/appwrite.dart';
@@ -35,20 +37,20 @@ class AppwriteHistoryDatabase extends HistoryDatabase
   }
 
   @override
-  String getKey(History item) => item.upc;
+  String getKey(History history) => history.upc;
 
   @override
-  DateTime? getUpdated(History item) => item.lastTimestamp;
+  DateTime? getUpdated(History history) => history.lastTimestamp;
 
   @override
   History merge(History existingItem, History newItem) => existingItem.merge(newItem);
 
   @override
-  Map<String, dynamic> serialize(History item) {
+  Map<String, dynamic> serialize(History history) {
     Map<String, dynamic> serialized = {
       'userId': userId,
-      'upc': item.upc,
-      'json': jsonEncode(item.toJson())
+      'upc': history.upc,
+      'json': jsonEncode(history.toJson())
     };
 
     return serialized;
