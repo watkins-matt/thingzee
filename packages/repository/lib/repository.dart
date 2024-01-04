@@ -1,5 +1,6 @@
 import 'package:repository/database/history_database.dart';
 import 'package:repository/database/household_database.dart';
+import 'package:repository/database/identifier_database.dart';
 import 'package:repository/database/inventory_database.dart';
 import 'package:repository/database/item_database.dart';
 import 'package:repository/database/location_database.dart';
@@ -14,6 +15,7 @@ abstract class Repository {
   late Preferences securePrefs;
   late HouseholdDatabase household;
   late LocationDatabase location;
+  late IdentifierDatabase identifiers;
   bool get isMultiUser => false;
   bool get isUserVerified => false;
   bool get loggedIn => false;
