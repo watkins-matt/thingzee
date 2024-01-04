@@ -10,6 +10,7 @@ import 'package:repository_appw/util/appwrite_task_queue.dart';
 import 'package:uuid/uuid.dart';
 
 class AppwriteLocationDatabase extends LocationDatabase {
+  static const String lastSyncKey = 'AppwriteLocationDatabase.lastSync';
   bool _online = false;
   AppwriteTaskQueue taskQueue = AppwriteTaskQueue();
   DateTime? lastSync;
@@ -18,7 +19,6 @@ class AppwriteLocationDatabase extends LocationDatabase {
   final Preferences prefs;
   final String databaseId;
   final List<Location> _locations = [];
-  String lastSyncKey = 'AppwriteLocationDatabase.lastSync';
   String userId = '';
 
   AppwriteLocationDatabase(this.prefs, this._database, this.databaseId, this.collectionId) {

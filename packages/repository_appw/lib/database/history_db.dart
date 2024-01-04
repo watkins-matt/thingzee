@@ -11,11 +11,11 @@ import 'package:repository/util/hash.dart';
 import 'package:repository_appw/util/appwrite_task_queue.dart';
 
 class AppwriteHistoryDatabase extends HistoryDatabase {
+  static const String lastSyncKey = 'AppwriteHistoryDatabase.lastSync';
   bool _online = false;
-  AppwriteTaskQueue taskQueue = AppwriteTaskQueue();
 
+  AppwriteTaskQueue taskQueue = AppwriteTaskQueue();
   DateTime? lastSync;
-  String lastSyncKey = 'AppwriteHistoryDatabase.lastSync';
   final _history = <String, History>{};
   final Databases _database;
   final Preferences prefs;
