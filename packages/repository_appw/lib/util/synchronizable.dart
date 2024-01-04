@@ -15,7 +15,8 @@ mixin AppwriteSynchronizable<T> {
   bool get online => _online;
   String get userId => _userId;
 
-  void construct(String tag, Preferences prefs, {Future<void> Function()? onConnectivityChange}) {
+  void constructSynchronizable(String tag, Preferences prefs,
+      {Future<void> Function()? onConnectivityChange}) {
     this._tag = tag;
     this._syncKey = '$tag.lastSync';
     this._prefs = prefs;
