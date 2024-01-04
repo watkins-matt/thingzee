@@ -7,16 +7,15 @@ import 'package:repository/database/inventory_database.dart';
 import 'package:repository/database/preferences.dart';
 import 'package:repository/model/inventory.dart';
 import 'package:repository/util/hash.dart';
+import 'package:repository_appw/util/appwrite_task_queue.dart';
 
 class AppwriteInventoryDatabase extends InventoryDatabase {
-  static const maxRetries = 3;
   bool _online = false;
-  bool _processingQueue = false;
-  DateTime? _lastRateLimitHit;
+  AppwriteTaskQueue taskQueue = AppwriteTaskQueue();
+
   DateTime? lastSync;
   String lastSyncKey = 'AppwriteInventoryDatabase.lastSync';
   final _inventory = <String, Inventory>{};
-  final _taskQueue = <_QueueTask>[];
   final Databases _database;
   final Preferences prefs;
   final String collectionId;
@@ -43,7 +42,7 @@ class AppwriteInventoryDatabase extends InventoryDatabase {
   @override
   void delete(Inventory inv) {
     _inventory.remove(inv.upc);
-    queueTask(() async {
+    taskQueue.queueTask(() async {
       await _database.deleteDocument(
         databaseId: databaseId,
         collectionId: collectionId,
@@ -84,8 +83,9 @@ class AppwriteInventoryDatabase extends InventoryDatabase {
     if (online && session != null) {
       _online = true;
       userId = session.userId;
+
+      await taskQueue.runUntilComplete();
       await sync();
-      scheduleMicrotask(_processQueue);
     } else {
       _online = false;
       userId = '';
@@ -103,7 +103,7 @@ class AppwriteInventoryDatabase extends InventoryDatabase {
   void put(Inventory inv) {
     _inventory[inv.upc] = inv;
 
-    queueTask(() async {
+    taskQueue.queueTask(() async {
       try {
         await _database.updateDocument(
             databaseId: databaseId,
@@ -130,11 +130,6 @@ class AppwriteInventoryDatabase extends InventoryDatabase {
         }
       }
     });
-  }
-
-  void queueTask(Future<void> Function() operation) {
-    _taskQueue.add(_QueueTask(operation));
-    scheduleMicrotask(_processQueue);
   }
 
   Map<String, dynamic> serializeInventory(Inventory inv) {
@@ -215,60 +210,8 @@ class AppwriteInventoryDatabase extends InventoryDatabase {
         .toList();
   }
 
-  Future<void> _processQueue() async {
-    if (_processingQueue || !_online) {
-      return;
-    }
-    _processingQueue = true;
-
-    try {
-      while (_taskQueue.isNotEmpty) {
-        // We hit a rate limit, pause the queue until the rate limit is over
-        if (_lastRateLimitHit != null) {
-          final difference = DateTime.now().difference(_lastRateLimitHit!);
-          if (difference < Duration(minutes: 1)) {
-            final timeToWait = Duration(minutes: 1) - difference;
-            await Future.delayed(timeToWait);
-            _lastRateLimitHit = null;
-          }
-        }
-
-        _QueueTask task = _taskQueue.removeAt(0);
-
-        if (task.retries >= maxRetries) {
-          Log.e('Failed to execute task after $maxRetries attempts.');
-          continue;
-        }
-
-        try {
-          await task.operation();
-        } on AppwriteException catch (e) {
-          if (e.code == 429) {
-            Log.e('Rate limit hit. Pausing queue processing.');
-            _lastRateLimitHit = DateTime.now();
-            _taskQueue.add(task);
-          } else if (e.code != 404 && e.code != 409) {
-            Log.e(
-                'Failed to execute task: [AppwriteException] ${e.message}. Retry attempt ${task.retries + 1}');
-            task.retries += 1;
-            _taskQueue.add(task);
-          }
-        }
-      }
-    } finally {
-      _processingQueue = false;
-    }
-  }
-
   void _updateSyncTime() {
     lastSync = DateTime.now();
     prefs.setInt(lastSyncKey, lastSync!.millisecondsSinceEpoch);
   }
-}
-
-class _QueueTask {
-  final Future<void> Function() operation;
-  int retries = 0;
-
-  _QueueTask(this.operation);
 }

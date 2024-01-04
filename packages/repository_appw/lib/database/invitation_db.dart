@@ -7,18 +7,18 @@ import 'package:repository/database/cloud/invitation_database.dart';
 import 'package:repository/database/preferences.dart';
 import 'package:repository/model/cloud/invitation.dart';
 import 'package:repository/util/hash.dart';
+import 'package:repository_appw/util/appwrite_task_queue.dart';
 import 'package:uuid/uuid.dart';
 
 class AppwriteInvitationDatabase extends InvitationDatabase {
   static const maxRetries = 3;
   bool _online = false;
-  bool _processingQueue = false;
-  DateTime? _lastRateLimitHit;
+  AppwriteTaskQueue taskQueue = AppwriteTaskQueue();
   DateTime? lastSync;
   final String lastSyncKey = 'AppwriteInvitationDatabase.lastSync';
   final Preferences prefs;
   final _invitations = <String, Invitation>{};
-  final _taskQueue = <_QueueTask>[];
+
   final Databases _database;
   final String collectionId;
   final String databaseId;
@@ -49,7 +49,7 @@ class AppwriteInvitationDatabase extends InvitationDatabase {
   void accept(Invitation invitation) {
     final updatedInvitation = invitation.copyWith(status: InvitationStatus.accepted);
     _invitations[invitation.id] = updatedInvitation;
-    queueTask(() async {
+    taskQueue.queueTask(() async {
       await _database.updateDocument(
         databaseId: databaseId,
         collectionId: collectionId,
@@ -62,7 +62,7 @@ class AppwriteInvitationDatabase extends InvitationDatabase {
   @override
   void delete(Invitation invitation) {
     _invitations.remove(invitation.id);
-    queueTask(() async {
+    taskQueue.queueTask(() async {
       await _database.deleteDocument(
         databaseId: databaseId,
         collectionId: collectionId,
@@ -74,8 +74,9 @@ class AppwriteInvitationDatabase extends InvitationDatabase {
   Future<void> handleConnectionChange(bool online, Session? session) async {
     if (online && session != null) {
       _online = true;
+
+      await taskQueue.runUntilComplete();
       await sync();
-      scheduleMicrotask(_processQueue);
     } else {
       _online = false;
     }
@@ -86,11 +87,6 @@ class AppwriteInvitationDatabase extends InvitationDatabase {
     return _invitations.values
         .where((invitation) => invitation.status == InvitationStatus.pending)
         .toList();
-  }
-
-  void queueTask(Future<void> Function() operation) {
-    _taskQueue.add(_QueueTask(operation));
-    scheduleMicrotask(_processQueue);
   }
 
   @override
@@ -110,7 +106,7 @@ class AppwriteInvitationDatabase extends InvitationDatabase {
     _invitations[invitation.id] = invitation;
 
     // Try to send the invitation
-    queueTask(() async {
+    taskQueue.queueTask(() async {
       try {
         await _database.updateDocument(
             databaseId: databaseId,
@@ -215,57 +211,8 @@ class AppwriteInvitationDatabase extends InvitationDatabase {
         .toList();
   }
 
-  Future<void> _processQueue() async {
-    if (_processingQueue || !_online) return;
-    _processingQueue = true;
-
-    try {
-      while (_taskQueue.isNotEmpty) {
-        if (_lastRateLimitHit != null) {
-          final difference = DateTime.now().difference(_lastRateLimitHit!);
-          if (difference < Duration(minutes: 1)) {
-            final timeToWait = Duration(minutes: 1) - difference;
-            await Future.delayed(timeToWait);
-            _lastRateLimitHit = null;
-          }
-        }
-
-        _QueueTask task = _taskQueue.removeAt(0);
-
-        if (task.retries >= maxRetries) {
-          Log.e('Failed to execute task after $maxRetries attempts.');
-          continue;
-        }
-
-        try {
-          await task.operation();
-        } on AppwriteException catch (e) {
-          if (e.code == 429) {
-            Log.e('Rate limit hit. Pausing queue processing.');
-            _lastRateLimitHit = DateTime.now();
-            _taskQueue.add(task);
-          } else {
-            Log.e(
-                'Failed to execute task: [AppwriteException] ${e.message}. Retry attempt ${task.retries + 1}');
-            task.retries += 1;
-            _taskQueue.add(task);
-          }
-        }
-      }
-    } finally {
-      _processingQueue = false;
-    }
-  }
-
   void _updateSyncTime() {
     lastSync = DateTime.now();
     prefs.setInt(lastSyncKey, lastSync!.millisecondsSinceEpoch);
   }
-}
-
-class _QueueTask {
-  final Future<void> Function() operation;
-  int retries = 0;
-
-  _QueueTask(this.operation);
 }
