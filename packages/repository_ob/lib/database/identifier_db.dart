@@ -33,12 +33,12 @@ class ObjectBoxIdentifierDatabase extends IdentifierDatabase {
   }
 
   @override
-  String get(String identifier) {
+  ItemIdentifier? get(String identifier) {
     final query = box.query(ObjectBoxItemIdentifier_.value.equals(identifier)).build();
     final result = query.findFirst();
     query.close();
 
-    return result?.toItemIdentifier().uid ?? '';
+    return result?.toItemIdentifier();
   }
 
   @override
