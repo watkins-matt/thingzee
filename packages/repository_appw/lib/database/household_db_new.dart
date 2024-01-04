@@ -71,7 +71,7 @@ class AppwriteHouseholdDatabase extends HouseholdDatabase
       existingItem.merge(newItem);
 
   @override
-  void put(HouseholdMember member) {
+  void put(HouseholdMember member, {List<String>? permissions}) {
     if (member.householdId.isEmpty || member.householdId != _householdId) {
       member = member.copyWith(householdId: _householdId);
     }
@@ -88,7 +88,7 @@ class AppwriteHouseholdDatabase extends HouseholdDatabase
       throw Exception('Cannot put member without valid name.');
     }
 
-    super.put(member);
+    super.put(member, permissions: permissions);
   }
 
   @override
