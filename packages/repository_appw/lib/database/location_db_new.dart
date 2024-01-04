@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_renaming_method_parameters
+
 import 'package:appwrite/appwrite.dart';
 import 'package:repository/database/location_database.dart';
 import 'package:repository/database/preferences.dart';
@@ -31,7 +33,7 @@ class AppwriteLocationDatabase extends LocationDatabase
   Location? deserialize(Map<String, dynamic> json) => Location.fromJson(json);
 
   @override
-  String getKey(Location item) => '${item.name}/${item.upc}';
+  String getKey(Location location) => '${location.name}/${location.upc}';
 
   @override
   List<String> getSubPaths(String location) {
@@ -79,7 +81,7 @@ class AppwriteLocationDatabase extends LocationDatabase
   }
 
   @override
-  DateTime? getUpdated(Location item) => item.updated;
+  DateTime? getUpdated(Location location) => location.updated;
 
   @override
   int itemCount(String location) => values.where((loc) => loc.name == location).length;
@@ -94,10 +96,10 @@ class AppwriteLocationDatabase extends LocationDatabase
   }
 
   @override
-  Map<String, dynamic> serialize(Location item) {
+  Map<String, dynamic> serialize(Location location) {
     assert(userId.isNotEmpty);
 
-    var json = item.toJson();
+    var json = location.toJson();
     json['userId'] = userId;
     return json;
   }

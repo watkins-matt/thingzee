@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_renaming_method_parameters
+
 import 'package:appwrite/appwrite.dart';
 import 'package:repository/database/cloud/invitation_database.dart';
 import 'package:repository/database/preferences.dart';
@@ -54,10 +56,10 @@ class AppwriteInvitationDatabase extends InvitationDatabase
   Invitation? deserialize(Map<String, dynamic> json) => Invitation.fromJson(json);
 
   @override
-  String getKey(Invitation item) => item.id;
+  String getKey(Invitation invitation) => invitation.id;
 
   @override
-  DateTime? getUpdated(Invitation item) => item.timestamp;
+  DateTime? getUpdated(Invitation invitation) => invitation.timestamp;
 
   @override
   Invitation merge(Invitation existingItem, Invitation newItem) => existingItem.merge(newItem);
@@ -94,5 +96,5 @@ class AppwriteInvitationDatabase extends InvitationDatabase
   }
 
   @override
-  Map<String, dynamic> serialize(Invitation item) => item.toJson();
+  Map<String, dynamic> serialize(Invitation invitation) => invitation.toJson();
 }
