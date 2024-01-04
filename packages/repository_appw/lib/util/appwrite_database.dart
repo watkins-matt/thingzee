@@ -56,7 +56,7 @@ mixin AppwriteDatabase<T> {
     });
   }
 
-  T deserialize(Map<String, dynamic> json);
+  T? deserialize(Map<String, dynamic> json);
 
   List<T> documentsToList(DocumentList documentList) {
     return documentList.documents
