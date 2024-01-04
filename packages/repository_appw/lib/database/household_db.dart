@@ -6,7 +6,6 @@ import 'package:log/log.dart';
 import 'package:repository/database/household_database.dart';
 import 'package:repository/database/preferences.dart';
 import 'package:repository/model/household_member.dart';
-import 'package:repository/util/hash.dart';
 import 'package:repository_appw/util/appwrite_task_queue.dart';
 import 'package:uuid/uuid.dart';
 
@@ -47,58 +46,6 @@ class AppwriteHouseholdDatabase extends HouseholdDatabase {
   List<HouseholdMember> get members => _members;
 
   @override
-  void addMember(String name, String email, {bool isAdmin = false}) {
-    if (!_online) {
-      throw Exception('Cannot add member while offline.');
-    }
-
-    if (_householdId.isEmpty) {
-      throw Exception('Household is not initialized.');
-    }
-
-    if (members.any((element) => element.email == email)) {
-      throw Exception('User already exists in household.');
-    }
-
-    final member = HouseholdMember(
-      email: email,
-      householdId: _householdId,
-      name: name,
-      isAdmin: isAdmin,
-      userId: hashEmail(email),
-    );
-
-    _members.add(member);
-
-    taskQueue.queueTask(() async {
-      try {
-        await _database.updateDocument(
-            databaseId: databaseId,
-            collectionId: collectionId,
-            documentId: member.userId,
-            data: serializeMember(member));
-      } on AppwriteException catch (e) {
-        if (e.code == 404) {
-          await _database.createDocument(
-              databaseId: databaseId,
-              collectionId: collectionId,
-              documentId: member.userId,
-              data: serializeMember(member));
-        } else if (e.code == 409) {
-          await _database.updateDocument(
-              databaseId: databaseId,
-              collectionId: collectionId,
-              documentId: member.userId,
-              data: serializeMember(member));
-        } else {
-          Log.e('Failed to add member to household: [AppwriteException]', e.message);
-          rethrow;
-        }
-      }
-    });
-  }
-
-  @override
   List<HouseholdMember> getChanges(DateTime since) {
     return _members
         .where((member) =>
@@ -128,6 +75,50 @@ class AppwriteHouseholdDatabase extends HouseholdDatabase {
       // 3. Update the preferences to remove householdId.
     });
     prefs.remove('householdId');
+  }
+
+  @override
+  void put(HouseholdMember member) {
+    if (!_online) {
+      throw Exception('Cannot add member while offline.');
+    }
+
+    if (_householdId.isEmpty) {
+      throw Exception('Household is not initialized.');
+    }
+
+    if (members.any((element) => element.email == member.email)) {
+      throw Exception('User already exists in household.');
+    }
+
+    _members.add(member);
+
+    taskQueue.queueTask(() async {
+      try {
+        await _database.updateDocument(
+            databaseId: databaseId,
+            collectionId: collectionId,
+            documentId: member.userId,
+            data: serializeMember(member));
+      } on AppwriteException catch (e) {
+        if (e.code == 404) {
+          await _database.createDocument(
+              databaseId: databaseId,
+              collectionId: collectionId,
+              documentId: member.userId,
+              data: serializeMember(member));
+        } else if (e.code == 409) {
+          await _database.updateDocument(
+              databaseId: databaseId,
+              collectionId: collectionId,
+              documentId: member.userId,
+              data: serializeMember(member));
+        } else {
+          Log.e('Failed to add member to household: [AppwriteException]', e.message);
+          rethrow;
+        }
+      }
+    });
   }
 
   Map<String, dynamic> serializeMember(HouseholdMember member) {

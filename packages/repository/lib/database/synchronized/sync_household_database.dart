@@ -25,12 +25,6 @@ class SynchronizedHouseholdDatabase extends HouseholdDatabase {
   List<HouseholdMember> get members => local.members;
 
   @override
-  void addMember(String name, String email, {bool isAdmin = false}) {
-    local.addMember(name, email, isAdmin: isAdmin);
-    remote.addMember(name, email, isAdmin: isAdmin);
-  }
-
-  @override
   List<HouseholdMember> getChanges(DateTime since) {
     return local.getChanges(since);
   }
@@ -39,6 +33,12 @@ class SynchronizedHouseholdDatabase extends HouseholdDatabase {
   void leave() {
     local.leave();
     remote.leave();
+  }
+
+  @override
+  void put(HouseholdMember member) {
+    local.put(member);
+    remote.put(member);
   }
 
   void syncDifferences() {
@@ -65,7 +65,7 @@ class SynchronizedHouseholdDatabase extends HouseholdDatabase {
     for (final remoteMember in remoteChanges) {
       if (!localMap.containsKey(remoteMember.email)) {
         // If the local database does not contain the remote member, add it
-        local.addMember(remoteMember.name, remoteMember.email, isAdmin: remoteMember.isAdmin);
+        local.put(remoteMember);
         changes++;
         Log.d('Added remote member "${remoteMember.name}" to local database.');
       }
@@ -78,7 +78,7 @@ class SynchronizedHouseholdDatabase extends HouseholdDatabase {
     for (final localMember in localChanges) {
       if (!remoteMap.containsKey(localMember.email)) {
         // If the remote database does not contain the local member, add it
-        remote.addMember(localMember.name, localMember.email, isAdmin: localMember.isAdmin);
+        remote.put(localMember);
         changes++;
         Log.d('Added local member "${localMember.name}" to remote database.');
       }
@@ -113,14 +113,14 @@ class SynchronizedHouseholdDatabase extends HouseholdDatabase {
     // Go through all the local members and add the missing ones to the remote
     for (final localMember in localMembers) {
       if (!remoteMap.containsKey(localMember.email)) {
-        remote.addMember(localMember.name, localMember.email, isAdmin: localMember.isAdmin);
+        remote.put(localMember);
       }
     }
 
     // Go through all the remote members and add the missing ones to the local
     for (final remoteMember in remoteMembers) {
       if (!localMap.containsKey(remoteMember.email)) {
-        local.addMember(remoteMember.name, remoteMember.email, isAdmin: remoteMember.isAdmin);
+        local.put(remoteMember);
       }
     }
 

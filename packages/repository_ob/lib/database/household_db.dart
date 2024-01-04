@@ -1,7 +1,6 @@
 import 'package:repository/database/household_database.dart';
 import 'package:repository/database/preferences.dart';
 import 'package:repository/model/household_member.dart';
-import 'package:repository/util/hash.dart';
 import 'package:repository_ob/model/household_member.ob.dart';
 import 'package:repository_ob/objectbox.g.dart';
 import 'package:uuid/uuid.dart';
@@ -45,25 +44,6 @@ class ObjectBoxHouseholdDatabase extends HouseholdDatabase {
   }
 
   @override
-  void addMember(String name, String email, {bool isAdmin = false}) {
-    if (members.any((element) => element.email == email)) {
-      throw Exception('User already exists in household.');
-    }
-
-    assert(_householdId != null);
-    final householdMember = ObjectBoxHouseholdMember.from(
-      HouseholdMember(
-        email: email,
-        householdId: _householdId!,
-        name: name,
-        isAdmin: isAdmin,
-        userId: hashEmail(email),
-      ),
-    );
-    box.put(householdMember);
-  }
-
-  @override
   List<HouseholdMember> getChanges(DateTime since) {
     final query = box
         .query(ObjectBoxHouseholdMember_.timestamp.greaterThan(since.millisecondsSinceEpoch))
@@ -76,6 +56,21 @@ class ObjectBoxHouseholdDatabase extends HouseholdDatabase {
   void leave() {
     box.removeAll();
     _createNewHousehold();
+  }
+
+  @override
+  void put(HouseholdMember member) {
+    final identifierOb = ObjectBoxHouseholdMember.from(member);
+
+    final query = box.query(ObjectBoxHouseholdMember_.userId.equals(member.userId)).build();
+    final exists = query.findFirst();
+    query.close();
+
+    if (exists != null && identifierOb.objectBoxId != exists.objectBoxId) {
+      identifierOb.objectBoxId = exists.objectBoxId;
+    }
+
+    box.put(identifierOb);
   }
 
   void _createNewHousehold() {
