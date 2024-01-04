@@ -22,8 +22,8 @@ mixin AppwriteDatabase<T> {
   void constructDatabase(String tag, Databases database, String databaseId, String collectionId) {
     _database = database;
     _tag = tag;
-    databaseId = databaseId;
-    collectionId = collectionId;
+    this.databaseId = databaseId;
+    this.collectionId = collectionId;
   }
 
   void delete(T item) {
