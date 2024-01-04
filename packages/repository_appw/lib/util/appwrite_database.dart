@@ -107,6 +107,11 @@ mixin AppwriteDatabase<T> {
 
   DateTime? getUpdated(T item);
 
+  bool isItemValid(T item) {
+    String key = getKey(item);
+    return key.isNotEmpty;
+  }
+
   Map<String, T> map() => Map.unmodifiable(_items);
 
   // Abstract method to merge two items. Should be implemented by the class using this mixin.
@@ -127,6 +132,12 @@ mixin AppwriteDatabase<T> {
 
   void put(T item) {
     String key = getKey(item);
+
+    // If the item is not valid, throw an exception
+    if (!isItemValid(item)) {
+      throw Exception('$_tag: Item $key is not valid.');
+    }
+
     _items[key] = item;
 
     taskQueue.queueTask(() async {
