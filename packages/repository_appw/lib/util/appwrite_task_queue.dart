@@ -33,6 +33,14 @@ class AppwriteTaskQueue {
     }
   }
 
+  void run() {
+    if (!_paused) {
+      scheduleMicrotask(_processQueue);
+    }
+  }
+
+  Future<void> runUntilComplete() async => await _processQueue();
+
   Future<void> _processQueue() async {
     if (_processingQueue || _paused) {
       return;
