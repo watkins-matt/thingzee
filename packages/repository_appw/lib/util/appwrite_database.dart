@@ -130,7 +130,7 @@ mixin AppwriteDatabase<T> {
     }
   }
 
-  void put(T item) {
+  void put(T item, {List<String>? permissions}) {
     String key = getKey(item);
 
     // If the item is not valid, throw an exception
@@ -146,20 +146,23 @@ mixin AppwriteDatabase<T> {
             databaseId: databaseId,
             collectionId: collectionId,
             documentId: uniqueDocumentId(key),
-            data: serialize(item));
+            data: serialize(item),
+            permissions: permissions);
       } on AppwriteException catch (e) {
         if (e.code == 404) {
           await _database.createDocument(
               databaseId: databaseId,
               collectionId: collectionId,
               documentId: uniqueDocumentId(key),
-              data: serialize(item));
+              data: serialize(item),
+              permissions: permissions);
         } else if (e.code == 409) {
           await _database.updateDocument(
               databaseId: databaseId,
               collectionId: collectionId,
               documentId: uniqueDocumentId(key),
-              data: serialize(item));
+              data: serialize(item),
+              permissions: permissions);
         } else {
           Log.e('Failed to put item $key: [AppwriteException]', e.message);
           // Removing the inventory from local cache since we
