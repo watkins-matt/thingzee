@@ -15,10 +15,10 @@ mixin AppwriteSynchronizable<T> {
   bool get online => _online;
   String get userId => _userId;
 
-  void construct(Preferences prefs, String tag, {Future<void> Function()? onConnectivityChange}) {
-    this._prefs = prefs;
+  void construct(String tag, Preferences prefs, {Future<void> Function()? onConnectivityChange}) {
     this._tag = tag;
     this._syncKey = '$tag.lastSync';
+    this._prefs = prefs;
     this.onConnectivityChange = onConnectivityChange;
 
     int? lastSyncMillis = prefs.getInt(_syncKey);
