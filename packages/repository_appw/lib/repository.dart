@@ -256,7 +256,7 @@ class AppwriteRepository extends CloudRepository {
     final inventory = AppwriteInventoryDatabase(prefs, _databases, 'test', 'user_inventory');
     inv = JoinedInventoryDatabase(inventory, hist);
 
-    household = AppwriteHouseholdDatabase(_teams, _databases, 'test', 'user_household', prefs);
+    household = AppwriteHouseholdDatabase(_teams, _databases, prefs, 'test', 'user_household');
     invitation = AppwriteInvitationDatabase(prefs, _databases, 'test', 'invitation', household.id);
     location = AppwriteLocationDatabase(prefs, _databases, 'test', 'user_location');
 

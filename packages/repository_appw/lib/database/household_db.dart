@@ -1,40 +1,36 @@
-import 'dart:async';
+// ignore_for_file: avoid_renaming_method_parameters
 
 import 'package:appwrite/appwrite.dart';
-import 'package:appwrite/models.dart' hide Log, Preferences;
 import 'package:log/log.dart';
 import 'package:repository/database/household_database.dart';
 import 'package:repository/database/preferences.dart';
 import 'package:repository/model/household_member.dart';
-import 'package:repository_appw/util/appwrite_task_queue.dart';
+import 'package:repository/util/hash.dart';
+import 'package:repository_appw/util/appwrite_database.dart';
+import 'package:repository_appw/util/synchronizable.dart';
 import 'package:uuid/uuid.dart';
 
-class AppwriteHouseholdDatabase extends HouseholdDatabase {
-  static const String lastSyncKey = 'AppwriteHouseholdDatabase.lastSync';
-  AppwriteTaskQueue taskQueue = AppwriteTaskQueue();
-  bool _online = false;
-  DateTime? lastSync;
-  final Databases _database;
-  final List<HouseholdMember> _members = [];
-  final Preferences prefs;
-  final String collectionId;
-  final String databaseId;
+class AppwriteHouseholdDatabase extends HouseholdDatabase
+    with AppwriteSynchronizable<HouseholdMember>, AppwriteDatabase<HouseholdMember> {
+  static const String TAG = 'AppwriteHouseholdDatabase';
   final Teams _teams;
-  DateTime _created = DateTime.now();
+  final Preferences prefs;
   String _householdId = '';
-  String userId = '';
+  DateTime _created = DateTime.now();
 
   AppwriteHouseholdDatabase(
-      this._teams, this._database, this.databaseId, this.collectionId, this.prefs) {
-    // Update the last sync time
-    int? lastSyncMillis = prefs.getInt(lastSyncKey);
-    if (lastSyncMillis != null) {
-      lastSync = DateTime.fromMillisecondsSinceEpoch(lastSyncMillis);
-    }
+    this._teams,
+    Databases database,
+    this.prefs,
+    String databaseId,
+    String collectionId,
+  ) : super() {
+    constructSynchronizable(TAG, prefs, onConnectivityChange: connectivityChanged);
+    constructDatabase(TAG, database, databaseId, collectionId);
   }
 
   @override
-  List<HouseholdMember> get admins => _members.where((element) => element.isAdmin).toList();
+  List<HouseholdMember> get admins => values.where((element) => element.isAdmin).toList();
 
   @override
   DateTime get created => _created;
@@ -43,28 +39,21 @@ class AppwriteHouseholdDatabase extends HouseholdDatabase {
   String get id => _householdId;
 
   @override
-  List<HouseholdMember> get members => _members;
+  List<HouseholdMember> get members => throw UnimplementedError();
+
+  Future<void> connectivityChanged() async {
+    await _initializeHousehold();
+    await taskQueue.runUntilComplete();
+  }
 
   @override
-  List<HouseholdMember> getChanges(DateTime since) {
-    return _members
-        .where((member) =>
-            member.timestamp.millisecondsSinceEpoch != 0 && member.timestamp.isAfter(since))
-        .toList();
-  }
+  HouseholdMember? deserialize(Map<String, dynamic> json) => HouseholdMember.fromJson(json);
 
-  Future<void> handleConnectionChange(bool online, Session? session) async {
-    if (online && session != null) {
-      _online = true;
-      userId = session.userId;
+  @override
+  String getKey(HouseholdMember member) => member.userId;
 
-      await taskQueue.runUntilComplete();
-      await sync();
-    } else {
-      _online = false;
-      userId = '';
-    }
-  }
+  @override
+  DateTime? getUpdated(HouseholdMember member) => member.timestamp;
 
   @override
   void leave() {
@@ -78,99 +67,32 @@ class AppwriteHouseholdDatabase extends HouseholdDatabase {
   }
 
   @override
-  void put(HouseholdMember member) {
-    if (!_online) {
-      throw Exception('Cannot add member while offline.');
+  HouseholdMember merge(HouseholdMember existingItem, HouseholdMember newItem) =>
+      existingItem.merge(newItem);
+
+  @override
+  void put(HouseholdMember member, {List<String>? permissions}) {
+    if (member.householdId.isEmpty || member.householdId != _householdId) {
+      member = member.copyWith(householdId: _householdId);
     }
 
-    if (_householdId.isEmpty) {
-      throw Exception('Household is not initialized.');
+    if (member.userId.isEmpty && member.email.isNotEmpty) {
+      member = member.copyWith(userId: hashEmail(member.email));
     }
 
-    if (members.any((element) => element.email == member.email)) {
-      throw Exception('User already exists in household.');
+    if (member.email.isEmpty) {
+      throw Exception('Cannot put member without valid email.');
     }
 
-    _members.add(member);
+    if (member.name.isEmpty) {
+      throw Exception('Cannot put member without valid name.');
+    }
 
-    taskQueue.queueTask(() async {
-      try {
-        await _database.updateDocument(
-            databaseId: databaseId,
-            collectionId: collectionId,
-            documentId: member.userId,
-            data: serializeMember(member));
-      } on AppwriteException catch (e) {
-        if (e.code == 404) {
-          await _database.createDocument(
-              databaseId: databaseId,
-              collectionId: collectionId,
-              documentId: member.userId,
-              data: serializeMember(member));
-        } else if (e.code == 409) {
-          await _database.updateDocument(
-              databaseId: databaseId,
-              collectionId: collectionId,
-              documentId: member.userId,
-              data: serializeMember(member));
-        } else {
-          Log.e('Failed to add member to household: [AppwriteException]', e.message);
-          rethrow;
-        }
-      }
-    });
+    super.put(member, permissions: permissions);
   }
 
-  Map<String, dynamic> serializeMember(HouseholdMember member) {
-    var json = member.toJson();
-    return json;
-  }
-
-  Future<void> sync() async {
-    // Can't sync when offline
-    if (!_online) {
-      return;
-    }
-
-    await _initializeHousehold();
-
-    final timer = Log.timerStart();
-    String? cursor;
-    List<HouseholdMember> allMembers = [];
-
-    try {
-      DocumentList response;
-
-      do {
-        List<String> queries = [Query.limit(100)];
-
-        if (cursor != null) {
-          queries.add(Query.cursorAfter(cursor));
-        }
-
-        response = await _database.listDocuments(
-          databaseId: databaseId,
-          collectionId: collectionId,
-          queries: queries,
-        );
-
-        final members = _documentsToMembers(response);
-        allMembers.addAll(members);
-
-        if (response.documents.isNotEmpty) {
-          cursor = response.documents.last.$id;
-        }
-      } while (response.documents.isNotEmpty);
-
-      _members.clear();
-      _members.addAll(allMembers);
-    } on AppwriteException catch (e) {
-      Log.e('Failed to sync household members: [AppwriteException]', e.message);
-    }
-
-    Log.timerEnd(timer, 'Appwrite: Household members synced in \$seconds seconds.');
-    _updateSyncTime();
-  }
+  @override
+  Map<String, dynamic> serialize(HouseholdMember member) => member.toJson();
 
   Future<void> _createNewHousehold() async {
     _householdId = const Uuid().v4();
@@ -205,14 +127,8 @@ class AppwriteHouseholdDatabase extends HouseholdDatabase {
     }
   }
 
-  List<HouseholdMember> _documentsToMembers(DocumentList documentList) {
-    return documentList.documents.map((document) {
-      return HouseholdMember.fromJson(document.data);
-    }).toList();
-  }
-
   Future<void> _initializeHousehold() async {
-    if (!_online) {
+    if (!online) {
       throw Exception('Cannot initialize household while offline.');
     }
 
@@ -251,10 +167,5 @@ class AppwriteHouseholdDatabase extends HouseholdDatabase {
         Log.e('[TypeError] Appwrite:', e.toString());
       }
     }
-  }
-
-  void _updateSyncTime() {
-    lastSync = DateTime.now();
-    prefs.setInt(lastSyncKey, lastSync!.millisecondsSinceEpoch);
   }
 }

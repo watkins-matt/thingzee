@@ -1,55 +1,46 @@
-import 'dart:async';
+// ignore_for_file: avoid_renaming_method_parameters
 
 import 'package:appwrite/appwrite.dart';
-import 'package:appwrite/models.dart' hide Log, Preferences;
-import 'package:log/log.dart';
 import 'package:repository/database/location_database.dart';
 import 'package:repository/database/preferences.dart';
 import 'package:repository/model/location.dart';
-import 'package:repository_appw/util/appwrite_task_queue.dart';
-import 'package:uuid/uuid.dart';
+import 'package:repository_appw/util/appwrite_database.dart';
+import 'package:repository_appw/util/synchronizable.dart';
 
-class AppwriteLocationDatabase extends LocationDatabase {
-  static const String lastSyncKey = 'AppwriteLocationDatabase.lastSync';
-  bool _online = false;
-  AppwriteTaskQueue taskQueue = AppwriteTaskQueue();
-  DateTime? lastSync;
-  final Databases _database;
-  final String collectionId;
-  final Preferences prefs;
-  final String databaseId;
-  final List<Location> _locations = [];
-  String userId = '';
+class AppwriteLocationDatabase extends LocationDatabase
+    with AppwriteSynchronizable<Location>, AppwriteDatabase<Location> {
+  static const String TAG = 'AppwriteLocationDatabase';
 
-  AppwriteLocationDatabase(this.prefs, this._database, this.databaseId, this.collectionId) {
-    int? lastSyncMillis = prefs.getInt(lastSyncKey);
-    if (lastSyncMillis != null) {
-      lastSync = DateTime.fromMillisecondsSinceEpoch(lastSyncMillis);
-    }
+  AppwriteLocationDatabase(
+    Preferences prefs,
+    Databases database,
+    String databaseId,
+    String collectionId,
+  ) : super() {
+    constructSynchronizable(TAG, prefs, onConnectivityChange: () async {
+      await taskQueue.runUntilComplete();
+    });
+    constructDatabase(TAG, database, databaseId, collectionId);
   }
 
   @override
   List<String> get names {
-    final uniqueLocations = _locations.map((location) => location.name).toSet();
+    final uniqueLocations = values.map((location) => location.name).toSet();
     return uniqueLocations.toList();
   }
 
   @override
-  List<Location> all() => List.unmodifiable(_locations);
+  Location? deserialize(Map<String, dynamic> json) => Location.fromJson(json);
 
   @override
-  List<Location> getChanges(DateTime since) {
-    return _locations
-        .where((location) => location.updated != null && location.updated!.isAfter(since))
-        .toList();
-  }
+  String getKey(Location location) => '${location.name}/${location.upc}';
 
   @override
   List<String> getSubPaths(String location) {
     location = normalizeLocation(location);
     final Set<String> subpaths = {};
 
-    for (final loc in _locations) {
+    for (final loc in values) {
       var normalizedLocName = normalizeLocation(loc.name);
 
       if (normalizedLocName.startsWith(location) && normalizedLocName != location) {
@@ -83,61 +74,29 @@ class AppwriteLocationDatabase extends LocationDatabase {
   List<String> getUpcList(String location) {
     location = normalizeLocation(location);
 
-    return _locations
+    return values
         .where((loc) => normalizeLocation(loc.name) == location)
         .map((loc) => loc.upc)
         .toList();
   }
 
-  Future<void> handleConnectionChange(bool online, Session? session) async {
-    if (online && session != null) {
-      _online = true;
-      userId = session.userId;
-
-      await taskQueue.runUntilComplete();
-      await sync();
-    } else {
-      _online = false;
-      userId = '';
-    }
-  }
+  @override
+  DateTime? getUpdated(Location location) => location.updated;
 
   @override
-  int itemCount(String location) {
-    return _locations.where((loc) => loc.name == location).length;
-  }
+  int itemCount(String location) => values.where((loc) => loc.name == location).length;
 
   @override
-  Map<String, Location> map() {
-    final allLocations = all();
-    final map = {for (final location in allLocations) '${location.name}-${location.upc}': location};
-
-    return map;
-  }
+  Location merge(Location existingItem, Location newItem) => existingItem.merge(newItem);
 
   @override
   void remove(String location, String upc) {
-    taskQueue.queueTask(() async {
-      List<String> query = [Query.equal('name', location), Query.equal('upc', upc)];
-      final response = await _database.listDocuments(
-        databaseId: databaseId,
-        collectionId: collectionId,
-        queries: query,
-      );
-
-      for (final document in response.documents) {
-        await _database.deleteDocument(
-          databaseId: databaseId,
-          collectionId: collectionId,
-          documentId: document.$id,
-        );
-      }
-
-      _locations.removeWhere((loc) => loc.name == location && loc.upc == upc);
-    });
+    final key = getKey(Location(upc: upc, name: location));
+    deleteById(key);
   }
 
-  Map<String, dynamic> serializeLocation(Location location) {
+  @override
+  Map<String, dynamic> serialize(Location location) {
     assert(userId.isNotEmpty);
 
     var json = location.toJson();
@@ -148,97 +107,15 @@ class AppwriteLocationDatabase extends LocationDatabase {
   @override
   void store(String location, String upc) {
     location = normalizeLocation(location);
+    var data = Location(upc: upc, name: location);
+    final key = getKey(data);
 
-    taskQueue.queueTask(() async {
-      final query = [Query.equal('name', location), Query.equal('upc', upc)];
-      final response = await _database.listDocuments(
-        databaseId: databaseId,
-        collectionId: collectionId,
-        queries: query,
-      );
+    final existingLocation = get(key);
 
-      final locationData =
-          Location(name: location, upc: upc, created: DateTime.now(), updated: DateTime.now());
-
-      if (response.documents.isEmpty) {
-        await _database.createDocument(
-            databaseId: databaseId,
-            collectionId: collectionId,
-            documentId: Uuid().v4(),
-            data: serializeLocation(locationData));
-      } else {
-        for (final document in response.documents) {
-          await _database.updateDocument(
-            databaseId: databaseId,
-            collectionId: collectionId,
-            documentId: document.$id,
-            data: serializeLocation(locationData),
-          );
-        }
-      }
-
-      _locations.add(locationData);
-    });
-  }
-
-  Future<void> sync() async {
-    if (!_online) return;
-
-    final timer = Log.timerStart();
-    String? cursor;
-    List<Location> allLocations = [];
-
-    try {
-      DocumentList response;
-
-      do {
-        List<String> queries = [Query.limit(100)];
-
-        if (cursor != null) {
-          queries.add(Query.cursorAfter(cursor));
-        }
-
-        response = await _database.listDocuments(
-          databaseId: databaseId,
-          collectionId: collectionId,
-          queries: queries,
-        );
-
-        final locations = _documentsToLocations(response);
-        allLocations.addAll(locations);
-
-        if (response.documents.isNotEmpty) {
-          cursor = response.documents.last.$id;
-        }
-      } while (response.documents.isNotEmpty);
-
-      _locations.clear();
-      _locations.addAll(allLocations);
-    } on AppwriteException catch (e) {
-      Log.e('Failed to sync locations: [AppwriteException]', e.message);
+    if (existingLocation != null) {
+      data = existingLocation.copyWith(updated: DateTime.now());
     }
 
-    Log.timerEnd(timer, 'Appwrite: Locations synced in \$seconds seconds.');
-    _updateSyncTime();
-  }
-
-  List<Location> _documentsToLocations(DocumentList documentList) {
-    return documentList.documents
-        .map((document) {
-          try {
-            return Location.fromJson(document.data);
-          } catch (e) {
-            Log.w('Failed to deserialize location for upc ${document.data["upc"]}. Error: $e');
-            return null;
-          }
-        })
-        .where((location) => location != null)
-        .cast<Location>()
-        .toList();
-  }
-
-  void _updateSyncTime() {
-    lastSync = DateTime.now();
-    prefs.setInt(lastSyncKey, lastSync!.millisecondsSinceEpoch);
+    put(data);
   }
 }
