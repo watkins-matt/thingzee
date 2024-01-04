@@ -4,6 +4,7 @@ import 'dart:collection';
 import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/models.dart' hide Log, Preferences;
 import 'package:log/log.dart';
+import 'package:repository/util/hash.dart';
 import 'package:repository_appw/util/appwrite_task_queue.dart';
 
 mixin AppwriteDatabase<T> {
@@ -11,13 +12,16 @@ mixin AppwriteDatabase<T> {
   late final Databases _database;
   late final String collectionId;
   late final String databaseId;
+  late final String _tag;
   final Map<String, T> _items = <String, T>{};
+  String get userId;
 
   Iterable<T> get values => UnmodifiableListView(_items.values);
   List<T> all() => _items.values.toList();
 
-  void constructDatabase(Databases database, String databaseId, String collectionId) {
+  void constructDatabase(String tag, Databases database, String databaseId, String collectionId) {
     _database = database;
+    _tag = tag;
     databaseId = databaseId;
     collectionId = collectionId;
   }
@@ -52,10 +56,33 @@ mixin AppwriteDatabase<T> {
     });
   }
 
+  T deserialize(Map<String, dynamic> json);
+
+  List<T> documentsToList(DocumentList documentList) {
+    return documentList.documents
+        .map((doc) {
+          try {
+            return deserialize(doc.data);
+          } catch (e) {
+            Log.e('$_tag: Failed to deserialize: ${doc.data}', e.toString());
+            return null;
+          }
+        })
+        .where((item) => item != null)
+        .cast<T>()
+        .toList();
+  }
+
   T? get(String id) => _items[id];
 
   List<T> getAll(List<String> ids) {
     return ids.map((id) => _items[id]).where((element) => element != null).cast<T>().toList();
+  }
+
+  List<T> getChanges(DateTime since) {
+    return values
+        .where((item) => getUpdated(item) != null && getUpdated(item)!.isAfter(since))
+        .toList();
   }
 
   Future<DocumentList> getDocuments(List<String> queries) async {
@@ -77,6 +104,8 @@ mixin AppwriteDatabase<T> {
       queries: [Query.greaterThan('lastUpdate', lastSyncTime?.millisecondsSinceEpoch ?? 0)],
     );
   }
+
+  DateTime? getUpdated(T item);
 
   Map<String, T> map() => Map.unmodifiable(_items);
 
@@ -106,20 +135,20 @@ mixin AppwriteDatabase<T> {
             databaseId: databaseId,
             collectionId: collectionId,
             documentId: uniqueDocumentId(key),
-            data: serializeItem(item));
+            data: serialize(item));
       } on AppwriteException catch (e) {
         if (e.code == 404) {
           await _database.createDocument(
               databaseId: databaseId,
               collectionId: collectionId,
               documentId: uniqueDocumentId(key),
-              data: serializeItem(item));
+              data: serialize(item));
         } else if (e.code == 409) {
           await _database.updateDocument(
               databaseId: databaseId,
               collectionId: collectionId,
               documentId: uniqueDocumentId(key),
-              data: serializeItem(item));
+              data: serialize(item));
         } else {
           Log.e('Failed to put item $key: [AppwriteException]', e.message);
           // Removing the inventory from local cache since we
@@ -139,7 +168,13 @@ mixin AppwriteDatabase<T> {
     }
   }
 
-  List<T> search(String query);
-  Map<String, dynamic> serializeItem(T item);
-  String uniqueDocumentId(String id);
+  Map<String, dynamic> serialize(T item);
+
+  String uniqueDocumentId(String id) {
+    if (userId.isEmpty) {
+      throw Exception('$_tag: User ID is empty, cannot generate unique document ID.');
+    }
+
+    return hashBarcode(userId, id);
+  }
 }
