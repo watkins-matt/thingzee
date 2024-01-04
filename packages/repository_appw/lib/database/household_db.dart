@@ -25,8 +25,8 @@ class AppwriteHouseholdDatabase extends HouseholdDatabase
     String databaseId,
     String collectionId,
   ) : super() {
-    constructSynchronizable(TAG, prefs, onConnectivityChange: connectivityChanged);
     constructDatabase(TAG, database, databaseId, collectionId);
+    constructSynchronizable(TAG, prefs, onConnectivityChange: connectivityChanged);
   }
 
   @override
