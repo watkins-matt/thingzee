@@ -1,26 +1,21 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:meta/meta.dart';
+import 'package:repository/extension/date_time.dart';
+import 'package:repository/merge_generator.dart';
 import 'package:repository/model/abstract/model.dart';
 import 'package:repository/model/serializer_datetime.dart';
 
 part 'manufacturer.g.dart';
+part 'manufacturer.merge.dart';
 
 @JsonSerializable()
 @immutable
+@Mergeable()
 class Manufacturer extends Model<Manufacturer> implements Comparable<Manufacturer> {
-  @JsonKey(defaultValue: '')
   final String name;
-
-  @JsonKey(defaultValue: '')
   final String website;
-
-  @JsonKey(defaultValue: '')
   final String uid;
-
-  @JsonKey(defaultValue: '')
   final String parentName;
-
-  @JsonKey(defaultValue: '')
   final String parentUid;
 
   Manufacturer({
@@ -73,42 +68,8 @@ class Manufacturer extends Model<Manufacturer> implements Comparable<Manufacture
   }
 
   @override
-  Manufacturer merge(Manufacturer other) {
-    // Determine the newer updated object
-    final newer = (updated != null &&
-            updated!.isAfter(other.updated ?? DateTime.fromMillisecondsSinceEpoch(0)))
-        ? this
-        : other;
-
-    // Use data from the newer updated object unless it's empty or null
-    final mergedManufacturer = Manufacturer(
-      name: newer.name.isNotEmpty ? newer.name : name,
-      website: newer.website.isNotEmpty ? newer.website : website,
-      uid: newer.uid.isNotEmpty ? newer.uid : uid,
-      parentName: newer.parentName.isNotEmpty ? newer.parentName : parentName,
-      parentUid: newer.parentUid.isNotEmpty ? newer.parentUid : parentUid,
-      created: _determineOlderCreatedDate(created, other.created),
-      updated: DateTime.now(),
-    );
-
-    // Check if the merged object is equal to the newer one
-    DateTime? finalUpdatedDate = mergedManufacturer.equalTo(newer) ? newer.updated : DateTime.now();
-
-    return Manufacturer(
-      name: mergedManufacturer.name,
-      website: mergedManufacturer.website,
-      uid: mergedManufacturer.uid,
-      parentName: mergedManufacturer.parentName,
-      parentUid: mergedManufacturer.parentUid,
-      created: mergedManufacturer.created,
-      updated: finalUpdatedDate ?? DateTime.now(),
-    );
-  }
+  Manufacturer merge(Manufacturer other) => _$mergeManufacturer(this, other);
 
   @override
   Map<String, dynamic> toJson() => _$ManufacturerToJson(this);
-
-  static DateTime _determineOlderCreatedDate(DateTime? date1, DateTime? date2) {
-    return date1 ?? date2 ?? DateTime.now();
-  }
 }

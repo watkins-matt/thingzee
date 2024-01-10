@@ -1,30 +1,23 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:meta/meta.dart';
+import 'package:repository/extension/date_time.dart';
 import 'package:repository/extension/list.dart';
+import 'package:repository/merge_generator.dart';
 import 'package:repository/model/abstract/model.dart';
 import 'package:repository/model/serializer_datetime.dart';
 
 part 'product.g.dart';
+part 'product.merge.dart';
 
 @JsonSerializable()
 @immutable
+@Mergeable()
 class Product extends Model<Product> implements Comparable<Product> {
-  @JsonKey(defaultValue: '')
   final String name;
-
-  @JsonKey(defaultValue: '')
   final String uid;
-
-  @JsonKey(defaultValue: '')
   final String manufacturer;
-
-  @JsonKey(defaultValue: '')
   final String manufacturerUid;
-
-  @JsonKey(defaultValue: '')
   final String category;
-
-  @JsonKey(defaultValue: [])
   final List<String> upcs;
 
   Product({
@@ -81,41 +74,8 @@ class Product extends Model<Product> implements Comparable<Product> {
   }
 
   @override
-  Product merge(Product other) {
-    final newer = (updated != null &&
-            updated!.isAfter(other.updated ?? DateTime.fromMillisecondsSinceEpoch(0)))
-        ? this
-        : other;
-
-    final mergedProduct = Product(
-      name: newer.name.isNotEmpty ? newer.name : name,
-      uid: newer.uid.isNotEmpty ? newer.uid : uid,
-      manufacturer: newer.manufacturer.isNotEmpty ? newer.manufacturer : manufacturer,
-      manufacturerUid: newer.manufacturerUid.isNotEmpty ? newer.manufacturerUid : manufacturerUid,
-      category: newer.category.isNotEmpty ? newer.category : category,
-      upcs: newer.upcs.isNotEmpty ? newer.upcs : upcs,
-      created: _determineOlderCreatedDate(created, other.created),
-      updated: DateTime.now(), // Set to now initially
-    );
-
-    DateTime? finalUpdatedDate = mergedProduct.equalTo(newer) ? newer.updated : DateTime.now();
-
-    return Product(
-      name: mergedProduct.name,
-      uid: mergedProduct.uid,
-      manufacturer: mergedProduct.manufacturer,
-      manufacturerUid: mergedProduct.manufacturerUid,
-      category: mergedProduct.category,
-      upcs: mergedProduct.upcs,
-      created: mergedProduct.created,
-      updated: finalUpdatedDate ?? DateTime.now(),
-    );
-  }
+  Product merge(Product other) => _$mergeProduct(this, other);
 
   @override
   Map<String, dynamic> toJson() => _$ProductToJson(this);
-
-  static DateTime _determineOlderCreatedDate(DateTime? date1, DateTime? date2) {
-    return date1 ?? date2 ?? DateTime.now();
-  }
 }

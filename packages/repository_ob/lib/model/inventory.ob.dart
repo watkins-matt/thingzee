@@ -64,7 +64,7 @@ class ObjectBoxInventory {
 
   set upc(String value) {
     _upc = value;
-    history.upc = value;
+    history = history.copyWith(upc: value);
   }
 
   Inventory toInventory() {

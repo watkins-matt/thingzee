@@ -1,16 +1,19 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:meta/meta.dart';
+import 'package:repository/extension/date_time.dart';
+import 'package:repository/merge_generator.dart';
 import 'package:repository/model/abstract/model.dart';
 import 'package:repository/model/serializer_datetime.dart';
 import 'package:repository/util/hash.dart';
 
 part 'household_member.g.dart';
+part 'household_member.merge.dart';
 
 @JsonSerializable(explicitToJson: true)
 @immutable
+@Mergeable()
 class HouseholdMember extends Model<HouseholdMember> {
   // Whether the user is an admin of the household
-  @JsonKey(defaultValue: false)
   final bool isAdmin;
 
   // The email of the user
@@ -26,7 +29,6 @@ class HouseholdMember extends Model<HouseholdMember> {
   final String name;
 
   // A unique identifier for the user
-  @JsonKey(defaultValue: '')
   final String userId;
 
   HouseholdMember({
@@ -35,7 +37,7 @@ class HouseholdMember extends Model<HouseholdMember> {
     required this.name,
     super.created,
     super.updated,
-    String? userId,
+    String? userId = '',
     this.isAdmin = false,
   }) : userId = userId ?? hashEmail(email);
 
@@ -74,24 +76,7 @@ class HouseholdMember extends Model<HouseholdMember> {
   }
 
   @override
-  HouseholdMember merge(HouseholdMember other) {
-    if (userId != other.userId) {
-      throw Exception('Cannot merge HouseholdMembers with different userIds.');
-    }
-
-    // Determine which HouseholdMember is newer based on the 'created' date.
-    final newerMember = other.created!.isAfter(created!) ? other : this;
-
-    // Merge the fields, preferring the values from the newer member.
-    return HouseholdMember(
-        email: newerMember.email.isNotEmpty ? newerMember.email : email,
-        householdId: newerMember.householdId.isNotEmpty ? newerMember.householdId : householdId,
-        name: newerMember.name.isNotEmpty ? newerMember.name : name,
-        created: newerMember.created,
-        updated: DateTime.now(), // Update the 'updated' field to now
-        userId: userId,
-        isAdmin: newerMember.isAdmin);
-  }
+  HouseholdMember merge(HouseholdMember other) => _$mergeHouseholdMember(this, other);
 
   @override
   Map<String, dynamic> toJson() => _$HouseholdMemberToJson(this);

@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:repository/database/cloud/invitation_database.dart';
+import 'package:repository/database/invitation_database.dart';
 import 'package:repository/network/connectivity_service.dart';
 import 'package:repository/repository.dart';
 

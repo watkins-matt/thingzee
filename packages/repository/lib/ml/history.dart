@@ -1,35 +1,31 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:log/log.dart';
+import 'package:meta/meta.dart';
+import 'package:repository/extension/date_time.dart';
 import 'package:repository/ml/evaluator.dart';
+import 'package:repository/ml/evaluator_provider.dart';
 import 'package:repository/ml/history_series.dart';
 import 'package:repository/ml/observation.dart';
 import 'package:repository/ml/regressor.dart';
+import 'package:repository/model/abstract/model.dart';
+import 'package:repository/model/serializer_datetime.dart';
 
 part 'history.g.dart';
 
 @JsonSerializable(explicitToJson: true)
-class History {
-  String upc = '';
-  List<HistorySeries> series = [];
+@immutable
+class History extends Model<History> {
+  final String upc;
+  final List<HistorySeries> series;
 
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  late Evaluator evaluator;
+  History({
+    this.upc = '',
+    this.series = const [],
+    super.created,
+    super.updated,
+  });
 
-  History() {
-    evaluator = Evaluator(this);
-  }
-
-  factory History.fromJson(Map<String, dynamic> json) {
-    final history = _$HistoryFromJson(json);
-
-    try {
-      history.evaluator.train(history);
-    } catch (e) {
-      Log.e('Error training evaluator during deserialization: ', e);
-    }
-
-    return history;
-  }
+  factory History.fromJson(Map<String, dynamic> json) => _$HistoryFromJson(json);
 
   double get baseAmount {
     if (series.isEmpty) {
@@ -84,6 +80,13 @@ class History {
     // because we created it above if it doesn't exist
     return series.last;
   }
+
+  Evaluator get evaluator {
+    return EvaluatorProvider().getEvaluator(upc, this);
+  }
+
+  @override
+  String get id => upc;
 
   Observation? get last {
     if (series.isEmpty) {
@@ -236,11 +239,6 @@ class History {
         }
       }
     }
-
-    // We added a new decrease, and we have more than one observation
-    if (observation.amount < lastObservation.amount && current.observations.length > 1) {
-      evaluator.train(this);
-    }
   }
 
   // Remove any invalid observations from the history
@@ -288,26 +286,31 @@ class History {
     return this;
   }
 
-  History copy({String newUpc = ''}) {
-    return History()
-      ..upc = newUpc.isNotEmpty ? newUpc : upc
-      ..series = series.map((s) => s.copy()).toList()
-      ..evaluator = evaluator;
+  History copyWith({
+    String? upc,
+    List<HistorySeries>? series,
+    DateTime? created,
+    DateTime? updated,
+  }) {
+    return History(
+      upc: upc ?? this.upc,
+      series: series ?? this.series,
+      created: created ?? this.created,
+      updated: updated ?? this.updated,
+    );
   }
 
   void delete(int series) {
     this.series.removeAt(series);
-    evaluator.train(this);
   }
 
+  @override
   bool equalTo(History other) =>
       identical(this, other) || upc == other.upc && series.equals(other.series);
 
+  @override
   History merge(History other) {
     assert(upc == other.upc);
-
-    // Create a new merged History instance using a copy of this instance
-    History merged = copy();
 
     // Combine series from both instances, filtering out series without observations
     List<HistorySeries> allSeries = series.where((s) => s.observations.isNotEmpty).toList()
@@ -323,22 +326,22 @@ class History {
     }
 
     // Set the merged series to the sorted values of the map
-    merged.series = mergedSeriesMap.values.toList()
+    List<HistorySeries> mergedSeries = mergedSeriesMap.values.toList()
       ..sort((a, b) => a.minTimestamp.compareTo(b.minTimestamp));
 
-    // Retrain on the merged points
-    merged.evaluator.train(merged);
-    return merged;
+    return History(
+      upc: upc,
+      series: mergedSeries,
+      created: created.older(other.created),
+      updated: DateTime.now(), // Updated time is now, as it's a new merged entity
+    );
   }
 
   double predict(double timestamp) {
-    if (!evaluator.trained) {
-      evaluator.train(this);
-    }
-
     return evaluator.predict(timestamp);
   }
 
+  @override
   Map<String, dynamic> toJson() => _$HistoryToJson(this);
 
   // Remove any empty series values in the history

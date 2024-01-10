@@ -1,12 +1,16 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:meta/meta.dart';
+import 'package:repository/extension/date_time.dart';
+import 'package:repository/merge_generator.dart';
 import 'package:repository/model/abstract/model.dart';
 import 'package:repository/model/serializer_datetime.dart';
 
 part 'expiration_date.g.dart';
+part 'expiration_date.merge.dart';
 
-@JsonSerializable(explicitToJson: true)
 @immutable
+@Mergeable()
+@JsonSerializable(explicitToJson: true)
 class ExpirationDate extends Model<ExpirationDate> {
   @JsonKey(defaultValue: '')
   final String upc;
@@ -47,26 +51,7 @@ class ExpirationDate extends Model<ExpirationDate> {
   }
 
   @override
-  ExpirationDate merge(ExpirationDate other) {
-    if (equalTo(other)) {
-      // Return the instance with the older 'created' date
-      return (created?.isBefore(other.created ?? DateTime.now()) ?? true) ? this : other;
-    }
-
-    if (id != other.id) {
-      throw Exception('Cannot merge ExpirationDates with different IDs.');
-    }
-
-    DateTime? olderCreatedDate =
-        (created?.isBefore(other.created ?? DateTime.now()) ?? true) ? created : other.created;
-
-    return ExpirationDate(
-      upc: other.upc.isNotEmpty ? other.upc : upc,
-      expirationDate: other.expirationDate ?? expirationDate,
-      created: olderCreatedDate,
-      updated: DateTime.now(), // Set 'updated' to the current time
-    );
-  }
+  ExpirationDate merge(ExpirationDate other) => _$mergeExpirationDate(this, other);
 
   @override
   Map<String, dynamic> toJson() => _$ExpirationDateToJson(this);

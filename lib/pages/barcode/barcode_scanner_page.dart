@@ -86,7 +86,7 @@ class _BarcodeScannerPageState extends ConsumerState<BarcodeScannerPage> {
     // First try to find the product in the product db
     Item item = repo.items.get(barcode) ?? defaultItem;
 
-    final defaultHistory = History()..upc = barcode;
+    final defaultHistory = History(upc: barcode);
     final defaultInventory = Inventory(
       upc: barcode,
       amount: 1,

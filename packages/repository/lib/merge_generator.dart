@@ -1,15 +1,13 @@
 import 'package:analyzer/dart/element/element.dart';
 import 'package:build/build.dart';
 
+Builder mergeGeneratorBuilder(BuilderOptions options) => MergeGenerator();
+
 class Mergeable {
   const Mergeable();
 }
 
-Builder mergeGeneratorBuilder(BuilderOptions options) => MergeGenerator();
-
 class MergeGenerator implements Builder {
-  final Map<String, dynamic> defaultValues = {'unitCount': 1};
-
   @override
   final buildExtensions = const {
     '.dart': ['.merge.dart'],
@@ -22,15 +20,14 @@ class MergeGenerator implements Builder {
     bool hasMergeable = false;
 
     // Add the "do not modify" warning.
-    buffer.writeln('// GENERATED CODE - DO NOT MODIFY BY HAND');
+    buffer.writeln('// GENERATED CODE - DO NOT MODIFY BY HAND\n');
 
     // Generate the part statement.
     var fileName = buildStep.inputId.pathSegments.last;
-    buffer.writeln("part of '$fileName';");
+    buffer.writeln("part of '$fileName';\n");
 
     // Iterate over all the classes in the input library.
     for (final originalClass in library.definingCompilationUnit.classes) {
-      // Check if the class has the @Mergeable annotation.
       if (originalClass.metadata
           .any((metadata) => metadata.element?.enclosingElement?.name == 'Mergeable')) {
         buffer.write(_generateMergeMethod(originalClass));
@@ -45,7 +42,6 @@ class MergeGenerator implements Builder {
   }
 
   String _generateMergeMethod(ClassElement originalClass) {
-    // This will hold the generated code for a single class.
     var buffer = StringBuffer();
 
     // Write the merge method declaration.
@@ -54,44 +50,39 @@ class MergeGenerator implements Builder {
 
     // Determine which item was updated more recently
     buffer.writeln(
-        '  final firstUpdate = first.lastUpdate ?? DateTime.fromMillisecondsSinceEpoch(0);');
-    buffer.writeln(
-        '  final secondUpdate = second.lastUpdate ?? DateTime.fromMillisecondsSinceEpoch(0);');
-    buffer.writeln(
-        '  final newer${originalClass.name} = secondUpdate.isAfter(firstUpdate) ? second : first;');
+        '  final newer = first.updated.newer(second.updated) == first.updated ? first : second;');
 
-    // Return a new instance of the class with merged fields.
-    buffer.writeln('  return ${originalClass.name}()');
+    // Create a new instance of the class with merged fields.
+    buffer.writeln('  var merged = ${originalClass.name}(');
 
     // Merge each field individually.
     for (final field in originalClass.fields) {
       if (!field.isSynthetic) {
-        // Exclude getters and setters
-        if (field.type.getDisplayString(withNullability: true) == 'DateTime?') {
+        String fieldType = field.type.getDisplayString(withNullability: true);
+        String fieldName = field.name.startsWith('_') ? field.name.substring(1) : field.name;
+
+        if (fieldType == 'String') {
           buffer.writeln(
-              '    ..${field.name} = newer${originalClass.name}.${field.name} ?? first.${field.name}');
-        } else if (field.type.getDisplayString(withNullability: true) == 'String') {
+              '    $fieldName: newer.$fieldName.isNotEmpty ? newer.$fieldName : first.$fieldName,');
+        } else if (fieldType.startsWith('List<')) {
+          String elementType = fieldType.substring('List<'.length, fieldType.length - 1);
           buffer.writeln(
-              '    ..${field.name} = newer${originalClass.name}.${field.name}.isNotEmpty ? newer${originalClass.name}.${field.name} : first.${field.name}');
-        } else if (field.type.getDisplayString(withNullability: true) == 'int') {
-          if (defaultValues.containsKey(field.name)) {
-            String defaultValue = defaultValues[field.name].toString();
-            buffer.writeln(
-                '    ..${field.name} = newer${originalClass.name}.${field.name} != $defaultValue ? newer${originalClass.name}.${field.name} : first.${field.name}');
-          } else {
-            buffer.writeln(
-                '    ..${field.name} = newer${originalClass.name}.${field.name} != 0 ? newer${originalClass.name}.${field.name} : first.${field.name}');
-          }
-        } else if (field.type.getDisplayString(withNullability: true).startsWith('List<')) {
-          buffer.writeln(
-              '    ..${field.name} = {...newer${originalClass.name}.${field.name}, ...first.${field.name}}.toList()');
+              '    $fieldName: <$elementType>{...first.$fieldName, ...second.$fieldName}.toList(),');
         } else {
-          buffer.writeln('    ..${field.name} = newer${originalClass.name}.${field.name}');
+          buffer.writeln('    $fieldName: newer.$fieldName,');
         }
       }
     }
 
-    buffer.writeln('  ;');
+    buffer.writeln('    created: first.created.older(second.created),');
+    buffer.writeln('    updated: newer.updated,');
+    buffer.writeln('  );');
+
+    // Check if merged is different from newer and update the 'updated' timestamp
+    buffer.writeln('  if (!merged.equalTo(newer)) {');
+    buffer.writeln('    merged = merged.copyWith(updated: DateTime.now());');
+    buffer.writeln('  }');
+    buffer.writeln('  return merged;');
     buffer.writeln('}');
 
     return buffer.toString();

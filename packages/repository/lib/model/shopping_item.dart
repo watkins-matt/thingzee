@@ -1,11 +1,16 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:meta/meta.dart';
+import 'package:repository/extension/date_time.dart';
+import 'package:repository/merge_generator.dart';
 import 'package:repository/model/abstract/model.dart';
+import 'package:repository/model/serializer_datetime.dart';
 
 part 'shopping_item.g.dart';
+part 'shopping_item.merge.dart';
 
 @JsonSerializable(explicitToJson: true)
 @immutable
+@Mergeable()
 class ShoppingItem extends Model<ShoppingItem> {
   // The UPC of the item
   @JsonKey(defaultValue: '')
@@ -57,20 +62,7 @@ class ShoppingItem extends Model<ShoppingItem> {
   }
 
   @override
-  ShoppingItem merge(ShoppingItem other) {
-    final newer = (updated != null &&
-            updated!.isAfter(other.updated ?? DateTime.fromMillisecondsSinceEpoch(0)))
-        ? this
-        : other;
-
-    return ShoppingItem(
-      upc: newer.upc.isNotEmpty ? newer.upc : upc,
-      checked: newer.checked,
-      listType: newer.listType,
-      created: _determineOlderCreatedDate(created, other.created),
-      updated: !equalTo(newer) ? DateTime.now() : newer.updated,
-    );
-  }
+  ShoppingItem merge(ShoppingItem other) => _$mergeShoppingItem(this, other);
 
   @override
   Map<String, dynamic> toJson() => _$ShoppingItemToJson(this);
@@ -78,10 +70,6 @@ class ShoppingItem extends Model<ShoppingItem> {
   static ShoppingListType intToShoppingListType(int index) => ShoppingListType.values[index];
 
   static int shoppingListTypeToInt(ShoppingListType listType) => listType.index;
-
-  static DateTime _determineOlderCreatedDate(DateTime? date1, DateTime? date2) {
-    return date1 ?? date2 ?? DateTime.now();
-  }
 }
 
 enum ShoppingListType { savedList, shoppingList, shoppingCart }

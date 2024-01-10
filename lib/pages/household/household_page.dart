@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:repository/model/cloud/invitation.dart';
 import 'package:repository/model/household_member.dart';
+import 'package:repository/model/invitation.dart';
 import 'package:thingzee/pages/detail/widget/labeled_text.dart';
 import 'package:thingzee/pages/detail/widget/material_card_widget.dart';
 import 'package:thingzee/pages/detail/widget/title_header_widget.dart';

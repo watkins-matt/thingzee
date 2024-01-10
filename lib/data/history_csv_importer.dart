@@ -35,7 +35,7 @@ class HistoryCsvImporter {
     for (final historyRow in allHistoryRows) {
       // Ensure that the MLHistory exists, creating if necessary
       if (!upcHistoryMap.containsKey(historyRow.upc)) {
-        upcHistoryMap[historyRow.upc] = History()..upc = historyRow.upc;
+        upcHistoryMap[historyRow.upc] = History(upc: historyRow.upc);
       }
 
       // Check if the UPC is already in the map

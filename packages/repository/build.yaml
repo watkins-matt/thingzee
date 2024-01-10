@@ -1,16 +1,18 @@
-# builders:
-#   merge_generator:
-#     import: "package:repository/merge_generator.dart"
-#     builder_factories: ["mergeGeneratorBuilder"]
-#     build_extensions: { ".dart": [".merge.dart"] }
-#     auto_apply: none
-#     build_to: source
+builders:
+  merge_generator:
+    import: "package:repository/merge_generator.dart"
+    builder_factories: ["mergeGeneratorBuilder"]
+    build_extensions: { ".dart": [".merge.dart"] }
+    auto_apply: none
+    build_to: source
 
-# targets:
-#   $default:
-#     builders:
-#       repository|merge_generator:
-#         enabled: true
-#         generate_for:
-#           # - lib/model/inventory.dart
-#           # - lib/model/item.dart
+targets:
+  $default:
+    builders:
+      repository|merge_generator:
+        enabled: true
+        generate_for:
+          include:
+            - lib/model/*.dart
+          exclude:
+            - lib/model/*.g.dart

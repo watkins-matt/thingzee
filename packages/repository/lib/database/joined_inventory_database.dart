@@ -33,7 +33,7 @@ class JoinedInventoryDatabase extends InventoryDatabase {
     var inventory = inventoryDatabase.get(upc);
 
     if (inventory != null) {
-      final defaultHistory = History()..upc = upc;
+      final defaultHistory = History(upc: upc);
       final history = historyDatabase.get(upc);
       inventory = inventory.copyWith(history: history ?? defaultHistory);
     }

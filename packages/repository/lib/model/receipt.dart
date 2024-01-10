@@ -1,15 +1,19 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:meta/meta.dart';
+import 'package:repository/extension/date_time.dart';
 import 'package:repository/extension/list.dart';
+import 'package:repository/merge_generator.dart';
 import 'package:repository/model/abstract/model.dart';
 import 'package:repository/model/receipt_item.dart';
 import 'package:repository/model/serializer_datetime.dart';
 import 'package:uuid/uuid.dart';
 
 part 'receipt.g.dart';
+part 'receipt.merge.dart';
 
 @JsonSerializable()
 @immutable
+@Mergeable()
 class Receipt extends Model<Receipt> {
   @JsonKey(defaultValue: [])
   final List<ReceiptItem> items;
@@ -17,16 +21,9 @@ class Receipt extends Model<Receipt> {
   @JsonKey(defaultValue: null)
   final DateTime? date;
 
-  @JsonKey(defaultValue: 0.0)
   final double subtotal;
-
-  @JsonKey(defaultValue: [])
   final List<double> discounts;
-
-  @JsonKey(defaultValue: 0.0)
   final double tax;
-
-  @JsonKey(defaultValue: 0.0)
   final double total;
 
   @JsonKey(defaultValue: '')
@@ -68,6 +65,8 @@ class Receipt extends Model<Receipt> {
     List<double>? discounts,
     double? tax,
     double? total,
+    DateTime? created,
+    DateTime? updated,
   }) {
     return Receipt(
       items: items ?? this.items,
@@ -76,6 +75,8 @@ class Receipt extends Model<Receipt> {
       discounts: discounts ?? this.discounts,
       tax: tax ?? this.tax,
       total: total ?? this.total,
+      created: created ?? this.created,
+      updated: updated ?? this.updated,
     );
   }
 
@@ -91,29 +92,8 @@ class Receipt extends Model<Receipt> {
   }
 
   @override
-  Receipt merge(Receipt other) {
-    final newer = (updated != null &&
-            updated!.isAfter(other.updated ?? DateTime.fromMillisecondsSinceEpoch(0)))
-        ? this
-        : other;
-
-    return Receipt(
-      items: newer.items.isNotEmpty ? newer.items : items,
-      date: date != null && newer.date!.isAfter(date!) ? newer.date : date,
-      subtotal: newer.subtotal != 0.0 ? newer.subtotal : subtotal,
-      discounts: newer.discounts.isNotEmpty ? newer.discounts : discounts,
-      tax: newer.tax != 0.0 ? newer.tax : tax,
-      total: newer.total != 0.0 ? newer.total : total,
-      uid: newer.uid.isNotEmpty ? newer.uid : uid,
-      created: _determineOlderCreatedDate(created, other.created),
-      updated: !equalTo(newer) ? DateTime.now() : newer.updated,
-    );
-  }
+  Receipt merge(Receipt other) => _$mergeReceipt(this, other);
 
   @override
   Map<String, dynamic> toJson() => _$ReceiptToJson(this);
-
-  static DateTime _determineOlderCreatedDate(DateTime? date1, DateTime? date2) {
-    return date1 ?? date2 ?? DateTime.now();
-  }
 }
