@@ -44,6 +44,56 @@ class ObjectBoxHouseholdDatabase extends HouseholdDatabase {
   }
 
   @override
+  List<HouseholdMember> all() {
+    return box.getAll().map((objBoxMember) => objBoxMember.toHouseholdMember()).toList();
+  }
+
+  @override
+  void delete(HouseholdMember member) {
+    final query = box.query(ObjectBoxHouseholdMember_.userId.equals(member.userId)).build();
+    final result = query.findFirst();
+    query.close();
+
+    if (result != null) {
+      box.remove(result.objectBoxId);
+    }
+  }
+
+  @override
+  void deleteAll() {
+    box.removeAll();
+  }
+
+  @override
+  void deleteById(String userId) {
+    final query = box.query(ObjectBoxHouseholdMember_.userId.equals(userId)).build();
+    final member = query.findFirst();
+    query.close();
+
+    if (member != null) {
+      box.remove(member.objectBoxId);
+    }
+  }
+
+  @override
+  HouseholdMember? get(String userId) {
+    final query = box.query(ObjectBoxHouseholdMember_.userId.equals(userId)).build();
+    final member = query.findFirst();
+    query.close();
+
+    return member?.toHouseholdMember();
+  }
+
+  @override
+  List<HouseholdMember> getAll(List<String> userIds) {
+    final query = box.query(ObjectBoxHouseholdMember_.userId.oneOf(userIds)).build();
+    final members = query.find();
+    query.close();
+
+    return members.map((objBoxMember) => objBoxMember.toHouseholdMember()).toList();
+  }
+
+  @override
   List<HouseholdMember> getChanges(DateTime since) {
     final query = box
         .query(ObjectBoxHouseholdMember_.updated.greaterThan(since.millisecondsSinceEpoch))
@@ -56,6 +106,15 @@ class ObjectBoxHouseholdDatabase extends HouseholdDatabase {
   void leave() {
     box.removeAll();
     _createNewHousehold();
+  }
+
+  @override
+  Map<String, HouseholdMember> map() {
+    final all = box.getAll();
+    return {
+      for (final objBoxMember in all)
+        objBoxMember.objectBoxId.toString(): objBoxMember.toHouseholdMember()
+    };
   }
 
   @override
