@@ -34,15 +34,16 @@ class ItemCsvRow {
   }
 
   Item toItem() {
-    return Item()
-      ..upc = upc
-      ..name = name
-      ..consumable = consumable
-      ..unitCount = unitCount
-      ..category = category
-      ..type = type
-      ..unitName = unitName
-      ..unitPlural = unitPlural
-      ..imageUrl = imageUrl;
+    return Item(
+      upc: upc,
+      name: name,
+      consumable: consumable,
+      unitCount: unitCount,
+      category: category,
+      type: type,
+      unitName: unitName,
+      unitPlural: unitPlural,
+      imageUrl: imageUrl,
+    );
   }
 }

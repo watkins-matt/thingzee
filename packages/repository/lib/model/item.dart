@@ -1,72 +1,122 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:repository/merge_generator.dart';
+import 'package:repository/model/abstract/model.dart';
 import 'package:repository/model/abstract/nameable.dart';
 import 'package:repository/model/serializer_datetime.dart';
 
 part 'item.g.dart';
-part 'item.merge.dart';
 
 @JsonSerializable(explicitToJson: true)
-@Mergeable()
-class Item implements Comparable<Item>, Nameable {
+class Item extends Model<Item> implements Comparable<Item>, Nameable {
   @JsonKey(defaultValue: '')
-  String upc = ''; // generator:unique
-
-  @JsonKey(defaultValue: '')
-  String id = '';
+  final String upc; // generator:unique
 
   @override
   @JsonKey(defaultValue: '')
-  String name = '';
+  final String id;
+
+  @override
+  @JsonKey(defaultValue: '')
+  final String name;
 
   @JsonKey(defaultValue: '')
-  String variety = '';
+  final String variety;
 
   @JsonKey(defaultValue: '')
-  String category = '';
+  final String category;
 
   @JsonKey(defaultValue: '')
-  String type = ''; // Type of the item, example: Cereal, Milk, Tomato Sauce
+  final String type; // Type of the item, example: Cereal, Milk, Tomato Sauce
 
   @JsonKey(defaultValue: '')
-  String typeId = '';
+  final String typeId;
 
   // Unit information:
   @JsonKey(defaultValue: 1)
-  int unitCount = 1; // How many units are part of this item, e.g. 12 bottles
+  final int unitCount; // How many units are part of this item, e.g. 12 bottles
 
   @JsonKey(defaultValue: '')
-  String unitName = ''; // What is the name of the unit, e.g. bottle
+  final String unitName; // What is the name of the unit, e.g. bottle
 
   @JsonKey(defaultValue: '')
-  String unitPlural = ''; // What is the plural of the unit, e.g. bottles
+  final String unitPlural; // What is the plural of the unit, e.g. bottles
 
   @JsonKey(defaultValue: '')
-  String imageUrl = '';
+  final String imageUrl;
 
   @JsonKey(defaultValue: true)
-  bool consumable = true;
+  final bool consumable;
 
   @JsonKey(defaultValue: 'en')
-  String languageCode = 'en';
+  final String languageCode;
 
   @NullableDateTimeSerializer()
-  DateTime? lastUpdate;
+  final DateTime? lastUpdate;
 
-  Item();
-  factory Item.fromJson(Map<String, dynamic> json) {
-    if (!json.containsKey('typeId')) {
-      json['typeId'] = '';
-    }
+  Item({
+    this.upc = '',
+    this.id = '',
+    this.name = '',
+    this.variety = '',
+    this.category = '',
+    this.type = '',
+    this.typeId = '',
+    this.unitCount = 1,
+    this.unitName = '',
+    this.unitPlural = '',
+    this.imageUrl = '',
+    this.consumable = true,
+    this.languageCode = 'en',
+    this.lastUpdate,
+    super.created,
+    super.updated,
+  });
 
-    return _$ItemFromJson(json);
-  }
+  factory Item.fromJson(Map<String, dynamic> json) => _$ItemFromJson(json);
 
   @override
   int compareTo(Item other) {
     return name.compareTo(other.name);
   }
 
+  Item copyWith({
+    String? upc,
+    String? id,
+    String? name,
+    String? variety,
+    String? category,
+    String? type,
+    String? typeId,
+    int? unitCount,
+    String? unitName,
+    String? unitPlural,
+    String? imageUrl,
+    bool? consumable,
+    String? languageCode,
+    DateTime? lastUpdate,
+    DateTime? created,
+    DateTime? updated,
+  }) {
+    return Item(
+      upc: upc ?? this.upc,
+      id: id ?? this.id,
+      name: name ?? this.name,
+      variety: variety ?? this.variety,
+      category: category ?? this.category,
+      type: type ?? this.type,
+      typeId: typeId ?? this.typeId,
+      unitCount: unitCount ?? this.unitCount,
+      unitName: unitName ?? this.unitName,
+      unitPlural: unitPlural ?? this.unitPlural,
+      imageUrl: imageUrl ?? this.imageUrl,
+      consumable: consumable ?? this.consumable,
+      languageCode: languageCode ?? this.languageCode,
+      lastUpdate: lastUpdate ?? this.lastUpdate,
+      created: created ?? this.created,
+      updated: updated ?? this.updated,
+    );
+  }
+
+  @override
   bool equalTo(Item other) =>
       identical(this, other) ||
       upc == other.upc &&
@@ -84,8 +134,33 @@ class Item implements Comparable<Item>, Nameable {
           languageCode == other.languageCode &&
           lastUpdate == other.lastUpdate;
 
+  @override
   Item merge(Item other) => _$mergeItem(this, other);
+
+  @override
   Map<String, dynamic> toJson() => _$ItemToJson(this);
+
+  Item _$mergeItem(Item first, Item second) {
+    final firstUpdate = first.lastUpdate ?? DateTime.fromMillisecondsSinceEpoch(0);
+    final secondUpdate = second.lastUpdate ?? DateTime.fromMillisecondsSinceEpoch(0);
+    final newerItem = secondUpdate.isAfter(firstUpdate) ? second : first;
+    return Item(
+      upc: newerItem.upc.isNotEmpty ? newerItem.upc : first.upc,
+      id: newerItem.id.isNotEmpty ? newerItem.id : first.id,
+      name: newerItem.name.isNotEmpty ? newerItem.name : first.name,
+      variety: newerItem.variety.isNotEmpty ? newerItem.variety : first.variety,
+      category: newerItem.category.isNotEmpty ? newerItem.category : first.category,
+      type: newerItem.type.isNotEmpty ? newerItem.type : first.type,
+      typeId: newerItem.typeId.isNotEmpty ? newerItem.typeId : first.typeId,
+      unitCount: newerItem.unitCount != 1 ? newerItem.unitCount : first.unitCount,
+      unitName: newerItem.unitName.isNotEmpty ? newerItem.unitName : first.unitName,
+      unitPlural: newerItem.unitPlural.isNotEmpty ? newerItem.unitPlural : first.unitPlural,
+      imageUrl: newerItem.imageUrl.isNotEmpty ? newerItem.imageUrl : first.imageUrl,
+      consumable: newerItem.consumable,
+      languageCode: newerItem.languageCode.isNotEmpty ? newerItem.languageCode : first.languageCode,
+      lastUpdate: newerItem.lastUpdate ?? first.lastUpdate,
+    );
+  }
 }
 
 @JsonSerializable(explicitToJson: true)

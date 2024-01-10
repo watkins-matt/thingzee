@@ -140,9 +140,10 @@ class _AddItemBrowserPageState extends ConsumerState<AddItemBrowserPage> {
     }
 
     final itemView = ref.read(itemViewProvider.notifier);
-    final newItem = Item()
-      ..upc = itemUpcController.text
-      ..name = itemNameController.text;
+    final newItem = Item(
+      upc: itemUpcController.text,
+      name: itemNameController.text,
+    );
 
     itemView.put(newItem);
     Navigator.pop(context, newItem);

@@ -59,14 +59,15 @@ class InventoryCsvRow {
   }
 
   Item toItem() {
-    return Item()
-      ..upc = upc
-      ..name = name
-      ..consumable = consumable
-      ..unitCount = unitCount
-      ..category = category
-      ..type = type
-      ..unitName = unitName
-      ..unitPlural = unitPlural;
+    return Item(
+      upc: upc,
+      name: name,
+      consumable: consumable,
+      unitCount: unitCount,
+      category: category,
+      type: type,
+      unitName: unitName,
+      unitPlural: unitPlural,
+    );
   }
 }

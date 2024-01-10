@@ -40,21 +40,21 @@ class ObjectBoxItem {
     lastUpdate = original.lastUpdate;
   }
   Item toItem() {
-    return Item()
-      ..upc = upc
-      ..id = id
-      ..name = name
-      ..variety = variety
-      ..category = category
-      ..type = type
-      ..typeId = typeId
-      ..unitCount = unitCount
-      ..unitName = unitName
-      ..unitPlural = unitPlural
-      ..imageUrl = imageUrl
-      ..consumable = consumable
-      ..languageCode = languageCode
-      ..lastUpdate = lastUpdate;
+    return Item(
+        upc: upc,
+        id: id,
+        name: name,
+        variety: variety,
+        category: category,
+        type: type,
+        typeId: typeId,
+        unitCount: unitCount,
+        unitName: unitName,
+        unitPlural: unitPlural,
+        imageUrl: imageUrl,
+        consumable: consumable,
+        languageCode: languageCode,
+        lastUpdate: lastUpdate);
   }
 }
 
