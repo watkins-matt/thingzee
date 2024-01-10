@@ -49,7 +49,7 @@ class InventoryCsvRow {
   }
 
   Inventory toInventory() {
-    return Inventory().copyWith(
+    return Inventory(
       upc: upc,
       amount: amount,
       lastUpdate: lastUpdate,
