@@ -1,26 +1,26 @@
-builders:
-  hive_builder:
-    import: "package:repository_hive/hive_builder.dart"
-    builder_factories: ["hiveBuilder"]
-    build_extensions: { ".dart": [".hive.dart"] }
-    auto_apply: none
-    build_to: source
+# builders:
+#   hive_builder:
+#     import: "package:repository_hive/hive_builder.dart"
+#     builder_factories: ["hiveBuilder"]
+#     build_extensions: { ".dart": [".hive.dart"] }
+#     auto_apply: none
+#     build_to: source
 
-global_options:
-  repository_hive|hive_builder:
-    runs_before:
-      - hive_generator|hive_generator
+# global_options:
+#   repository_hive|hive_builder:
+#     runs_before:
+#       - hive_generator|hive_generator
 
-targets:
-  $default:
-    builders:
-      repository_hive|hive_builder:
-        enabled: true
-        generate_for:
-          - lib/model/expiration_date.dart
-          - lib/model/household_member.dart
-          - lib/model/inventory.dart
-          - lib/model/item.dart
-          - lib/model/location.dart
-          - lib/model/manufacturer.dart
-          - lib/model/product.dart
+# targets:
+#   $default:
+#     builders:
+#       repository_hive|hive_builder:
+#         enabled: true
+#         generate_for:
+#           - lib/model/expiration_date.dart
+#           - lib/model/household_member.dart
+#           - lib/model/inventory.dart
+#           - lib/model/item.dart
+#           - lib/model/location.dart
+#           - lib/model/manufacturer.dart
+#           - lib/model/product.dart
