@@ -53,6 +53,8 @@ class Inventory extends Model<Inventory> {
     this.restock = true,
     String upc = '',
     this.uid = '',
+    super.created,
+    super.updated,
   })  : _upc = upc,
         history = history?.copy() ?? History();
 
@@ -191,6 +193,8 @@ class Inventory extends Model<Inventory> {
     bool? restock,
     String? upc,
     String? uid,
+    DateTime? created,
+    DateTime? updated,
   }) {
     String newUpc = upc ?? _upc;
 
@@ -204,6 +208,8 @@ class Inventory extends Model<Inventory> {
       restock: restock ?? this.restock,
       upc: newUpc,
       uid: uid ?? this.uid,
+      created: created ?? this.created,
+      updated: updated ?? this.updated,
     );
   }
 

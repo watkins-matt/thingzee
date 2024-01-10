@@ -7,33 +7,33 @@ part 'item.hive.g.dart';
 
 @HiveType(typeId: 0)
 class HiveItem extends HiveObject {
-  @HiveField(0)
-  late String upc;
-  @HiveField(1)
-  late String id;
-  @HiveField(2)
-  late String name;
-  @HiveField(3)
-  late String variety;
   @HiveField(4)
-  late String category;
+  late String upc;
   @HiveField(5)
-  late String type;
+  late String id;
   @HiveField(6)
-  late String typeId;
+  late String name;
   @HiveField(7)
-  late int unitCount;
+  late String variety;
   @HiveField(8)
-  late String unitName;
+  late String category;
   @HiveField(9)
-  late String unitPlural;
+  late String type;
   @HiveField(10)
-  late String imageUrl;
+  late String typeId;
   @HiveField(11)
-  late bool consumable;
+  late int unitCount;
   @HiveField(12)
-  late String languageCode;
+  late String unitName;
   @HiveField(13)
+  late String unitPlural;
+  @HiveField(14)
+  late String imageUrl;
+  @HiveField(15)
+  late bool consumable;
+  @HiveField(16)
+  late String languageCode;
+  @HiveField(17)
   late DateTime? lastUpdate;
   HiveItem();
   HiveItem.from(Item original) {
@@ -53,21 +53,21 @@ class HiveItem extends HiveObject {
     lastUpdate = original.lastUpdate;
   }
   Item toItem() {
-    return Item()
-      ..upc = upc
-      ..id = id
-      ..name = name
-      ..variety = variety
-      ..category = category
-      ..type = type
-      ..typeId = typeId
-      ..unitCount = unitCount
-      ..unitName = unitName
-      ..unitPlural = unitPlural
-      ..imageUrl = imageUrl
-      ..consumable = consumable
-      ..languageCode = languageCode
-      ..lastUpdate = lastUpdate;
+    return Item(
+        upc: upc,
+        id: id,
+        name: name,
+        variety: variety,
+        category: category,
+        type: type,
+        typeId: typeId,
+        unitCount: unitCount,
+        unitName: unitName,
+        unitPlural: unitPlural,
+        imageUrl: imageUrl,
+        consumable: consumable,
+        languageCode: languageCode,
+        lastUpdate: lastUpdate);
   }
 }
 

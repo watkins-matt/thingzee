@@ -6,24 +6,31 @@ part of 'item.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-Item _$ItemFromJson(Map<String, dynamic> json) => Item()
-  ..upc = json['upc'] as String? ?? ''
-  ..id = json['id'] as String? ?? ''
-  ..name = json['name'] as String? ?? ''
-  ..variety = json['variety'] as String? ?? ''
-  ..category = json['category'] as String? ?? ''
-  ..type = json['type'] as String? ?? ''
-  ..typeId = json['typeId'] as String? ?? ''
-  ..unitCount = json['unitCount'] as int? ?? 1
-  ..unitName = json['unitName'] as String? ?? ''
-  ..unitPlural = json['unitPlural'] as String? ?? ''
-  ..imageUrl = json['imageUrl'] as String? ?? ''
-  ..consumable = json['consumable'] as bool? ?? true
-  ..languageCode = json['languageCode'] as String? ?? 'en'
-  ..lastUpdate = _$JsonConverterFromJson<int, DateTime?>(
-      json['lastUpdate'], const NullableDateTimeSerializer().fromJson);
+Item _$ItemFromJson(Map<String, dynamic> json) => Item(
+      upc: json['upc'] as String? ?? '',
+      id: json['id'] as String? ?? '',
+      name: json['name'] as String? ?? '',
+      variety: json['variety'] as String? ?? '',
+      category: json['category'] as String? ?? '',
+      type: json['type'] as String? ?? '',
+      typeId: json['typeId'] as String? ?? '',
+      unitCount: json['unitCount'] as int? ?? 1,
+      unitName: json['unitName'] as String? ?? '',
+      unitPlural: json['unitPlural'] as String? ?? '',
+      imageUrl: json['imageUrl'] as String? ?? '',
+      consumable: json['consumable'] as bool? ?? true,
+      languageCode: json['languageCode'] as String? ?? 'en',
+      lastUpdate: _$JsonConverterFromJson<int, DateTime?>(
+          json['lastUpdate'], const NullableDateTimeSerializer().fromJson),
+      created: _$JsonConverterFromJson<int, DateTime?>(
+          json['created'], const NullableDateTimeSerializer().fromJson),
+      updated: _$JsonConverterFromJson<int, DateTime?>(
+          json['updated'], const NullableDateTimeSerializer().fromJson),
+    );
 
 Map<String, dynamic> _$ItemToJson(Item instance) => <String, dynamic>{
+      'created': const NullableDateTimeSerializer().toJson(instance.created),
+      'updated': const NullableDateTimeSerializer().toJson(instance.updated),
       'upc': instance.upc,
       'id': instance.id,
       'name': instance.name,

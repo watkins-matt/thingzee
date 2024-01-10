@@ -26,6 +26,7 @@ class HiveInventory extends HiveObject {
   late String upc;
   @HiveField(8)
   late String uid;
+
   HiveInventory();
   HiveInventory.from(Inventory original) {
     amount = original.amount;

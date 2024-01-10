@@ -17,7 +17,6 @@ class ObjectBoxInventory {
   @Unique(onConflict: ConflictStrategy.replace)
   late String _upc;
   late String uid;
-
   @Id()
   int objectBoxId = 0;
   ObjectBoxInventory();

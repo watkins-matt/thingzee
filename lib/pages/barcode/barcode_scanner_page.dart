@@ -77,10 +77,11 @@ class _BarcodeScannerPageState extends ConsumerState<BarcodeScannerPage> {
 
   Future<void> loadItemDetail(BuildContext context, String barcode) async {
     final repo = ref.read(repositoryProvider);
-    final defaultItem = Item()
-      ..upc = barcode
-      ..name = 'Unknown Item'
-      ..category = 'Food & Beverage';
+    final defaultItem = Item(
+      upc: barcode,
+      name: 'Unknown Item',
+      category: 'Food & Beverage',
+    );
 
     // First try to find the product in the product db
     Item item = repo.items.get(barcode) ?? defaultItem;

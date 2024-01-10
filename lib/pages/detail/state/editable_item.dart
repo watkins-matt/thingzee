@@ -35,8 +35,7 @@ class EditableItem extends StateNotifier<EditableItemState> {
   bool get consumable => state.item.consumable;
 
   set consumable(bool consumable) {
-    final item = state.item;
-    item.consumable = consumable;
+    final item = state.item.copyWith(consumable: consumable);
 
     state.changedFields.add('consumable');
     state = EditableItemState(item, state.inventory, state.changedFields);
@@ -56,8 +55,7 @@ class EditableItem extends StateNotifier<EditableItemState> {
 
   String get imageUrl => state.item.imageUrl;
   set imageUrl(String imageUrl) {
-    final item = state.item;
-    item.imageUrl = imageUrl.trim();
+    final item = state.item.copyWith(imageUrl: imageUrl.trim());
 
     state.changedFields.add('imageUrl');
     state = EditableItemState(item, state.inventory, state.changedFields);
@@ -67,8 +65,7 @@ class EditableItem extends StateNotifier<EditableItemState> {
 
   String get name => state.item.name;
   set name(String name) {
-    final item = state.item;
-    item.name = name.trim();
+    final item = state.item.copyWith(name: name.trim());
 
     state = EditableItemState(item, state.inventory, state.changedFields);
   }
@@ -78,8 +75,7 @@ class EditableItem extends StateNotifier<EditableItemState> {
 
   String get type => state.item.type;
   set type(String type) {
-    final item = state.item;
-    item.type = type.trim();
+    final item = state.item.copyWith(type: type.trim());
 
     state.changedFields.add('type');
     state = EditableItemState(item, state.inventory, state.changedFields);
@@ -87,11 +83,8 @@ class EditableItem extends StateNotifier<EditableItemState> {
 
   int get unitCount => state.inventory.unitCount;
   set unitCount(int value) {
-    var inv = state.inventory;
-    inv = inv.copyWith(unitCount: value);
-
-    final item = state.item;
-    item.unitCount = value;
+    final inv = state.inventory.copyWith(unitCount: value);
+    final item = state.item.copyWith(unitCount: value);
 
     state = EditableItemState(item, inv, state.changedFields);
   }
@@ -100,11 +93,8 @@ class EditableItem extends StateNotifier<EditableItemState> {
   set upc(String upc) {
     upc = upc.trim();
 
-    final item = state.item;
-    item.upc = upc;
-
-    var inv = state.inventory;
-    inv = inv.copyWith(upc: upc);
+    final item = state.item.copyWith(upc: upc);
+    final inv = state.inventory.copyWith(upc: upc);
 
     final history = state.inventory.history;
     history.upc = upc;
@@ -114,8 +104,7 @@ class EditableItem extends StateNotifier<EditableItemState> {
 
   String get variety => state.item.variety;
   set variety(String variety) {
-    final item = state.item;
-    item.variety = variety.trim();
+    final item = state.item.copyWith(variety: variety.trim());
 
     state = EditableItemState(item, state.inventory, state.changedFields);
   }
@@ -160,7 +149,7 @@ class EditableItem extends StateNotifier<EditableItemState> {
 
     // Make sure the upc is copied to the item
     if (state.item.upc != copiedInv.upc) {
-      state.item.upc = copiedInv.upc;
+      state.item = state.item.copyWith(upc: copiedInv.upc);
     }
 
     if (state.inventory.history.upc != copiedInv.upc) {
@@ -171,15 +160,16 @@ class EditableItem extends StateNotifier<EditableItemState> {
   }
 
   void copyFromItem(Item item) {
-    Item copiedItem = Item();
-    copiedItem.name = item.name;
-    copiedItem.variety = item.variety;
-    copiedItem.upc = item.upc;
-    copiedItem.imageUrl = item.imageUrl;
-    copiedItem.category = item.category;
-    copiedItem.unitCount = item.unitCount;
-    copiedItem.consumable = item.consumable;
-    copiedItem.type = item.type;
+    Item copiedItem = Item(
+      name: item.name,
+      variety: item.variety,
+      upc: item.upc,
+      imageUrl: item.imageUrl,
+      category: item.category,
+      unitCount: item.unitCount,
+      consumable: item.consumable,
+      type: item.type,
+    );
 
     // Make sure the upc is copied to the inventory
     if (state.inventory.upc != copiedItem.upc) {
@@ -212,7 +202,8 @@ class EditableItem extends StateNotifier<EditableItemState> {
 
   void save(Repository repo) {
     final saveTimestamp = DateTime.now();
-    state.item.lastUpdate = saveTimestamp;
+    state.item = state.item.copyWith(lastUpdate: saveTimestamp);
+
     repo.items.put(state.item);
 
     // If the amount changed, add a new history entry

@@ -7,12 +7,12 @@
     - filter.dart
     - receipt.dart
     - nameable.dart
-- input:
-    - ../packages/repository/lib/model/
-  output_dir: ../packages/repository_hive/lib/model/
-  db_type: hive
-  ignore:
-    - serializer_datetime.dart
-    - filter.dart
-    - receipt.dart
-    - nameable.dart
+# - input:
+#     - ../packages/repository/lib/model/
+#   output_dir: ../packages/repository_hive/lib/model/
+#   db_type: hive
+#   ignore:
+#     - serializer_datetime.dart
+#     - filter.dart
+#     - receipt.dart
+#     - nameable.dart
