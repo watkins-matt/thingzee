@@ -37,15 +37,6 @@ class AppwriteHistoryDatabase extends HistoryDatabase
   }
 
   @override
-  String getKey(History history) => history.upc;
-
-  @override
-  DateTime? getUpdated(History history) => history.lastTimestamp;
-
-  @override
-  History merge(History existingItem, History newItem) => existingItem.merge(newItem);
-
-  @override
   Map<String, dynamic> serialize(History history) {
     Map<String, dynamic> serialized = {
       'userId': userId,

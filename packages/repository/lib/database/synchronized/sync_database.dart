@@ -28,7 +28,18 @@ abstract class SynchronizedDatabase<T extends Model> implements Database<T> {
   }
 
   @override
+  void deleteById(String id) {
+    local.deleteById(id);
+    remote.deleteById(id);
+  }
+
+  @override
   T? get(String id) => local.get(id);
+
+  @override
+  List<T> getAll(List<String> ids) {
+    return local.getAll(ids);
+  }
 
   @override
   Map<String, T> map() {
@@ -54,17 +65,17 @@ abstract class SynchronizedDatabase<T extends Model> implements Database<T> {
     Log.d('${T.runtimeType}Database: Synchronizing differences...');
     var remoteChanges = remote.getChanges(lastSync!);
     var localChanges = local.getChanges(lastSync!);
-    var remoteMap = {for (final r in remoteChanges) getKey(r): r};
-    var localMap = {for (final l in localChanges) getKey(l): l};
+    var remoteMap = {for (final r in remoteChanges) r.id: r};
+    var localMap = {for (final l in localChanges) l.id: l};
     int changes = 0;
 
     for (final remoteRecord in remoteChanges) {
-      var id = getKey(remoteRecord);
+      var id = remoteRecord.id;
       if (!localMap.containsKey(id)) {
         local.put(remoteRecord);
         changes++;
-      } else if (!isEqual(remoteRecord, localMap[id] as T)) {
-        var merged = merge(localMap[id] as T, remoteRecord);
+      } else if (!remoteRecord.equalTo(localMap[id] as T)) {
+        var merged = (localMap[id] as T).merge(remoteRecord);
         local.put(merged);
         remote.put(merged);
         changes++;
@@ -72,7 +83,7 @@ abstract class SynchronizedDatabase<T extends Model> implements Database<T> {
     }
 
     for (final localRecord in localChanges) {
-      var id = getKey(localRecord);
+      var id = localRecord.id;
       if (!remoteMap.containsKey(id)) {
         remote.put(localRecord);
         changes++;
@@ -100,18 +111,18 @@ abstract class SynchronizedDatabase<T extends Model> implements Database<T> {
     var remoteRecords = remote.map();
 
     for (final remoteRecord in remoteRecords.values) {
-      var id = getKey(remoteRecord);
+      var id = remoteRecord.id;
       if (!localRecords.containsKey(id)) {
         local.put(remoteRecord);
-      } else if (!isEqual(remoteRecord, localRecords[id] as T)) {
-        var merged = merge(localRecords[id] as T, remoteRecord);
+      } else if (!remoteRecord.equalTo(localRecords[id] as T)) {
+        var merged = (localRecords[id] as T).merge(remoteRecord);
         local.put(merged);
         remote.put(merged);
       }
     }
 
     for (final localRecord in localRecords.values) {
-      var id = getKey(localRecord);
+      var id = localRecord.id;
       if (!remoteRecords.containsKey(id)) {
         remote.put(localRecord);
       }

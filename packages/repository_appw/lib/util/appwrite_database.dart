@@ -4,10 +4,11 @@ import 'dart:collection';
 import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/models.dart' hide Log, Preferences, Model;
 import 'package:log/log.dart';
+import 'package:repository/model/abstract/model.dart';
 import 'package:repository/util/hash.dart';
 import 'package:repository_appw/util/appwrite_task_queue.dart';
 
-mixin AppwriteDatabase<T> {
+mixin AppwriteDatabase<T extends Model> {
   AppwriteTaskQueue taskQueue = AppwriteTaskQueue();
   late final Databases _database;
   late final String collectionId;
@@ -27,7 +28,7 @@ mixin AppwriteDatabase<T> {
   }
 
   void delete(T item) {
-    String id = getKey(item);
+    String id = item.id;
     _items.remove(id);
     taskQueue.queueTask(() async {
       await _database.deleteDocument(
@@ -80,9 +81,7 @@ mixin AppwriteDatabase<T> {
   }
 
   List<T> getChanges(DateTime since) {
-    return values
-        .where((item) => getUpdated(item) != null && getUpdated(item)!.isAfter(since))
-        .toList();
+    return values.where((item) => item.updated != null && item.updated!.isAfter(since)).toList();
   }
 
   Future<DocumentList> getDocuments(List<String> queries) async {
@@ -93,10 +92,6 @@ mixin AppwriteDatabase<T> {
     );
   }
 
-  // Abstract method that must be implemented in the class that uses this mixin.
-  // It should return a unique identifier for each item.
-  String getKey(T item);
-
   Future<DocumentList> getModifiedDocuments(DateTime? lastSyncTime) async {
     return await _database.listDocuments(
       databaseId: databaseId,
@@ -105,24 +100,19 @@ mixin AppwriteDatabase<T> {
     );
   }
 
-  DateTime? getUpdated(T item);
-
   bool isItemValid(T item) {
-    String key = getKey(item);
+    String key = item.id;
     return key.isNotEmpty;
   }
 
   Map<String, T> map() => Map.unmodifiable(_items);
 
-  // Abstract method to merge two items. Should be implemented by the class using this mixin.
-  T merge(T existingItem, T newItem);
-
   void mergeState(List<T> newItems) {
     for (final newItem in newItems) {
-      String id = getKey(newItem);
+      String id = newItem.id;
       final existingItem = _items[id];
       if (existingItem != null) {
-        final mergedItem = merge(existingItem, newItem);
+        final mergedItem = existingItem.merge(newItem);
         _items[id] = mergedItem;
       } else {
         _items[id] = newItem;
@@ -131,7 +121,7 @@ mixin AppwriteDatabase<T> {
   }
 
   void put(T item, {List<String>? permissions}) {
-    String key = getKey(item);
+    String key = item.id;
 
     // If the item is not valid, throw an exception
     if (!isItemValid(item)) {
@@ -177,12 +167,12 @@ mixin AppwriteDatabase<T> {
   void replaceState(List<T> allItems) {
     _items.clear();
     for (final item in allItems) {
-      String key = getKey(item);
+      String key = item.id;
       _items[key] = item;
     }
   }
 
-  Map<String, dynamic> serialize(T item);
+  Map<String, dynamic> serialize(T item) => item.toJson();
 
   String uniqueDocumentId(String id) {
     if (userId.isEmpty) {

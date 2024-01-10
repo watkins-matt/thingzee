@@ -34,6 +34,17 @@ class ObjectBoxHistoryDatabase extends HistoryDatabase {
   }
 
   @override
+  void deleteById(String upc) {
+    final query = box.query(ObjectBoxHistory_.upc.equals(upc)).build();
+    final result = query.findFirst();
+    query.close();
+
+    if (result != null) {
+      box.remove(result.objectBoxId);
+    }
+  }
+
+  @override
   History? get(String upc) {
     assert(upc.isNotEmpty);
     final query = box.query(ObjectBoxHistory_.upc.equals(upc)).build();
@@ -41,6 +52,15 @@ class ObjectBoxHistoryDatabase extends HistoryDatabase {
     query.close();
 
     return result;
+  }
+
+  @override
+  List<History> getAll(List<String> upcs) {
+    final query = box.query(ObjectBoxHistory_.upc.oneOf(upcs)).build();
+    final results = query.find();
+    query.close();
+
+    return results.map((objBoxHist) => objBoxHist.toHistory()).toList();
   }
 
   @override

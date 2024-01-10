@@ -34,15 +34,6 @@ class AppwriteItemDatabase extends ItemDatabase
   }
 
   @override
-  String getKey(Item item) => item.upc;
-
-  @override
-  DateTime? getUpdated(Item item) => item.lastUpdate;
-
-  @override
-  Item merge(Item existingItem, Item newItem) => existingItem.merge(newItem);
-
-  @override
   List<Item> search(String string) {
     return values.where((item) => item.name.contains(string)).toList();
   }

@@ -50,12 +50,6 @@ class AppwriteHouseholdDatabase extends HouseholdDatabase
   HouseholdMember? deserialize(Map<String, dynamic> json) => HouseholdMember.fromJson(json);
 
   @override
-  String getKey(HouseholdMember member) => member.userId;
-
-  @override
-  DateTime? getUpdated(HouseholdMember member) => member.updated;
-
-  @override
   void leave() {
     taskQueue.queueTask(() async {
       // Logic to leave the household:
@@ -65,10 +59,6 @@ class AppwriteHouseholdDatabase extends HouseholdDatabase
     });
     prefs.remove('householdId');
   }
-
-  @override
-  HouseholdMember merge(HouseholdMember existingItem, HouseholdMember newItem) =>
-      existingItem.merge(newItem);
 
   @override
   void put(HouseholdMember member, {List<String>? permissions}) {
@@ -90,9 +80,6 @@ class AppwriteHouseholdDatabase extends HouseholdDatabase
 
     super.put(member, permissions: permissions);
   }
-
-  @override
-  Map<String, dynamic> serialize(HouseholdMember member) => member.toJson();
 
   Future<void> _createNewHousehold() async {
     _householdId = const Uuid().v4();
