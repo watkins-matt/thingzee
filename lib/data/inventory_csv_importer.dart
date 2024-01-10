@@ -31,7 +31,7 @@ class InventoryCsvImporter {
       var inv = inventoryRow.toInventory();
       final historyResult = r.hist.get(inv.upc);
       if (historyResult != null) {
-        inv.history = historyResult;
+        inv = inv.copyWith(history: historyResult);
       }
 
       r.items.put(inventoryRow.toItem());

@@ -118,7 +118,7 @@ class JoinedItemDatabase with FuzzySearchable<JoinedItem> {
 
       // If innerJoin is false, we return the item with an empty inventory
       else if (!innerJoin) {
-        joinedItems.add(JoinedItem(items[i], Inventory.withUPC(upc)));
+        joinedItems.add(JoinedItem(items[i], Inventory(upc: upc)));
       }
     }
 

@@ -6,21 +6,23 @@ part of 'inventory.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-Inventory _$InventoryFromJson(Map<String, dynamic> json) => Inventory()
-  ..amount = (json['amount'] as num?)?.toDouble() ?? 0
-  ..unitCount = json['unitCount'] as int? ?? 1
-  ..lastUpdate = _$JsonConverterFromJson<int, DateTime?>(
-      json['lastUpdate'], const NullableDateTimeSerializer().fromJson)
-  ..expirationDates = (json['expirationDates'] as List<dynamic>?)
-          ?.map((e) => DateTime.parse(e as String))
-          .toList() ??
-      []
-  ..locations =
-      (json['locations'] as List<dynamic>?)?.map((e) => e as String).toList() ??
-          []
-  ..restock = json['restock'] as bool? ?? true
-  ..uid = json['uid'] as String? ?? ''
-  ..upc = json['upc'] as String;
+Inventory _$InventoryFromJson(Map<String, dynamic> json) => Inventory(
+      amount: (json['amount'] as num?)?.toDouble() ?? 0,
+      unitCount: json['unitCount'] as int? ?? 1,
+      lastUpdate: _$JsonConverterFromJson<int, DateTime?>(
+          json['lastUpdate'], const NullableDateTimeSerializer().fromJson),
+      expirationDates: (json['expirationDates'] as List<dynamic>?)
+              ?.map((e) => DateTime.parse(e as String))
+              .toList() ??
+          [],
+      locations: (json['locations'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          [],
+      restock: json['restock'] as bool? ?? true,
+      upc: json['upc'] as String? ?? '',
+      uid: json['uid'] as String? ?? '',
+    );
 
 Map<String, dynamic> _$InventoryToJson(Inventory instance) => <String, dynamic>{
       'amount': instance.amount,

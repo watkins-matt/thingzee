@@ -1,6 +1,7 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:meta/meta.dart';
 import 'package:repository/model/abstract/model.dart';
+import 'package:repository/model/serializer_datetime.dart';
 import 'package:repository/util/hash.dart';
 
 part 'household_member.g.dart';

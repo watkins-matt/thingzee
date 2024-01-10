@@ -36,16 +36,18 @@ class ShoppingCart extends StateNotifier<ShoppingCartState> {
 
         // The last history update was more than a day ago, use predicted
         if (timeSinceLastUpdate.inDays > 1) {
-          inventory.amount = inventory.predictedAmount;
+          inventory = inventory.copyWith(amount: inventory.predictedAmount);
         }
 
         // Note that if the last update was less than a day ago, we'll
         // just use the last amount by default, because this is probably accurate.
       }
 
-      inventory.amount += 1;
+      inventory = inventory.copyWith(
+        lastUpdate: now,
+        amount: inventory.amount + 1,
+      );
       inventory.history.add(now.millisecondsSinceEpoch, inventory.amount, 2);
-      inventory.lastUpdate = now;
 
       repo.inv.put(inventory);
     }

@@ -26,7 +26,6 @@ class HiveInventory extends HiveObject {
   late String upc;
   @HiveField(8)
   late String uid;
-
   HiveInventory();
   HiveInventory.from(Inventory original) {
     amount = original.amount;
@@ -40,15 +39,15 @@ class HiveInventory extends HiveObject {
     uid = original.uid;
   }
   Inventory toInventory() {
-    return Inventory()
-      ..amount = amount
-      ..unitCount = unitCount
-      ..lastUpdate = lastUpdate
-      ..expirationDates = expirationDates
-      ..locations = locations
-      ..history = history
-      ..restock = restock
-      ..upc = upc
-      ..uid = uid;
+    return Inventory(
+        amount: amount,
+        unitCount: unitCount,
+        lastUpdate: lastUpdate,
+        expirationDates: expirationDates,
+        locations: locations,
+        history: history,
+        restock: restock,
+        upc: upc,
+        uid: uid);
   }
 }

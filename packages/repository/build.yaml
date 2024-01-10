@@ -12,5 +12,5 @@ targets:
       repository|merge_generator:
         enabled: true
         generate_for:
-          - lib/model/inventory.dart
+          # - lib/model/inventory.dart
           - lib/model/item.dart

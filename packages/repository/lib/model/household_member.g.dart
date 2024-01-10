@@ -11,23 +11,27 @@ HouseholdMember _$HouseholdMemberFromJson(Map<String, dynamic> json) =>
       email: json['email'] as String? ?? '',
       householdId: json['householdId'] as String? ?? '',
       name: json['name'] as String? ?? '',
-      created: json['created'] == null
-          ? null
-          : DateTime.parse(json['created'] as String),
-      updated: json['updated'] == null
-          ? null
-          : DateTime.parse(json['updated'] as String),
+      created: _$JsonConverterFromJson<int, DateTime?>(
+          json['created'], const NullableDateTimeSerializer().fromJson),
+      updated: _$JsonConverterFromJson<int, DateTime?>(
+          json['updated'], const NullableDateTimeSerializer().fromJson),
       userId: json['userId'] as String? ?? '',
       isAdmin: json['isAdmin'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$HouseholdMemberToJson(HouseholdMember instance) =>
     <String, dynamic>{
-      'created': instance.created?.toIso8601String(),
-      'updated': instance.updated?.toIso8601String(),
+      'created': const NullableDateTimeSerializer().toJson(instance.created),
+      'updated': const NullableDateTimeSerializer().toJson(instance.updated),
       'isAdmin': instance.isAdmin,
       'email': instance.email,
       'householdId': instance.householdId,
       'name': instance.name,
       'userId': instance.userId,
     };
+
+Value? _$JsonConverterFromJson<Json, Value>(
+  Object? json,
+  Value? Function(Json json) fromJson,
+) =>
+    json == null ? null : fromJson(json as Json);

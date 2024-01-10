@@ -1,12 +1,13 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:meta/meta.dart';
+import 'package:repository/model/abstract/model.dart';
 import 'package:repository/model/serializer_datetime.dart';
 
 part 'identifier.g.dart';
 
 @JsonSerializable(explicitToJson: true)
 @immutable
-class ItemIdentifier {
+class ItemIdentifier extends Model<ItemIdentifier> {
   @JsonKey(defaultValue: '')
   final String type; // The type of identifier, e.g. UPC, EAN, ISBN, ASIN, etc.
 
@@ -16,27 +17,18 @@ class ItemIdentifier {
   @JsonKey(defaultValue: '')
   final String uid; // The global uid of the item that this identifier maps to
 
-  @NullableDateTimeSerializer()
-  final DateTime? created;
-
-  @NullableDateTimeSerializer()
-  final DateTime? updated;
-
   ItemIdentifier({
     this.type = '',
     this.value = '',
     this.uid = '',
-    DateTime? created,
-    DateTime? updated,
-  })  :
-        // Initialize 'created' and 'updated' date-times.
-        // If 'created' is not provided, it defaults to the value of 'updated' if that was provided,
-        // otherwise to the current time. If 'updated' is not provided, it defaults to the value of 'created',
-        // ensuring both fields are synchronized and non-null. If both are provided, their values are retained.
-        created = created ?? _defaultDateTime(updated),
-        updated = updated ?? _defaultDateTime(created);
+    super.created,
+    super.updated,
+  });
 
   factory ItemIdentifier.fromJson(Map<String, dynamic> json) => _$ItemIdentifierFromJson(json);
+
+  @override
+  String get id => '$type:$value';
 
   ItemIdentifier copyWith({
     String? type,
@@ -54,15 +46,12 @@ class ItemIdentifier {
     );
   }
 
-  Map<String, dynamic> toJson() => _$ItemIdentifierToJson(this);
+  @override
+  bool equalTo(ItemIdentifier other) {
+    return type == other.type && value == other.value && uid == other.uid;
+  }
 
-  /// This method is a helper method to ensure that
-  /// created and updated can be initialized to equivalent values if
-  /// one or both are null.
-  static DateTime _defaultDateTime(DateTime? dateTime) => dateTime ?? DateTime.now();
-}
-
-extension ItemIdentifierMerge on ItemIdentifier {
+  @override
   ItemIdentifier merge(ItemIdentifier other) {
     // Determine the older 'created' date, considering null values.
     DateTime? olderCreatedDate;
@@ -90,4 +79,7 @@ extension ItemIdentifierMerge on ItemIdentifier {
       updated: newerUpdatedDate,
     );
   }
+
+  @override
+  Map<String, dynamic> toJson() => _$ItemIdentifierToJson(this);
 }

@@ -27,11 +27,11 @@ abstract class HistoryDatabase {
   Map<String, Inventory> join(Map<String, Inventory> inventoryMap) {
     final allHistory = map();
 
-    for (final inventory in inventoryMap.values) {
+    for (var inventory in inventoryMap.values) {
       if (inventory.upc.isNotEmpty && allHistory.containsKey(inventory.upc)) {
         final history = allHistory[inventory.upc]!;
         assert(history.upc.isNotEmpty && history.upc == inventory.upc);
-        inventory.history = history;
+        inventory = inventory.copyWith(history: history);
       }
     }
     return inventoryMap;
@@ -40,11 +40,11 @@ abstract class HistoryDatabase {
   List<Inventory> joinList(List<Inventory> inventoryList) {
     final allHistory = map();
 
-    for (final inventory in inventoryList) {
+    for (var inventory in inventoryList) {
       if (inventory.upc.isNotEmpty && allHistory.containsKey(inventory.upc)) {
         final history = allHistory[inventory.upc]!;
         assert(history.upc.isNotEmpty && history.upc == inventory.upc);
-        inventory.history = history;
+        inventory = inventory.copyWith(history: history);
       }
     }
 

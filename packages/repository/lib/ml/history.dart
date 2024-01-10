@@ -288,9 +288,9 @@ class History {
     return this;
   }
 
-  History copy() {
+  History copy({String newUpc = ''}) {
     return History()
-      ..upc = upc
+      ..upc = newUpc.isNotEmpty ? newUpc : upc
       ..series = series.map((s) => s.copy()).toList()
       ..evaluator = evaluator;
   }

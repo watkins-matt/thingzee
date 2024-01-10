@@ -69,15 +69,15 @@ class ObjectBoxInventory {
   }
 
   Inventory toInventory() {
-    return Inventory()
-      ..amount = amount
-      ..unitCount = unitCount
-      ..lastUpdate = lastUpdate
-      ..expirationDates = expirationDates
-      ..locations = locations
-      ..history = history
-      ..restock = restock
-      ..upc = upc
-      ..uid = uid;
+    return Inventory(
+        amount: amount,
+        unitCount: unitCount,
+        lastUpdate: lastUpdate,
+        expirationDates: expirationDates,
+        locations: locations,
+        history: history,
+        restock: restock,
+        upc: upc,
+        uid: uid);
   }
 }
