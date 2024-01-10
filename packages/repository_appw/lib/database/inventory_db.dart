@@ -27,15 +27,6 @@ class AppwriteInventoryDatabase extends InventoryDatabase
   Inventory deserialize(Map<String, dynamic> json) => Inventory.fromJson(json);
 
   @override
-  String getKey(Inventory inventory) => inventory.upc;
-
-  @override
-  DateTime? getUpdated(Inventory inventory) => inventory.lastUpdate;
-
-  @override
-  Inventory merge(Inventory existingItem, Inventory newItem) => existingItem.merge(newItem);
-
-  @override
   List<Inventory> outs() => values.where((inv) => inv.amount <= 0 && inv.restock).toList();
 
   @override

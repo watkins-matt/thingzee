@@ -27,9 +27,21 @@ class HiveHistoryDatabase extends HistoryDatabase {
   }
 
   @override
+  void deleteById(String id) {
+    box.delete(id);
+  }
+
+  @override
   History? get(String upc) {
     final existingHistory = box.get(upc);
     return existingHistory?.toHistory();
+  }
+
+  @override
+  List<History> getAll(List<String> ids) {
+    final all = box.values.toList();
+    final unmodifiableList = List<History>.unmodifiable(all);
+    return unmodifiableList;
   }
 
   @override

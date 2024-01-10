@@ -25,17 +25,4 @@ class AppwriteIdentifierDatabase extends IdentifierDatabase
 
   @override
   ItemIdentifier? deserialize(Map<String, dynamic> json) => ItemIdentifier.fromJson(json);
-
-  @override
-  String getKey(ItemIdentifier identifier) => '${identifier.type}-${identifier.value}}';
-
-  @override
-  DateTime? getUpdated(ItemIdentifier identifier) => identifier.updated;
-
-  @override
-  ItemIdentifier merge(ItemIdentifier existingItem, ItemIdentifier newItem) =>
-      existingItem.merge(newItem);
-
-  @override
-  Map<String, dynamic> serialize(ItemIdentifier identifier) => identifier.toJson();
 }

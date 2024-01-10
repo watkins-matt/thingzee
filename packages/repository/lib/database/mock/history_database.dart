@@ -14,7 +14,19 @@ class MockHistoryDatabase extends HistoryDatabase {
   void deleteAll() => _db.clear();
 
   @override
+  void deleteById(String id) {
+    _db.remove(id);
+  }
+
+  @override
   History? get(String upc) => _db[upc];
+
+  @override
+  List<History> getAll(List<String> ids) {
+    final all = _db.values.toList();
+    final unmodifiableList = List<History>.unmodifiable(all);
+    return unmodifiableList;
+  }
 
   @override
   Map<String, History> map() => Map.from(_db);

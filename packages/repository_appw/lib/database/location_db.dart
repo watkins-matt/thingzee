@@ -33,9 +33,6 @@ class AppwriteLocationDatabase extends LocationDatabase
   Location? deserialize(Map<String, dynamic> json) => Location.fromJson(json);
 
   @override
-  String getKey(Location location) => '${location.name}/${location.upc}';
-
-  @override
   List<String> getSubPaths(String location) {
     location = normalizeLocation(location);
     final Set<String> subpaths = {};
@@ -81,17 +78,11 @@ class AppwriteLocationDatabase extends LocationDatabase
   }
 
   @override
-  DateTime? getUpdated(Location location) => location.updated;
-
-  @override
   int itemCount(String location) => values.where((loc) => loc.name == location).length;
 
   @override
-  Location merge(Location existingItem, Location newItem) => existingItem.merge(newItem);
-
-  @override
   void remove(String location, String upc) {
-    final key = getKey(Location(upc: upc, name: location));
+    final key = Location(upc: upc, name: location).id;
     deleteById(key);
   }
 
@@ -108,7 +99,7 @@ class AppwriteLocationDatabase extends LocationDatabase
   void store(String location, String upc) {
     location = normalizeLocation(location);
     var data = Location(upc: upc, name: location);
-    final key = getKey(data);
+    final key = data.id;
 
     final existingLocation = get(key);
 

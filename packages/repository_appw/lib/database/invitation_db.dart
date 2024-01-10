@@ -56,15 +56,6 @@ class AppwriteInvitationDatabase extends InvitationDatabase
   Invitation? deserialize(Map<String, dynamic> json) => Invitation.fromJson(json);
 
   @override
-  String getKey(Invitation invitation) => invitation.id;
-
-  @override
-  DateTime? getUpdated(Invitation invitation) => invitation.updated;
-
-  @override
-  Invitation merge(Invitation existingItem, Invitation newItem) => existingItem.merge(newItem);
-
-  @override
   List<Invitation> pendingInvites() {
     return values.where((invitation) => invitation.status == InvitationStatus.pending).toList();
   }
@@ -93,7 +84,4 @@ class AppwriteInvitationDatabase extends InvitationDatabase
 
     return invitation;
   }
-
-  @override
-  Map<String, dynamic> serialize(Invitation invitation) => invitation.toJson();
 }
