@@ -17,11 +17,11 @@ class HiveItemIdentifierAdapter extends TypeAdapter<HiveItemIdentifier> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return HiveItemIdentifier()
-      ..type = fields[0] as String
-      ..value = fields[1] as String
-      ..uid = fields[2] as String
-      ..created = fields[3] as DateTime?
-      ..updated = fields[4] as DateTime?;
+      ..created = fields[0] as DateTime?
+      ..updated = fields[1] as DateTime?
+      ..type = fields[2] as String
+      ..value = fields[3] as String
+      ..uid = fields[4] as String;
   }
 
   @override
@@ -29,15 +29,15 @@ class HiveItemIdentifierAdapter extends TypeAdapter<HiveItemIdentifier> {
     writer
       ..writeByte(5)
       ..writeByte(0)
-      ..write(obj.type)
-      ..writeByte(1)
-      ..write(obj.value)
-      ..writeByte(2)
-      ..write(obj.uid)
-      ..writeByte(3)
       ..write(obj.created)
+      ..writeByte(1)
+      ..write(obj.updated)
+      ..writeByte(2)
+      ..write(obj.type)
+      ..writeByte(3)
+      ..write(obj.value)
       ..writeByte(4)
-      ..write(obj.updated);
+      ..write(obj.uid);
   }
 
   @override

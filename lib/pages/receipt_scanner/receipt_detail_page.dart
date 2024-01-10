@@ -209,7 +209,7 @@ class ReceiptDetailsPage extends ConsumerWidget {
   }
 
   void _insertNewItem(BuildContext context, WidgetRef ref, int index, {required bool before}) {
-    ReceiptItem newItem = const ReceiptItem(
+    ReceiptItem newItem = ReceiptItem(
       name: '',
       barcode: '',
       quantity: 1,
@@ -284,8 +284,10 @@ class ReceiptDetailsPage extends ConsumerWidget {
   }
 
   void _showInfoDialog(BuildContext context, Receipt receipt) {
+    final date = receipt.date ?? DateTime.now();
+
     // Format the date to a more readable form
-    String formattedDate = DateFormat('MMM dd, yyyy hh:mm a').format(receipt.date);
+    String formattedDate = DateFormat('MMM dd, yyyy hh:mm a').format(date);
 
     showDialog(
       context: context,

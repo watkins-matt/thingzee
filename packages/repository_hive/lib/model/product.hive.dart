@@ -1,5 +1,3 @@
-
-
 import 'package:hive/hive.dart';
 import 'package:repository/model/product.dart';
 
@@ -29,12 +27,13 @@ class HiveProduct extends HiveObject {
     upcs = original.upcs;
   }
   Product toProduct() {
-    return Product()
-      ..name = name
-      ..uid = uid
-      ..manufacturer = manufacturer
-      ..manufacturerUid = manufacturerUid
-      ..category = category
-      ..upcs = upcs;
+    return Product(
+      name: name,
+      uid: uid,
+      manufacturer: manufacturer,
+      manufacturerUid: manufacturerUid,
+      category: category,
+      upcs: upcs,
+    );
   }
 }

@@ -1,5 +1,3 @@
-
-
 import 'package:objectbox/objectbox.dart';
 import 'package:repository/model/manufacturer.dart';
 
@@ -21,11 +19,12 @@ class ObjectBoxManufacturer {
     parentUid = original.parentUid;
   }
   Manufacturer toManufacturer() {
-    return Manufacturer()
-      ..name = name
-      ..website = website
-      ..uid = uid
-      ..parentName = parentName
-      ..parentUid = parentUid;
+    return Manufacturer(
+      name: name,
+      website: website,
+      uid: uid,
+      parentName: parentName,
+      parentUid: parentUid,
+    );
   }
 }

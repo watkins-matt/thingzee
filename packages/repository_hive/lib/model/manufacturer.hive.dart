@@ -1,5 +1,3 @@
-
-
 import 'package:hive/hive.dart';
 import 'package:repository/model/manufacturer.dart';
 
@@ -17,20 +15,32 @@ class HiveManufacturer extends HiveObject {
   late String parentName;
   @HiveField(4)
   late String parentUid;
-  HiveManufacturer();
-  HiveManufacturer.from(Manufacturer original) {
-    name = original.name;
-    website = original.website;
-    uid = original.uid;
-    parentName = original.parentName;
-    parentUid = original.parentUid;
+
+  HiveManufacturer({
+    required this.name,
+    required this.website,
+    required this.uid,
+    required this.parentName,
+    required this.parentUid,
+  });
+
+  factory HiveManufacturer.from(Manufacturer original) {
+    return HiveManufacturer(
+      name: original.name,
+      website: original.website,
+      uid: original.uid,
+      parentName: original.parentName,
+      parentUid: original.parentUid,
+    );
   }
+
   Manufacturer toManufacturer() {
-    return Manufacturer()
-      ..name = name
-      ..website = website
-      ..uid = uid
-      ..parentName = parentName
-      ..parentUid = parentUid;
+    return Manufacturer(
+      name: name,
+      website: website,
+      uid: uid,
+      parentName: parentName,
+      parentUid: parentUid,
+    );
   }
 }

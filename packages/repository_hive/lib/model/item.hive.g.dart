@@ -17,53 +17,53 @@ class HiveItemAdapter extends TypeAdapter<HiveItem> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return HiveItem()
-      ..upc = fields[0] as String
-      ..id = fields[1] as String
-      ..name = fields[2] as String
-      ..variety = fields[3] as String
-      ..category = fields[4] as String
-      ..type = fields[5] as String
-      ..typeId = fields[6] as String
-      ..unitCount = fields[7] as int
-      ..unitName = fields[8] as String
-      ..unitPlural = fields[9] as String
-      ..imageUrl = fields[10] as String
-      ..consumable = fields[11] as bool
-      ..languageCode = fields[12] as String
-      ..lastUpdate = fields[13] as DateTime?;
+      ..upc = fields[4] as String
+      ..id = fields[5] as String
+      ..name = fields[6] as String
+      ..variety = fields[7] as String
+      ..category = fields[8] as String
+      ..type = fields[9] as String
+      ..typeId = fields[10] as String
+      ..unitCount = fields[11] as int
+      ..unitName = fields[12] as String
+      ..unitPlural = fields[13] as String
+      ..imageUrl = fields[14] as String
+      ..consumable = fields[15] as bool
+      ..languageCode = fields[16] as String
+      ..lastUpdate = fields[17] as DateTime?;
   }
 
   @override
   void write(BinaryWriter writer, HiveItem obj) {
     writer
       ..writeByte(14)
-      ..writeByte(0)
-      ..write(obj.upc)
-      ..writeByte(1)
-      ..write(obj.id)
-      ..writeByte(2)
-      ..write(obj.name)
-      ..writeByte(3)
-      ..write(obj.variety)
       ..writeByte(4)
-      ..write(obj.category)
+      ..write(obj.upc)
       ..writeByte(5)
-      ..write(obj.type)
+      ..write(obj.id)
       ..writeByte(6)
-      ..write(obj.typeId)
+      ..write(obj.name)
       ..writeByte(7)
-      ..write(obj.unitCount)
+      ..write(obj.variety)
       ..writeByte(8)
-      ..write(obj.unitName)
+      ..write(obj.category)
       ..writeByte(9)
-      ..write(obj.unitPlural)
+      ..write(obj.type)
       ..writeByte(10)
-      ..write(obj.imageUrl)
+      ..write(obj.typeId)
       ..writeByte(11)
-      ..write(obj.consumable)
+      ..write(obj.unitCount)
       ..writeByte(12)
-      ..write(obj.languageCode)
+      ..write(obj.unitName)
       ..writeByte(13)
+      ..write(obj.unitPlural)
+      ..writeByte(14)
+      ..write(obj.imageUrl)
+      ..writeByte(15)
+      ..write(obj.consumable)
+      ..writeByte(16)
+      ..write(obj.languageCode)
+      ..writeByte(17)
       ..write(obj.lastUpdate);
   }
 
