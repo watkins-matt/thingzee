@@ -8,7 +8,7 @@ part of 'expiration_date.hive.dart';
 
 class HiveExpirationDateAdapter extends TypeAdapter<HiveExpirationDate> {
   @override
-  final int typeId = 7;
+  final int typeId = 0;
 
   @override
   HiveExpirationDate read(BinaryReader reader) {
@@ -17,21 +17,24 @@ class HiveExpirationDateAdapter extends TypeAdapter<HiveExpirationDate> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return HiveExpirationDate()
-      ..upc = fields[0] as String
-      ..date = fields[1] as DateTime?
-      ..created = fields[2] as DateTime?;
+      ..created = fields[0] as DateTime?
+      ..updated = fields[1] as DateTime?
+      ..upc = fields[2] as String
+      ..expirationDate = fields[3] as DateTime?;
   }
 
   @override
   void write(BinaryWriter writer, HiveExpirationDate obj) {
     writer
-      ..writeByte(3)
+      ..writeByte(4)
       ..writeByte(0)
-      ..write(obj.upc)
+      ..write(obj.created)
       ..writeByte(1)
-      ..write(obj.date)
+      ..write(obj.updated)
       ..writeByte(2)
-      ..write(obj.created);
+      ..write(obj.upc)
+      ..writeByte(3)
+      ..write(obj.expirationDate);
   }
 
   @override

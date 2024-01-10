@@ -53,7 +53,7 @@ class AppwriteHouseholdDatabase extends HouseholdDatabase
   String getKey(HouseholdMember member) => member.userId;
 
   @override
-  DateTime? getUpdated(HouseholdMember member) => member.timestamp;
+  DateTime? getUpdated(HouseholdMember member) => member.updated;
 
   @override
   void leave() {

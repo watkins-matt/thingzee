@@ -17,6 +17,7 @@ class ObjectBoxInventory {
   @Unique(onConflict: ConflictStrategy.replace)
   late String _upc;
   late String uid;
+
   @Id()
   int objectBoxId = 0;
   ObjectBoxInventory();
@@ -31,19 +32,6 @@ class ObjectBoxInventory {
     upc = original.upc;
     uid = original.uid;
   }
-  Inventory toInventory() {
-    return Inventory()
-      ..amount = amount
-      ..unitCount = unitCount
-      ..lastUpdate = lastUpdate
-      ..expirationDates = expirationDates
-      ..locations = locations
-      ..history = history
-      ..restock = restock
-      ..upc = upc
-      ..uid = uid;
-  }
-
   List<String> get dbExpirationDates {
     List<String> dates = [];
     for (final exp in expirationDates) {
@@ -78,5 +66,18 @@ class ObjectBoxInventory {
   set upc(String value) {
     _upc = value;
     history.upc = value;
+  }
+
+  Inventory toInventory() {
+    return Inventory()
+      ..amount = amount
+      ..unitCount = unitCount
+      ..lastUpdate = lastUpdate
+      ..expirationDates = expirationDates
+      ..locations = locations
+      ..history = history
+      ..restock = restock
+      ..upc = upc
+      ..uid = uid;
   }
 }

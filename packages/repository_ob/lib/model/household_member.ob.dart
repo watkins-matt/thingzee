@@ -5,8 +5,9 @@ import 'package:repository/model/household_member.dart';
 
 @Entity()
 class ObjectBoxHouseholdMember {
+  late DateTime? created;
+  late DateTime? updated;
   late bool isAdmin;
-  late DateTime timestamp;
   late String email;
   late String householdId;
   late String name;
@@ -15,8 +16,9 @@ class ObjectBoxHouseholdMember {
   int objectBoxId = 0;
   ObjectBoxHouseholdMember();
   ObjectBoxHouseholdMember.from(HouseholdMember original) {
+    created = original.created;
+    updated = original.updated;
     isAdmin = original.isAdmin;
-    timestamp = original.timestamp;
     email = original.email;
     householdId = original.householdId;
     name = original.name;
@@ -24,8 +26,9 @@ class ObjectBoxHouseholdMember {
   }
   HouseholdMember toHouseholdMember() {
     return HouseholdMember(
+        created: created,
+        updated: updated,
         isAdmin: isAdmin,
-        timestamp: timestamp,
         email: email,
         householdId: householdId,
         name: name,

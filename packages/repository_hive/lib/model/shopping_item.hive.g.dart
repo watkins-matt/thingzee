@@ -1,46 +1,37 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'product.hive.dart';
+part of 'shopping_item.hive.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator
 // **************************************************************************
 
-class HiveProductAdapter extends TypeAdapter<HiveProduct> {
+class HiveShoppingItemAdapter extends TypeAdapter<HiveShoppingItem> {
   @override
   final int typeId = 0;
 
   @override
-  HiveProduct read(BinaryReader reader) {
+  HiveShoppingItem read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return HiveProduct()
-      ..name = fields[0] as String
-      ..uid = fields[1] as String
-      ..manufacturer = fields[2] as String
-      ..manufacturerUid = fields[3] as String
-      ..category = fields[4] as String
-      ..upcs = (fields[5] as List).cast<String>();
+    return HiveShoppingItem()
+      ..upc = fields[0] as String
+      ..checked = fields[1] as bool
+      ..listType = fields[2] as ShoppingListType;
   }
 
   @override
-  void write(BinaryWriter writer, HiveProduct obj) {
+  void write(BinaryWriter writer, HiveShoppingItem obj) {
     writer
-      ..writeByte(6)
-      ..writeByte(0)
-      ..write(obj.name)
-      ..writeByte(1)
-      ..write(obj.uid)
-      ..writeByte(2)
-      ..write(obj.manufacturer)
       ..writeByte(3)
-      ..write(obj.manufacturerUid)
-      ..writeByte(4)
-      ..write(obj.category)
-      ..writeByte(5)
-      ..write(obj.upcs);
+      ..writeByte(0)
+      ..write(obj.upc)
+      ..writeByte(1)
+      ..write(obj.checked)
+      ..writeByte(2)
+      ..write(obj.listType);
   }
 
   @override
@@ -49,7 +40,7 @@ class HiveProductAdapter extends TypeAdapter<HiveProduct> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is HiveProductAdapter &&
+      other is HiveShoppingItemAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

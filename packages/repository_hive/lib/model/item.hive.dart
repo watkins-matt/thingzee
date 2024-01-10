@@ -5,7 +5,7 @@ import 'package:repository/model/item.dart';
 
 part 'item.hive.g.dart';
 
-@HiveType(typeId: 1)
+@HiveType(typeId: 0)
 class HiveItem extends HiveObject {
   @HiveField(0)
   late String upc;
@@ -71,7 +71,7 @@ class HiveItem extends HiveObject {
   }
 }
 
-@HiveType(typeId: 2)
+@HiveType(typeId: 0)
 class HiveItemTranslation extends HiveObject {
   @HiveField(0)
   late String upc;

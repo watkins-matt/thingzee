@@ -1,11 +1,11 @@
-import 'dart:core';
+
 
 import 'package:hive/hive.dart';
 import 'package:repository/model/product.dart';
 
 part 'product.hive.g.dart';
 
-@HiveType(typeId: 4)
+@HiveType(typeId: 0)
 class HiveProduct extends HiveObject {
   @HiveField(0)
   late String name;

@@ -8,7 +8,7 @@ part of 'item.hive.dart';
 
 class HiveItemAdapter extends TypeAdapter<HiveItem> {
   @override
-  final int typeId = 1;
+  final int typeId = 0;
 
   @override
   HiveItem read(BinaryReader reader) {
@@ -80,7 +80,7 @@ class HiveItemAdapter extends TypeAdapter<HiveItem> {
 
 class HiveItemTranslationAdapter extends TypeAdapter<HiveItemTranslation> {
   @override
-  final int typeId = 2;
+  final int typeId = 0;
 
   @override
   HiveItemTranslation read(BinaryReader reader) {
