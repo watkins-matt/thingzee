@@ -1,14 +1,9 @@
-// ignore_for_file: annotate_overrides
-
+import 'package:repository/database/database.dart';
 import 'package:repository/ml/history.dart';
 import 'package:repository/model/inventory.dart';
 
-abstract class HistoryDatabase {
-  List<History> all();
-  void delete(History history);
-  void deleteAll();
-  History? get(String upc);
-
+abstract class HistoryDatabase implements Database<History> {
+  @override
   List<History> getChanges(DateTime since) {
     final allHistory = all();
     List<History> changes = [];
@@ -51,6 +46,7 @@ abstract class HistoryDatabase {
     return inventoryList;
   }
 
+  @override
   Map<String, History> map();
 
   Set<String> predictedOuts({int days = 12}) {
@@ -71,5 +67,6 @@ abstract class HistoryDatabase {
     return predictedOuts;
   }
 
+  @override
   void put(History history);
 }
