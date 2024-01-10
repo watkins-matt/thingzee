@@ -8,29 +8,29 @@ part 'identifier.hive.g.dart';
 @HiveType(typeId: 0)
 class HiveItemIdentifier extends HiveObject {
   @HiveField(0)
-  late String type;
-  @HiveField(1)
-  late String value;
-  @HiveField(2)
-  late String uid;
-  @HiveField(3)
   late DateTime? created;
-  @HiveField(4)
+  @HiveField(1)
   late DateTime? updated;
+  @HiveField(2)
+  late String type;
+  @HiveField(3)
+  late String value;
+  @HiveField(4)
+  late String uid;
   HiveItemIdentifier();
   HiveItemIdentifier.from(ItemIdentifier original) {
+    created = original.created;
+    updated = original.updated;
     type = original.type;
     value = original.value;
     uid = original.uid;
-    created = original.created;
-    updated = original.updated;
   }
   ItemIdentifier toItemIdentifier() {
     return ItemIdentifier(
+        created: created,
+        updated: updated,
         type: type,
         value: value,
-        uid: uid,
-        created: created,
-        updated: updated);
+        uid: uid);
   }
 }

@@ -25,8 +25,8 @@ class EditableItem extends StateNotifier<EditableItemState> {
   double get amount => state.inventory.amount;
 
   set amount(double amount) {
-    final inv = state.inventory;
-    inv.amount = amount;
+    var inv = state.inventory;
+    inv = inv.copyWith(amount: amount);
 
     state.changedFields.add('amount');
     state = EditableItemState(state.item, inv, state.changedFields);
@@ -87,8 +87,8 @@ class EditableItem extends StateNotifier<EditableItemState> {
 
   int get unitCount => state.inventory.unitCount;
   set unitCount(int value) {
-    final inv = state.inventory;
-    inv.unitCount = value;
+    var inv = state.inventory;
+    inv = inv.copyWith(unitCount: value);
 
     final item = state.item;
     item.unitCount = value;
@@ -103,8 +103,8 @@ class EditableItem extends StateNotifier<EditableItemState> {
     final item = state.item;
     item.upc = upc;
 
-    final inv = state.inventory;
-    inv.upc = upc;
+    var inv = state.inventory;
+    inv = inv.copyWith(upc: upc);
 
     final history = state.inventory.history;
     history.upc = upc;
@@ -132,8 +132,9 @@ class EditableItem extends StateNotifier<EditableItemState> {
   }
 
   void cleanUpHistory(Repository repo) {
-    final inv = state.inventory;
-    inv.history = inv.history.clean(warn: true);
+    var inv = state.inventory;
+    final cleanHistory = inv.history.clean(warn: true);
+    inv = inv.copyWith(history: cleanHistory);
 
     // Save the inventory. Note that we use a joined db
     // here so saving the inventory also saves the history
@@ -148,13 +149,14 @@ class EditableItem extends StateNotifier<EditableItemState> {
   }
 
   void copyFromInventory(Inventory inv) {
-    Inventory copiedInv = Inventory();
-    copiedInv.amount = inv.amount;
-    copiedInv.upc = inv.upc;
-    copiedInv.unitCount = inv.unitCount;
-    copiedInv.history = inv.history.copy();
-    copiedInv.lastUpdate = inv.lastUpdate;
-    copiedInv.locations = inv.locations;
+    Inventory copiedInv = Inventory(
+      amount: inv.amount,
+      upc: inv.upc,
+      unitCount: inv.unitCount,
+      history: inv.history,
+      lastUpdate: inv.lastUpdate,
+      locations: inv.locations,
+    );
 
     // Make sure the upc is copied to the item
     if (state.item.upc != copiedInv.upc) {
@@ -181,7 +183,7 @@ class EditableItem extends StateNotifier<EditableItemState> {
 
     // Make sure the upc is copied to the inventory
     if (state.inventory.upc != copiedItem.upc) {
-      state.inventory.upc = copiedItem.upc;
+      state.inventory = state.inventory.copyWith(upc: copiedItem.upc);
     }
 
     if (state.inventory.history.upc != copiedItem.upc) {
@@ -220,8 +222,8 @@ class EditableItem extends StateNotifier<EditableItemState> {
       state.inventory.history.add(saveTimestamp.millisecondsSinceEpoch, state.inventory.amount, 2);
     }
 
-    // Make sure we update the last updated time
-    state.inventory.lastUpdate = saveTimestamp;
+    // Make sure we update the last updated timestamp
+    state.inventory = state.inventory.copyWith(lastUpdate: saveTimestamp);
 
     assert(state.inventory.upc == state.item.upc);
     assert(state.inventory.history.upc == state.item.upc);

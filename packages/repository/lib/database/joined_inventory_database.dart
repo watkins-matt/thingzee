@@ -30,12 +30,12 @@ class JoinedInventoryDatabase extends InventoryDatabase {
 
   @override
   Inventory? get(String upc) {
-    final inventory = inventoryDatabase.get(upc);
+    var inventory = inventoryDatabase.get(upc);
 
     if (inventory != null) {
       final defaultHistory = History()..upc = upc;
       final history = historyDatabase.get(upc);
-      inventory.history = history ?? defaultHistory;
+      inventory = inventory.copyWith(history: history ?? defaultHistory);
     }
 
     return inventory;

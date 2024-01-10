@@ -5,27 +5,27 @@ import 'package:repository/model/identifier.dart';
 
 @Entity()
 class ObjectBoxItemIdentifier {
+  late DateTime? created;
+  late DateTime? updated;
   late String type;
   late String value;
   late String uid;
-  late DateTime? created;
-  late DateTime? updated;
   @Id()
   int objectBoxId = 0;
   ObjectBoxItemIdentifier();
   ObjectBoxItemIdentifier.from(ItemIdentifier original) {
+    created = original.created;
+    updated = original.updated;
     type = original.type;
     value = original.value;
     uid = original.uid;
-    created = original.created;
-    updated = original.updated;
   }
   ItemIdentifier toItemIdentifier() {
     return ItemIdentifier(
+        created: created,
+        updated: updated,
         type: type,
         value: value,
-        uid: uid,
-        created: created,
-        updated: updated);
+        uid: uid);
   }
 }

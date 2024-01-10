@@ -49,11 +49,13 @@ class InventoryCsvRow {
   }
 
   Inventory toInventory() {
-    return Inventory.withUPC(upc)
-      ..amount = amount
-      ..lastUpdate = lastUpdate
-      ..restock = restock
-      ..unitCount = unitCount;
+    return Inventory().copyWith(
+      upc: upc,
+      amount: amount,
+      lastUpdate: lastUpdate,
+      restock: restock,
+      unitCount: unitCount,
+    );
   }
 
   Item toItem() {

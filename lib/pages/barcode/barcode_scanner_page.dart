@@ -86,11 +86,12 @@ class _BarcodeScannerPageState extends ConsumerState<BarcodeScannerPage> {
     Item item = repo.items.get(barcode) ?? defaultItem;
 
     final defaultHistory = History()..upc = barcode;
-    final defaultInventory = Inventory()
-      ..upc = barcode
-      ..amount = 1
-      ..history = defaultHistory
-      ..lastUpdate = DateTime.now();
+    final defaultInventory = Inventory(
+      upc: barcode,
+      amount: 1,
+      history: defaultHistory,
+      lastUpdate: DateTime.now(),
+    );
     final inv = repo.inv.get(barcode) ?? defaultInventory;
 
     final itemProv = ref.watch(editableItemProvider.notifier);

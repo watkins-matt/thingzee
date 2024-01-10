@@ -19,11 +19,11 @@ ItemIdentifier _$ItemIdentifierFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$ItemIdentifierToJson(ItemIdentifier instance) =>
     <String, dynamic>{
+      'created': const NullableDateTimeSerializer().toJson(instance.created),
+      'updated': const NullableDateTimeSerializer().toJson(instance.updated),
       'type': instance.type,
       'value': instance.value,
       'uid': instance.uid,
-      'created': const NullableDateTimeSerializer().toJson(instance.created),
-      'updated': const NullableDateTimeSerializer().toJson(instance.updated),
     };
 
 Value? _$JsonConverterFromJson<Json, Value>(
