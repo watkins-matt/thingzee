@@ -1,32 +1,35 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'manufacturer.dart';
+part of 'product.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-Manufacturer _$ManufacturerFromJson(Map<String, dynamic> json) => Manufacturer(
+Product _$ProductFromJson(Map<String, dynamic> json) => Product(
       name: json['name'] as String? ?? '',
-      website: json['website'] as String? ?? '',
       uid: json['uid'] as String? ?? '',
-      parentName: json['parentName'] as String? ?? '',
-      parentUid: json['parentUid'] as String? ?? '',
+      manufacturer: json['manufacturer'] as String? ?? '',
+      manufacturerUid: json['manufacturerUid'] as String? ?? '',
+      category: json['category'] as String? ?? '',
+      upcs:
+          (json['upcs'] as List<dynamic>?)?.map((e) => e as String).toList() ??
+              [],
       created: _$JsonConverterFromJson<int, DateTime?>(
           json['created'], const NullableDateTimeSerializer().fromJson),
       updated: _$JsonConverterFromJson<int, DateTime?>(
           json['updated'], const NullableDateTimeSerializer().fromJson),
     );
 
-Map<String, dynamic> _$ManufacturerToJson(Manufacturer instance) =>
-    <String, dynamic>{
+Map<String, dynamic> _$ProductToJson(Product instance) => <String, dynamic>{
       'created': const NullableDateTimeSerializer().toJson(instance.created),
       'updated': const NullableDateTimeSerializer().toJson(instance.updated),
       'name': instance.name,
-      'website': instance.website,
       'uid': instance.uid,
-      'parentName': instance.parentName,
-      'parentUid': instance.parentUid,
+      'manufacturer': instance.manufacturer,
+      'manufacturerUid': instance.manufacturerUid,
+      'category': instance.category,
+      'upcs': instance.upcs,
     };
 
 Value? _$JsonConverterFromJson<Json, Value>(

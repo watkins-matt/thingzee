@@ -17,11 +17,11 @@ Location _$LocationFromJson(Map<String, dynamic> json) => Location(
     );
 
 Map<String, dynamic> _$LocationToJson(Location instance) => <String, dynamic>{
+      'created': const NullableDateTimeSerializer().toJson(instance.created),
+      'updated': const NullableDateTimeSerializer().toJson(instance.updated),
       'upc': instance.upc,
       'name': instance.name,
       'quantity': instance.quantity,
-      'created': const NullableDateTimeSerializer().toJson(instance.created),
-      'updated': const NullableDateTimeSerializer().toJson(instance.updated),
     };
 
 Value? _$JsonConverterFromJson<Json, Value>(

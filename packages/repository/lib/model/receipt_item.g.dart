@@ -1,32 +1,36 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'manufacturer.dart';
+part of 'receipt_item.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-Manufacturer _$ManufacturerFromJson(Map<String, dynamic> json) => Manufacturer(
+ReceiptItem _$ReceiptItemFromJson(Map<String, dynamic> json) => ReceiptItem(
       name: json['name'] as String? ?? '',
-      website: json['website'] as String? ?? '',
-      uid: json['uid'] as String? ?? '',
-      parentName: json['parentName'] as String? ?? '',
-      parentUid: json['parentUid'] as String? ?? '',
+      price: (json['price'] as num?)?.toDouble() ?? 0.0,
+      quantity: json['quantity'] as int? ?? 1,
+      regularPrice: (json['regularPrice'] as num?)?.toDouble() ?? 0.0,
+      barcode: json['barcode'] as String? ?? '',
+      taxable: json['taxable'] as bool? ?? true,
+      bottleDeposit: (json['bottleDeposit'] as num?)?.toDouble() ?? 0.0,
       created: _$JsonConverterFromJson<int, DateTime?>(
           json['created'], const NullableDateTimeSerializer().fromJson),
       updated: _$JsonConverterFromJson<int, DateTime?>(
           json['updated'], const NullableDateTimeSerializer().fromJson),
     );
 
-Map<String, dynamic> _$ManufacturerToJson(Manufacturer instance) =>
+Map<String, dynamic> _$ReceiptItemToJson(ReceiptItem instance) =>
     <String, dynamic>{
       'created': const NullableDateTimeSerializer().toJson(instance.created),
       'updated': const NullableDateTimeSerializer().toJson(instance.updated),
       'name': instance.name,
-      'website': instance.website,
-      'uid': instance.uid,
-      'parentName': instance.parentName,
-      'parentUid': instance.parentUid,
+      'price': instance.price,
+      'regularPrice': instance.regularPrice,
+      'quantity': instance.quantity,
+      'barcode': instance.barcode,
+      'taxable': instance.taxable,
+      'bottleDeposit': instance.bottleDeposit,
     };
 
 Value? _$JsonConverterFromJson<Json, Value>(

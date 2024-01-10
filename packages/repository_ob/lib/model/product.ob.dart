@@ -1,5 +1,3 @@
-
-
 import 'package:objectbox/objectbox.dart';
 import 'package:repository/model/product.dart';
 
@@ -23,12 +21,13 @@ class ObjectBoxProduct {
     upcs = original.upcs;
   }
   Product toProduct() {
-    return Product()
-      ..name = name
-      ..uid = uid
-      ..manufacturer = manufacturer
-      ..manufacturerUid = manufacturerUid
-      ..category = category
-      ..upcs = upcs;
+    return Product(
+      name: name,
+      uid: uid,
+      manufacturer: manufacturer,
+      manufacturerUid: manufacturerUid,
+      category: category,
+      upcs: upcs,
+    );
   }
 }

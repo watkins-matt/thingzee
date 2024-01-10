@@ -1,5 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:meta/meta.dart';
+import 'package:repository/model/abstract/model.dart';
 import 'package:repository/model/serializer_datetime.dart';
 
 part 'location.g.dart';
@@ -73,7 +74,7 @@ String prettyPrintPath(String path) {
 
 @JsonSerializable(explicitToJson: true)
 @immutable
-class Location {
+class Location extends Model<Location> {
   @JsonKey(defaultValue: '')
   final String upc;
 
@@ -83,27 +84,18 @@ class Location {
   @JsonKey(defaultValue: 0.0)
   final double? quantity;
 
-  @NullableDateTimeSerializer()
-  final DateTime? created;
-
-  @NullableDateTimeSerializer()
-  final DateTime? updated;
-
   Location({
     required this.upc,
     required this.name,
     this.quantity,
-    DateTime? created,
-    DateTime? updated,
-  })  :
-        // Initialize 'created' and 'updated' date-times.
-        // If 'created' is not provided, it defaults to the value of 'updated' if that was provided,
-        // otherwise to the current time. If 'updated' is not provided, it defaults to the value of 'created',
-        // ensuring both fields are synchronized and non-null. If both are provided, their values are retained.
-        created = created ?? _defaultDateTime(updated),
-        updated = updated ?? _defaultDateTime(created);
+    super.created,
+    super.updated,
+  });
 
   factory Location.fromJson(Map<String, dynamic> json) => _$LocationFromJson(json);
+
+  @override
+  String get id => upc;
 
   Location copyWith({
     String? upc,
@@ -121,43 +113,32 @@ class Location {
     );
   }
 
+  @override
   bool equalTo(Location other) {
-    return upc == other.upc &&
-        name == other.name &&
-        quantity == other.quantity &&
-        created?.millisecondsSinceEpoch == other.created?.millisecondsSinceEpoch &&
-        updated?.millisecondsSinceEpoch == other.updated?.millisecondsSinceEpoch;
+    return upc == other.upc && name == other.name && quantity == other.quantity;
   }
 
+  @override
   Location merge(Location other) {
-    final firstUpdate = updated ?? DateTime.fromMillisecondsSinceEpoch(0);
-    final secondUpdate = other.updated ?? DateTime.fromMillisecondsSinceEpoch(0);
-    final newerLocation = secondUpdate.isAfter(firstUpdate) ? other : this;
-
-    // Determine the older 'created' date, considering null values.
-    DateTime? olderCreatedDate;
-    if (created == null) {
-      olderCreatedDate = newerLocation.created;
-    } else if (newerLocation.created == null) {
-      olderCreatedDate = created;
-    } else {
-      olderCreatedDate =
-          created!.isBefore(newerLocation.created!) ? created : newerLocation.created;
-    }
-
     return Location(
-      upc: newerLocation.upc.isNotEmpty ? newerLocation.upc : upc,
-      name: newerLocation.name.isNotEmpty ? newerLocation.name : name,
-      quantity: newerLocation.quantity ?? quantity,
-      created: olderCreatedDate, // Use the older 'created' date.
-      updated: newerLocation.updated ?? updated,
+      upc: other.upc.isNotEmpty ? other.upc : upc,
+      name: other.name.isNotEmpty ? other.name : name,
+      quantity: other.quantity ?? quantity,
+      created: _determineOlderCreatedDate(created, other.created),
+      updated: _determineNewerUpdatedDate(updated, other.updated),
     );
   }
 
+  @override
   Map<String, dynamic> toJson() => _$LocationToJson(this);
 
-  /// This method is a helper method to ensure that
-  /// created and updated can be initialized to equivalent values if
-  /// one or both are null.
-  static DateTime _defaultDateTime(DateTime? dateTime) => dateTime ?? DateTime.now();
+  static DateTime _determineNewerUpdatedDate(DateTime? date1, DateTime? date2) {
+    if (date1 == null) return date2 ?? DateTime.now();
+    if (date2 == null) return date1;
+    return date1.isAfter(date2) ? date1 : date2;
+  }
+
+  static DateTime _determineOlderCreatedDate(DateTime? date1, DateTime? date2) {
+    return date1 ?? date2 ?? DateTime.now();
+  }
 }

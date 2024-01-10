@@ -16,12 +16,13 @@ class HiveManufacturerAdapter extends TypeAdapter<HiveManufacturer> {
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return HiveManufacturer()
-      ..name = fields[0] as String
-      ..website = fields[1] as String
-      ..uid = fields[2] as String
-      ..parentName = fields[3] as String
-      ..parentUid = fields[4] as String;
+    return HiveManufacturer(
+      name: fields[0] as String,
+      website: fields[1] as String,
+      uid: fields[2] as String,
+      parentName: fields[3] as String,
+      parentUid: fields[4] as String,
+    );
   }
 
   @override
