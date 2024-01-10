@@ -81,18 +81,13 @@ final _entities = <ModelEntity>[
   ModelEntity(
       id: const IdUid(23, 5617203716368242690),
       name: 'ObjectBoxExpirationDate',
-      lastPropertyId: const IdUid(4, 5465059172932761958),
+      lastPropertyId: const IdUid(6, 5009941825621756222),
       flags: 0,
       properties: <ModelProperty>[
         ModelProperty(
             id: const IdUid(1, 6579026378944887639),
             name: 'upc',
             type: 9,
-            flags: 0),
-        ModelProperty(
-            id: const IdUid(2, 3965590369990621244),
-            name: 'date',
-            type: 10,
             flags: 0),
         ModelProperty(
             id: const IdUid(3, 831465275208694872),
@@ -103,25 +98,30 @@ final _entities = <ModelEntity>[
             id: const IdUid(4, 5465059172932761958),
             name: 'objectBoxId',
             type: 6,
-            flags: 1)
+            flags: 1),
+        ModelProperty(
+            id: const IdUid(5, 5181857221685227228),
+            name: 'updated',
+            type: 10,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(6, 5009941825621756222),
+            name: 'expirationDate',
+            type: 10,
+            flags: 0)
       ],
       relations: <ModelRelation>[],
       backlinks: <ModelBacklink>[]),
   ModelEntity(
       id: const IdUid(24, 3630768207355311219),
       name: 'ObjectBoxHouseholdMember',
-      lastPropertyId: const IdUid(7, 290023497277431132),
+      lastPropertyId: const IdUid(9, 1031915927988039123),
       flags: 0,
       properties: <ModelProperty>[
         ModelProperty(
             id: const IdUid(1, 3568069331178267087),
             name: 'isAdmin',
             type: 1,
-            flags: 0),
-        ModelProperty(
-            id: const IdUid(2, 7543468242257706711),
-            name: 'timestamp',
-            type: 10,
             flags: 0),
         ModelProperty(
             id: const IdUid(3, 4208617638673170285),
@@ -147,7 +147,17 @@ final _entities = <ModelEntity>[
             id: const IdUid(7, 290023497277431132),
             name: 'objectBoxId',
             type: 6,
-            flags: 1)
+            flags: 1),
+        ModelProperty(
+            id: const IdUid(8, 6834475930770929319),
+            name: 'created',
+            type: 10,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(9, 1031915927988039123),
+            name: 'updated',
+            type: 10,
+            flags: 0)
       ],
       relations: <ModelRelation>[],
       backlinks: <ModelBacklink>[]),
@@ -747,7 +757,9 @@ ModelDefinition getObjectBoxModel() {
         1058588288007546192,
         7608776388611083432,
         1213347897950107873,
-        596113066098669458
+        596113066098669458,
+        3965590369990621244,
+        7543468242257706711
       ],
       retiredRelationUids: const [],
       modelVersion: 5,
@@ -828,32 +840,38 @@ ModelDefinition getObjectBoxModel() {
         },
         objectToFB: (ObjectBoxExpirationDate object, fb.Builder fbb) {
           final upcOffset = fbb.writeString(object.upc);
-          fbb.startTable(5);
+          fbb.startTable(7);
           fbb.addOffset(0, upcOffset);
-          fbb.addInt64(1, object.date?.millisecondsSinceEpoch);
           fbb.addInt64(2, object.created?.millisecondsSinceEpoch);
           fbb.addInt64(3, object.objectBoxId);
+          fbb.addInt64(4, object.updated?.millisecondsSinceEpoch);
+          fbb.addInt64(5, object.expirationDate?.millisecondsSinceEpoch);
           fbb.finish(fbb.endTable());
           return object.objectBoxId;
         },
         objectFromFB: (Store store, ByteData fbData) {
           final buffer = fb.BufferContext(fbData);
           final rootOffset = buffer.derefObject(0);
-          final dateValue =
-              const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 6);
           final createdValue =
               const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 8);
+          final updatedValue =
+              const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 12);
+          final expirationDateValue =
+              const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 14);
           final object = ObjectBoxExpirationDate()
             ..upc = const fb.StringReader(asciiOptimization: true)
                 .vTableGet(buffer, rootOffset, 4, '')
-            ..date = dateValue == null
-                ? null
-                : DateTime.fromMillisecondsSinceEpoch(dateValue)
             ..created = createdValue == null
                 ? null
                 : DateTime.fromMillisecondsSinceEpoch(createdValue)
             ..objectBoxId =
-                const fb.Int64Reader().vTableGet(buffer, rootOffset, 10, 0);
+                const fb.Int64Reader().vTableGet(buffer, rootOffset, 10, 0)
+            ..updated = updatedValue == null
+                ? null
+                : DateTime.fromMillisecondsSinceEpoch(updatedValue)
+            ..expirationDate = expirationDateValue == null
+                ? null
+                : DateTime.fromMillisecondsSinceEpoch(expirationDateValue);
 
           return object;
         }),
@@ -870,26 +888,28 @@ ModelDefinition getObjectBoxModel() {
           final householdIdOffset = fbb.writeString(object.householdId);
           final nameOffset = fbb.writeString(object.name);
           final userIdOffset = fbb.writeString(object.userId);
-          fbb.startTable(8);
+          fbb.startTable(10);
           fbb.addBool(0, object.isAdmin);
-          fbb.addInt64(1, object.timestamp.millisecondsSinceEpoch);
           fbb.addOffset(2, emailOffset);
           fbb.addOffset(3, householdIdOffset);
           fbb.addOffset(4, nameOffset);
           fbb.addOffset(5, userIdOffset);
           fbb.addInt64(6, object.objectBoxId);
+          fbb.addInt64(7, object.created?.millisecondsSinceEpoch);
+          fbb.addInt64(8, object.updated?.millisecondsSinceEpoch);
           fbb.finish(fbb.endTable());
           return object.objectBoxId;
         },
         objectFromFB: (Store store, ByteData fbData) {
           final buffer = fb.BufferContext(fbData);
           final rootOffset = buffer.derefObject(0);
-
+          final createdValue =
+              const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 18);
+          final updatedValue =
+              const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 20);
           final object = ObjectBoxHouseholdMember()
             ..isAdmin =
                 const fb.BoolReader().vTableGet(buffer, rootOffset, 4, false)
-            ..timestamp = DateTime.fromMillisecondsSinceEpoch(
-                const fb.Int64Reader().vTableGet(buffer, rootOffset, 6, 0))
             ..email = const fb.StringReader(asciiOptimization: true)
                 .vTableGet(buffer, rootOffset, 8, '')
             ..householdId = const fb.StringReader(asciiOptimization: true)
@@ -899,7 +919,13 @@ ModelDefinition getObjectBoxModel() {
             ..userId = const fb.StringReader(asciiOptimization: true)
                 .vTableGet(buffer, rootOffset, 14, '')
             ..objectBoxId =
-                const fb.Int64Reader().vTableGet(buffer, rootOffset, 16, 0);
+                const fb.Int64Reader().vTableGet(buffer, rootOffset, 16, 0)
+            ..created = createdValue == null
+                ? null
+                : DateTime.fromMillisecondsSinceEpoch(createdValue)
+            ..updated = updatedValue == null
+                ? null
+                : DateTime.fromMillisecondsSinceEpoch(updatedValue);
 
           return object;
         }),
@@ -1374,17 +1400,21 @@ class ObjectBoxExpirationDate_ {
   static final upc =
       QueryStringProperty<ObjectBoxExpirationDate>(_entities[2].properties[0]);
 
-  /// see [ObjectBoxExpirationDate.date]
-  static final date =
-      QueryIntegerProperty<ObjectBoxExpirationDate>(_entities[2].properties[1]);
-
   /// see [ObjectBoxExpirationDate.created]
   static final created =
-      QueryIntegerProperty<ObjectBoxExpirationDate>(_entities[2].properties[2]);
+      QueryIntegerProperty<ObjectBoxExpirationDate>(_entities[2].properties[1]);
 
   /// see [ObjectBoxExpirationDate.objectBoxId]
   static final objectBoxId =
+      QueryIntegerProperty<ObjectBoxExpirationDate>(_entities[2].properties[2]);
+
+  /// see [ObjectBoxExpirationDate.updated]
+  static final updated =
       QueryIntegerProperty<ObjectBoxExpirationDate>(_entities[2].properties[3]);
+
+  /// see [ObjectBoxExpirationDate.expirationDate]
+  static final expirationDate =
+      QueryIntegerProperty<ObjectBoxExpirationDate>(_entities[2].properties[4]);
 }
 
 /// [ObjectBoxHouseholdMember] entity fields to define ObjectBox queries.
@@ -1393,29 +1423,33 @@ class ObjectBoxHouseholdMember_ {
   static final isAdmin = QueryBooleanProperty<ObjectBoxHouseholdMember>(
       _entities[3].properties[0]);
 
-  /// see [ObjectBoxHouseholdMember.timestamp]
-  static final timestamp = QueryIntegerProperty<ObjectBoxHouseholdMember>(
-      _entities[3].properties[1]);
-
   /// see [ObjectBoxHouseholdMember.email]
   static final email =
-      QueryStringProperty<ObjectBoxHouseholdMember>(_entities[3].properties[2]);
+      QueryStringProperty<ObjectBoxHouseholdMember>(_entities[3].properties[1]);
 
   /// see [ObjectBoxHouseholdMember.householdId]
   static final householdId =
-      QueryStringProperty<ObjectBoxHouseholdMember>(_entities[3].properties[3]);
+      QueryStringProperty<ObjectBoxHouseholdMember>(_entities[3].properties[2]);
 
   /// see [ObjectBoxHouseholdMember.name]
   static final name =
-      QueryStringProperty<ObjectBoxHouseholdMember>(_entities[3].properties[4]);
+      QueryStringProperty<ObjectBoxHouseholdMember>(_entities[3].properties[3]);
 
   /// see [ObjectBoxHouseholdMember.userId]
   static final userId =
-      QueryStringProperty<ObjectBoxHouseholdMember>(_entities[3].properties[5]);
+      QueryStringProperty<ObjectBoxHouseholdMember>(_entities[3].properties[4]);
 
   /// see [ObjectBoxHouseholdMember.objectBoxId]
   static final objectBoxId = QueryIntegerProperty<ObjectBoxHouseholdMember>(
+      _entities[3].properties[5]);
+
+  /// see [ObjectBoxHouseholdMember.created]
+  static final created = QueryIntegerProperty<ObjectBoxHouseholdMember>(
       _entities[3].properties[6]);
+
+  /// see [ObjectBoxHouseholdMember.updated]
+  static final updated = QueryIntegerProperty<ObjectBoxHouseholdMember>(
+      _entities[3].properties[7]);
 }
 
 /// [ObjectBoxInventory] entity fields to define ObjectBox queries.

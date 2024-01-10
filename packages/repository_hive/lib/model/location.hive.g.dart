@@ -8,7 +8,7 @@ part of 'location.hive.dart';
 
 class HiveLocationAdapter extends TypeAdapter<HiveLocation> {
   @override
-  final int typeId = 6;
+  final int typeId = 0;
 
   @override
   HiveLocation read(BinaryReader reader) {

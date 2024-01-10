@@ -5,24 +5,27 @@ import 'package:repository/model/household_member.dart';
 
 part 'household_member.hive.g.dart';
 
-@HiveType(typeId: 5)
+@HiveType(typeId: 0)
 class HiveHouseholdMember extends HiveObject {
   @HiveField(0)
-  late bool isAdmin;
+  late DateTime? created;
   @HiveField(1)
-  late DateTime timestamp;
+  late DateTime? updated;
   @HiveField(2)
-  late String email;
+  late bool isAdmin;
   @HiveField(3)
-  late String householdId;
+  late String email;
   @HiveField(4)
-  late String name;
+  late String householdId;
   @HiveField(5)
+  late String name;
+  @HiveField(6)
   late String userId;
   HiveHouseholdMember();
   HiveHouseholdMember.from(HouseholdMember original) {
+    created = original.created;
+    updated = original.updated;
     isAdmin = original.isAdmin;
-    timestamp = original.timestamp;
     email = original.email;
     householdId = original.householdId;
     name = original.name;
@@ -30,8 +33,9 @@ class HiveHouseholdMember extends HiveObject {
   }
   HouseholdMember toHouseholdMember() {
     return HouseholdMember(
+        created: created,
+        updated: updated,
         isAdmin: isAdmin,
-        timestamp: timestamp,
         email: email,
         householdId: householdId,
         name: name,

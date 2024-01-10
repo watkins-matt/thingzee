@@ -26,12 +26,9 @@ class HiveInventory extends HiveObject {
   late String upc;
   @HiveField(8)
   late String uid;
-  @HiveField(9)
-  late double units;
+
   HiveInventory();
   HiveInventory.from(Inventory original) {
-    // Ensure history is in a consistent state
-    history.upc = original.upc;
     amount = original.amount;
     unitCount = original.unitCount;
     lastUpdate = original.lastUpdate;
@@ -41,11 +38,8 @@ class HiveInventory extends HiveObject {
     restock = original.restock;
     upc = original.upc;
     uid = original.uid;
-    units = original.units;
   }
   Inventory toInventory() {
-    // Ensure history is in a consistent state
-    history.upc = upc;
     return Inventory()
       ..amount = amount
       ..unitCount = unitCount
@@ -55,7 +49,6 @@ class HiveInventory extends HiveObject {
       ..history = history
       ..restock = restock
       ..upc = upc
-      ..uid = uid
-      ..units = units;
+      ..uid = uid;
   }
 }

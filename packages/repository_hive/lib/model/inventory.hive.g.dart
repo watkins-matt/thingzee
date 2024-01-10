@@ -25,14 +25,13 @@ class HiveInventoryAdapter extends TypeAdapter<HiveInventory> {
       ..history = fields[5] as History
       ..restock = fields[6] as bool
       ..upc = fields[7] as String
-      ..uid = fields[8] as String
-      ..units = fields[9] as double;
+      ..uid = fields[8] as String;
   }
 
   @override
   void write(BinaryWriter writer, HiveInventory obj) {
     writer
-      ..writeByte(10)
+      ..writeByte(9)
       ..writeByte(0)
       ..write(obj.amount)
       ..writeByte(1)
@@ -50,9 +49,7 @@ class HiveInventoryAdapter extends TypeAdapter<HiveInventory> {
       ..writeByte(7)
       ..write(obj.upc)
       ..writeByte(8)
-      ..write(obj.uid)
-      ..writeByte(9)
-      ..write(obj.units);
+      ..write(obj.uid);
   }
 
   @override

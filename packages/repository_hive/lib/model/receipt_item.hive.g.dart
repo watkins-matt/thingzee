@@ -1,49 +1,49 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'household_member.hive.dart';
+part of 'receipt_item.hive.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator
 // **************************************************************************
 
-class HiveHouseholdMemberAdapter extends TypeAdapter<HiveHouseholdMember> {
+class HiveReceiptItemAdapter extends TypeAdapter<HiveReceiptItem> {
   @override
   final int typeId = 0;
 
   @override
-  HiveHouseholdMember read(BinaryReader reader) {
+  HiveReceiptItem read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return HiveHouseholdMember()
-      ..created = fields[0] as DateTime?
-      ..updated = fields[1] as DateTime?
-      ..isAdmin = fields[2] as bool
-      ..email = fields[3] as String
-      ..householdId = fields[4] as String
-      ..name = fields[5] as String
-      ..userId = fields[6] as String;
+    return HiveReceiptItem()
+      ..name = fields[0] as String
+      ..price = fields[1] as double
+      ..regularPrice = fields[2] as double
+      ..quantity = fields[3] as int
+      ..barcode = fields[4] as String
+      ..taxable = fields[5] as bool
+      ..bottleDeposit = fields[6] as double;
   }
 
   @override
-  void write(BinaryWriter writer, HiveHouseholdMember obj) {
+  void write(BinaryWriter writer, HiveReceiptItem obj) {
     writer
       ..writeByte(7)
       ..writeByte(0)
-      ..write(obj.created)
-      ..writeByte(1)
-      ..write(obj.updated)
-      ..writeByte(2)
-      ..write(obj.isAdmin)
-      ..writeByte(3)
-      ..write(obj.email)
-      ..writeByte(4)
-      ..write(obj.householdId)
-      ..writeByte(5)
       ..write(obj.name)
+      ..writeByte(1)
+      ..write(obj.price)
+      ..writeByte(2)
+      ..write(obj.regularPrice)
+      ..writeByte(3)
+      ..write(obj.quantity)
+      ..writeByte(4)
+      ..write(obj.barcode)
+      ..writeByte(5)
+      ..write(obj.taxable)
       ..writeByte(6)
-      ..write(obj.userId);
+      ..write(obj.bottleDeposit);
   }
 
   @override
@@ -52,7 +52,7 @@ class HiveHouseholdMemberAdapter extends TypeAdapter<HiveHouseholdMember> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is HiveHouseholdMemberAdapter &&
+      other is HiveReceiptItemAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }
