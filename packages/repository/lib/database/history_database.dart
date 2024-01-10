@@ -1,3 +1,5 @@
+// ignore_for_file: annotate_overrides
+
 import 'package:repository/ml/history.dart';
 import 'package:repository/model/inventory.dart';
 
