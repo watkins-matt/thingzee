@@ -1,11 +1,10 @@
+import 'package:repository/database/database.dart';
 import 'package:repository/model/household_member.dart';
 
-abstract class HouseholdDatabase {
+abstract class HouseholdDatabase implements Database<HouseholdMember> {
   List<HouseholdMember> get admins;
   DateTime get created;
   String get id;
   List<HouseholdMember> get members;
-  List<HouseholdMember> getChanges(DateTime since);
   void leave();
-  void put(HouseholdMember member);
 }
