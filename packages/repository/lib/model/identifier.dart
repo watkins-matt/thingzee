@@ -1,20 +1,19 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:meta/meta.dart';
+import 'package:repository/extension/date_time.dart';
+import 'package:repository/merge_generator.dart';
 import 'package:repository/model/abstract/model.dart';
 import 'package:repository/model/serializer_datetime.dart';
 
 part 'identifier.g.dart';
+part 'identifier.merge.dart';
 
 @JsonSerializable(explicitToJson: true)
 @immutable
+@Mergeable()
 class ItemIdentifier extends Model<ItemIdentifier> {
-  @JsonKey(defaultValue: '')
   final String type; // The type of identifier, e.g. UPC, EAN, ISBN, ASIN, etc.
-
-  @JsonKey(defaultValue: '')
   final String value; // The value of the identifier, e.g. the barcode number
-
-  @JsonKey(defaultValue: '')
   final String uid; // The global uid of the item that this identifier maps to
 
   ItemIdentifier({
@@ -52,33 +51,7 @@ class ItemIdentifier extends Model<ItemIdentifier> {
   }
 
   @override
-  ItemIdentifier merge(ItemIdentifier other) {
-    // Determine the older 'created' date, considering null values.
-    DateTime? olderCreatedDate;
-    if (created == null) {
-      olderCreatedDate = other.created;
-    } else if (other.created == null) {
-      olderCreatedDate = created;
-    } else {
-      olderCreatedDate = created!.isBefore(other.created!) ? created : other.created;
-    }
-
-    // Determine the newer 'updated' date.
-    final newerUpdatedDate = updated == null
-        ? other.updated
-        : (other.updated == null
-            ? updated
-            : (updated!.isAfter(other.updated!) ? updated : other.updated));
-
-    // Merge the fields.
-    return ItemIdentifier(
-      type: other.type.isNotEmpty ? other.type : type,
-      value: other.value.isNotEmpty ? other.value : value,
-      uid: other.uid.isNotEmpty ? other.uid : uid,
-      created: olderCreatedDate,
-      updated: newerUpdatedDate,
-    );
-  }
+  ItemIdentifier merge(ItemIdentifier other) => _$mergeItemIdentifier(this, other);
 
   @override
   Map<String, dynamic> toJson() => _$ItemIdentifierToJson(this);

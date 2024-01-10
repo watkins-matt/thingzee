@@ -1,4 +1,4 @@
-import 'package:repository/model/cloud/invitation.dart';
+import 'package:repository/model/invitation.dart';
 
 abstract class InvitationDatabase {
   bool get hasInvitations;

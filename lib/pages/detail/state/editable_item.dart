@@ -94,10 +94,8 @@ class EditableItem extends StateNotifier<EditableItemState> {
     upc = upc.trim();
 
     final item = state.item.copyWith(upc: upc);
-    final inv = state.inventory.copyWith(upc: upc);
-
-    final history = state.inventory.history;
-    history.upc = upc;
+    final history = state.inventory.history.copyWith(upc: upc);
+    final inv = state.inventory.copyWith(upc: upc, history: history);
 
     state = EditableItemState(item, inv, state.changedFields);
   }
@@ -138,49 +136,37 @@ class EditableItem extends StateNotifier<EditableItemState> {
   }
 
   void copyFromInventory(Inventory inv) {
-    Inventory copiedInv = Inventory(
-      amount: inv.amount,
-      upc: inv.upc,
-      unitCount: inv.unitCount,
-      history: inv.history,
-      lastUpdate: inv.lastUpdate,
-      locations: inv.locations,
+    // Update the item's UPC
+    Item updatedItem = state.item.copyWith(upc: inv.upc);
+
+    // Create a new Inventory instance with updated History
+    Inventory updatedInv = inv.copyWith(
+      history: inv.history.copyWith(upc: inv.upc),
     );
 
-    // Make sure the upc is copied to the item
-    if (state.item.upc != copiedInv.upc) {
-      state.item = state.item.copyWith(upc: copiedInv.upc);
-    }
-
-    if (state.inventory.history.upc != copiedInv.upc) {
-      state.inventory.history.upc = copiedInv.upc;
-    }
-
-    state = EditableItemState(state.item, copiedInv, state.changedFields);
+    // Update the state with the new item and inventory
+    state = EditableItemState(updatedItem, updatedInv, state.changedFields);
   }
 
   void copyFromItem(Item item) {
-    Item copiedItem = Item(
-      name: item.name,
-      variety: item.variety,
-      upc: item.upc,
-      imageUrl: item.imageUrl,
-      category: item.category,
-      unitCount: item.unitCount,
-      consumable: item.consumable,
-      type: item.type,
-    );
+    // Create a new Item instance using copyWith
+    Item updatedItem = item.copyWith();
 
-    // Make sure the upc is copied to the inventory
-    if (state.inventory.upc != copiedItem.upc) {
-      state.inventory = state.inventory.copyWith(upc: copiedItem.upc);
+    // Update the Inventory's UPC and History if necessary
+    Inventory updatedInventory = state.inventory;
+
+    if (state.inventory.upc != updatedItem.upc) {
+      updatedInventory = updatedInventory.copyWith(upc: updatedItem.upc);
     }
 
-    if (state.inventory.history.upc != copiedItem.upc) {
-      state.inventory.history.upc = copiedItem.upc;
+    if (state.inventory.history.upc != updatedItem.upc) {
+      updatedInventory = updatedInventory.copyWith(
+        history: updatedInventory.history.copyWith(upc: updatedItem.upc),
+      );
     }
 
-    state = EditableItemState(copiedItem, state.inventory, state.changedFields);
+    // Update the state with the new item and inventory
+    state = EditableItemState(updatedItem, updatedInventory, state.changedFields);
   }
 
   void deleteHistorySeries(int index) {

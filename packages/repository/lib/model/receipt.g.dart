@@ -17,7 +17,7 @@ Receipt _$ReceiptFromJson(Map<String, dynamic> json) => Receipt(
       discounts: (json['discounts'] as List<dynamic>?)
               ?.map((e) => (e as num).toDouble())
               .toList() ??
-          [],
+          const [],
       tax: (json['tax'] as num?)?.toDouble() ?? 0.0,
       total: (json['total'] as num?)?.toDouble() ?? 0.0,
       uid: json['uid'] as String? ?? '',

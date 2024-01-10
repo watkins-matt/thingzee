@@ -14,7 +14,7 @@ Product _$ProductFromJson(Map<String, dynamic> json) => Product(
       category: json['category'] as String? ?? '',
       upcs:
           (json['upcs'] as List<dynamic>?)?.map((e) => e as String).toList() ??
-              [],
+              const <String>[],
       created: _$JsonConverterFromJson<int, DateTime?>(
           json['created'], const NullableDateTimeSerializer().fromJson),
       updated: _$JsonConverterFromJson<int, DateTime?>(

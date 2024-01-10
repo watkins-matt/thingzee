@@ -1,9 +1,9 @@
 // ignore_for_file: avoid_renaming_method_parameters
 
 import 'package:appwrite/appwrite.dart';
-import 'package:repository/database/cloud/invitation_database.dart';
+import 'package:repository/database/invitation_database.dart';
 import 'package:repository/database/preferences.dart';
-import 'package:repository/model/cloud/invitation.dart';
+import 'package:repository/model/invitation.dart';
 import 'package:repository/util/hash.dart';
 import 'package:repository_appw/util/appwrite_database.dart';
 import 'package:repository_appw/util/synchronizable.dart';
@@ -59,7 +59,7 @@ class AppwriteInvitationDatabase extends InvitationDatabase
   String getKey(Invitation invitation) => invitation.id;
 
   @override
-  DateTime? getUpdated(Invitation invitation) => invitation.timestamp;
+  DateTime? getUpdated(Invitation invitation) => invitation.updated;
 
   @override
   Invitation merge(Invitation existingItem, Invitation newItem) => existingItem.merge(newItem);
@@ -80,7 +80,6 @@ class AppwriteInvitationDatabase extends InvitationDatabase
       inviterEmail: userEmail,
       inviterUserId: userId,
       recipientEmail: recipientEmail,
-      timestamp: DateTime.now(),
       status: InvitationStatus.pending,
     );
 

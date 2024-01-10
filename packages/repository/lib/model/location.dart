@@ -1,9 +1,12 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:meta/meta.dart';
+import 'package:repository/extension/date_time.dart';
+import 'package:repository/merge_generator.dart';
 import 'package:repository/model/abstract/model.dart';
 import 'package:repository/model/serializer_datetime.dart';
 
 part 'location.g.dart';
+part 'location.merge.dart';
 
 String convertLegacyPath(String location) {
   // Convert from "Kitchen: Fridge (Top)" to "/Kitchen/Fridge/Top/"
@@ -74,6 +77,7 @@ String prettyPrintPath(String path) {
 
 @JsonSerializable(explicitToJson: true)
 @immutable
+@Mergeable()
 class Location extends Model<Location> {
   @JsonKey(defaultValue: '')
   final String upc;
@@ -81,13 +85,12 @@ class Location extends Model<Location> {
   @JsonKey(defaultValue: '')
   final String name;
 
-  @JsonKey(defaultValue: 0.0)
   final double? quantity;
 
   Location({
     required this.upc,
     required this.name,
-    this.quantity,
+    this.quantity = 0,
     super.created,
     super.updated,
   });
@@ -119,26 +122,8 @@ class Location extends Model<Location> {
   }
 
   @override
-  Location merge(Location other) {
-    return Location(
-      upc: other.upc.isNotEmpty ? other.upc : upc,
-      name: other.name.isNotEmpty ? other.name : name,
-      quantity: other.quantity ?? quantity,
-      created: _determineOlderCreatedDate(created, other.created),
-      updated: _determineNewerUpdatedDate(updated, other.updated),
-    );
-  }
+  Location merge(Location other) => _$mergeLocation(this, other);
 
   @override
   Map<String, dynamic> toJson() => _$LocationToJson(this);
-
-  static DateTime _determineNewerUpdatedDate(DateTime? date1, DateTime? date2) {
-    if (date1 == null) return date2 ?? DateTime.now();
-    if (date2 == null) return date1;
-    return date1.isAfter(date2) ? date1 : date2;
-  }
-
-  static DateTime _determineOlderCreatedDate(DateTime? date1, DateTime? date2) {
-    return date1 ?? date2 ?? DateTime.now();
-  }
 }

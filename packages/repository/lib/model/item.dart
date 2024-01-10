@@ -1,52 +1,32 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:meta/meta.dart';
+import 'package:repository/extension/date_time.dart';
+import 'package:repository/merge_generator.dart';
 import 'package:repository/model/abstract/model.dart';
 import 'package:repository/model/abstract/nameable.dart';
 import 'package:repository/model/serializer_datetime.dart';
 
 part 'item.g.dart';
+part 'item.merge.dart';
 
 @JsonSerializable(explicitToJson: true)
+@immutable
+@Mergeable()
 class Item extends Model<Item> implements Comparable<Item>, Nameable {
-  @JsonKey(defaultValue: '')
   final String upc; // generator:unique
-
   @override
-  @JsonKey(defaultValue: '')
   final String id;
-
   @override
-  @JsonKey(defaultValue: '')
   final String name;
-
-  @JsonKey(defaultValue: '')
   final String variety;
-
-  @JsonKey(defaultValue: '')
   final String category;
-
-  @JsonKey(defaultValue: '')
   final String type; // Type of the item, example: Cereal, Milk, Tomato Sauce
-
-  @JsonKey(defaultValue: '')
   final String typeId;
-
-  // Unit information:
-  @JsonKey(defaultValue: 1)
   final int unitCount; // How many units are part of this item, e.g. 12 bottles
-
-  @JsonKey(defaultValue: '')
   final String unitName; // What is the name of the unit, e.g. bottle
-
-  @JsonKey(defaultValue: '')
   final String unitPlural; // What is the plural of the unit, e.g. bottles
-
-  @JsonKey(defaultValue: '')
   final String imageUrl;
-
-  @JsonKey(defaultValue: true)
   final bool consumable;
-
-  @JsonKey(defaultValue: 'en')
   final String languageCode;
 
   @NullableDateTimeSerializer()
@@ -139,28 +119,6 @@ class Item extends Model<Item> implements Comparable<Item>, Nameable {
 
   @override
   Map<String, dynamic> toJson() => _$ItemToJson(this);
-
-  Item _$mergeItem(Item first, Item second) {
-    final firstUpdate = first.lastUpdate ?? DateTime.fromMillisecondsSinceEpoch(0);
-    final secondUpdate = second.lastUpdate ?? DateTime.fromMillisecondsSinceEpoch(0);
-    final newerItem = secondUpdate.isAfter(firstUpdate) ? second : first;
-    return Item(
-      upc: newerItem.upc.isNotEmpty ? newerItem.upc : first.upc,
-      id: newerItem.id.isNotEmpty ? newerItem.id : first.id,
-      name: newerItem.name.isNotEmpty ? newerItem.name : first.name,
-      variety: newerItem.variety.isNotEmpty ? newerItem.variety : first.variety,
-      category: newerItem.category.isNotEmpty ? newerItem.category : first.category,
-      type: newerItem.type.isNotEmpty ? newerItem.type : first.type,
-      typeId: newerItem.typeId.isNotEmpty ? newerItem.typeId : first.typeId,
-      unitCount: newerItem.unitCount != 1 ? newerItem.unitCount : first.unitCount,
-      unitName: newerItem.unitName.isNotEmpty ? newerItem.unitName : first.unitName,
-      unitPlural: newerItem.unitPlural.isNotEmpty ? newerItem.unitPlural : first.unitPlural,
-      imageUrl: newerItem.imageUrl.isNotEmpty ? newerItem.imageUrl : first.imageUrl,
-      consumable: newerItem.consumable,
-      languageCode: newerItem.languageCode.isNotEmpty ? newerItem.languageCode : first.languageCode,
-      lastUpdate: newerItem.lastUpdate ?? first.lastUpdate,
-    );
-  }
 }
 
 @JsonSerializable(explicitToJson: true)

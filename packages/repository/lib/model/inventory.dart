@@ -1,6 +1,7 @@
 import 'package:intl/intl.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:meta/meta.dart';
+import 'package:repository/extension/date_time.dart';
 import 'package:repository/extension/duration.dart';
 import 'package:repository/extension/list.dart';
 import 'package:repository/merge_generator.dart';
@@ -11,37 +12,27 @@ import 'package:repository/model/serializer_datetime.dart';
 import 'package:stats/double.dart';
 
 part 'inventory.g.dart';
+part 'inventory.merge.dart';
 
 @JsonSerializable(explicitToJson: true)
-@Mergeable()
 @immutable
+@Mergeable()
 class Inventory extends Model<Inventory> {
-  @JsonKey(defaultValue: 0)
   final double amount;
-
-  @JsonKey(defaultValue: 1)
   final int unitCount;
+  final List<String> locations;
+  final List<DateTime> expirationDates;
+  final bool restock;
+  final String uid;
 
   @NullableDateTimeSerializer()
   final DateTime? lastUpdate;
 
-  @JsonKey(defaultValue: [])
-  final List<DateTime> expirationDates;
-
-  @JsonKey(defaultValue: [])
-  final List<String> locations;
-
   @JsonKey(includeFromJson: false, includeToJson: false, defaultValue: null)
   final History history; // generator:transient
 
-  @JsonKey(defaultValue: true)
-  final bool restock;
-
-  @JsonKey(defaultValue: '', name: 'upc')
+  @JsonKey(name: 'upc')
   final String _upc; // generator:unique, generator:property
-
-  @JsonKey(defaultValue: '')
-  final String uid;
 
   Inventory({
     this.amount = 0,
@@ -56,7 +47,7 @@ class Inventory extends Model<Inventory> {
     super.created,
     super.updated,
   })  : _upc = upc,
-        history = history?.copy() ?? History();
+        history = history?.copyWith(upc: upc) ?? History();
 
   factory Inventory.fromJson(Map<String, dynamic> json) => _$InventoryFromJson(json);
 
@@ -204,7 +195,7 @@ class Inventory extends Model<Inventory> {
       lastUpdate: lastUpdate ?? this.lastUpdate,
       expirationDates: expirationDates ?? this.expirationDates,
       locations: locations ?? this.locations,
-      history: history?.copy(newUpc: newUpc) ?? this.history,
+      history: history?.copyWith(upc: newUpc) ?? this.history,
       restock: restock ?? this.restock,
       upc: newUpc,
       uid: uid ?? this.uid,
@@ -234,22 +225,5 @@ class Inventory extends Model<Inventory> {
     assert(unitCount != 0);
     double newAmount = value / unitCount;
     return copyWith(amount: newAmount);
-  }
-
-  Inventory _$mergeInventory(Inventory first, Inventory second) {
-    final firstUpdate = first.lastUpdate ?? DateTime.fromMillisecondsSinceEpoch(0);
-    final secondUpdate = second.lastUpdate ?? DateTime.fromMillisecondsSinceEpoch(0);
-    final newerInventory = secondUpdate.isAfter(firstUpdate) ? second : first;
-    return Inventory(
-      amount: newerInventory.amount,
-      unitCount: newerInventory.unitCount != 1 ? newerInventory.unitCount : first.unitCount,
-      lastUpdate: newerInventory.lastUpdate ?? first.lastUpdate,
-      expirationDates: {...newerInventory.expirationDates, ...first.expirationDates}.toList(),
-      locations: {...newerInventory.locations, ...first.locations}.toList(),
-      history: newerInventory.history,
-      restock: newerInventory.restock,
-      upc: newerInventory._upc.isNotEmpty ? newerInventory._upc : first._upc,
-      uid: newerInventory.uid.isNotEmpty ? newerInventory.uid : first.uid,
-    );
   }
 }
