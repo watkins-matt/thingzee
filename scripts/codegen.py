@@ -43,12 +43,14 @@ class DartClass:
     def __init__(
         self,
         name: str,
+        parent_class_name: str,
         attributes: list[Attribute],
         imports: set[str],
         class_body: str,
         use_default_constructor: bool = True,
     ):
         self.name = name
+        self.parent_class_name = parent_class_name
         self.attributes = attributes
         self.imports = imports
         self.class_body = class_body
@@ -64,43 +66,49 @@ class DartClassParser:
         lines = content.split("\n")
         clean_lines = []
         brace_count = 0
-        skip_line = False
         inside_class = False
+        inside_method_or_property = False
 
         for line in lines:
             stripped_line = line.strip()
 
             # Detect the start of the class
-            if re.match(r"^class \w+", stripped_line):
+            if re.match(r"^(abstract\s+)?class \w+", stripped_line):
                 inside_class = True
                 clean_lines.append(line)
                 continue
 
             # Once inside the class, start detecting methods and properties
             if inside_class:
-                # Detect the start of a method or getter block
-                if re.match(r"^\w+.*\([^)]*\)\s*{|^get\s+\w+\s*{", stripped_line):
-                    skip_line = True
-                    brace_count = 1  # Start of a new block
+                # Detect the start of a method or property block
+                if re.match(r"^\s*(\w+\s+)+([^\(\s]*)\s*\([^)]*\)\s*{", stripped_line):
+                    inside_method_or_property = True
+                    brace_count = 1
                     continue
-
-                # Detect the start of a multiline block (like a method or getter)
-                if "{" in stripped_line and "}" not in stripped_line:
-                    skip_line = True
-                    brace_count += 1
 
                 # Detect the end of a block
-                if "}" in stripped_line and "{" not in stripped_line:
+                if "}" in stripped_line and not inside_method_or_property:
                     brace_count -= 1
                     if brace_count == 0:
-                        skip_line = False
+                        inside_method_or_property = False
                     continue
 
-            # If not within a method or getter block, add the line
-            if not skip_line and inside_class:
+                # Skip the line if we're inside a method or property
+                if inside_method_or_property:
+                    continue
+
+                # Add the line if it's not within a method or property block
                 clean_lines.append(line)
 
-        return "\n".join(clean_lines)
+        cleaned_content = "\n".join(clean_lines)
+
+        # Remove getter lines using regex
+        getter_pattern = r"^\s*\w+\s+get\s+\w+\s*;"
+        cleaned_content = re.sub(
+            getter_pattern, "", cleaned_content, flags=re.MULTILINE
+        )
+
+        return cleaned_content
 
     @staticmethod
     def use_default_constructor(class_body: str, class_name: str) -> bool:
@@ -123,12 +131,13 @@ class DartClassParser:
         try:
             self.find_package_import_path(file_path)
         except Exception:
-            pass
+            print(f"Could not find package import path for {file_path}.")
 
-        class_pattern = re.compile(r"class (\w+)")
+        class_pattern = re.compile(r"class (\w+)( extends (\w+))?")
         class_start = False
         brace_count = 0
         class_name = ""
+        parent_class_name = ""
         class_body = ""
 
         # Iterate through each line of the file content
@@ -147,7 +156,9 @@ class DartClassParser:
                     )
 
                     # Extract attributes from the class body
-                    attributes = DartClassParser.extract_attributes(class_body)
+                    attributes = DartClassParser.extract_attributes(
+                        class_body, file_path, parent_class_name
+                    )
 
                     # Gather required imports for the class
                     required_imports = {
@@ -162,6 +173,7 @@ class DartClassParser:
                     dart_classes.append(
                         DartClass(
                             class_name,
+                            parent_class_name,
                             attributes,
                             required_imports,
                             class_body,
@@ -179,6 +191,9 @@ class DartClassParser:
                 match = class_pattern.search(line)
                 if match:
                     class_name = match.group(1)
+                    parent_class_name = (
+                        match.group(3) or ""
+                    )  # Parent class name or empty string
                     class_body = line + "\n"
                     class_start = True
                     brace_count = 1
@@ -218,12 +233,62 @@ class DartClassParser:
         return re.findall(r"class (\w+)", content)
 
     @staticmethod
-    def extract_attributes(content: str) -> list[Attribute]:
+    def find_file_for_class(class_name: str, current_file_path: str) -> str:
+        content = DartClassParser.read_dart_file(current_file_path)
+
+        # Adjusted regex pattern to capture full relative path including subdirectories
+        import_pattern = re.compile(r"import '(package:\w+)\/([\w\/]+\.dart)';")
+        for line in content.splitlines():
+            match = import_pattern.search(line)
+            if match:
+                # package_name = match.group(1)
+                relative_path = match.group(2)
+
+                # Find the root directory of the Dart project
+                project_root = DartClassParser.find_project_root(current_file_path)
+
+                # Construct the full path to the file
+                full_path = os.path.join(project_root, "lib", relative_path)
+                full_path = os.path.normpath(full_path)
+
+                if os.path.exists(full_path):
+                    return full_path
+
+        raise FileNotFoundError(f"File for class {class_name} not found")
+
+    @staticmethod
+    def find_project_root(current_file_path: str) -> str:
+        current_dir = os.path.dirname(current_file_path)
+        while current_dir != os.path.dirname(
+            current_dir
+        ):  # Check if it's the root directory
+            if os.path.exists(os.path.join(current_dir, "pubspec.yaml")):
+                return current_dir
+            current_dir = os.path.dirname(current_dir)
+        raise FileNotFoundError("Dart project root not found")
+
+    @staticmethod
+    def extract_attributes(
+        content: str, current_file_path: str, parent_class_name: str = ""
+    ) -> list[Attribute]:
+        attributes = []
+
+        # First, include attributes from the parent class if it exists
+        if parent_class_name:
+            parent_class_file = DartClassParser.find_file_for_class(
+                parent_class_name, current_file_path
+            )
+            if parent_class_file:
+                parent_class_content = DartClassParser.read_dart_file(parent_class_file)
+                parent_class_attributes = DartClassParser.extract_attributes(
+                    parent_class_content, current_file_path
+                )
+                attributes.extend(parent_class_attributes)
+
         # Preprocess content to remove methods and properties
         cleaned_content = DartClassParser.remove_methods_and_properties(content)
 
         lines = cleaned_content.split("\n")
-        attributes = []
 
         leading_whitespace = r"\s*"
         exclude_control_structures = r"(?!.*(return\s+|if\s+|else\s+|switch\s+|case\s+|for\s+|while\s+|do\s+|=>|}).*\b)"
@@ -367,8 +432,16 @@ class ObjectBoxGenerator(DartClassGenerator):
 
 
 class HiveGenerator(DartClassGenerator):
-    def __init__(self, type_id: int) -> None:
-        self.type_id = type_id
+    def __init__(self):
+        self._type_id = 0
+
+    @property
+    def type_id(self) -> int:
+        return self._type_id
+
+    @type_id.setter
+    def type_id(self, value: int):
+        self._type_id = value
 
     def generate(self, dart_class: DartClass, custom_code: str = None) -> str:
         lines = []
@@ -421,18 +494,23 @@ class DartOutputFileWriter:
         self.all_output_content.append(class_content)
 
     def write_to_file(self):
+        output_file_name = os.path.splitext(os.path.basename(self.input_file))[0]
+        output_file_path = os.path.join(
+            self.output_dir, f"{output_file_name}.{self.output_ext}.dart"
+        )
+
         combined_imports = (
             "\n".join(sorted(self.dart_imports))
             + "\n\n"
             + "\n".join(sorted(self.package_imports))
         )
 
-        self.all_output_content.insert(0, combined_imports)
+        if self.db_type == "hive":
+            combined_imports += (
+                f"\n\npart '{output_file_name}.{self.output_ext}.g.dart';"
+            )
 
-        output_file_name = os.path.splitext(os.path.basename(self.input_file))[0]
-        output_file_path = os.path.join(
-            self.output_dir, f"{output_file_name}.{self.output_ext}.dart"
-        )
+        self.all_output_content.insert(0, combined_imports)
 
         combined_output = "\n\n".join(self.all_output_content)
         combined_output += "\n"  # Add trailing newline
