@@ -25,9 +25,6 @@ class Inventory extends Model<Inventory> {
   final bool restock;
   final String uid;
 
-  @NullableDateTimeSerializer()
-  final DateTime? lastUpdate;
-
   @JsonKey(includeFromJson: false, includeToJson: false, defaultValue: null)
   final History history; // generator:transient
 
@@ -37,7 +34,6 @@ class Inventory extends Model<Inventory> {
   Inventory({
     this.amount = 0,
     this.unitCount = 1,
-    this.lastUpdate,
     this.expirationDates = const <DateTime>[],
     this.locations = const <String>[],
     History? history,
@@ -63,7 +59,7 @@ class Inventory extends Model<Inventory> {
   }
 
   String get lastUpdatedString {
-    return lastUpdate != null ? DateFormat.yMMMd().format(lastUpdate!) : 'Never';
+    return updated != null ? DateFormat.yMMMd().format(updated!) : 'Never';
   }
 
   String get minutesToReduceByOneString {
@@ -147,12 +143,12 @@ class Inventory extends Model<Inventory> {
   }
 
   Duration get timeSinceLastUpdate {
-    assert(lastUpdate != null && lastUpdate != DateTime.fromMillisecondsSinceEpoch(0));
-    return DateTime.now().difference(lastUpdate!);
+    assert(updated != null && updated != DateTime.fromMillisecondsSinceEpoch(0));
+    return DateTime.now().difference(updated!);
   }
 
   String get timeSinceLastUpdateString {
-    if (lastUpdate != null && lastUpdate != DateTime.fromMillisecondsSinceEpoch(0)) {
+    if (updated != null && updated != DateTime.fromMillisecondsSinceEpoch(0)) {
       return 'Amount updated ${timeSinceLastUpdate.toHumanReadableString()} ago.';
     } else {
       return 'Amount not updated recently.';
@@ -178,7 +174,6 @@ class Inventory extends Model<Inventory> {
   Inventory copyWith({
     double? amount,
     int? unitCount,
-    DateTime? lastUpdate,
     List<DateTime>? expirationDates,
     List<String>? locations,
     History? history,
@@ -193,7 +188,6 @@ class Inventory extends Model<Inventory> {
     return Inventory(
       amount: amount ?? this.amount,
       unitCount: unitCount ?? this.unitCount,
-      lastUpdate: lastUpdate ?? this.lastUpdate,
       expirationDates: expirationDates ?? this.expirationDates,
       locations: locations ?? this.locations,
       history: history?.copyWith(upc: newUpc) ?? this.history.copyWith(upc: newUpc),

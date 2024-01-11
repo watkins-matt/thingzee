@@ -30,8 +30,6 @@ class Item extends Model<Item> implements Comparable<Item>, Nameable {
   final String imageUrl;
   final bool consumable;
   final String languageCode;
-  @NullableDateTimeSerializer()
-  final DateTime? lastUpdate;
 
   Item({
     this.upc = '',
@@ -47,7 +45,6 @@ class Item extends Model<Item> implements Comparable<Item>, Nameable {
     this.imageUrl = '',
     this.consumable = true,
     this.languageCode = 'en',
-    this.lastUpdate,
     super.created,
     super.updated,
   });
@@ -77,7 +74,6 @@ class Item extends Model<Item> implements Comparable<Item>, Nameable {
     String? imageUrl,
     bool? consumable,
     String? languageCode,
-    DateTime? lastUpdate,
     DateTime? created,
     DateTime? updated,
   }) {
@@ -95,7 +91,6 @@ class Item extends Model<Item> implements Comparable<Item>, Nameable {
       imageUrl: imageUrl ?? this.imageUrl,
       consumable: consumable ?? this.consumable,
       languageCode: languageCode ?? this.languageCode,
-      lastUpdate: lastUpdate ?? this.lastUpdate,
       created: created ?? this.created,
       updated: updated ?? this.updated,
     );
@@ -117,7 +112,8 @@ class Item extends Model<Item> implements Comparable<Item>, Nameable {
           imageUrl == other.imageUrl &&
           consumable == other.consumable &&
           languageCode == other.languageCode &&
-          lastUpdate == other.lastUpdate;
+          created == other.created &&
+          updated == other.updated;
 
   @override
   Item merge(Item other) => _$mergeItem(this, other);

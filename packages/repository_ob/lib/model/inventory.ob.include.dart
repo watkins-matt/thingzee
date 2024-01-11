@@ -21,11 +21,11 @@ set dbExpirationDates(List<String> dates) {
 }
 
 int get dbLastUpdate {
-  return lastUpdate != null ? lastUpdate!.millisecondsSinceEpoch : 0;
+  return updated != null ? updated!.millisecondsSinceEpoch : 0;
 }
 
 set dbLastUpdate(int value) {
-  lastUpdate = value != 0 ? DateTime.fromMillisecondsSinceEpoch(value) : null;
+  updated = value != 0 ? DateTime.fromMillisecondsSinceEpoch(value) : null;
 }
 
 String get upc => _upc;

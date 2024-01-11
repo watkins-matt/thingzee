@@ -188,7 +188,7 @@ class EditableItem extends StateNotifier<EditableItemState> {
 
   void save(Repository repo) {
     final saveTimestamp = DateTime.now();
-    state.item = state.item.copyWith(lastUpdate: saveTimestamp);
+    state.item = state.item.copyWith(updated: saveTimestamp);
 
     repo.items.put(state.item);
 
@@ -202,7 +202,7 @@ class EditableItem extends StateNotifier<EditableItemState> {
     }
 
     // Make sure we update the last updated timestamp
-    state.inventory = state.inventory.copyWith(lastUpdate: saveTimestamp);
+    state.inventory = state.inventory.copyWith(updated: saveTimestamp);
 
     assert(state.inventory.upc == state.item.upc);
     assert(state.inventory.history.upc == state.item.upc);

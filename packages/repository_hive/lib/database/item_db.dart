@@ -68,7 +68,7 @@ class HiveItemDatabase extends ItemDatabase {
   @override
   List<Item> getChanges(DateTime since) {
     final changedItems = box.values
-        .where((hiveItem) => hiveItem.lastUpdate != null && hiveItem.lastUpdate!.isAfter(since))
+        .where((hiveItem) => hiveItem.updated != null && hiveItem.updated!.isAfter(since))
         .toList();
     return changedItems.map((hiveItem) => hiveItem.toItem()).toList();
   }

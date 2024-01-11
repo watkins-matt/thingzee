@@ -8,7 +8,7 @@ import 'package:repository/model/inventory.dart';
 class ObjectBoxInventory {
   late double amount;
   late int unitCount;
-  late DateTime? lastUpdate;
+  late DateTime? updated;
   List<DateTime> expirationDates = [];
   List<String> locations = [];
   @Transient()
@@ -23,7 +23,7 @@ class ObjectBoxInventory {
   ObjectBoxInventory.from(Inventory original) {
     amount = original.amount;
     unitCount = original.unitCount;
-    lastUpdate = original.lastUpdate;
+    updated = original.updated;
     expirationDates = original.expirationDates;
     locations = original.locations;
     history = original.history;
@@ -53,11 +53,11 @@ class ObjectBoxInventory {
   }
 
   int get dbLastUpdate {
-    return lastUpdate != null ? lastUpdate!.millisecondsSinceEpoch : 0;
+    return updated != null ? updated!.millisecondsSinceEpoch : 0;
   }
 
   set dbLastUpdate(int value) {
-    lastUpdate = value != 0 ? DateTime.fromMillisecondsSinceEpoch(value) : null;
+    updated = value != 0 ? DateTime.fromMillisecondsSinceEpoch(value) : null;
   }
 
   String get upc => _upc;
@@ -71,7 +71,7 @@ class ObjectBoxInventory {
     return Inventory(
         amount: amount,
         unitCount: unitCount,
-        lastUpdate: lastUpdate,
+        updated: updated,
         expirationDates: expirationDates,
         locations: locations,
         history: history,

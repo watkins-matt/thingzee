@@ -11,7 +11,6 @@ Inventory _$mergeInventory(Inventory first, Inventory second) {
     expirationDates: <DateTime>{...first.expirationDates, ...second.expirationDates}.toList(),
     restock: newer.restock,
     uid: newer.uid.isNotEmpty ? newer.uid : first.uid,
-    lastUpdate: newer.lastUpdate,
     history: newer.history,
     upc: newer.upc.isNotEmpty ? newer.upc : first.upc,
     created: first.created.older(second.created),

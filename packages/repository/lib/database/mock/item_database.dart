@@ -33,7 +33,7 @@ class MockItemDatabase extends ItemDatabase {
 
   @override
   List<Item> getChanges(DateTime since) =>
-      all().where((item) => item.lastUpdate != null && item.lastUpdate!.isAfter(since)).toList();
+      all().where((item) => item.updated != null && item.updated!.isAfter(since)).toList();
 
   @override
   Map<String, Item> map() => Map.from(_db);

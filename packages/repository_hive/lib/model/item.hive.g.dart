@@ -30,7 +30,7 @@ class HiveItemAdapter extends TypeAdapter<HiveItem> {
       ..imageUrl = fields[14] as String
       ..consumable = fields[15] as bool
       ..languageCode = fields[16] as String
-      ..lastUpdate = fields[17] as DateTime?;
+      ..updated = fields[17] as DateTime?;
   }
 
   @override
@@ -64,7 +64,7 @@ class HiveItemAdapter extends TypeAdapter<HiveItem> {
       ..writeByte(16)
       ..write(obj.languageCode)
       ..writeByte(17)
-      ..write(obj.lastUpdate);
+      ..write(obj.updated);
   }
 
   @override

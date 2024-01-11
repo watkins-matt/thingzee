@@ -74,7 +74,7 @@ class ObjectBoxItemDatabase extends ItemDatabase {
   @override
   List<Item> getChanges(DateTime since) {
     final query =
-        box.query(ObjectBoxItem_.lastUpdate.greaterThan(since.millisecondsSinceEpoch)).build();
+        box.query(ObjectBoxItem_.updated.greaterThan(since.millisecondsSinceEpoch)).build();
     final results = query.find();
     return results.map((objBoxItem) => objBoxItem.toItem()).toList();
   }

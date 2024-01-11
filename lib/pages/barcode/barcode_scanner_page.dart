@@ -91,7 +91,7 @@ class _BarcodeScannerPageState extends ConsumerState<BarcodeScannerPage> {
       upc: barcode,
       amount: 1,
       history: defaultHistory,
-      lastUpdate: DateTime.now(),
+      updated: DateTime.now(),
     );
     final inv = repo.inv.get(barcode) ?? defaultInventory;
 

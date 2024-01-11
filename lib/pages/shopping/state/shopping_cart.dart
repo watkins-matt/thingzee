@@ -44,7 +44,7 @@ class ShoppingCart extends StateNotifier<ShoppingCartState> {
       }
 
       inventory = inventory.copyWith(
-        lastUpdate: now,
+        updated: now,
         amount: inventory.amount + 1,
       );
       final newHistory = inventory.history.add(now.millisecondsSinceEpoch, inventory.amount, 2);
