@@ -9,11 +9,13 @@ mixin SynchronizedDatabase<T extends Model, D extends Database<T>> on Database<T
   late final Preferences prefs;
   late final String lastSyncKey;
   DateTime? lastSync;
+  late final String _tag;
 
   @override
   List<T> all() => local.all();
 
   void constructSyncDb(String tag, D localDb, D remoteDb, Preferences preferences) {
+    _tag = tag;
     lastSyncKey = '$tag.lastSync';
     local = localDb;
     remote = remoteDb;
@@ -69,12 +71,12 @@ mixin SynchronizedDatabase<T extends Model, D extends Database<T>> on Database<T
 
     // Synchronize everything if no last sync time is found
     if (lastSync == null) {
-      Log.d('${T.runtimeType}Database: No last sync time found, synchronizing everything.');
+      Log.d('$_tag: No last sync time found, synchronizing everything.');
       synchronize();
       return;
     }
 
-    Log.d('${T.runtimeType}Database: Synchronizing differences...');
+    Log.d('$_tag: Synchronizing differences...');
     var remoteChanges = remote.getChanges(lastSync!);
     var localChanges = local.getChanges(lastSync!);
     var remoteMap = {for (final r in remoteChanges) r.id: r};
@@ -110,17 +112,16 @@ mixin SynchronizedDatabase<T extends Model, D extends Database<T>> on Database<T
 
     // Perform a full synchronization if the databases are out of sync
     if (local.all().length != remote.all().length) {
-      Log.w(
-          '${T.runtimeType}Database: Local and remote databases are out of sync, performing full synchronization.');
+      Log.w('$_tag: Local and remote databases are out of sync, performing full synchronization.');
       synchronize();
       return;
     }
 
     // Log the number of synchronized items
     if (changes > 0) {
-      Log.d('${T.runtimeType}Database: Synchronized $changes items.');
+      Log.d('$_tag: Synchronized $changes items.');
     } else {
-      Log.d('${T.runtimeType}Database: No synchronization necessary, everything up to date.');
+      Log.d('$_tag: No synchronization necessary, everything up to date.');
     }
 
     // Update the last synchronization time
