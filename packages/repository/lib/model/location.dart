@@ -106,6 +106,7 @@ class Location extends Model<Location> {
     return '$path/$upc';
   }
 
+  @override
   Location copyWith({
     String? upc,
     String? name,

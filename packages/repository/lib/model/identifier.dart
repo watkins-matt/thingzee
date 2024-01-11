@@ -29,6 +29,7 @@ class ItemIdentifier extends Model<ItemIdentifier> {
   @override
   String get id => '$type:$value';
 
+  @override
   ItemIdentifier copyWith({
     String? type,
     String? value,

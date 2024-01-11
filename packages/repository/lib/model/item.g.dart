@@ -44,19 +44,28 @@ Map<String, dynamic> _$ItemToJson(Item instance) => <String, dynamic>{
       'imageUrl': instance.imageUrl,
       'consumable': instance.consumable,
       'languageCode': instance.languageCode,
-      'lastUpdate': const NullableDateTimeSerializer().toJson(instance.lastUpdate),
+      'lastUpdate':
+          const NullableDateTimeSerializer().toJson(instance.lastUpdate),
     };
 
-ItemTranslation _$ItemTranslationFromJson(Map<String, dynamic> json) => ItemTranslation()
-  ..upc = json['upc'] as String
-  ..languageCode = json['languageCode'] as String
-  ..name = json['name'] as String
-  ..variety = json['variety'] as String
-  ..unitName = json['unitName'] as String
-  ..unitPlural = json['unitPlural'] as String
-  ..type = json['type'] as String;
+Value? _$JsonConverterFromJson<Json, Value>(
+  Object? json,
+  Value? Function(Json json) fromJson,
+) =>
+    json == null ? null : fromJson(json as Json);
 
-Map<String, dynamic> _$ItemTranslationToJson(ItemTranslation instance) => <String, dynamic>{
+ItemTranslation _$ItemTranslationFromJson(Map<String, dynamic> json) =>
+    ItemTranslation()
+      ..upc = json['upc'] as String
+      ..languageCode = json['languageCode'] as String
+      ..name = json['name'] as String
+      ..variety = json['variety'] as String
+      ..unitName = json['unitName'] as String
+      ..unitPlural = json['unitPlural'] as String
+      ..type = json['type'] as String;
+
+Map<String, dynamic> _$ItemTranslationToJson(ItemTranslation instance) =>
+    <String, dynamic>{
       'upc': instance.upc,
       'languageCode': instance.languageCode,
       'name': instance.name,
@@ -65,9 +74,3 @@ Map<String, dynamic> _$ItemTranslationToJson(ItemTranslation instance) => <Strin
       'unitPlural': instance.unitPlural,
       'type': instance.type,
     };
-
-Value? _$JsonConverterFromJson<Json, Value>(
-  Object? json,
-  Value? Function(Json json) fromJson,
-) =>
-    json == null ? null : fromJson(json as Json);

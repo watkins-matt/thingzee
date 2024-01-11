@@ -41,6 +41,7 @@ class Product extends Model<Product> implements Comparable<Product> {
     return name.compareTo(other.name);
   }
 
+  @override
   Product copyWith({
     String? name,
     String? uid,

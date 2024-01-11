@@ -63,7 +63,16 @@ mixin AppwriteDatabase<T extends Model> {
     return documentList.documents
         .map((doc) {
           try {
-            return deserialize(doc.data);
+            final created = doc.data['created'] ?? DateTime.parse(doc.data['\$createdAt']);
+            final updated = doc.data['updated'] ?? DateTime.parse(doc.data['\$updatedAt']);
+
+            T? result = deserialize(doc.data);
+
+            if (result != null) {
+              result = result.copyWith(created: created, updated: updated);
+            }
+
+            return result;
           } catch (e) {
             Log.e('$_tag: Failed to deserialize: ${doc.data}', e.toString());
             return null;

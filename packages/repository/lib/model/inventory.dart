@@ -174,6 +174,7 @@ class Inventory extends Model<Inventory> {
     return history.regressor.hasSlope ? (1 / history.regressor.slope.abs()) / 1000 / 60 : 0;
   }
 
+  @override
   Inventory copyWith({
     double? amount,
     int? unitCount,

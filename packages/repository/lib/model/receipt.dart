@@ -58,6 +58,7 @@ class Receipt extends Model<Receipt> {
     return copyWith(items: newItems);
   }
 
+  @override
   Receipt copyWith({
     List<ReceiptItem>? items,
     DateTime? date,

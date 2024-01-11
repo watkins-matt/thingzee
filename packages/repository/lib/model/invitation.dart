@@ -49,6 +49,7 @@ class Invitation extends Model<Invitation> {
   });
   factory Invitation.fromJson(Map<String, dynamic> json) => _$InvitationFromJson(json);
 
+  @override
   Invitation copyWith({
     String? id,
     String? householdId,

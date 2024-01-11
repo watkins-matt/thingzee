@@ -40,6 +40,7 @@ class ShoppingItem extends Model<ShoppingItem> {
   @override
   String get id => upc;
 
+  @override
   ShoppingItem copyWith({
     String? upc,
     bool? checked,
