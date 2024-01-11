@@ -55,6 +55,8 @@ class InventoryCsvRow {
       lastUpdate: lastUpdate,
       restock: restock,
       unitCount: unitCount,
+      updated: lastUpdate,
+      created: lastUpdate,
     );
   }
 
@@ -68,6 +70,8 @@ class InventoryCsvRow {
       type: type,
       unitName: unitName,
       unitPlural: unitPlural,
+      updated: lastUpdate,
+      created: lastUpdate,
     );
   }
 }
