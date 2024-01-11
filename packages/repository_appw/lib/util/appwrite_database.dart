@@ -96,7 +96,7 @@ mixin AppwriteDatabase<T extends Model> {
     return await _database.listDocuments(
       databaseId: databaseId,
       collectionId: collectionId,
-      queries: [Query.greaterThan('lastUpdate', lastSyncTime?.millisecondsSinceEpoch ?? 0)],
+      queries: [Query.greaterThan('updated', lastSyncTime?.millisecondsSinceEpoch ?? 0)],
     );
   }
 
