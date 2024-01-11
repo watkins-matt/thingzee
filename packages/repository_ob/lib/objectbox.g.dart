@@ -223,7 +223,7 @@ final _entities = <ModelEntity>[
   ModelEntity(
       id: const IdUid(26, 3164051957900951727),
       name: 'ObjectBoxItem',
-      lastPropertyId: const IdUid(15, 7642552518931337978),
+      lastPropertyId: const IdUid(16, 7855442706897693439),
       flags: 0,
       properties: <ModelProperty>[
         ModelProperty(
@@ -232,11 +232,6 @@ final _entities = <ModelEntity>[
             type: 9,
             flags: 34848,
             indexId: const IdUid(10, 1425598012937126193)),
-        ModelProperty(
-            id: const IdUid(2, 592784928820256951),
-            name: 'id',
-            type: 9,
-            flags: 0),
         ModelProperty(
             id: const IdUid(3, 211053890509625994),
             name: 'name',
@@ -301,7 +296,12 @@ final _entities = <ModelEntity>[
             id: const IdUid(15, 7642552518931337978),
             name: 'objectBoxId',
             type: 6,
-            flags: 1)
+            flags: 1),
+        ModelProperty(
+            id: const IdUid(16, 7855442706897693439),
+            name: 'uid',
+            type: 9,
+            flags: 0)
       ],
       relations: <ModelRelation>[],
       backlinks: <ModelBacklink>[]),
@@ -759,7 +759,8 @@ ModelDefinition getObjectBoxModel() {
         1213347897950107873,
         596113066098669458,
         3965590369990621244,
-        7543468242257706711
+        7543468242257706711,
+        592784928820256951
       ],
       retiredRelationUids: const [],
       modelVersion: 5,
@@ -1003,7 +1004,6 @@ ModelDefinition getObjectBoxModel() {
         },
         objectToFB: (ObjectBoxItem object, fb.Builder fbb) {
           final upcOffset = fbb.writeString(object.upc);
-          final idOffset = fbb.writeString(object.id);
           final nameOffset = fbb.writeString(object.name);
           final varietyOffset = fbb.writeString(object.variety);
           final categoryOffset = fbb.writeString(object.category);
@@ -1013,9 +1013,9 @@ ModelDefinition getObjectBoxModel() {
           final unitPluralOffset = fbb.writeString(object.unitPlural);
           final imageUrlOffset = fbb.writeString(object.imageUrl);
           final languageCodeOffset = fbb.writeString(object.languageCode);
-          fbb.startTable(16);
+          final uidOffset = fbb.writeString(object.uid);
+          fbb.startTable(17);
           fbb.addOffset(0, upcOffset);
-          fbb.addOffset(1, idOffset);
           fbb.addOffset(2, nameOffset);
           fbb.addOffset(3, varietyOffset);
           fbb.addOffset(4, categoryOffset);
@@ -1029,6 +1029,7 @@ ModelDefinition getObjectBoxModel() {
           fbb.addOffset(12, languageCodeOffset);
           fbb.addInt64(13, object.lastUpdate?.millisecondsSinceEpoch);
           fbb.addInt64(14, object.objectBoxId);
+          fbb.addOffset(15, uidOffset);
           fbb.finish(fbb.endTable());
           return object.objectBoxId;
         },
@@ -1040,8 +1041,6 @@ ModelDefinition getObjectBoxModel() {
           final object = ObjectBoxItem()
             ..upc = const fb.StringReader(asciiOptimization: true)
                 .vTableGet(buffer, rootOffset, 4, '')
-            ..id = const fb.StringReader(asciiOptimization: true)
-                .vTableGet(buffer, rootOffset, 6, '')
             ..name = const fb.StringReader(asciiOptimization: true)
                 .vTableGet(buffer, rootOffset, 8, '')
             ..variety = const fb.StringReader(asciiOptimization: true)
@@ -1068,7 +1067,9 @@ ModelDefinition getObjectBoxModel() {
                 ? null
                 : DateTime.fromMillisecondsSinceEpoch(lastUpdateValue)
             ..objectBoxId =
-                const fb.Int64Reader().vTableGet(buffer, rootOffset, 32, 0);
+                const fb.Int64Reader().vTableGet(buffer, rootOffset, 32, 0)
+            ..uid = const fb.StringReader(asciiOptimization: true)
+                .vTableGet(buffer, rootOffset, 34, '');
 
           return object;
         }),
@@ -1501,61 +1502,61 @@ class ObjectBoxItem_ {
   static final upc =
       QueryStringProperty<ObjectBoxItem>(_entities[5].properties[0]);
 
-  /// see [ObjectBoxItem.id]
-  static final id =
-      QueryStringProperty<ObjectBoxItem>(_entities[5].properties[1]);
-
   /// see [ObjectBoxItem.name]
   static final name =
-      QueryStringProperty<ObjectBoxItem>(_entities[5].properties[2]);
+      QueryStringProperty<ObjectBoxItem>(_entities[5].properties[1]);
 
   /// see [ObjectBoxItem.variety]
   static final variety =
-      QueryStringProperty<ObjectBoxItem>(_entities[5].properties[3]);
+      QueryStringProperty<ObjectBoxItem>(_entities[5].properties[2]);
 
   /// see [ObjectBoxItem.category]
   static final category =
-      QueryStringProperty<ObjectBoxItem>(_entities[5].properties[4]);
+      QueryStringProperty<ObjectBoxItem>(_entities[5].properties[3]);
 
   /// see [ObjectBoxItem.type]
   static final type =
-      QueryStringProperty<ObjectBoxItem>(_entities[5].properties[5]);
+      QueryStringProperty<ObjectBoxItem>(_entities[5].properties[4]);
 
   /// see [ObjectBoxItem.typeId]
   static final typeId =
-      QueryStringProperty<ObjectBoxItem>(_entities[5].properties[6]);
+      QueryStringProperty<ObjectBoxItem>(_entities[5].properties[5]);
 
   /// see [ObjectBoxItem.unitCount]
   static final unitCount =
-      QueryIntegerProperty<ObjectBoxItem>(_entities[5].properties[7]);
+      QueryIntegerProperty<ObjectBoxItem>(_entities[5].properties[6]);
 
   /// see [ObjectBoxItem.unitName]
   static final unitName =
-      QueryStringProperty<ObjectBoxItem>(_entities[5].properties[8]);
+      QueryStringProperty<ObjectBoxItem>(_entities[5].properties[7]);
 
   /// see [ObjectBoxItem.unitPlural]
   static final unitPlural =
-      QueryStringProperty<ObjectBoxItem>(_entities[5].properties[9]);
+      QueryStringProperty<ObjectBoxItem>(_entities[5].properties[8]);
 
   /// see [ObjectBoxItem.imageUrl]
   static final imageUrl =
-      QueryStringProperty<ObjectBoxItem>(_entities[5].properties[10]);
+      QueryStringProperty<ObjectBoxItem>(_entities[5].properties[9]);
 
   /// see [ObjectBoxItem.consumable]
   static final consumable =
-      QueryBooleanProperty<ObjectBoxItem>(_entities[5].properties[11]);
+      QueryBooleanProperty<ObjectBoxItem>(_entities[5].properties[10]);
 
   /// see [ObjectBoxItem.languageCode]
   static final languageCode =
-      QueryStringProperty<ObjectBoxItem>(_entities[5].properties[12]);
+      QueryStringProperty<ObjectBoxItem>(_entities[5].properties[11]);
 
   /// see [ObjectBoxItem.lastUpdate]
   static final lastUpdate =
-      QueryIntegerProperty<ObjectBoxItem>(_entities[5].properties[13]);
+      QueryIntegerProperty<ObjectBoxItem>(_entities[5].properties[12]);
 
   /// see [ObjectBoxItem.objectBoxId]
   static final objectBoxId =
-      QueryIntegerProperty<ObjectBoxItem>(_entities[5].properties[14]);
+      QueryIntegerProperty<ObjectBoxItem>(_entities[5].properties[13]);
+
+  /// see [ObjectBoxItem.uid]
+  static final uid =
+      QueryStringProperty<ObjectBoxItem>(_entities[5].properties[14]);
 }
 
 /// [ObjectBoxItemTranslation] entity fields to define ObjectBox queries.

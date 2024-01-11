@@ -7,7 +7,7 @@ import 'package:repository/model/item.dart';
 class ObjectBoxItem {
   @Unique(onConflict: ConflictStrategy.replace)
   late String upc;
-  late String id;
+  late String uid;
   late String name;
   late String variety;
   late String category;
@@ -25,7 +25,7 @@ class ObjectBoxItem {
   ObjectBoxItem();
   ObjectBoxItem.from(Item original) {
     upc = original.upc;
-    id = original.id;
+    uid = original.uid;
     name = original.name;
     variety = original.variety;
     category = original.category;
@@ -42,7 +42,7 @@ class ObjectBoxItem {
   Item toItem() {
     return Item(
         upc: upc,
-        id: id,
+        uid: uid,
         name: name,
         variety: variety,
         category: category,

@@ -6,7 +6,7 @@ Item _$mergeItem(Item first, Item second) {
   final newer = first.updated.newer(second.updated) == first.updated ? first : second;
   var merged = Item(
     upc: newer.upc.isNotEmpty ? newer.upc : first.upc,
-    id: newer.id.isNotEmpty ? newer.id : first.id,
+    uid: newer.uid.isNotEmpty ? newer.uid : first.uid,
     name: newer.name.isNotEmpty ? newer.name : first.name,
     variety: newer.variety.isNotEmpty ? newer.variety : first.variety,
     category: newer.category.isNotEmpty ? newer.category : first.category,

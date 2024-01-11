@@ -8,7 +8,7 @@ part of 'item.dart';
 
 Item _$ItemFromJson(Map<String, dynamic> json) => Item(
       upc: json['upc'] as String? ?? '',
-      id: json['id'] as String? ?? '',
+      uid: json['uid'] as String? ?? '',
       name: json['name'] as String? ?? '',
       variety: json['variety'] as String? ?? '',
       category: json['category'] as String? ?? '',
@@ -32,7 +32,7 @@ Map<String, dynamic> _$ItemToJson(Item instance) => <String, dynamic>{
       'created': const NullableDateTimeSerializer().toJson(instance.created),
       'updated': const NullableDateTimeSerializer().toJson(instance.updated),
       'upc': instance.upc,
-      'id': instance.id,
+      'uid': instance.uid,
       'name': instance.name,
       'variety': instance.variety,
       'category': instance.category,
@@ -44,28 +44,19 @@ Map<String, dynamic> _$ItemToJson(Item instance) => <String, dynamic>{
       'imageUrl': instance.imageUrl,
       'consumable': instance.consumable,
       'languageCode': instance.languageCode,
-      'lastUpdate':
-          const NullableDateTimeSerializer().toJson(instance.lastUpdate),
+      'lastUpdate': const NullableDateTimeSerializer().toJson(instance.lastUpdate),
     };
 
-Value? _$JsonConverterFromJson<Json, Value>(
-  Object? json,
-  Value? Function(Json json) fromJson,
-) =>
-    json == null ? null : fromJson(json as Json);
+ItemTranslation _$ItemTranslationFromJson(Map<String, dynamic> json) => ItemTranslation()
+  ..upc = json['upc'] as String
+  ..languageCode = json['languageCode'] as String
+  ..name = json['name'] as String
+  ..variety = json['variety'] as String
+  ..unitName = json['unitName'] as String
+  ..unitPlural = json['unitPlural'] as String
+  ..type = json['type'] as String;
 
-ItemTranslation _$ItemTranslationFromJson(Map<String, dynamic> json) =>
-    ItemTranslation()
-      ..upc = json['upc'] as String
-      ..languageCode = json['languageCode'] as String
-      ..name = json['name'] as String
-      ..variety = json['variety'] as String
-      ..unitName = json['unitName'] as String
-      ..unitPlural = json['unitPlural'] as String
-      ..type = json['type'] as String;
-
-Map<String, dynamic> _$ItemTranslationToJson(ItemTranslation instance) =>
-    <String, dynamic>{
+Map<String, dynamic> _$ItemTranslationToJson(ItemTranslation instance) => <String, dynamic>{
       'upc': instance.upc,
       'languageCode': instance.languageCode,
       'name': instance.name,
@@ -74,3 +65,9 @@ Map<String, dynamic> _$ItemTranslationToJson(ItemTranslation instance) =>
       'unitPlural': instance.unitPlural,
       'type': instance.type,
     };
+
+Value? _$JsonConverterFromJson<Json, Value>(
+  Object? json,
+  Value? Function(Json json) fromJson,
+) =>
+    json == null ? null : fromJson(json as Json);

@@ -14,10 +14,12 @@ part 'item.merge.dart';
 @Mergeable()
 class Item extends Model<Item> implements Comparable<Item>, Nameable {
   final String upc; // generator:unique
-  @override
-  final String id;
+
+  final String uid;
+
   @override
   final String name;
+
   final String variety;
   final String category;
   final String type; // Type of the item, example: Cereal, Milk, Tomato Sauce
@@ -28,13 +30,12 @@ class Item extends Model<Item> implements Comparable<Item>, Nameable {
   final String imageUrl;
   final bool consumable;
   final String languageCode;
-
   @NullableDateTimeSerializer()
   final DateTime? lastUpdate;
 
   Item({
     this.upc = '',
-    this.id = '',
+    this.uid = '',
     this.name = '',
     this.variety = '',
     this.category = '',
@@ -54,13 +55,16 @@ class Item extends Model<Item> implements Comparable<Item>, Nameable {
   factory Item.fromJson(Map<String, dynamic> json) => _$ItemFromJson(json);
 
   @override
+  String get id => upc;
+
+  @override
   int compareTo(Item other) {
     return name.compareTo(other.name);
   }
 
   Item copyWith({
     String? upc,
-    String? id,
+    String? uid,
     String? name,
     String? variety,
     String? category,
@@ -78,7 +82,7 @@ class Item extends Model<Item> implements Comparable<Item>, Nameable {
   }) {
     return Item(
       upc: upc ?? this.upc,
-      id: id ?? this.id,
+      uid: uid ?? this.uid,
       name: name ?? this.name,
       variety: variety ?? this.variety,
       category: category ?? this.category,
@@ -100,7 +104,7 @@ class Item extends Model<Item> implements Comparable<Item>, Nameable {
   bool equalTo(Item other) =>
       identical(this, other) ||
       upc == other.upc &&
-          id == other.id &&
+          uid == other.uid &&
           name == other.name &&
           variety == other.variety &&
           category == other.category &&
