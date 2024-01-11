@@ -47,7 +47,8 @@ class ShoppingCart extends StateNotifier<ShoppingCartState> {
         lastUpdate: now,
         amount: inventory.amount + 1,
       );
-      inventory.history.add(now.millisecondsSinceEpoch, inventory.amount, 2);
+      final newHistory = inventory.history.add(now.millisecondsSinceEpoch, inventory.amount, 2);
+      inventory = inventory.copyWith(history: newHistory);
 
       repo.inv.put(inventory);
     }

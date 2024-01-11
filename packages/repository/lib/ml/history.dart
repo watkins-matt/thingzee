@@ -73,12 +73,10 @@ class History extends Model<History> {
 
   HistorySeries get current {
     if (series.isEmpty) {
-      series.add(HistorySeries());
+      return HistorySeries(); // Return a new empty series
     }
 
-    // There will always be at least one series
-    // because we created it above if it doesn't exist
-    return series.last;
+    return series.last; // Return the last series
   }
 
   Evaluator get evaluator {
@@ -149,16 +147,17 @@ class History extends Model<History> {
   /// - If we predicted the amount to be 0 before the user set it to zero,
   ///     choose the predicted timestamp as the timestamp, assuming that
   ///     the user likely updated the amount after the fact.
-  void add(int timestamp, double amount, int householdCount, {int minOffsetHours = 24}) {
+  History add(int timestamp, double amount, int householdCount, {int minOffsetHours = 24}) {
     assert(timestamp != 0); // Timestamp cannot be a placeholder value
 
-    clean(warn: true);
+    // Clean the history first
+    History updatedHistory = clean(warn: true);
 
     // There is not any point in making a HistorySeries where the only
     // entry is 0. We can't use a single 0 value for prediction purposes.
     // Do not add the value under these circumstances.
-    if (current.observations.isEmpty && amount == 0) {
-      return;
+    if (updatedHistory.current.observations.isEmpty && amount == 0) {
+      return updatedHistory;
     }
 
     // Create a new observation
@@ -168,20 +167,25 @@ class History extends Model<History> {
       householdCount: householdCount,
     );
 
+    // Copy the series list to modify
+    List<HistorySeries> updatedSeries = List.from(updatedHistory.series);
+
     // If the series is empty, start a new series
-    if (series.isEmpty) {
-      series.add(HistorySeries());
+    if (updatedSeries.isEmpty) {
+      updatedSeries.add(HistorySeries());
     }
 
-    // Check if current.observations is empty. If so, we only need
+    var currentSeries = updatedSeries.last;
+
+    // Check if currentSeries observations is empty. If so, we only need
     // to add the single non-zero value.
-    if (current.observations.isEmpty) {
-      current.observations.add(observation);
-      return;
+    if (currentSeries.observations.isEmpty) {
+      currentSeries.observations.add(observation);
+      return updatedHistory.copyWith(series: updatedSeries);
     }
 
     // Get the last observation in the current series
-    var lastObservation = current.observations.last;
+    var lastObservation = currentSeries.observations.last;
 
     // Calculate the time difference between the new observation and the last one
     var timeDifference = observation.timestamp - lastObservation.timestamp;
@@ -190,62 +194,67 @@ class History extends Model<History> {
     final minOffset = minOffsetHours * 60 * 60 * 1000;
 
     if (timeDifference < minOffset) {
-      if (observation.amount > lastObservation.amount && series.length > 1) {
+      if (observation.amount > lastObservation.amount && updatedSeries.length > 1) {
         // If this is an increase and this is not the only item in the
         // series, start a new series and add the new observation
-        series.add(HistorySeries());
-        current.observations.add(observation);
+        updatedSeries.add(HistorySeries());
+        updatedSeries.last.observations.add(observation);
       } else {
         // If it's a decrease or the current item is the only one in the
         // series, simply update the last observation's amount
-        current.observations.removeLast();
-        current.observations.add(observation);
+        currentSeries.observations.removeLast();
+        currentSeries.observations.add(observation);
       }
     }
-
     // Otherwise, add the new observation as usual
     else {
       // If the new observation's amount is greater than the last one,
       // start a new series and add the new observation
       if (observation.amount > lastObservation.amount) {
         // If the predicted outage timestamp is earlier than the new timestamp, add a zero amount observation
-        if (predictedOutageTimestamp < timestamp) {
-          current.observations.add(Observation(
-            timestamp: predictedOutageTimestamp.toDouble(),
+        if (updatedHistory.predictedOutageTimestamp < timestamp) {
+          currentSeries.observations.add(Observation(
+            timestamp: updatedHistory.predictedOutageTimestamp.toDouble(),
             amount: 0,
             householdCount: householdCount,
           ));
         }
-
         // Start a new series
-        series.add(HistorySeries());
-        current.observations.add(observation);
+        updatedSeries.add(HistorySeries());
+        updatedSeries.last.observations.add(observation);
       }
-
       // If the new observation's amount is the same as the last one, do nothing
 
       // If the new observation's amount is less than the last one, add the new observation
+
       else if (observation.amount < lastObservation.amount) {
         // If the new observation's amount is zero and the predicted outage timestamp is earlier than the new timestamp,
         // add a zero amount observation
-        if (observation.amount == 0 && canPredict && predictedOutageTimestamp < timestamp) {
-          current.observations.add(Observation(
-            timestamp: predictedOutageTimestamp.toDouble(),
+        if (observation.amount == 0 &&
+            updatedHistory.canPredict &&
+            updatedHistory.predictedOutageTimestamp < timestamp) {
+          currentSeries.observations.add(Observation(
+            timestamp: updatedHistory.predictedOutageTimestamp.toDouble(),
             amount: 0,
             householdCount: householdCount,
           ));
         } else {
-          current.observations.add(observation);
+          currentSeries.observations.add(observation);
         }
       }
     }
+
+    // Return a new History instance with the updated series
+    return updatedHistory.copyWith(series: updatedSeries);
   }
 
   // Remove any invalid observations from the history
   // (This means any series where there is only a 0 value,
   // or the timestamp is 0)
   History clean({bool warn = false}) {
-    for (final s in series) {
+    List<HistorySeries> updatedSeries = List.from(series);
+
+    for (final s in updatedSeries) {
       // There was only one observation, and this is not the last series
       if (s.observations.length == 1 && (last != null && s.observations.last != last)) {
         s.observations.clear();
@@ -282,8 +291,8 @@ class History extends Model<History> {
       }
     }
 
-    trim();
-    return this;
+    // Create a new instance with the updated series
+    return History(upc: upc, series: updatedSeries, created: created, updated: updated).trim();
   }
 
   History copyWith({
@@ -300,8 +309,12 @@ class History extends Model<History> {
     );
   }
 
-  void delete(int series) {
-    this.series.removeAt(series);
+  History delete(int seriesIndex) {
+    if (seriesIndex < 0 || seriesIndex >= series.length) {
+      throw ArgumentError('Series index out of bounds');
+    }
+    List<HistorySeries> updatedSeries = List.from(series)..removeAt(seriesIndex);
+    return copyWith(series: updatedSeries);
   }
 
   @override
@@ -346,7 +359,7 @@ class History extends Model<History> {
 
   // Remove any empty series values in the history
   History trim() {
-    series.removeWhere((s) => s.observations.isEmpty);
-    return this;
+    List<HistorySeries> trimmedSeries = series.where((s) => s.observations.isNotEmpty).toList();
+    return copyWith(series: trimmedSeries);
   }
 }

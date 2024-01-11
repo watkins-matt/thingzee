@@ -196,7 +196,9 @@ class EditableItem extends StateNotifier<EditableItemState> {
     if (state.changedFields.contains('amount') ||
         state.inventory.history.series.isEmpty ||
         state.inventory.history.series.last.observations.isEmpty) {
-      state.inventory.history.add(saveTimestamp.millisecondsSinceEpoch, state.inventory.amount, 2);
+      final newHistory = state.inventory.history
+          .add(saveTimestamp.millisecondsSinceEpoch, state.inventory.amount, 2);
+      state.inventory = state.inventory.copyWith(history: newHistory);
     }
 
     // Make sure we update the last updated timestamp
