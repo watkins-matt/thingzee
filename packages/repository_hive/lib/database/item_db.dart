@@ -28,6 +28,11 @@ class HiveItemDatabase extends ItemDatabase {
   }
 
   @override
+  void deleteById(String id) {
+    box.delete(id);
+  }
+
+  @override
   List<Item> filter(Filter filter) {
     final filteredItems = box.values.where((hiveItem) {
       if (hiveItem.consumable && filter.consumable) {

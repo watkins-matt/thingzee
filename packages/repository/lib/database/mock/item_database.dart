@@ -15,6 +15,11 @@ class MockItemDatabase extends ItemDatabase {
   void deleteAll() => _db.clear();
 
   @override
+  void deleteById(String id) {
+    _db.remove(id);
+  }
+
+  @override
   List<Item> filter(Filter filter) => _db.values
       .where((item) =>
           (filter.consumable && item.consumable) || (filter.nonConsumable && !item.consumable))

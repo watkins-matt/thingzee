@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_renaming_method_parameters
+
 import 'package:repository/database/location_database.dart';
 import 'package:repository/model/location.dart';
 import 'package:repository_ob/model/location.ob.dart';
@@ -26,6 +28,80 @@ class ObjectBoxLocationDatabase extends LocationDatabase {
   List<Location> all() {
     final all = box.getAll();
     return all.map((objBoxLoc) => objBoxLoc.toLocation()).toList();
+  }
+
+  @override
+  void delete(Location item) {
+    final query = box
+        .query(
+            ObjectBoxLocation_.upc.equals(item.upc).and(ObjectBoxLocation_.name.equals(item.name)))
+        .build();
+    final result = query.findFirst();
+    query.close();
+
+    if (result != null) {
+      box.remove(result.objectBoxId);
+    }
+  }
+
+  @override
+  void deleteAll() {
+    box.removeAll();
+  }
+
+  @override
+  void deleteById(String id) {
+    if (!id.contains('/')) {
+      throw ArgumentError('Invalid location id: $id');
+    }
+
+    final upc = id.substring(id.lastIndexOf('/') + 1);
+    final location = id.substring(0, id.lastIndexOf('/'));
+
+    if (location.isEmpty || upc.isEmpty) {
+      throw ArgumentError('Unable to parse location from $id (location: $location, upc: $upc)');
+    }
+
+    final query = box
+        .query(ObjectBoxLocation_.upc.equals(upc).and(ObjectBoxLocation_.name.equals(location)))
+        .build();
+    final result = query.findFirst();
+    query.close();
+
+    if (result != null) {
+      box.remove(result.objectBoxId);
+    }
+  }
+
+  @override
+  Location? get(String id) {
+    if (!id.contains('/')) {
+      throw ArgumentError('Invalid location id: $id');
+    }
+
+    final upc = id.substring(id.lastIndexOf('/') + 1);
+    final location = id.substring(0, id.lastIndexOf('/'));
+
+    if (location.isEmpty || upc.isEmpty) {
+      throw ArgumentError('Unable to parse location from $id (location: $location, upc: $upc)');
+    }
+
+    final query = box
+        .query(ObjectBoxLocation_.upc.equals(upc).and(ObjectBoxLocation_.name.equals(location)))
+        .build();
+    final result = query.findFirst();
+    query.close();
+
+    return result?.toLocation();
+  }
+
+  @override
+  List<Location> getAll(List<String> ids) {
+    final query = box.query(ObjectBoxLocation_.name.oneOf(ids)).build();
+    final results = query.find();
+    query.close();
+
+    return results.map((objBoxLoc) => objBoxLoc.toLocation()).toList();
   }
 
   @override
@@ -103,6 +179,26 @@ class ObjectBoxLocationDatabase extends LocationDatabase {
   }
 
   @override
+  void put(Location location) {
+    final query = box
+        .query(ObjectBoxLocation_.upc
+            .equals(location.upc)
+            .and(ObjectBoxLocation_.name.equals(location.name)))
+        .build();
+    final exists = query.findFirst();
+    query.close();
+
+    final locOb = ObjectBoxLocation.from(location);
+
+    if (exists != null && locOb.objectBoxId != exists.objectBoxId) {
+      locOb.objectBoxId = exists.objectBoxId;
+      locOb.created = exists.created;
+    }
+
+    box.put(locOb);
+  }
+
+  @override
   void remove(String location, String upc) {
     final query = box
         .query(ObjectBoxLocation_.name.equals(location).and(ObjectBoxLocation_.upc.equals(upc)))
@@ -121,20 +217,7 @@ class ObjectBoxLocationDatabase extends LocationDatabase {
     location = normalizeLocation(location);
 
     final time = DateTime.now();
-    final locOb =
-        ObjectBoxLocation.from(Location(name: location, upc: upc, created: time, updated: time));
-
-    final query = box
-        .query(ObjectBoxLocation_.upc.equals(upc).and(ObjectBoxLocation_.name.equals(location)))
-        .build();
-    final exists = query.findFirst();
-    query.close();
-
-    if (exists != null && locOb.objectBoxId != exists.objectBoxId) {
-      locOb.objectBoxId = exists.objectBoxId;
-      locOb.created = exists.created;
-    }
-
-    box.put(locOb);
+    final locObject = Location(name: location, upc: upc, created: time, updated: time);
+    put(locObject);
   }
 }
