@@ -7,11 +7,11 @@ void main() {
   group('MLHistory:', () {
     test('Should ensure that values added are at least 24 hours apart.', () {
       History history = History();
-      history.add(1, 100, 2);
-      history.add(2, 90, 2);
-      history.add(minOffset + 2, 80, 2);
-      history.add(minOffset + 3, 80, 2);
-      history.add(minOffset + 3, 79, 2);
+      history = history.add(1, 100, 2);
+      history = history.add(2, 90, 2);
+      history = history.add(minOffset + 2, 80, 2);
+      history = history.add(minOffset + 3, 80, 2);
+      history = history.add(minOffset + 3, 79, 2);
 
       expect(history.current.observations.length, 2);
       expect(history.current.observations[0].timestamp, 2);
@@ -28,9 +28,9 @@ void main() {
 
     test('Regression with three points', () {
       History history = History();
-      history.add(1 * 86400000, 4, 2); // Day 1
-      history.add(3 * 86400000, 3, 2); // Day 3
-      history.add(5 * 86400000, 2, 2); // Day 5
+      history = history.add(1 * 86400000, 4, 2); // Day 1
+      history = history.add(3 * 86400000, 3, 2); // Day 3
+      history = history.add(5 * 86400000, 2, 2); // Day 5
 
       var regressor = history.regressor;
       var predictedAmounts =
