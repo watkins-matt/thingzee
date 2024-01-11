@@ -29,6 +29,13 @@ class JoinedInventoryDatabase extends InventoryDatabase {
   }
 
   @override
+  void deleteById(String upc) {
+    inventoryDatabase.deleteById(upc);
+    // Note that we do not delete this history, the user may need
+    // the history information in the future.
+  }
+
+  @override
   Inventory? get(String upc) {
     var inventory = inventoryDatabase.get(upc);
 

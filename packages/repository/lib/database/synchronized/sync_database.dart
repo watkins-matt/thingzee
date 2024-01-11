@@ -3,9 +3,9 @@ import 'package:repository/database/database.dart';
 import 'package:repository/database/preferences.dart';
 import 'package:repository/model/abstract/model.dart';
 
-mixin SynchronizedDatabase<T extends Model> on Database<T> {
-  late final Database<T> local;
-  late final Database<T> remote;
+mixin SynchronizedDatabase<T extends Model, D extends Database<T>> on Database<T> {
+  late final D local;
+  late final D remote;
   late final Preferences prefs;
   late final String lastSyncKey;
   DateTime? lastSync;
@@ -13,8 +13,7 @@ mixin SynchronizedDatabase<T extends Model> on Database<T> {
   @override
   List<T> all() => local.all();
 
-  void constructSyncDb(
-      String tag, Database<T> localDb, Database<T> remoteDb, Preferences preferences) {
+  void constructSyncDb(String tag, D localDb, D remoteDb, Preferences preferences) {
     lastSyncKey = '$tag.lastSync';
     local = localDb;
     remote = remoteDb;
