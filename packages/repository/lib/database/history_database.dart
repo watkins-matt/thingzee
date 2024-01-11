@@ -46,9 +46,6 @@ abstract class HistoryDatabase implements Database<History> {
     return inventoryList;
   }
 
-  @override
-  Map<String, History> map();
-
   Set<String> predictedOuts({int days = 12}) {
     final allHistory = all();
     Set<String> predictedOuts = {};
@@ -66,7 +63,4 @@ abstract class HistoryDatabase implements Database<History> {
 
     return predictedOuts;
   }
-
-  @override
-  void put(History history);
 }
