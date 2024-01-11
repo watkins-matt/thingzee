@@ -46,6 +46,7 @@ class HouseholdMember extends Model<HouseholdMember> {
   @override
   String get id => userId;
 
+  @override
   HouseholdMember copyWith({
     bool? isAdmin,
     String? email,

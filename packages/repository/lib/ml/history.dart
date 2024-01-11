@@ -295,6 +295,7 @@ class History extends Model<History> {
     return History(upc: upc, series: updatedSeries, created: created, updated: updated).trim();
   }
 
+  @override
   History copyWith({
     String? upc,
     List<HistorySeries>? series,

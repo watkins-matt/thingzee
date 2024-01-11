@@ -38,6 +38,7 @@ class Manufacturer extends Model<Manufacturer> implements Comparable<Manufacture
     return name.compareTo(other.name);
   }
 
+  @override
   Manufacturer copyWith({
     String? name,
     String? website,

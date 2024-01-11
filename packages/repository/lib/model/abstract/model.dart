@@ -26,6 +26,7 @@ abstract class Model<T> implements JsonConvertible<T> {
 
   String get id;
 
+  T copyWith({DateTime? created, DateTime? updated});
   bool equalTo(T other);
   T merge(T other);
 

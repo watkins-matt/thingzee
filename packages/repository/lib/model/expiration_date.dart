@@ -31,6 +31,7 @@ class ExpirationDate extends Model<ExpirationDate> {
   @override
   String get id => "$upc-${expirationDate?.millisecondsSinceEpoch.toString() ?? ''}";
 
+  @override
   ExpirationDate copyWith({
     String? upc,
     DateTime? date,

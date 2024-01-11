@@ -62,6 +62,7 @@ class Item extends Model<Item> implements Comparable<Item>, Nameable {
     return name.compareTo(other.name);
   }
 
+  @override
   Item copyWith({
     String? upc,
     String? uid,

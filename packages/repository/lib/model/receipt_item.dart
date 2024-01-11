@@ -41,6 +41,7 @@ class ReceiptItem extends Model<ReceiptItem> {
 
   double get totalPrice => price + bottleDeposit;
 
+  @override
   ReceiptItem copyWith({
     String? name,
     double? price,
