@@ -14,6 +14,9 @@ class MockInventoryDatabase extends InventoryDatabase {
   void deleteAll() => _db.clear();
 
   @override
+  void deleteById(String upc) => _db.remove(upc);
+
+  @override
   Inventory? get(String upc) => _db[upc];
 
   @override

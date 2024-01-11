@@ -34,6 +34,17 @@ class ObjectBoxInventoryDatabase extends InventoryDatabase {
   }
 
   @override
+  void deleteById(String upc) {
+    final query = box.query(ObjectBoxInventory_.upc.equals(upc)).build();
+    final result = query.findFirst();
+    query.close();
+
+    if (result != null) {
+      box.remove(result.objectBoxId);
+    }
+  }
+
+  @override
   Inventory? get(String upc) {
     assert(upc.isNotEmpty);
     final query = box.query(ObjectBoxInventory_.upc.equals(upc)).build();

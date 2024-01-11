@@ -27,6 +27,11 @@ class HiveInventoryDatabase extends InventoryDatabase {
   }
 
   @override
+  void deleteById(String id) {
+    box.delete(id);
+  }
+
+  @override
   Inventory? get(String upc) {
     final existingInventory = box.get(upc);
     return existingInventory?.toInventory();
