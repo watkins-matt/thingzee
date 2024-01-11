@@ -34,6 +34,17 @@ class ObjectBoxItemDatabase extends ItemDatabase {
   }
 
   @override
+  void deleteById(String id) {
+    final query = box.query(ObjectBoxItem_.upc.equals(id)).build();
+    final result = query.findFirst();
+    query.close();
+
+    if (result != null) {
+      box.remove(result.objectBoxId);
+    }
+  }
+
+  @override
   List<Item> filter(Filter filter) {
     final query = box.query(filter.toObjectBoxItemCondition()).build();
     final results = query.find();
