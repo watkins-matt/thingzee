@@ -4,6 +4,7 @@ import 'dart:collection';
 import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/models.dart' hide Log, Preferences, Model;
 import 'package:log/log.dart';
+import 'package:repository/extension/date_time.dart';
 import 'package:repository/model/abstract/model.dart';
 import 'package:repository/util/hash.dart';
 import 'package:repository_appw/util/appwrite_task_queue.dart';
@@ -63,13 +64,16 @@ mixin AppwriteDatabase<T extends Model> {
     return documentList.documents
         .map((doc) {
           try {
-            final created = doc.data['created'] ?? DateTime.parse(doc.data['\$createdAt']);
-            final updated = doc.data['updated'] ?? DateTime.parse(doc.data['\$updatedAt']);
-
             T? result = deserialize(doc.data);
 
             if (result != null) {
-              result = result.copyWith(created: created, updated: updated);
+              final created = DateTime.parse(doc.data['\$createdAt']);
+              final updated = DateTime.parse(doc.data['\$updatedAt']);
+
+              // Note that we also use the oldest updated field because
+              // one may have initialized to the default of DateTime.now()
+              result = result.copyWith(
+                  created: result.created.older(created), updated: result.updated.older(updated));
             }
 
             return result;
