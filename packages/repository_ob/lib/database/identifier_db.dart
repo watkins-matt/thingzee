@@ -33,6 +33,17 @@ class ObjectBoxIdentifierDatabase extends IdentifierDatabase {
   }
 
   @override
+  void deleteById(String id) {
+    final query = box.query(ObjectBoxItemIdentifier_.value.equals(id)).build();
+    final result = query.findFirst();
+    query.close();
+
+    if (result != null) {
+      box.remove(result.objectBoxId);
+    }
+  }
+
+  @override
   ItemIdentifier? get(String identifier) {
     final query = box.query(ObjectBoxItemIdentifier_.value.equals(identifier)).build();
     final result = query.findFirst();
