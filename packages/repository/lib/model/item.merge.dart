@@ -18,7 +18,6 @@ Item _$mergeItem(Item first, Item second) {
     imageUrl: newer.imageUrl.isNotEmpty ? newer.imageUrl : first.imageUrl,
     consumable: newer.consumable,
     languageCode: newer.languageCode.isNotEmpty ? newer.languageCode : first.languageCode,
-    lastUpdate: newer.lastUpdate,
     created: first.created.older(second.created),
     updated: newer.updated,
   );

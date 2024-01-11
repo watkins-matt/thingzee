@@ -12,7 +12,7 @@ class InventoryCsvRow {
   String unitName = 'Package';
   String unitPlural = 'Packages';
   double amount = 0;
-  DateTime? lastUpdate;
+  DateTime? updated;
   bool restock = false;
 
   void fromRow(List<dynamic> row, Map<String, int> columnIndex) {
@@ -28,12 +28,12 @@ class InventoryCsvRow {
       'quantity': (value) => amount = value.isNotEmpty ? double.parse(value) : amount,
       'update_date': (value) {
         if (value.isNotEmpty) {
-          int lastUpdateTimestamp = int.parse(value);
+          int updatedTimestamp = int.parse(value);
 
           // If it's 0 assume it's a placeholder so ignore it
           // If it's below zero, the value is invalid
-          if (lastUpdateTimestamp > 0) {
-            lastUpdate = DateTime.fromMillisecondsSinceEpoch(lastUpdateTimestamp);
+          if (updatedTimestamp > 0) {
+            updated = DateTime.fromMillisecondsSinceEpoch(updatedTimestamp);
           }
         }
       },
@@ -52,11 +52,10 @@ class InventoryCsvRow {
     return Inventory(
       upc: upc,
       amount: amount,
-      lastUpdate: lastUpdate,
       restock: restock,
       unitCount: unitCount,
-      updated: lastUpdate,
-      created: lastUpdate,
+      updated: updated,
+      created: updated,
     );
   }
 
@@ -70,8 +69,8 @@ class InventoryCsvRow {
       type: type,
       unitName: unitName,
       unitPlural: unitPlural,
-      updated: lastUpdate,
-      created: lastUpdate,
+      updated: updated,
+      created: updated,
     );
   }
 }

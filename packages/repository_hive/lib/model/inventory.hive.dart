@@ -13,7 +13,7 @@ class HiveInventory extends HiveObject {
   @HiveField(1)
   late int unitCount;
   @HiveField(2)
-  late DateTime? lastUpdate;
+  late DateTime? updated;
   @HiveField(3)
   late List<DateTime> expirationDates;
   @HiveField(4)
@@ -31,7 +31,7 @@ class HiveInventory extends HiveObject {
   HiveInventory.from(Inventory original) {
     amount = original.amount;
     unitCount = original.unitCount;
-    lastUpdate = original.lastUpdate;
+    updated = original.updated;
     expirationDates = original.expirationDates;
     locations = original.locations;
     history = original.history;
@@ -43,7 +43,7 @@ class HiveInventory extends HiveObject {
     return Inventory(
         amount: amount,
         unitCount: unitCount,
-        lastUpdate: lastUpdate,
+        updated: updated,
         expirationDates: expirationDates,
         locations: locations,
         history: history,

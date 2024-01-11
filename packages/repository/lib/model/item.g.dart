@@ -20,8 +20,6 @@ Item _$ItemFromJson(Map<String, dynamic> json) => Item(
       imageUrl: json['imageUrl'] as String? ?? '',
       consumable: json['consumable'] as bool? ?? true,
       languageCode: json['languageCode'] as String? ?? 'en',
-      lastUpdate: _$JsonConverterFromJson<int, DateTime?>(
-          json['lastUpdate'], const NullableDateTimeSerializer().fromJson),
       created: _$JsonConverterFromJson<int, DateTime?>(
           json['created'], const NullableDateTimeSerializer().fromJson),
       updated: _$JsonConverterFromJson<int, DateTime?>(
@@ -44,8 +42,6 @@ Map<String, dynamic> _$ItemToJson(Item instance) => <String, dynamic>{
       'imageUrl': instance.imageUrl,
       'consumable': instance.consumable,
       'languageCode': instance.languageCode,
-      'lastUpdate':
-          const NullableDateTimeSerializer().toJson(instance.lastUpdate),
     };
 
 Value? _$JsonConverterFromJson<Json, Value>(

@@ -34,7 +34,7 @@ class HiveItem extends HiveObject {
   @HiveField(16)
   late String languageCode;
   @HiveField(17)
-  late DateTime? lastUpdate;
+  late DateTime? updated;
   HiveItem();
   HiveItem.from(Item original) {
     upc = original.upc;
@@ -50,7 +50,7 @@ class HiveItem extends HiveObject {
     imageUrl = original.imageUrl;
     consumable = original.consumable;
     languageCode = original.languageCode;
-    lastUpdate = original.lastUpdate;
+    updated = original.updated;
   }
   Item toItem() {
     return Item(
@@ -67,7 +67,7 @@ class HiveItem extends HiveObject {
         imageUrl: imageUrl,
         consumable: consumable,
         languageCode: languageCode,
-        lastUpdate: lastUpdate);
+        updated: updated);
   }
 }
 

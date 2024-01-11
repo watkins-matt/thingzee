@@ -25,7 +25,7 @@ class MockInventoryDatabase extends InventoryDatabase {
 
   @override
   List<Inventory> getChanges(DateTime since) =>
-      all().where((inv) => inv.lastUpdate != null && inv.lastUpdate!.isAfter(since)).toList();
+      all().where((inv) => inv.updated != null && inv.updated!.isAfter(since)).toList();
 
   @override
   Map<String, Inventory> map() => Map.from(_db);
