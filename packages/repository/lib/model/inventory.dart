@@ -47,7 +47,7 @@ class Inventory extends Model<Inventory> {
     super.created,
     super.updated,
   })  : _upc = upc,
-        history = history?.copyWith(upc: upc) ?? History();
+        history = history?.copyWith(upc: upc) ?? History(upc: upc);
 
   factory Inventory.fromJson(Map<String, dynamic> json) => _$InventoryFromJson(json);
 
@@ -195,7 +195,7 @@ class Inventory extends Model<Inventory> {
       lastUpdate: lastUpdate ?? this.lastUpdate,
       expirationDates: expirationDates ?? this.expirationDates,
       locations: locations ?? this.locations,
-      history: history?.copyWith(upc: newUpc) ?? this.history,
+      history: history?.copyWith(upc: newUpc) ?? this.history.copyWith(upc: newUpc),
       restock: restock ?? this.restock,
       upc: newUpc,
       uid: uid ?? this.uid,
