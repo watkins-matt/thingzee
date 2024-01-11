@@ -62,6 +62,11 @@ class HistorySeries {
     return HistorySeries()..observations = observations.map((o) => o.copy()).toList();
   }
 
+  HistorySeries copyWith({List<Observation>? observations}) {
+    return HistorySeries()
+      ..observations = observations ?? this.observations.map((o) => o.copy()).toList();
+  }
+
   bool equalTo(Object other) =>
       identical(this, other) ||
       other is HistorySeries &&
