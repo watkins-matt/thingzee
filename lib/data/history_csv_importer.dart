@@ -10,7 +10,7 @@ class HistoryCsvImporter {
     List<List<dynamic>> csvData =
         const CsvToListConverter().convert(csvString, shouldParseNumbers: true);
     Map<String, History> upcHistoryMap = {};
-    Map<String, Map<int, HistorySeries>> upcSeriesIdMap = {};
+    Map<String, List<HistorySeries>> upcSeriesListMap = {};
 
     if (csvData.isEmpty) {
       return false;
@@ -33,45 +33,31 @@ class HistoryCsvImporter {
         .toList();
 
     for (final historyRow in allHistoryRows) {
-      // Ensure that the MLHistory exists, creating if necessary
-      if (!upcHistoryMap.containsKey(historyRow.upc)) {
-        upcHistoryMap[historyRow.upc] = History(upc: historyRow.upc);
-      }
+      // Ensure that the History exists, creating if necessary
+      upcHistoryMap.putIfAbsent(historyRow.upc, () => History(upc: historyRow.upc));
 
-      // Check if the UPC is already in the map
-      if (!upcSeriesIdMap.containsKey(historyRow.upc)) {
-        upcSeriesIdMap[historyRow.upc] = {};
-      }
+      // Initialize series list for each upc
+      upcSeriesListMap.putIfAbsent(historyRow.upc, () => []);
 
-      // Check if the seriesId is already in the map for that UPC
-      if (!upcSeriesIdMap[historyRow.upc]!.containsKey(historyRow.seriesId)) {
-        upcSeriesIdMap[historyRow.upc]![historyRow.seriesId] = HistorySeries();
+      // Check if the seriesId is already in the list for that UPC
+      if (upcSeriesListMap[historyRow.upc]!.length <= historyRow.seriesId) {
+        upcSeriesListMap[historyRow.upc]!.add(HistorySeries());
       }
 
       // Add the observation to the correct series
-      upcSeriesIdMap[historyRow.upc]![historyRow.seriesId]!
-          .observations
-          .add(historyRow.toObservation());
+      var series = upcSeriesListMap[historyRow.upc]![historyRow.seriesId];
+      series = series.copyWith(
+          observations: List.from(series.observations)..add(historyRow.toObservation()));
+      upcSeriesListMap[historyRow.upc]![historyRow.seriesId] = series;
     }
 
-    // Add HistorySeries objects to the corresponding MLHistory object.
+    // Add HistorySeries objects to the corresponding History object.
     for (final upc in upcHistoryMap.keys) {
-      // Get the list of series for this upc
-      var seriesIds = upcSeriesIdMap[upc]?.keys;
-
-      // There are some series for this upc
-      if (seriesIds != null) {
-        // Make sure they're in order
-        seriesIds = seriesIds.toList()..sort();
-
-        // Add the series to the history object
-        for (final id in seriesIds) {
-          upcHistoryMap[upc]?.series.add(upcSeriesIdMap[upc]![id]!);
-        }
+      var seriesList = upcSeriesListMap[upc];
+      if (seriesList != null) {
+        var history = upcHistoryMap[upc]!.copyWith(series: seriesList);
+        r.hist.put(history);
       }
-
-      // Put the history object in the repository
-      r.hist.put(upcHistoryMap[upc]!);
     }
 
     return true;
