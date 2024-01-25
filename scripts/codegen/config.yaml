@@ -1,9 +1,10 @@
 - input:
-    - ../packages/repository/lib/model/
-  output_dir: ../packages/repository_ob/lib/model/
+    - ../../packages/repository/lib/model/
+  output_dir: ../../packages/repository_ob/lib/model/
   db_type: objectbox
   ignore:
     - serializer_datetime.dart
+    - serializer_invitation_status.dart
     - filter.dart
     - receipt.dart
     - nameable.dart

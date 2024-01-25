@@ -15,11 +15,12 @@ Attribute = namedtuple("Attribute", ["type", "name", "annotations"])
 class ImportLookupTable:
     def __init__(self):
         self.lookup = {
-            "DateTime": "import 'dart:core';",
             "ExpirationDate": "import 'package:repository/model/expiration_date.dart';",
             "History": "import 'package:repository/ml/history.dart';",
             "HouseholdMember": "import 'package:repository/model/household_member.dart';",
             "Inventory": "import 'package:repository/model/inventory.dart';",
+            "Invitation": "import 'package:repository/model/invitation.dart';",
+            "InvitationStatus": "import 'package:repository/model/invitation.dart';",
             "Item": "import 'package:repository/model/item.dart';",
             "Location": "import 'package:repository/model/location.dart';",
             "Manufacturer": "import 'package:repository/model/manufacturer.dart';",
@@ -62,6 +63,10 @@ class DartClassParser:
         self.import_lookup = ImportLookupTable()
 
     @staticmethod
+    def is_method_or_property(line: str) -> bool:
+        return re.match(r"^\s*(\w+\s+)+(get|set\s+)?(\w+)\s*(\([^)]*\))?\s*{", line)
+
+    @staticmethod
     def remove_methods_and_properties(content: str) -> str:
         lines = content.split("\n")
         clean_lines = []
@@ -81,7 +86,7 @@ class DartClassParser:
             # Once inside the class, start detecting methods and properties
             if inside_class:
                 # Detect the start of a method or property block
-                if re.match(r"^\s*(\w+\s+)+([^\(\s]*)\s*\([^)]*\)\s*{", stripped_line):
+                if DartClassParser.is_method_or_property(stripped_line):
                     inside_method_or_property = True
                     brace_count = 1
                     continue
@@ -235,12 +240,13 @@ class DartClassParser:
     @staticmethod
     def find_file_for_class(class_name: str, current_file_path: str) -> str:
         content = DartClassParser.read_dart_file(current_file_path)
+        lower_class_name = class_name.lower()
 
         # Adjusted regex pattern to capture full relative path including subdirectories
         import_pattern = re.compile(r"import '(package:\w+)\/([\w\/]+\.dart)';")
         for line in content.splitlines():
             match = import_pattern.search(line)
-            if match:
+            if match and line.strip().lower().endswith(f"{lower_class_name}.dart';"):
                 # package_name = match.group(1)
                 relative_path = match.group(2)
 
@@ -291,7 +297,21 @@ class DartClassParser:
         lines = cleaned_content.split("\n")
 
         leading_whitespace = r"\s*"
-        exclude_control_structures = r"(?!.*(return\s+|if\s+|else\s+|switch\s+|case\s+|for\s+|while\s+|do\s+|=>|}).*\b)"
+        exclude_control_structures = (
+            r"(?!"  # Negative lookahead, start of group
+            r".*("  # Match any character 0 or more times, start of inner group
+            r"return\s+"  # Match 'return' followed by one or more spaces
+            r"|if\s+"  # OR 'if' followed by one or more spaces
+            r"|else\s+"  # OR 'else' followed by one or more spaces
+            r"|switch\s+"  # OR 'switch' followed by one or more spaces
+            r"|case\s+"  # OR 'case' followed by one or more spaces
+            r"|for\s+"  # OR 'for' followed by one or more spaces
+            r"|while\s+"  # OR 'while' followed by one or more spaces
+            r"|do\s+"  # OR 'do' followed by one or more spaces
+            r"|=>|"  # OR '=>'
+            r"}).*\b)"  # End of inner group, any char 0 or more times, word boundary, end of group
+        )
+
         optional_modifiers = r"(final|late|static)?"
         type_and_space = r"\s*([\w<>,? ]+)"
         variable_name = r"\s+(\w+)"
@@ -386,7 +406,10 @@ class ObjectBoxGenerator(DartClassGenerator):
     def generate(self, dart_class: DartClass, custom_code: str = None) -> str:
         lines = []
         lines.append("@Entity()")
-        lines.append(f"class ObjectBox{dart_class.name} {{")
+        lines.append(f"class ObjectBox{dart_class.name} extends ObjectBoxModel {{")
+
+        lines.append("  @Id()")
+        lines.append("  int objectBoxId = 0;")
 
         for attribute in dart_class.attributes:
             if "transient" in attribute.annotations:
@@ -407,8 +430,6 @@ class ObjectBoxGenerator(DartClassGenerator):
             else:
                 lines.append(f"  late {attribute.type} {attribute.name};")
 
-        lines.append("  @Id()")
-        lines.append("  int objectBoxId = 0;")
         lines.append(f"  ObjectBox{dart_class.name}();")
         lines.append(
             f"  ObjectBox{dart_class.name}.from({dart_class.name} original) {{",
@@ -510,10 +531,18 @@ class DartOutputFileWriter:
                 f"\n\npart '{output_file_name}.{self.output_ext}.g.dart';"
             )
 
+        if self.db_type == "objectbox":
+            combined_imports += (
+                "\nimport 'package:repository_ob/model_custom/object_box_model.dart';"
+            )
+
         self.all_output_content.insert(0, combined_imports)
 
         combined_output = "\n\n".join(self.all_output_content)
         combined_output += "\n"  # Add trailing newline
+
+        # Add // ignore_for_file: annotate_overrides to the start of the output
+        combined_output = "// ignore_for_file: annotate_overrides\n" + combined_output
 
         self.write_dart_file(output_file_path, combined_output)
 
