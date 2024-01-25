@@ -9,7 +9,9 @@ import 'package:repository_ob/model_custom/object_box_model.dart';
 class ObjectBoxHouseholdMember extends ObjectBoxModel {
   @Id()
   int objectBoxId = 0;
+  @Property(type: PropertyType.date)
   late DateTime? created;
+  @Property(type: PropertyType.date)
   late DateTime? updated;
   late bool isAdmin;
   late String email;

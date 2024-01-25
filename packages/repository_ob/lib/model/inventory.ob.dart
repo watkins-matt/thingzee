@@ -10,7 +10,9 @@ import 'package:repository_ob/model_custom/object_box_model.dart';
 class ObjectBoxInventory extends ObjectBoxModel {
   @Id()
   int objectBoxId = 0;
+  @Property(type: PropertyType.date)
   late DateTime? created;
+  @Property(type: PropertyType.date)
   late DateTime? updated;
   late double amount;
   late int unitCount;
