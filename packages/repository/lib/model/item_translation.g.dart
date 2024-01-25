@@ -6,18 +6,23 @@ part of 'item_translation.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-ItemTranslation _$ItemTranslationFromJson(Map<String, dynamic> json) =>
-    ItemTranslation()
-      ..upc = json['upc'] as String
-      ..languageCode = json['languageCode'] as String
-      ..name = json['name'] as String
-      ..variety = json['variety'] as String
-      ..unitName = json['unitName'] as String
-      ..unitPlural = json['unitPlural'] as String
-      ..type = json['type'] as String;
+ItemTranslation _$ItemTranslationFromJson(Map<String, dynamic> json) => ItemTranslation(
+      upc: json['upc'] as String? ?? '',
+      languageCode: json['languageCode'] as String? ?? 'en',
+      name: json['name'] as String? ?? '',
+      variety: json['variety'] as String? ?? '',
+      unitName: json['unitName'] as String? ?? '',
+      unitPlural: json['unitPlural'] as String? ?? '',
+      type: json['type'] as String? ?? '',
+      created: _$JsonConverterFromJson<int, DateTime?>(
+          json['created'], const NullableDateTimeSerializer().fromJson),
+      updated: _$JsonConverterFromJson<int, DateTime?>(
+          json['updated'], const NullableDateTimeSerializer().fromJson),
+    );
 
-Map<String, dynamic> _$ItemTranslationToJson(ItemTranslation instance) =>
-    <String, dynamic>{
+Map<String, dynamic> _$ItemTranslationToJson(ItemTranslation instance) => <String, dynamic>{
+      'created': const NullableDateTimeSerializer().toJson(instance.created),
+      'updated': const NullableDateTimeSerializer().toJson(instance.updated),
       'upc': instance.upc,
       'languageCode': instance.languageCode,
       'name': instance.name,
@@ -26,3 +31,9 @@ Map<String, dynamic> _$ItemTranslationToJson(ItemTranslation instance) =>
       'unitPlural': instance.unitPlural,
       'type': instance.type,
     };
+
+Value? _$JsonConverterFromJson<Json, Value>(
+  Object? json,
+  Value? Function(Json json) fromJson,
+) =>
+    json == null ? null : fromJson(json as Json);
