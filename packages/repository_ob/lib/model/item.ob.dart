@@ -1,10 +1,16 @@
-import 'dart:core';
+// ignore_for_file: annotate_overrides
+
 
 import 'package:objectbox/objectbox.dart';
 import 'package:repository/model/item.dart';
+import 'package:repository_ob/model_custom/object_box_model.dart';
 
 @Entity()
-class ObjectBoxItem {
+class ObjectBoxItem extends ObjectBoxModel {
+  @Id()
+  int objectBoxId = 0;
+  late DateTime? created;
+  late DateTime? updated;
   @Unique(onConflict: ConflictStrategy.replace)
   late String upc;
   late String uid;
@@ -19,11 +25,10 @@ class ObjectBoxItem {
   late String imageUrl;
   late bool consumable;
   late String languageCode;
-  late DateTime? updated;
-  @Id()
-  int objectBoxId = 0;
   ObjectBoxItem();
   ObjectBoxItem.from(Item original) {
+    created = original.created;
+    updated = original.updated;
     upc = original.upc;
     uid = original.uid;
     name = original.name;
@@ -37,10 +42,11 @@ class ObjectBoxItem {
     imageUrl = original.imageUrl;
     consumable = original.consumable;
     languageCode = original.languageCode;
-    updated = original.updated;
   }
   Item toItem() {
     return Item(
+        created: created,
+        updated: updated,
         upc: upc,
         uid: uid,
         name: name,
@@ -53,13 +59,14 @@ class ObjectBoxItem {
         unitPlural: unitPlural,
         imageUrl: imageUrl,
         consumable: consumable,
-        languageCode: languageCode,
-        updated: updated);
+        languageCode: languageCode);
   }
 }
 
 @Entity()
-class ObjectBoxItemTranslation {
+class ObjectBoxItemTranslation extends ObjectBoxModel {
+  @Id()
+  int objectBoxId = 0;
   @Unique(onConflict: ConflictStrategy.replace)
   late String upc;
   late String languageCode;
@@ -68,8 +75,6 @@ class ObjectBoxItemTranslation {
   late String unitName;
   late String unitPlural;
   late String type;
-  @Id()
-  int objectBoxId = 0;
   ObjectBoxItemTranslation();
   ObjectBoxItemTranslation.from(ItemTranslation original) {
     upc = original.upc;

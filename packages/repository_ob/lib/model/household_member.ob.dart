@@ -1,10 +1,14 @@
-import 'dart:core';
+// ignore_for_file: annotate_overrides
+
 
 import 'package:objectbox/objectbox.dart';
 import 'package:repository/model/household_member.dart';
+import 'package:repository_ob/model_custom/object_box_model.dart';
 
 @Entity()
-class ObjectBoxHouseholdMember {
+class ObjectBoxHouseholdMember extends ObjectBoxModel {
+  @Id()
+  int objectBoxId = 0;
   late DateTime? created;
   late DateTime? updated;
   late bool isAdmin;
@@ -12,8 +16,6 @@ class ObjectBoxHouseholdMember {
   late String householdId;
   late String name;
   late String userId;
-  @Id()
-  int objectBoxId = 0;
   ObjectBoxHouseholdMember();
   ObjectBoxHouseholdMember.from(HouseholdMember original) {
     created = original.created;

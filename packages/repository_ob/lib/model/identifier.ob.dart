@@ -1,17 +1,19 @@
-import 'dart:core';
+// ignore_for_file: annotate_overrides
+
 
 import 'package:objectbox/objectbox.dart';
 import 'package:repository/model/identifier.dart';
+import 'package:repository_ob/model_custom/object_box_model.dart';
 
 @Entity()
-class ObjectBoxItemIdentifier {
+class ObjectBoxItemIdentifier extends ObjectBoxModel {
+  @Id()
+  int objectBoxId = 0;
   late DateTime? created;
   late DateTime? updated;
   late String type;
   late String value;
   late String uid;
-  @Id()
-  int objectBoxId = 0;
   ObjectBoxItemIdentifier();
   ObjectBoxItemIdentifier.from(ItemIdentifier original) {
     created = original.created;
