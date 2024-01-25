@@ -1,6 +1,5 @@
 import 'package:objectbox/objectbox.dart';
 import 'package:repository/database/database.dart';
-import 'package:repository/database/preferences.dart';
 import 'package:repository/model/abstract/model.dart';
 import 'package:repository_ob/model_custom/object_box_model.dart';
 import 'package:repository_ob/objectbox.g.dart';
@@ -9,11 +8,9 @@ mixin ObjectBoxDatabase<T extends Model, O extends ObjectBoxModel> on Database<T
   late final Box<O> box;
 
   @override
-  List<T> all() {
-    return box.getAll().map(toModel).toList();
-  }
+  List<T> all() => box.getAll().map(toModel).toList();
 
-  void constructDb(Store store, Preferences preferences) {
+  void constructDb(Store store) {
     box = store.box<O>();
   }
 
@@ -24,14 +21,12 @@ mixin ObjectBoxDatabase<T extends Model, O extends ObjectBoxModel> on Database<T
     query.close();
 
     if (result != null) {
-      box.remove((result as dynamic).objectBoxId as int);
+      box.remove(result.objectBoxId);
     }
   }
 
   @override
-  void deleteAll() {
-    box.removeAll();
-  }
+  void deleteAll() => box.removeAll();
 
   @override
   void deleteById(String id) {
@@ -40,7 +35,7 @@ mixin ObjectBoxDatabase<T extends Model, O extends ObjectBoxModel> on Database<T
     query.close();
 
     if (result != null) {
-      box.remove((result as dynamic).objectBoxId as int);
+      box.remove(result.objectBoxId);
     }
   }
 
@@ -58,41 +53,32 @@ mixin ObjectBoxDatabase<T extends Model, O extends ObjectBoxModel> on Database<T
   @override
   List<T> getAll(List<String> ids) {
     final query = box.query(_buildIdsCondition(ids)).build();
-    final results = query.find();
+    final results = query.find().map(toModel).toList();
     query.close();
-
-    return results.map(toModel).toList();
+    return results;
   }
 
   @override
   List<T> getChanges(DateTime since) {
     final query = box.query(_buildSinceCondition(since)).build();
-    final results = query.find();
+    final results = query.find().map(toModel).toList();
     query.close();
-
-    return results.map(toModel).toList();
+    return results;
   }
 
   @override
   Map<String, T> map() {
-    Map<String, T> map = {};
-    final allItems = all();
-
-    for (final record in allItems) {
-      map[record.id] = record;
-    }
-
-    return map;
+    return {for (final item in all()) item.id: item};
   }
 
   @override
-  void put(T item) {
-    box.put(fromModel(item));
-  }
+  void put(T item) => box.put(fromModel(item));
 
   T toModel(O objectBoxEntity);
 
   Condition<O> _buildIdCondition(String id);
+
   Condition<O> _buildIdsCondition(List<String> ids);
+
   Condition<O> _buildSinceCondition(DateTime since);
 }
