@@ -10,13 +10,19 @@ mixin ObjectBoxDatabase<T extends Model, O extends ObjectBoxModel> on Database<T
   @override
   List<T> all() => box.getAll().map(toModel).toList();
 
+  Condition<O> buildIdCondition(String id);
+
+  Condition<O> buildIdsCondition(List<String> ids);
+
+  Condition<O> buildSinceCondition(DateTime since);
+
   void constructDb(Store store) {
     box = store.box<O>();
   }
 
   @override
   void delete(T item) {
-    final query = box.query(_buildIdCondition(item.id)).build();
+    final query = box.query(buildIdCondition(item.id)).build();
     final result = query.findFirst();
     query.close();
 
@@ -30,7 +36,7 @@ mixin ObjectBoxDatabase<T extends Model, O extends ObjectBoxModel> on Database<T
 
   @override
   void deleteById(String id) {
-    final query = box.query(_buildIdCondition(id)).build();
+    final query = box.query(buildIdCondition(id)).build();
     final result = query.findFirst();
     query.close();
 
@@ -43,7 +49,7 @@ mixin ObjectBoxDatabase<T extends Model, O extends ObjectBoxModel> on Database<T
 
   @override
   T? get(String id) {
-    final query = box.query(_buildIdCondition(id)).build();
+    final query = box.query(buildIdCondition(id)).build();
     var result = query.findFirst();
     query.close();
 
@@ -52,7 +58,7 @@ mixin ObjectBoxDatabase<T extends Model, O extends ObjectBoxModel> on Database<T
 
   @override
   List<T> getAll(List<String> ids) {
-    final query = box.query(_buildIdsCondition(ids)).build();
+    final query = box.query(buildIdsCondition(ids)).build();
     final results = query.find().map(toModel).toList();
     query.close();
     return results;
@@ -60,7 +66,7 @@ mixin ObjectBoxDatabase<T extends Model, O extends ObjectBoxModel> on Database<T
 
   @override
   List<T> getChanges(DateTime since) {
-    final query = box.query(_buildSinceCondition(since)).build();
+    final query = box.query(buildSinceCondition(since)).build();
     final results = query.find().map(toModel).toList();
     query.close();
     return results;
@@ -72,13 +78,20 @@ mixin ObjectBoxDatabase<T extends Model, O extends ObjectBoxModel> on Database<T
   }
 
   @override
-  void put(T item) => box.put(fromModel(item));
+  void put(T item) {
+    assert(item.isValid);
+    final itemOb = fromModel(item);
+
+    final query = box.query(buildIdCondition(item.id)).build();
+    final exists = query.findFirst();
+    query.close();
+
+    if (exists != null && itemOb.objectBoxId != exists.objectBoxId) {
+      itemOb.objectBoxId = exists.objectBoxId;
+    }
+
+    box.put(itemOb);
+  }
 
   T toModel(O objectBoxEntity);
-
-  Condition<O> _buildIdCondition(String id);
-
-  Condition<O> _buildIdsCondition(List<String> ids);
-
-  Condition<O> _buildSinceCondition(DateTime since);
 }
