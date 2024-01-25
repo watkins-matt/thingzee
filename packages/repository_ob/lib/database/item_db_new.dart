@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_renaming_method_parameters
+
 import 'package:repository/database/item_database.dart';
 import 'package:repository/model/filter.dart';
 import 'package:repository/model/item.dart';
@@ -10,7 +12,21 @@ class ObjectBoxItemDatabase extends ItemDatabase with ObjectBoxDatabase<Item, Ob
     constructDb(store);
   }
 
-  // Implement filter and search methods as they are specific to ItemDatabase
+  @override
+  Condition<ObjectBoxItem> buildIdCondition(String upc) {
+    return ObjectBoxItem_.upc.equals(upc);
+  }
+
+  @override
+  Condition<ObjectBoxItem> buildIdsCondition(List<String> ids) {
+    return ObjectBoxItem_.upc.oneOf(ids);
+  }
+
+  @override
+  Condition<ObjectBoxItem> buildSinceCondition(DateTime since) {
+    return ObjectBoxItem_.updated.greaterThan(since.millisecondsSinceEpoch);
+  }
+
   @override
   List<Item> filter(Filter filter) {
     final query = box.query(filter.toObjectBoxItemCondition()).build();
@@ -30,11 +46,6 @@ class ObjectBoxItemDatabase extends ItemDatabase with ObjectBoxDatabase<Item, Ob
 
   @override
   Item toModel(ObjectBoxItem objectBoxEntity) => objectBoxEntity.toItem();
-
-  @override
-  Condition<ObjectBoxItem> _buildIdCondition(String upc) {
-    return ObjectBoxItem_.upc.equals(upc);
-  }
 }
 
 extension ObjectBoxCondition on Filter {
