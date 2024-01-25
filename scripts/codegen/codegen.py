@@ -412,6 +412,8 @@ class ObjectBoxGenerator(DartClassGenerator):
         lines.append("  int objectBoxId = 0;")
 
         for attribute in dart_class.attributes:
+            if attribute.type.startswith("DateTime"):
+                lines.append("  @Property(type: PropertyType.date)")
             if "transient" in attribute.annotations:
                 lines.append("  @Transient()")
                 lines.append(

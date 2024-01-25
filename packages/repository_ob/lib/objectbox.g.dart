@@ -18,6 +18,7 @@ import 'model/expiration_date.ob.dart';
 import 'model/household_member.ob.dart';
 import 'model/identifier.ob.dart';
 import 'model/inventory.ob.dart';
+import 'model/invitation.ob.dart';
 import 'model/item.ob.dart';
 import 'model/location.ob.dart';
 import 'model/manufacturer.ob.dart';
@@ -57,7 +58,7 @@ final _entities = <ModelEntity>[
   ModelEntity(
       id: const IdUid(22, 4012899901862137920),
       name: 'ObjectBoxShoppingItem',
-      lastPropertyId: const IdUid(3, 7388475517061537137),
+      lastPropertyId: const IdUid(5, 2383647298954806222),
       flags: 0,
       properties: <ModelProperty>[
         ModelProperty(
@@ -74,7 +75,17 @@ final _entities = <ModelEntity>[
             id: const IdUid(3, 7388475517061537137),
             name: 'objectBoxId',
             type: 6,
-            flags: 1)
+            flags: 1),
+        ModelProperty(
+            id: const IdUid(4, 6969894426096673671),
+            name: 'created',
+            type: 10,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(5, 2383647298954806222),
+            name: 'updated',
+            type: 10,
+            flags: 0)
       ],
       relations: <ModelRelation>[],
       backlinks: <ModelBacklink>[]),
@@ -164,7 +175,7 @@ final _entities = <ModelEntity>[
   ModelEntity(
       id: const IdUid(25, 1511122922272980926),
       name: 'ObjectBoxInventory',
-      lastPropertyId: const IdUid(11, 8110034338945550958),
+      lastPropertyId: const IdUid(12, 4354940091097999311),
       flags: 0,
       properties: <ModelProperty>[
         ModelProperty(
@@ -216,6 +227,11 @@ final _entities = <ModelEntity>[
             id: const IdUid(11, 8110034338945550958),
             name: 'updated',
             type: 10,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(12, 4354940091097999311),
+            name: 'created',
+            type: 10,
             flags: 0)
       ],
       relations: <ModelRelation>[],
@@ -223,7 +239,7 @@ final _entities = <ModelEntity>[
   ModelEntity(
       id: const IdUid(26, 3164051957900951727),
       name: 'ObjectBoxItem',
-      lastPropertyId: const IdUid(17, 8808233293747501380),
+      lastPropertyId: const IdUid(18, 3554900412404725287),
       flags: 0,
       properties: <ModelProperty>[
         ModelProperty(
@@ -300,6 +316,11 @@ final _entities = <ModelEntity>[
         ModelProperty(
             id: const IdUid(17, 8808233293747501380),
             name: 'updated',
+            type: 10,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(18, 3554900412404725287),
+            name: 'created',
             type: 10,
             flags: 0)
       ],
@@ -397,7 +418,7 @@ final _entities = <ModelEntity>[
   ModelEntity(
       id: const IdUid(29, 581262129450401551),
       name: 'ObjectBoxManufacturer',
-      lastPropertyId: const IdUid(6, 8001868185928218441),
+      lastPropertyId: const IdUid(8, 1105022292556940314),
       flags: 0,
       properties: <ModelProperty>[
         ModelProperty(
@@ -429,14 +450,24 @@ final _entities = <ModelEntity>[
             id: const IdUid(6, 8001868185928218441),
             name: 'objectBoxId',
             type: 6,
-            flags: 1)
+            flags: 1),
+        ModelProperty(
+            id: const IdUid(7, 653685303515939838),
+            name: 'created',
+            type: 10,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(8, 1105022292556940314),
+            name: 'updated',
+            type: 10,
+            flags: 0)
       ],
       relations: <ModelRelation>[],
       backlinks: <ModelBacklink>[]),
   ModelEntity(
       id: const IdUid(30, 8399465274193556283),
       name: 'ObjectBoxProduct',
-      lastPropertyId: const IdUid(7, 4464046311116010674),
+      lastPropertyId: const IdUid(9, 3399163884004457587),
       flags: 0,
       properties: <ModelProperty>[
         ModelProperty(
@@ -473,7 +504,17 @@ final _entities = <ModelEntity>[
             id: const IdUid(7, 4464046311116010674),
             name: 'objectBoxId',
             type: 6,
-            flags: 1)
+            flags: 1),
+        ModelProperty(
+            id: const IdUid(8, 7532009773921367152),
+            name: 'created',
+            type: 10,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(9, 3399163884004457587),
+            name: 'updated',
+            type: 10,
+            flags: 0)
       ],
       relations: <ModelRelation>[],
       backlinks: <ModelBacklink>[]),
@@ -519,7 +560,7 @@ final _entities = <ModelEntity>[
   ModelEntity(
       id: const IdUid(32, 2424801468099308795),
       name: 'ObjectBoxReceiptItem',
-      lastPropertyId: const IdUid(8, 4540687088627323783),
+      lastPropertyId: const IdUid(10, 3283187960644019746),
       flags: 0,
       properties: <ModelProperty>[
         ModelProperty(
@@ -561,7 +602,66 @@ final _entities = <ModelEntity>[
             id: const IdUid(8, 4540687088627323783),
             name: 'objectBoxId',
             type: 6,
-            flags: 1)
+            flags: 1),
+        ModelProperty(
+            id: const IdUid(9, 1743567812000270236),
+            name: 'created',
+            type: 10,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(10, 3283187960644019746),
+            name: 'updated',
+            type: 10,
+            flags: 0)
+      ],
+      relations: <ModelRelation>[],
+      backlinks: <ModelBacklink>[]),
+  ModelEntity(
+      id: const IdUid(33, 2540654278505596072),
+      name: 'ObjectBoxInvitation',
+      lastPropertyId: const IdUid(8, 3890612321366565942),
+      flags: 0,
+      properties: <ModelProperty>[
+        ModelProperty(
+            id: const IdUid(1, 4886526616351532385),
+            name: 'objectBoxId',
+            type: 6,
+            flags: 1),
+        ModelProperty(
+            id: const IdUid(2, 4005898155070359559),
+            name: 'created',
+            type: 10,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(3, 1689091036285741600),
+            name: 'updated',
+            type: 10,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(4, 7382151092441077988),
+            name: 'id',
+            type: 9,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(5, 4020267371748305490),
+            name: 'householdId',
+            type: 9,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(6, 7740532563086312670),
+            name: 'inviterEmail',
+            type: 9,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(7, 7931193660923984117),
+            name: 'inviterUserId',
+            type: 9,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(8, 3890612321366565942),
+            name: 'recipientEmail',
+            type: 9,
+            flags: 0)
       ],
       relations: <ModelRelation>[],
       backlinks: <ModelBacklink>[])
@@ -594,7 +694,7 @@ Future<Store> openStore(
 ModelDefinition getObjectBoxModel() {
   final model = ModelInfo(
       entities: _entities,
-      lastEntityId: const IdUid(32, 2424801468099308795),
+      lastEntityId: const IdUid(33, 2540654278505596072),
       lastIndexId: const IdUid(11, 4213499292565708475),
       lastRelationId: const IdUid(0, 0),
       lastSequenceId: const IdUid(0, 0),
@@ -812,24 +912,35 @@ ModelDefinition getObjectBoxModel() {
         },
         objectToFB: (ObjectBoxShoppingItem object, fb.Builder fbb) {
           final upcOffset = fbb.writeString(object.upc);
-          fbb.startTable(4);
+          fbb.startTable(6);
           fbb.addOffset(0, upcOffset);
           fbb.addBool(1, object.checked);
           fbb.addInt64(2, object.objectBoxId);
+          fbb.addInt64(3, object.created?.millisecondsSinceEpoch);
+          fbb.addInt64(4, object.updated?.millisecondsSinceEpoch);
           fbb.finish(fbb.endTable());
           return object.objectBoxId;
         },
         objectFromFB: (Store store, ByteData fbData) {
           final buffer = fb.BufferContext(fbData);
           final rootOffset = buffer.derefObject(0);
-
+          final createdValue =
+              const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 10);
+          final updatedValue =
+              const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 12);
           final object = ObjectBoxShoppingItem()
             ..upc = const fb.StringReader(asciiOptimization: true)
                 .vTableGet(buffer, rootOffset, 4, '')
             ..checked =
                 const fb.BoolReader().vTableGet(buffer, rootOffset, 6, false)
             ..objectBoxId =
-                const fb.Int64Reader().vTableGet(buffer, rootOffset, 8, 0);
+                const fb.Int64Reader().vTableGet(buffer, rootOffset, 8, 0)
+            ..created = createdValue == null
+                ? null
+                : DateTime.fromMillisecondsSinceEpoch(createdValue)
+            ..updated = updatedValue == null
+                ? null
+                : DateTime.fromMillisecondsSinceEpoch(updatedValue);
 
           return object;
         }),
@@ -948,7 +1059,7 @@ ModelDefinition getObjectBoxModel() {
               .map(fbb.writeString)
               .toList(growable: false));
           final upcOffset = fbb.writeString(object.upc);
-          fbb.startTable(12);
+          fbb.startTable(13);
           fbb.addFloat64(0, object.amount);
           fbb.addInt64(1, object.unitCount);
           fbb.addOffset(3, locationsOffset);
@@ -959,6 +1070,7 @@ ModelDefinition getObjectBoxModel() {
           fbb.addInt64(8, object.dbLastUpdate);
           fbb.addOffset(9, upcOffset);
           fbb.addInt64(10, object.updated?.millisecondsSinceEpoch);
+          fbb.addInt64(11, object.created?.millisecondsSinceEpoch);
           fbb.finish(fbb.endTable());
           return object.objectBoxId;
         },
@@ -967,6 +1079,8 @@ ModelDefinition getObjectBoxModel() {
           final rootOffset = buffer.derefObject(0);
           final updatedValue =
               const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 24);
+          final createdValue =
+              const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 26);
           final object = ObjectBoxInventory()
             ..amount =
                 const fb.Float64Reader().vTableGet(buffer, rootOffset, 4, 0)
@@ -992,7 +1106,10 @@ ModelDefinition getObjectBoxModel() {
                 .vTableGet(buffer, rootOffset, 22, '')
             ..updated = updatedValue == null
                 ? null
-                : DateTime.fromMillisecondsSinceEpoch(updatedValue);
+                : DateTime.fromMillisecondsSinceEpoch(updatedValue)
+            ..created = createdValue == null
+                ? null
+                : DateTime.fromMillisecondsSinceEpoch(createdValue);
 
           return object;
         }),
@@ -1016,7 +1133,7 @@ ModelDefinition getObjectBoxModel() {
           final imageUrlOffset = fbb.writeString(object.imageUrl);
           final languageCodeOffset = fbb.writeString(object.languageCode);
           final uidOffset = fbb.writeString(object.uid);
-          fbb.startTable(18);
+          fbb.startTable(19);
           fbb.addOffset(0, upcOffset);
           fbb.addOffset(2, nameOffset);
           fbb.addOffset(3, varietyOffset);
@@ -1032,6 +1149,7 @@ ModelDefinition getObjectBoxModel() {
           fbb.addInt64(14, object.objectBoxId);
           fbb.addOffset(15, uidOffset);
           fbb.addInt64(16, object.updated?.millisecondsSinceEpoch);
+          fbb.addInt64(17, object.created?.millisecondsSinceEpoch);
           fbb.finish(fbb.endTable());
           return object.objectBoxId;
         },
@@ -1040,6 +1158,8 @@ ModelDefinition getObjectBoxModel() {
           final rootOffset = buffer.derefObject(0);
           final updatedValue =
               const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 36);
+          final createdValue =
+              const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 38);
           final object = ObjectBoxItem()
             ..upc = const fb.StringReader(asciiOptimization: true)
                 .vTableGet(buffer, rootOffset, 4, '')
@@ -1071,7 +1191,10 @@ ModelDefinition getObjectBoxModel() {
                 .vTableGet(buffer, rootOffset, 34, '')
             ..updated = updatedValue == null
                 ? null
-                : DateTime.fromMillisecondsSinceEpoch(updatedValue);
+                : DateTime.fromMillisecondsSinceEpoch(updatedValue)
+            ..created = createdValue == null
+                ? null
+                : DateTime.fromMillisecondsSinceEpoch(createdValue);
 
           return object;
         }),
@@ -1187,20 +1310,25 @@ ModelDefinition getObjectBoxModel() {
           final uidOffset = fbb.writeString(object.uid);
           final parentNameOffset = fbb.writeString(object.parentName);
           final parentUidOffset = fbb.writeString(object.parentUid);
-          fbb.startTable(7);
+          fbb.startTable(9);
           fbb.addOffset(0, nameOffset);
           fbb.addOffset(1, websiteOffset);
           fbb.addOffset(2, uidOffset);
           fbb.addOffset(3, parentNameOffset);
           fbb.addOffset(4, parentUidOffset);
           fbb.addInt64(5, object.objectBoxId);
+          fbb.addInt64(6, object.created?.millisecondsSinceEpoch);
+          fbb.addInt64(7, object.updated?.millisecondsSinceEpoch);
           fbb.finish(fbb.endTable());
           return object.objectBoxId;
         },
         objectFromFB: (Store store, ByteData fbData) {
           final buffer = fb.BufferContext(fbData);
           final rootOffset = buffer.derefObject(0);
-
+          final createdValue =
+              const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 16);
+          final updatedValue =
+              const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 18);
           final object = ObjectBoxManufacturer()
             ..name = const fb.StringReader(asciiOptimization: true)
                 .vTableGet(buffer, rootOffset, 4, '')
@@ -1213,7 +1341,13 @@ ModelDefinition getObjectBoxModel() {
             ..parentUid = const fb.StringReader(asciiOptimization: true)
                 .vTableGet(buffer, rootOffset, 12, '')
             ..objectBoxId =
-                const fb.Int64Reader().vTableGet(buffer, rootOffset, 14, 0);
+                const fb.Int64Reader().vTableGet(buffer, rootOffset, 14, 0)
+            ..created = createdValue == null
+                ? null
+                : DateTime.fromMillisecondsSinceEpoch(createdValue)
+            ..updated = updatedValue == null
+                ? null
+                : DateTime.fromMillisecondsSinceEpoch(updatedValue);
 
           return object;
         }),
@@ -1233,7 +1367,7 @@ ModelDefinition getObjectBoxModel() {
           final categoryOffset = fbb.writeString(object.category);
           final upcsOffset = fbb.writeList(
               object.upcs.map(fbb.writeString).toList(growable: false));
-          fbb.startTable(8);
+          fbb.startTable(10);
           fbb.addOffset(0, nameOffset);
           fbb.addOffset(1, uidOffset);
           fbb.addOffset(2, manufacturerOffset);
@@ -1241,13 +1375,18 @@ ModelDefinition getObjectBoxModel() {
           fbb.addOffset(4, categoryOffset);
           fbb.addOffset(5, upcsOffset);
           fbb.addInt64(6, object.objectBoxId);
+          fbb.addInt64(7, object.created?.millisecondsSinceEpoch);
+          fbb.addInt64(8, object.updated?.millisecondsSinceEpoch);
           fbb.finish(fbb.endTable());
           return object.objectBoxId;
         },
         objectFromFB: (Store store, ByteData fbData) {
           final buffer = fb.BufferContext(fbData);
           final rootOffset = buffer.derefObject(0);
-
+          final createdValue =
+              const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 18);
+          final updatedValue =
+              const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 20);
           final object = ObjectBoxProduct()
             ..name = const fb.StringReader(asciiOptimization: true)
                 .vTableGet(buffer, rootOffset, 4, '')
@@ -1264,7 +1403,13 @@ ModelDefinition getObjectBoxModel() {
                     lazy: false)
                 .vTableGet(buffer, rootOffset, 14, [])
             ..objectBoxId =
-                const fb.Int64Reader().vTableGet(buffer, rootOffset, 16, 0);
+                const fb.Int64Reader().vTableGet(buffer, rootOffset, 16, 0)
+            ..created = createdValue == null
+                ? null
+                : DateTime.fromMillisecondsSinceEpoch(createdValue)
+            ..updated = updatedValue == null
+                ? null
+                : DateTime.fromMillisecondsSinceEpoch(updatedValue);
 
           return object;
         }),
@@ -1326,7 +1471,7 @@ ModelDefinition getObjectBoxModel() {
         objectToFB: (ObjectBoxReceiptItem object, fb.Builder fbb) {
           final nameOffset = fbb.writeString(object.name);
           final barcodeOffset = fbb.writeString(object.barcode);
-          fbb.startTable(9);
+          fbb.startTable(11);
           fbb.addOffset(0, nameOffset);
           fbb.addFloat64(1, object.price);
           fbb.addFloat64(2, object.regularPrice);
@@ -1335,13 +1480,18 @@ ModelDefinition getObjectBoxModel() {
           fbb.addBool(5, object.taxable);
           fbb.addFloat64(6, object.bottleDeposit);
           fbb.addInt64(7, object.objectBoxId);
+          fbb.addInt64(8, object.created?.millisecondsSinceEpoch);
+          fbb.addInt64(9, object.updated?.millisecondsSinceEpoch);
           fbb.finish(fbb.endTable());
           return object.objectBoxId;
         },
         objectFromFB: (Store store, ByteData fbData) {
           final buffer = fb.BufferContext(fbData);
           final rootOffset = buffer.derefObject(0);
-
+          final createdValue =
+              const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 20);
+          final updatedValue =
+              const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 22);
           final object = ObjectBoxReceiptItem()
             ..name = const fb.StringReader(asciiOptimization: true)
                 .vTableGet(buffer, rootOffset, 4, '')
@@ -1358,7 +1508,68 @@ ModelDefinition getObjectBoxModel() {
             ..bottleDeposit =
                 const fb.Float64Reader().vTableGet(buffer, rootOffset, 16, 0)
             ..objectBoxId =
-                const fb.Int64Reader().vTableGet(buffer, rootOffset, 18, 0);
+                const fb.Int64Reader().vTableGet(buffer, rootOffset, 18, 0)
+            ..created = createdValue == null
+                ? null
+                : DateTime.fromMillisecondsSinceEpoch(createdValue)
+            ..updated = updatedValue == null
+                ? null
+                : DateTime.fromMillisecondsSinceEpoch(updatedValue);
+
+          return object;
+        }),
+    ObjectBoxInvitation: EntityDefinition<ObjectBoxInvitation>(
+        model: _entities[12],
+        toOneRelations: (ObjectBoxInvitation object) => [],
+        toManyRelations: (ObjectBoxInvitation object) => {},
+        getId: (ObjectBoxInvitation object) => object.objectBoxId,
+        setId: (ObjectBoxInvitation object, int id) {
+          object.objectBoxId = id;
+        },
+        objectToFB: (ObjectBoxInvitation object, fb.Builder fbb) {
+          final idOffset = fbb.writeString(object.id);
+          final householdIdOffset = fbb.writeString(object.householdId);
+          final inviterEmailOffset = fbb.writeString(object.inviterEmail);
+          final inviterUserIdOffset = fbb.writeString(object.inviterUserId);
+          final recipientEmailOffset = fbb.writeString(object.recipientEmail);
+          fbb.startTable(9);
+          fbb.addInt64(0, object.objectBoxId);
+          fbb.addInt64(1, object.created?.millisecondsSinceEpoch);
+          fbb.addInt64(2, object.updated?.millisecondsSinceEpoch);
+          fbb.addOffset(3, idOffset);
+          fbb.addOffset(4, householdIdOffset);
+          fbb.addOffset(5, inviterEmailOffset);
+          fbb.addOffset(6, inviterUserIdOffset);
+          fbb.addOffset(7, recipientEmailOffset);
+          fbb.finish(fbb.endTable());
+          return object.objectBoxId;
+        },
+        objectFromFB: (Store store, ByteData fbData) {
+          final buffer = fb.BufferContext(fbData);
+          final rootOffset = buffer.derefObject(0);
+          final createdValue =
+              const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 6);
+          final updatedValue =
+              const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 8);
+          final object = ObjectBoxInvitation()
+            ..objectBoxId =
+                const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0)
+            ..created = createdValue == null
+                ? null
+                : DateTime.fromMillisecondsSinceEpoch(createdValue)
+            ..updated = updatedValue == null
+                ? null
+                : DateTime.fromMillisecondsSinceEpoch(updatedValue)
+            ..id = const fb.StringReader(asciiOptimization: true)
+                .vTableGet(buffer, rootOffset, 10, '')
+            ..householdId = const fb.StringReader(asciiOptimization: true)
+                .vTableGet(buffer, rootOffset, 12, '')
+            ..inviterEmail = const fb.StringReader(asciiOptimization: true)
+                .vTableGet(buffer, rootOffset, 14, '')
+            ..inviterUserId = const fb.StringReader(asciiOptimization: true)
+                .vTableGet(buffer, rootOffset, 16, '')
+            ..recipientEmail = const fb.StringReader(asciiOptimization: true)
+                .vTableGet(buffer, rootOffset, 18, '');
 
           return object;
         })
@@ -1395,6 +1606,14 @@ class ObjectBoxShoppingItem_ {
   /// see [ObjectBoxShoppingItem.objectBoxId]
   static final objectBoxId =
       QueryIntegerProperty<ObjectBoxShoppingItem>(_entities[1].properties[2]);
+
+  /// see [ObjectBoxShoppingItem.created]
+  static final created =
+      QueryIntegerProperty<ObjectBoxShoppingItem>(_entities[1].properties[3]);
+
+  /// see [ObjectBoxShoppingItem.updated]
+  static final updated =
+      QueryIntegerProperty<ObjectBoxShoppingItem>(_entities[1].properties[4]);
 }
 
 /// [ObjectBoxExpirationDate] entity fields to define ObjectBox queries.
@@ -1496,6 +1715,10 @@ class ObjectBoxInventory_ {
   /// see [ObjectBoxInventory.updated]
   static final updated =
       QueryIntegerProperty<ObjectBoxInventory>(_entities[4].properties[9]);
+
+  /// see [ObjectBoxInventory.created]
+  static final created =
+      QueryIntegerProperty<ObjectBoxInventory>(_entities[4].properties[10]);
 }
 
 /// [ObjectBoxItem] entity fields to define ObjectBox queries.
@@ -1559,6 +1782,10 @@ class ObjectBoxItem_ {
   /// see [ObjectBoxItem.updated]
   static final updated =
       QueryIntegerProperty<ObjectBoxItem>(_entities[5].properties[14]);
+
+  /// see [ObjectBoxItem.created]
+  static final created =
+      QueryIntegerProperty<ObjectBoxItem>(_entities[5].properties[15]);
 }
 
 /// [ObjectBoxItemTranslation] entity fields to define ObjectBox queries.
@@ -1648,6 +1875,14 @@ class ObjectBoxManufacturer_ {
   /// see [ObjectBoxManufacturer.objectBoxId]
   static final objectBoxId =
       QueryIntegerProperty<ObjectBoxManufacturer>(_entities[8].properties[5]);
+
+  /// see [ObjectBoxManufacturer.created]
+  static final created =
+      QueryIntegerProperty<ObjectBoxManufacturer>(_entities[8].properties[6]);
+
+  /// see [ObjectBoxManufacturer.updated]
+  static final updated =
+      QueryIntegerProperty<ObjectBoxManufacturer>(_entities[8].properties[7]);
 }
 
 /// [ObjectBoxProduct] entity fields to define ObjectBox queries.
@@ -1679,6 +1914,14 @@ class ObjectBoxProduct_ {
   /// see [ObjectBoxProduct.objectBoxId]
   static final objectBoxId =
       QueryIntegerProperty<ObjectBoxProduct>(_entities[9].properties[6]);
+
+  /// see [ObjectBoxProduct.created]
+  static final created =
+      QueryIntegerProperty<ObjectBoxProduct>(_entities[9].properties[7]);
+
+  /// see [ObjectBoxProduct.updated]
+  static final updated =
+      QueryIntegerProperty<ObjectBoxProduct>(_entities[9].properties[8]);
 }
 
 /// [ObjectBoxItemIdentifier] entity fields to define ObjectBox queries.
@@ -1741,4 +1984,47 @@ class ObjectBoxReceiptItem_ {
   /// see [ObjectBoxReceiptItem.objectBoxId]
   static final objectBoxId =
       QueryIntegerProperty<ObjectBoxReceiptItem>(_entities[11].properties[7]);
+
+  /// see [ObjectBoxReceiptItem.created]
+  static final created =
+      QueryIntegerProperty<ObjectBoxReceiptItem>(_entities[11].properties[8]);
+
+  /// see [ObjectBoxReceiptItem.updated]
+  static final updated =
+      QueryIntegerProperty<ObjectBoxReceiptItem>(_entities[11].properties[9]);
+}
+
+/// [ObjectBoxInvitation] entity fields to define ObjectBox queries.
+class ObjectBoxInvitation_ {
+  /// see [ObjectBoxInvitation.objectBoxId]
+  static final objectBoxId =
+      QueryIntegerProperty<ObjectBoxInvitation>(_entities[12].properties[0]);
+
+  /// see [ObjectBoxInvitation.created]
+  static final created =
+      QueryIntegerProperty<ObjectBoxInvitation>(_entities[12].properties[1]);
+
+  /// see [ObjectBoxInvitation.updated]
+  static final updated =
+      QueryIntegerProperty<ObjectBoxInvitation>(_entities[12].properties[2]);
+
+  /// see [ObjectBoxInvitation.id]
+  static final id =
+      QueryStringProperty<ObjectBoxInvitation>(_entities[12].properties[3]);
+
+  /// see [ObjectBoxInvitation.householdId]
+  static final householdId =
+      QueryStringProperty<ObjectBoxInvitation>(_entities[12].properties[4]);
+
+  /// see [ObjectBoxInvitation.inviterEmail]
+  static final inviterEmail =
+      QueryStringProperty<ObjectBoxInvitation>(_entities[12].properties[5]);
+
+  /// see [ObjectBoxInvitation.inviterUserId]
+  static final inviterUserId =
+      QueryStringProperty<ObjectBoxInvitation>(_entities[12].properties[6]);
+
+  /// see [ObjectBoxInvitation.recipientEmail]
+  static final recipientEmail =
+      QueryStringProperty<ObjectBoxInvitation>(_entities[12].properties[7]);
 }
