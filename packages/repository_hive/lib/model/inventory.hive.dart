@@ -1,4 +1,5 @@
-import 'dart:core';
+// ignore_for_file: annotate_overrides
+
 
 import 'package:hive/hive.dart';
 import 'package:repository/ml/history.dart';
@@ -9,46 +10,49 @@ part 'inventory.hive.g.dart';
 @HiveType(typeId: 0)
 class HiveInventory extends HiveObject {
   @HiveField(0)
-  late double amount;
+  late DateTime? created;
   @HiveField(1)
-  late int unitCount;
-  @HiveField(2)
   late DateTime? updated;
+  @HiveField(2)
+  late double amount;
   @HiveField(3)
-  late List<DateTime> expirationDates;
+  late int unitCount;
   @HiveField(4)
   late List<String> locations;
   @HiveField(5)
-  late History history;
+  late List<DateTime> expirationDates;
   @HiveField(6)
   late bool restock;
   @HiveField(7)
-  late String upc;
-  @HiveField(8)
   late String uid;
-
+  @HiveField(8)
+  late History history;
+  @HiveField(9)
+  late String upc;
   HiveInventory();
   HiveInventory.from(Inventory original) {
+    created = original.created;
+    updated = original.updated;
     amount = original.amount;
     unitCount = original.unitCount;
-    updated = original.updated;
-    expirationDates = original.expirationDates;
     locations = original.locations;
-    history = original.history;
+    expirationDates = original.expirationDates;
     restock = original.restock;
-    upc = original.upc;
     uid = original.uid;
+    history = original.history;
+    upc = original.upc;
   }
   Inventory toInventory() {
     return Inventory(
+        created: created,
+        updated: updated,
         amount: amount,
         unitCount: unitCount,
-        updated: updated,
-        expirationDates: expirationDates,
         locations: locations,
-        history: history,
+        expirationDates: expirationDates,
         restock: restock,
-        upc: upc,
-        uid: uid);
+        uid: uid,
+        history: history,
+        upc: upc);
   }
 }

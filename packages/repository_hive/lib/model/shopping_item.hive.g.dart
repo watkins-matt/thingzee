@@ -17,20 +17,26 @@ class HiveShoppingItemAdapter extends TypeAdapter<HiveShoppingItem> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return HiveShoppingItem()
-      ..upc = fields[0] as String
-      ..checked = fields[1] as bool
-      ..listType = fields[2] as ShoppingListType;
+      ..created = fields[0] as DateTime?
+      ..updated = fields[1] as DateTime?
+      ..upc = fields[2] as String
+      ..checked = fields[3] as bool
+      ..listType = fields[4] as ShoppingListType;
   }
 
   @override
   void write(BinaryWriter writer, HiveShoppingItem obj) {
     writer
-      ..writeByte(3)
+      ..writeByte(5)
       ..writeByte(0)
-      ..write(obj.upc)
+      ..write(obj.created)
       ..writeByte(1)
-      ..write(obj.checked)
+      ..write(obj.updated)
       ..writeByte(2)
+      ..write(obj.upc)
+      ..writeByte(3)
+      ..write(obj.checked)
+      ..writeByte(4)
       ..write(obj.listType);
   }
 

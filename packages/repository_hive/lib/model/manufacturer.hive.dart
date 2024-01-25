@@ -1,3 +1,6 @@
+// ignore_for_file: annotate_overrides
+
+
 import 'package:hive/hive.dart';
 import 'package:repository/model/manufacturer.dart';
 
@@ -6,41 +9,37 @@ part 'manufacturer.hive.g.dart';
 @HiveType(typeId: 0)
 class HiveManufacturer extends HiveObject {
   @HiveField(0)
-  late String name;
+  late DateTime? created;
   @HiveField(1)
-  late String website;
+  late DateTime? updated;
   @HiveField(2)
-  late String uid;
+  late String name;
   @HiveField(3)
-  late String parentName;
+  late String website;
   @HiveField(4)
+  late String uid;
+  @HiveField(5)
+  late String parentName;
+  @HiveField(6)
   late String parentUid;
-
-  HiveManufacturer({
-    required this.name,
-    required this.website,
-    required this.uid,
-    required this.parentName,
-    required this.parentUid,
-  });
-
-  factory HiveManufacturer.from(Manufacturer original) {
-    return HiveManufacturer(
-      name: original.name,
-      website: original.website,
-      uid: original.uid,
-      parentName: original.parentName,
-      parentUid: original.parentUid,
-    );
+  HiveManufacturer();
+  HiveManufacturer.from(Manufacturer original) {
+    created = original.created;
+    updated = original.updated;
+    name = original.name;
+    website = original.website;
+    uid = original.uid;
+    parentName = original.parentName;
+    parentUid = original.parentUid;
   }
-
   Manufacturer toManufacturer() {
     return Manufacturer(
-      name: name,
-      website: website,
-      uid: uid,
-      parentName: parentName,
-      parentUid: parentUid,
-    );
+        created: created,
+        updated: updated,
+        name: name,
+        website: website,
+        uid: uid,
+        parentName: parentName,
+        parentUid: parentUid);
   }
 }

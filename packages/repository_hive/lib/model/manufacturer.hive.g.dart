@@ -16,28 +16,33 @@ class HiveManufacturerAdapter extends TypeAdapter<HiveManufacturer> {
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return HiveManufacturer(
-      name: fields[0] as String,
-      website: fields[1] as String,
-      uid: fields[2] as String,
-      parentName: fields[3] as String,
-      parentUid: fields[4] as String,
-    );
+    return HiveManufacturer()
+      ..created = fields[0] as DateTime?
+      ..updated = fields[1] as DateTime?
+      ..name = fields[2] as String
+      ..website = fields[3] as String
+      ..uid = fields[4] as String
+      ..parentName = fields[5] as String
+      ..parentUid = fields[6] as String;
   }
 
   @override
   void write(BinaryWriter writer, HiveManufacturer obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(7)
       ..writeByte(0)
-      ..write(obj.name)
+      ..write(obj.created)
       ..writeByte(1)
-      ..write(obj.website)
+      ..write(obj.updated)
       ..writeByte(2)
-      ..write(obj.uid)
+      ..write(obj.name)
       ..writeByte(3)
-      ..write(obj.parentName)
+      ..write(obj.website)
       ..writeByte(4)
+      ..write(obj.uid)
+      ..writeByte(5)
+      ..write(obj.parentName)
+      ..writeByte(6)
       ..write(obj.parentUid);
   }
 

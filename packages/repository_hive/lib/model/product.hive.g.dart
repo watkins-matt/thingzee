@@ -17,29 +17,35 @@ class HiveProductAdapter extends TypeAdapter<HiveProduct> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return HiveProduct()
-      ..name = fields[0] as String
-      ..uid = fields[1] as String
-      ..manufacturer = fields[2] as String
-      ..manufacturerUid = fields[3] as String
-      ..category = fields[4] as String
-      ..upcs = (fields[5] as List).cast<String>();
+      ..created = fields[0] as DateTime?
+      ..updated = fields[1] as DateTime?
+      ..name = fields[2] as String
+      ..uid = fields[3] as String
+      ..manufacturer = fields[4] as String
+      ..manufacturerUid = fields[5] as String
+      ..category = fields[6] as String
+      ..upcs = (fields[7] as List).cast<String>();
   }
 
   @override
   void write(BinaryWriter writer, HiveProduct obj) {
     writer
-      ..writeByte(6)
+      ..writeByte(8)
       ..writeByte(0)
-      ..write(obj.name)
+      ..write(obj.created)
       ..writeByte(1)
-      ..write(obj.uid)
+      ..write(obj.updated)
       ..writeByte(2)
-      ..write(obj.manufacturer)
+      ..write(obj.name)
       ..writeByte(3)
-      ..write(obj.manufacturerUid)
+      ..write(obj.uid)
       ..writeByte(4)
-      ..write(obj.category)
+      ..write(obj.manufacturer)
       ..writeByte(5)
+      ..write(obj.manufacturerUid)
+      ..writeByte(6)
+      ..write(obj.category)
+      ..writeByte(7)
       ..write(obj.upcs);
   }
 

@@ -1,3 +1,6 @@
+// ignore_for_file: annotate_overrides
+
+
 import 'package:hive/hive.dart';
 import 'package:repository/model/product.dart';
 
@@ -6,19 +9,25 @@ part 'product.hive.g.dart';
 @HiveType(typeId: 0)
 class HiveProduct extends HiveObject {
   @HiveField(0)
-  late String name;
+  late DateTime? created;
   @HiveField(1)
-  late String uid;
+  late DateTime? updated;
   @HiveField(2)
-  late String manufacturer;
+  late String name;
   @HiveField(3)
-  late String manufacturerUid;
+  late String uid;
   @HiveField(4)
-  late String category;
+  late String manufacturer;
   @HiveField(5)
+  late String manufacturerUid;
+  @HiveField(6)
+  late String category;
+  @HiveField(7)
   late List<String> upcs;
   HiveProduct();
   HiveProduct.from(Product original) {
+    created = original.created;
+    updated = original.updated;
     name = original.name;
     uid = original.uid;
     manufacturer = original.manufacturer;
@@ -28,12 +37,13 @@ class HiveProduct extends HiveObject {
   }
   Product toProduct() {
     return Product(
-      name: name,
-      uid: uid,
-      manufacturer: manufacturer,
-      manufacturerUid: manufacturerUid,
-      category: category,
-      upcs: upcs,
-    );
+        created: created,
+        updated: updated,
+        name: name,
+        uid: uid,
+        manufacturer: manufacturer,
+        manufacturerUid: manufacturerUid,
+        category: category,
+        upcs: upcs);
   }
 }
