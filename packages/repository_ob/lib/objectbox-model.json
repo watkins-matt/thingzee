@@ -303,7 +303,7 @@
     },
     {
       "id": "27:3953219533055125616",
-      "lastPropertyId": "8:5584264251070601548",
+      "lastPropertyId": "10:5452683376189884727",
       "name": "ObjectBoxItemTranslation",
       "properties": [
         {
@@ -348,6 +348,16 @@
           "name": "objectBoxId",
           "type": 6,
           "flags": 1
+        },
+        {
+          "id": "9:8391273918360532314",
+          "name": "created",
+          "type": 10
+        },
+        {
+          "id": "10:5452683376189884727",
+          "name": "updated",
+          "type": 10
         }
       ],
       "relations": []

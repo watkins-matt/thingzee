@@ -20,6 +20,7 @@ import 'model/identifier.ob.dart';
 import 'model/inventory.ob.dart';
 import 'model/invitation.ob.dart';
 import 'model/item.ob.dart';
+import 'model/item_translation.ob.dart';
 import 'model/location.ob.dart';
 import 'model/manufacturer.ob.dart';
 import 'model/product.ob.dart';
@@ -329,7 +330,7 @@ final _entities = <ModelEntity>[
   ModelEntity(
       id: const IdUid(27, 3953219533055125616),
       name: 'ObjectBoxItemTranslation',
-      lastPropertyId: const IdUid(8, 5584264251070601548),
+      lastPropertyId: const IdUid(10, 5452683376189884727),
       flags: 0,
       properties: <ModelProperty>[
         ModelProperty(
@@ -372,7 +373,17 @@ final _entities = <ModelEntity>[
             id: const IdUid(8, 5584264251070601548),
             name: 'objectBoxId',
             type: 6,
-            flags: 1)
+            flags: 1),
+        ModelProperty(
+            id: const IdUid(9, 8391273918360532314),
+            name: 'created',
+            type: 10,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(10, 5452683376189884727),
+            name: 'updated',
+            type: 10,
+            flags: 0)
       ],
       relations: <ModelRelation>[],
       backlinks: <ModelBacklink>[]),
@@ -1214,7 +1225,7 @@ ModelDefinition getObjectBoxModel() {
           final unitNameOffset = fbb.writeString(object.unitName);
           final unitPluralOffset = fbb.writeString(object.unitPlural);
           final typeOffset = fbb.writeString(object.type);
-          fbb.startTable(9);
+          fbb.startTable(11);
           fbb.addOffset(0, upcOffset);
           fbb.addOffset(1, languageCodeOffset);
           fbb.addOffset(2, nameOffset);
@@ -1223,13 +1234,18 @@ ModelDefinition getObjectBoxModel() {
           fbb.addOffset(5, unitPluralOffset);
           fbb.addOffset(6, typeOffset);
           fbb.addInt64(7, object.objectBoxId);
+          fbb.addInt64(8, object.created?.millisecondsSinceEpoch);
+          fbb.addInt64(9, object.updated?.millisecondsSinceEpoch);
           fbb.finish(fbb.endTable());
           return object.objectBoxId;
         },
         objectFromFB: (Store store, ByteData fbData) {
           final buffer = fb.BufferContext(fbData);
           final rootOffset = buffer.derefObject(0);
-
+          final createdValue =
+              const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 20);
+          final updatedValue =
+              const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 22);
           final object = ObjectBoxItemTranslation()
             ..upc = const fb.StringReader(asciiOptimization: true)
                 .vTableGet(buffer, rootOffset, 4, '')
@@ -1246,7 +1262,13 @@ ModelDefinition getObjectBoxModel() {
             ..type = const fb.StringReader(asciiOptimization: true)
                 .vTableGet(buffer, rootOffset, 16, '')
             ..objectBoxId =
-                const fb.Int64Reader().vTableGet(buffer, rootOffset, 18, 0);
+                const fb.Int64Reader().vTableGet(buffer, rootOffset, 18, 0)
+            ..created = createdValue == null
+                ? null
+                : DateTime.fromMillisecondsSinceEpoch(createdValue)
+            ..updated = updatedValue == null
+                ? null
+                : DateTime.fromMillisecondsSinceEpoch(updatedValue);
 
           return object;
         }),
@@ -1821,6 +1843,14 @@ class ObjectBoxItemTranslation_ {
   /// see [ObjectBoxItemTranslation.objectBoxId]
   static final objectBoxId = QueryIntegerProperty<ObjectBoxItemTranslation>(
       _entities[6].properties[7]);
+
+  /// see [ObjectBoxItemTranslation.created]
+  static final created = QueryIntegerProperty<ObjectBoxItemTranslation>(
+      _entities[6].properties[8]);
+
+  /// see [ObjectBoxItemTranslation.updated]
+  static final updated = QueryIntegerProperty<ObjectBoxItemTranslation>(
+      _entities[6].properties[9]);
 }
 
 /// [ObjectBoxLocation] entity fields to define ObjectBox queries.
