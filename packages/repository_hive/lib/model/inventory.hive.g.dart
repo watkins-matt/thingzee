@@ -17,39 +17,42 @@ class HiveInventoryAdapter extends TypeAdapter<HiveInventory> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return HiveInventory()
-      ..amount = fields[0] as double
-      ..unitCount = fields[1] as int
-      ..updated = fields[2] as DateTime?
-      ..expirationDates = (fields[3] as List).cast<DateTime>()
+      ..created = fields[0] as DateTime?
+      ..updated = fields[1] as DateTime?
+      ..amount = fields[2] as double
+      ..unitCount = fields[3] as int
       ..locations = (fields[4] as List).cast<String>()
-      ..history = fields[5] as History
+      ..expirationDates = (fields[5] as List).cast<DateTime>()
       ..restock = fields[6] as bool
-      ..upc = fields[7] as String
-      ..uid = fields[8] as String;
+      ..uid = fields[7] as String
+      ..history = fields[8] as History
+      ..upc = fields[9] as String;
   }
 
   @override
   void write(BinaryWriter writer, HiveInventory obj) {
     writer
-      ..writeByte(9)
+      ..writeByte(10)
       ..writeByte(0)
-      ..write(obj.amount)
+      ..write(obj.created)
       ..writeByte(1)
-      ..write(obj.unitCount)
-      ..writeByte(2)
       ..write(obj.updated)
+      ..writeByte(2)
+      ..write(obj.amount)
       ..writeByte(3)
-      ..write(obj.expirationDates)
+      ..write(obj.unitCount)
       ..writeByte(4)
       ..write(obj.locations)
       ..writeByte(5)
-      ..write(obj.history)
+      ..write(obj.expirationDates)
       ..writeByte(6)
       ..write(obj.restock)
       ..writeByte(7)
-      ..write(obj.upc)
+      ..write(obj.uid)
       ..writeByte(8)
-      ..write(obj.uid);
+      ..write(obj.history)
+      ..writeByte(9)
+      ..write(obj.upc);
   }
 
   @override

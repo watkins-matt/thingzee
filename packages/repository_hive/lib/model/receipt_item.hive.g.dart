@@ -17,32 +17,38 @@ class HiveReceiptItemAdapter extends TypeAdapter<HiveReceiptItem> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return HiveReceiptItem()
-      ..name = fields[0] as String
-      ..price = fields[1] as double
-      ..regularPrice = fields[2] as double
-      ..quantity = fields[3] as int
-      ..barcode = fields[4] as String
-      ..taxable = fields[5] as bool
-      ..bottleDeposit = fields[6] as double;
+      ..created = fields[0] as DateTime?
+      ..updated = fields[1] as DateTime?
+      ..name = fields[2] as String
+      ..price = fields[3] as double
+      ..regularPrice = fields[4] as double
+      ..quantity = fields[5] as int
+      ..barcode = fields[6] as String
+      ..taxable = fields[7] as bool
+      ..bottleDeposit = fields[8] as double;
   }
 
   @override
   void write(BinaryWriter writer, HiveReceiptItem obj) {
     writer
-      ..writeByte(7)
+      ..writeByte(9)
       ..writeByte(0)
-      ..write(obj.name)
+      ..write(obj.created)
       ..writeByte(1)
-      ..write(obj.price)
+      ..write(obj.updated)
       ..writeByte(2)
-      ..write(obj.regularPrice)
+      ..write(obj.name)
       ..writeByte(3)
-      ..write(obj.quantity)
+      ..write(obj.price)
       ..writeByte(4)
-      ..write(obj.barcode)
+      ..write(obj.regularPrice)
       ..writeByte(5)
-      ..write(obj.taxable)
+      ..write(obj.quantity)
       ..writeByte(6)
+      ..write(obj.barcode)
+      ..writeByte(7)
+      ..write(obj.taxable)
+      ..writeByte(8)
       ..write(obj.bottleDeposit);
   }
 

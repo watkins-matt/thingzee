@@ -1,3 +1,4 @@
+// ignore_for_file: annotate_overrides
 
 
 import 'package:hive/hive.dart';
@@ -8,21 +9,27 @@ part 'receipt_item.hive.g.dart';
 @HiveType(typeId: 0)
 class HiveReceiptItem extends HiveObject {
   @HiveField(0)
-  late String name;
+  late DateTime? created;
   @HiveField(1)
-  late double price;
+  late DateTime? updated;
   @HiveField(2)
-  late double regularPrice;
+  late String name;
   @HiveField(3)
-  late int quantity;
+  late double price;
   @HiveField(4)
-  late String barcode;
+  late double regularPrice;
   @HiveField(5)
-  late bool taxable;
+  late int quantity;
   @HiveField(6)
+  late String barcode;
+  @HiveField(7)
+  late bool taxable;
+  @HiveField(8)
   late double bottleDeposit;
   HiveReceiptItem();
   HiveReceiptItem.from(ReceiptItem original) {
+    created = original.created;
+    updated = original.updated;
     name = original.name;
     price = original.price;
     regularPrice = original.regularPrice;
@@ -33,6 +40,8 @@ class HiveReceiptItem extends HiveObject {
   }
   ReceiptItem toReceiptItem() {
     return ReceiptItem(
+        created: created,
+        updated: updated,
         name: name,
         price: price,
         regularPrice: regularPrice,

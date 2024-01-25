@@ -22,6 +22,7 @@ class ImportLookupTable:
             "Invitation": "import 'package:repository/model/invitation.dart';",
             "InvitationStatus": "import 'package:repository/model/invitation.dart';",
             "Item": "import 'package:repository/model/item.dart';",
+            "ItemTranslation": "import 'package:repository/model/item_translation.dart';",
             "Location": "import 'package:repository/model/location.dart';",
             "Manufacturer": "import 'package:repository/model/manufacturer.dart';",
             "Product": "import 'package:repository/model/product.dart';",

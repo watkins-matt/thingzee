@@ -1,4 +1,5 @@
-import 'dart:core';
+// ignore_for_file: annotate_overrides
+
 
 import 'package:hive/hive.dart';
 import 'package:repository/model/item.dart';
@@ -7,36 +8,40 @@ part 'item.hive.g.dart';
 
 @HiveType(typeId: 0)
 class HiveItem extends HiveObject {
-  @HiveField(4)
-  late String upc;
-  @HiveField(5)
-  late String uid;
-  @HiveField(6)
-  late String name;
-  @HiveField(7)
-  late String variety;
-  @HiveField(8)
-  late String category;
-  @HiveField(9)
-  late String type;
-  @HiveField(10)
-  late String typeId;
-  @HiveField(11)
-  late int unitCount;
-  @HiveField(12)
-  late String unitName;
-  @HiveField(13)
-  late String unitPlural;
-  @HiveField(14)
-  late String imageUrl;
-  @HiveField(15)
-  late bool consumable;
-  @HiveField(16)
-  late String languageCode;
-  @HiveField(17)
+  @HiveField(0)
+  late DateTime? created;
+  @HiveField(1)
   late DateTime? updated;
+  @HiveField(2)
+  late String upc;
+  @HiveField(3)
+  late String uid;
+  @HiveField(4)
+  late String name;
+  @HiveField(5)
+  late String variety;
+  @HiveField(6)
+  late String category;
+  @HiveField(7)
+  late String type;
+  @HiveField(8)
+  late String typeId;
+  @HiveField(9)
+  late int unitCount;
+  @HiveField(10)
+  late String unitName;
+  @HiveField(11)
+  late String unitPlural;
+  @HiveField(12)
+  late String imageUrl;
+  @HiveField(13)
+  late bool consumable;
+  @HiveField(14)
+  late String languageCode;
   HiveItem();
   HiveItem.from(Item original) {
+    created = original.created;
+    updated = original.updated;
     upc = original.upc;
     uid = original.uid;
     name = original.name;
@@ -50,10 +55,11 @@ class HiveItem extends HiveObject {
     imageUrl = original.imageUrl;
     consumable = original.consumable;
     languageCode = original.languageCode;
-    updated = original.updated;
   }
   Item toItem() {
     return Item(
+        created: created,
+        updated: updated,
         upc: upc,
         uid: uid,
         name: name,
@@ -66,45 +72,6 @@ class HiveItem extends HiveObject {
         unitPlural: unitPlural,
         imageUrl: imageUrl,
         consumable: consumable,
-        languageCode: languageCode,
-        updated: updated);
-  }
-}
-
-@HiveType(typeId: 0)
-class HiveItemTranslation extends HiveObject {
-  @HiveField(0)
-  late String upc;
-  @HiveField(1)
-  late String languageCode;
-  @HiveField(2)
-  late String name;
-  @HiveField(3)
-  late String variety;
-  @HiveField(4)
-  late String unitName;
-  @HiveField(5)
-  late String unitPlural;
-  @HiveField(6)
-  late String type;
-  HiveItemTranslation();
-  HiveItemTranslation.from(ItemTranslation original) {
-    upc = original.upc;
-    languageCode = original.languageCode;
-    name = original.name;
-    variety = original.variety;
-    unitName = original.unitName;
-    unitPlural = original.unitPlural;
-    type = original.type;
-  }
-  ItemTranslation toItemTranslation() {
-    return ItemTranslation()
-      ..upc = upc
-      ..languageCode = languageCode
-      ..name = name
-      ..variety = variety
-      ..unitName = unitName
-      ..unitPlural = unitPlural
-      ..type = type;
+        languageCode: languageCode);
   }
 }
