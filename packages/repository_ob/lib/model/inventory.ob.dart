@@ -1,36 +1,54 @@
-import 'dart:core';
+// ignore_for_file: annotate_overrides
+
 
 import 'package:objectbox/objectbox.dart';
 import 'package:repository/ml/history.dart';
 import 'package:repository/model/inventory.dart';
+import 'package:repository_ob/model_custom/object_box_model.dart';
 
 @Entity()
-class ObjectBoxInventory {
-  late double amount;
-  late int unitCount;
-  late DateTime? updated;
-  List<DateTime> expirationDates = [];
-  List<String> locations = [];
-  @Transient()
-  History history = History();
-  late bool restock;
-  @Unique(onConflict: ConflictStrategy.replace)
-  late String _upc;
-  late String uid;
+class ObjectBoxInventory extends ObjectBoxModel {
   @Id()
   int objectBoxId = 0;
+  late DateTime? created;
+  late DateTime? updated;
+  late double amount;
+  late int unitCount;
+  List<String> locations = [];
+  List<DateTime> expirationDates = [];
+  late bool restock;
+  late String uid;
+  @Transient()
+  History history = History();
+  @Unique(onConflict: ConflictStrategy.replace)
+  late String _upc;
   ObjectBoxInventory();
   ObjectBoxInventory.from(Inventory original) {
+    created = original.created;
+    updated = original.updated;
     amount = original.amount;
     unitCount = original.unitCount;
-    updated = original.updated;
-    expirationDates = original.expirationDates;
     locations = original.locations;
-    history = original.history;
+    expirationDates = original.expirationDates;
     restock = original.restock;
-    upc = original.upc;
     uid = original.uid;
+    history = original.history;
+    upc = original.upc;
   }
+  Inventory toInventory() {
+    return Inventory(
+        created: created,
+        updated: updated,
+        amount: amount,
+        unitCount: unitCount,
+        locations: locations,
+        expirationDates: expirationDates,
+        restock: restock,
+        uid: uid,
+        history: history,
+        upc: upc);
+  }
+
   List<String> get dbExpirationDates {
     List<String> dates = [];
     for (final exp in expirationDates) {
@@ -65,18 +83,5 @@ class ObjectBoxInventory {
   set upc(String value) {
     _upc = value;
     history = history.copyWith(upc: value);
-  }
-
-  Inventory toInventory() {
-    return Inventory(
-        amount: amount,
-        unitCount: unitCount,
-        updated: updated,
-        expirationDates: expirationDates,
-        locations: locations,
-        history: history,
-        restock: restock,
-        upc: upc,
-        uid: uid);
   }
 }

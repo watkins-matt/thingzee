@@ -1,17 +1,25 @@
+// ignore_for_file: annotate_overrides
+
+
 import 'package:objectbox/objectbox.dart';
 import 'package:repository/model/manufacturer.dart';
+import 'package:repository_ob/model_custom/object_box_model.dart';
 
 @Entity()
-class ObjectBoxManufacturer {
+class ObjectBoxManufacturer extends ObjectBoxModel {
+  @Id()
+  int objectBoxId = 0;
+  late DateTime? created;
+  late DateTime? updated;
   late String name;
   late String website;
   late String uid;
   late String parentName;
   late String parentUid;
-  @Id()
-  int objectBoxId = 0;
   ObjectBoxManufacturer();
   ObjectBoxManufacturer.from(Manufacturer original) {
+    created = original.created;
+    updated = original.updated;
     name = original.name;
     website = original.website;
     uid = original.uid;
@@ -20,11 +28,12 @@ class ObjectBoxManufacturer {
   }
   Manufacturer toManufacturer() {
     return Manufacturer(
-      name: name,
-      website: website,
-      uid: uid,
-      parentName: parentName,
-      parentUid: parentUid,
-    );
+        created: created,
+        updated: updated,
+        name: name,
+        website: website,
+        uid: uid,
+        parentName: parentName,
+        parentUid: parentUid);
   }
 }

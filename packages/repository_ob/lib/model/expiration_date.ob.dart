@@ -1,16 +1,18 @@
-import 'dart:core';
+// ignore_for_file: annotate_overrides
+
 
 import 'package:objectbox/objectbox.dart';
 import 'package:repository/model/expiration_date.dart';
+import 'package:repository_ob/model_custom/object_box_model.dart';
 
 @Entity()
-class ObjectBoxExpirationDate {
+class ObjectBoxExpirationDate extends ObjectBoxModel {
+  @Id()
+  int objectBoxId = 0;
   late DateTime? created;
   late DateTime? updated;
   late String upc;
   late DateTime? expirationDate;
-  @Id()
-  int objectBoxId = 0;
   ObjectBoxExpirationDate();
   ObjectBoxExpirationDate.from(ExpirationDate original) {
     created = original.created;

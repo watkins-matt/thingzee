@@ -1,10 +1,16 @@
+// ignore_for_file: annotate_overrides
 
 
 import 'package:objectbox/objectbox.dart';
 import 'package:repository/model/receipt_item.dart';
+import 'package:repository_ob/model_custom/object_box_model.dart';
 
 @Entity()
-class ObjectBoxReceiptItem {
+class ObjectBoxReceiptItem extends ObjectBoxModel {
+  @Id()
+  int objectBoxId = 0;
+  late DateTime? created;
+  late DateTime? updated;
   late String name;
   late double price;
   late double regularPrice;
@@ -12,10 +18,10 @@ class ObjectBoxReceiptItem {
   late String barcode;
   late bool taxable;
   late double bottleDeposit;
-  @Id()
-  int objectBoxId = 0;
   ObjectBoxReceiptItem();
   ObjectBoxReceiptItem.from(ReceiptItem original) {
+    created = original.created;
+    updated = original.updated;
     name = original.name;
     price = original.price;
     regularPrice = original.regularPrice;
@@ -26,6 +32,8 @@ class ObjectBoxReceiptItem {
   }
   ReceiptItem toReceiptItem() {
     return ReceiptItem(
+        created: created,
+        updated: updated,
         name: name,
         price: price,
         regularPrice: regularPrice,
