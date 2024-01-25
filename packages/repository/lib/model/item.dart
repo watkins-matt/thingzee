@@ -121,18 +121,3 @@ class Item extends Model<Item> implements Comparable<Item>, Nameable {
   @override
   Map<String, dynamic> toJson() => _$ItemToJson(this);
 }
-
-@JsonSerializable(explicitToJson: true)
-class ItemTranslation {
-  String upc = ''; // generator:unique
-  String languageCode = 'en';
-  String name = '';
-  String variety = '';
-  String unitName = '';
-  String unitPlural = '';
-  String type = '';
-
-  ItemTranslation();
-  factory ItemTranslation.fromJson(Map<String, dynamic> json) => _$ItemTranslationFromJson(json);
-  Map<String, dynamic> toJson() => _$ItemTranslationToJson(this);
-}
