@@ -4,6 +4,7 @@ import 'package:repository/extension/date_time.dart';
 import 'package:repository/merge_generator.dart';
 import 'package:repository/model/abstract/model.dart';
 import 'package:repository/model/serializer_datetime.dart';
+import 'package:repository/model/serializer_invitation_status.dart';
 
 part 'invitation.g.dart';
 part 'invitation.merge.dart';
@@ -107,13 +108,3 @@ class Invitation extends Model<Invitation> {
 }
 
 enum InvitationStatus { pending, accepted, rejected }
-
-class InvitationStatusSerializer implements JsonConverter<InvitationStatus, int> {
-  const InvitationStatusSerializer();
-
-  @override
-  InvitationStatus fromJson(int json) => InvitationStatus.values[json];
-
-  @override
-  int toJson(InvitationStatus status) => status.index;
-}
