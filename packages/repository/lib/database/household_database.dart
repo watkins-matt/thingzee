@@ -5,6 +5,5 @@ abstract class HouseholdDatabase implements Database<HouseholdMember> {
   List<HouseholdMember> get admins;
   DateTime get created;
   String get id;
-  List<HouseholdMember> get members;
   void leave();
 }

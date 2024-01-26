@@ -15,21 +15,21 @@ class HouseholdState extends StateNotifier<List<HouseholdMember>> {
 
   HouseholdState(this.repo)
       : household = repo.household,
-        super(repo.household.members);
+        super(repo.household.all());
 
   void addMember(String name, String email, {bool isAdmin = false}) {
     final member =
         HouseholdMember(name: name, email: email, isAdmin: isAdmin, householdId: household.id);
     household.put(member);
-    state = household.members;
+    state = household.all();
   }
 
   void leave() {
     household.leave();
-    state = household.members;
+    state = household.all();
   }
 
   void refreshMembers() {
-    state = household.members;
+    state = household.all();
   }
 }

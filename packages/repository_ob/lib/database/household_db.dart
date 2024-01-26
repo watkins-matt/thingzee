@@ -38,12 +38,6 @@ class ObjectBoxHouseholdDatabase extends HouseholdDatabase {
   String get id => _householdId!;
 
   @override
-  List<HouseholdMember> get members {
-    final all = box.getAll();
-    return all.map((objBoxMember) => objBoxMember.toHouseholdMember()).toList();
-  }
-
-  @override
   List<HouseholdMember> all() {
     return box.getAll().map((objBoxMember) => objBoxMember.toHouseholdMember()).toList();
   }
