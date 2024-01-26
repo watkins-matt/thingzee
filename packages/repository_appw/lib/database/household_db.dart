@@ -38,9 +38,6 @@ class AppwriteHouseholdDatabase extends HouseholdDatabase
   @override
   String get id => _householdId;
 
-  @override
-  List<HouseholdMember> get members => values.toList();
-
   Future<void> connectivityChanged() async {
     await _initializeHousehold();
     await taskQueue.runUntilComplete();

@@ -28,9 +28,6 @@ class SynchronizedHouseholdDatabase extends HouseholdDatabase
   String get id => local.id;
 
   @override
-  List<HouseholdMember> get members => local.members;
-
-  @override
   void leave() {
     local.leave();
     remote.leave();
