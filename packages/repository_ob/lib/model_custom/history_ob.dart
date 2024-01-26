@@ -1,10 +1,19 @@
+// ignore_for_file: annotate_overrides
 import 'dart:convert';
 
 import 'package:objectbox/objectbox.dart';
 import 'package:repository/ml/history.dart';
+import 'package:repository_ob/model_custom/object_box_model.dart';
 
 @Entity()
-class ObjectBoxHistory {
+class ObjectBoxHistory extends ObjectBoxModel {
+  @Id()
+  int objectBoxId = 0;
+  @Property(type: PropertyType.date)
+  late DateTime? created;
+  @Property(type: PropertyType.date)
+  late DateTime? updated;
+
   // Serialization occurs though dbHistory
   @Transient()
   History history = History();
@@ -12,13 +21,12 @@ class ObjectBoxHistory {
   @Unique(onConflict: ConflictStrategy.replace)
   String upc = '';
 
-  @Id()
-  int objectBoxId = 0;
-
   ObjectBoxHistory();
   ObjectBoxHistory.from(History original) {
     history = History.fromJson(original.toJson());
     upc = original.upc;
+    created = original.created;
+    updated = original.updated;
   }
 
   String get dbHistory {

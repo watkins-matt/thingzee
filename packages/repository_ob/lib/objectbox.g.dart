@@ -34,7 +34,7 @@ final _entities = <ModelEntity>[
   ModelEntity(
       id: const IdUid(12, 8845027561250741274),
       name: 'ObjectBoxHistory',
-      lastPropertyId: const IdUid(4, 1410544969885562863),
+      lastPropertyId: const IdUid(6, 5915072062979250527),
       flags: 0,
       properties: <ModelProperty>[
         ModelProperty(
@@ -52,7 +52,17 @@ final _entities = <ModelEntity>[
             id: const IdUid(4, 1410544969885562863),
             name: 'objectBoxId',
             type: 6,
-            flags: 1)
+            flags: 1),
+        ModelProperty(
+            id: const IdUid(5, 1101226047436064246),
+            name: 'created',
+            type: 10,
+            flags: 0),
+        ModelProperty(
+            id: const IdUid(6, 5915072062979250527),
+            name: 'updated',
+            type: 10,
+            flags: 0)
       ],
       relations: <ModelRelation>[],
       backlinks: <ModelBacklink>[]),
@@ -892,24 +902,35 @@ ModelDefinition getObjectBoxModel() {
         objectToFB: (ObjectBoxHistory object, fb.Builder fbb) {
           final upcOffset = fbb.writeString(object.upc);
           final dbHistoryOffset = fbb.writeString(object.dbHistory);
-          fbb.startTable(5);
+          fbb.startTable(7);
           fbb.addOffset(0, upcOffset);
           fbb.addOffset(2, dbHistoryOffset);
           fbb.addInt64(3, object.objectBoxId);
+          fbb.addInt64(4, object.created?.millisecondsSinceEpoch);
+          fbb.addInt64(5, object.updated?.millisecondsSinceEpoch);
           fbb.finish(fbb.endTable());
           return object.objectBoxId;
         },
         objectFromFB: (Store store, ByteData fbData) {
           final buffer = fb.BufferContext(fbData);
           final rootOffset = buffer.derefObject(0);
-
+          final createdValue =
+              const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 12);
+          final updatedValue =
+              const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 14);
           final object = ObjectBoxHistory()
             ..upc = const fb.StringReader(asciiOptimization: true)
                 .vTableGet(buffer, rootOffset, 4, '')
             ..dbHistory = const fb.StringReader(asciiOptimization: true)
                 .vTableGet(buffer, rootOffset, 8, '')
             ..objectBoxId =
-                const fb.Int64Reader().vTableGet(buffer, rootOffset, 10, 0);
+                const fb.Int64Reader().vTableGet(buffer, rootOffset, 10, 0)
+            ..created = createdValue == null
+                ? null
+                : DateTime.fromMillisecondsSinceEpoch(createdValue)
+            ..updated = updatedValue == null
+                ? null
+                : DateTime.fromMillisecondsSinceEpoch(updatedValue);
 
           return object;
         }),
@@ -1613,6 +1634,14 @@ class ObjectBoxHistory_ {
   /// see [ObjectBoxHistory.objectBoxId]
   static final objectBoxId =
       QueryIntegerProperty<ObjectBoxHistory>(_entities[0].properties[2]);
+
+  /// see [ObjectBoxHistory.created]
+  static final created =
+      QueryIntegerProperty<ObjectBoxHistory>(_entities[0].properties[3]);
+
+  /// see [ObjectBoxHistory.updated]
+  static final updated =
+      QueryIntegerProperty<ObjectBoxHistory>(_entities[0].properties[4]);
 }
 
 /// [ObjectBoxShoppingItem] entity fields to define ObjectBox queries.
