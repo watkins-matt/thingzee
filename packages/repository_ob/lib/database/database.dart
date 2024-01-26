@@ -11,9 +11,7 @@ mixin ObjectBoxDatabase<T extends Model, O extends ObjectBoxModel> on Database<T
   List<T> all() => box.getAll().map(toModel).toList();
 
   Condition<O> buildIdCondition(String id);
-
   Condition<O> buildIdsCondition(List<String> ids);
-
   Condition<O> buildSinceCondition(DateTime since);
 
   void constructDb(Store store) {
@@ -22,6 +20,8 @@ mixin ObjectBoxDatabase<T extends Model, O extends ObjectBoxModel> on Database<T
 
   @override
   void delete(T item) {
+    assert(item.isValid);
+
     final query = box.query(buildIdCondition(item.id)).build();
     final result = query.findFirst();
     query.close();
@@ -36,6 +36,8 @@ mixin ObjectBoxDatabase<T extends Model, O extends ObjectBoxModel> on Database<T
 
   @override
   void deleteById(String id) {
+    assert(id.isNotEmpty);
+
     final query = box.query(buildIdCondition(id)).build();
     final result = query.findFirst();
     query.close();
