@@ -1,103 +1,44 @@
+// ignore_for_file: avoid_renaming_method_parameters
+
 import 'package:repository/database/history_database.dart';
 import 'package:repository/ml/history.dart';
+import 'package:repository_ob/database/database.dart';
 import 'package:repository_ob/model_custom/history_ob.dart';
 import 'package:repository_ob/objectbox.g.dart';
 
-class ObjectBoxHistoryDatabase extends HistoryDatabase {
-  late Box<ObjectBoxHistory> box;
-
+class ObjectBoxHistoryDatabase extends HistoryDatabase
+    with ObjectBoxDatabase<History, ObjectBoxHistory> {
   ObjectBoxHistoryDatabase(Store store) {
-    box = store.box<ObjectBoxHistory>();
+    constructDb(store);
   }
 
   @override
-  List<History> all() {
-    final all = box.getAll();
-    return all.map((objBoxHist) => objBoxHist.toHistory()).toList();
+  Condition<ObjectBoxHistory> buildIdCondition(String id) {
+    return ObjectBoxHistory_.upc.equals(id);
   }
 
   @override
-  void delete(History history) {
-    assert(history.upc.isNotEmpty);
-    final query = box.query(ObjectBoxHistory_.upc.equals(history.upc)).build();
-    final result = query.findFirst();
-    query.close();
-
-    if (result != null) {
-      box.remove(result.objectBoxId);
-    }
+  Condition<ObjectBoxHistory> buildIdsCondition(List<String> ids) {
+    return ObjectBoxHistory_.upc.oneOf(ids);
   }
 
   @override
-  void deleteAll() {
-    box.removeAll();
+  Condition<ObjectBoxHistory> buildSinceCondition(DateTime since) {
+    return ObjectBoxHistory_.updated.greaterThan(since.millisecondsSinceEpoch);
   }
 
   @override
-  void deleteById(String upc) {
-    final query = box.query(ObjectBoxHistory_.upc.equals(upc)).build();
-    final result = query.findFirst();
-    query.close();
-
-    if (result != null) {
-      box.remove(result.objectBoxId);
-    }
-  }
-
-  @override
-  History? get(String upc) {
-    assert(upc.isNotEmpty);
-    final query = box.query(ObjectBoxHistory_.upc.equals(upc)).build();
-    final result = query.findFirst()?.toHistory();
-    query.close();
-
-    return result;
-  }
-
-  @override
-  List<History> getAll(List<String> upcs) {
-    final query = box.query(ObjectBoxHistory_.upc.oneOf(upcs)).build();
-    final results = query.find();
-    query.close();
-
-    return results.map((objBoxHist) => objBoxHist.toHistory()).toList();
-  }
-
-  @override
-  Map<String, History> map() {
-    Map<String, History> map = {};
-    final allHistory = all();
-
-    for (final hist in allHistory) {
-      map[hist.upc] = hist;
-    }
-
-    return map;
-  }
+  ObjectBoxHistory fromModel(History model) => ObjectBoxHistory.from(model);
 
   @override
   void put(History history) {
-    // Ensure UPC is not empty
-    assert(history.upc.isNotEmpty);
-
     // Remove any invalid values
     history = history.clean(warn: true);
 
-    // Convert to ObjectBoxMLHistory
-    var historyOb = ObjectBoxHistory.from(history);
-
-    // Check if history already exists
-    final query = box.query(ObjectBoxHistory_.upc.equals(history.upc)).build();
-    final exists = query.findFirst();
-    query.close();
-
-    // If history exists, update the ID to match the existing history
-    // before we replace it
-    if (exists != null && historyOb.objectBoxId != exists.objectBoxId) {
-      historyOb.objectBoxId = exists.objectBoxId;
-    }
-
-    assert(historyOb.upc.isNotEmpty && historyOb.history.upc.isNotEmpty);
-    box.put(historyOb);
+    // Use the put implementation from the mixin
+    super.put(history);
   }
+
+  @override
+  History toModel(ObjectBoxHistory objectBoxEntity) => objectBoxEntity.toHistory();
 }
