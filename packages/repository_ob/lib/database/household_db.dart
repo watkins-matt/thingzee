@@ -1,20 +1,20 @@
 import 'package:repository/database/household_database.dart';
 import 'package:repository/database/preferences.dart';
 import 'package:repository/model/household_member.dart';
+import 'package:repository_ob/database/database.dart';
 import 'package:repository_ob/model/household_member.ob.dart';
 import 'package:repository_ob/objectbox.g.dart';
 import 'package:uuid/uuid.dart';
 
-class ObjectBoxHouseholdDatabase extends HouseholdDatabase {
-  late Box<ObjectBoxHouseholdMember> box;
+class ObjectBoxHouseholdDatabase extends HouseholdDatabase
+    with ObjectBoxDatabase<HouseholdMember, ObjectBoxHouseholdMember> {
   final Preferences prefs;
   String? _householdId;
   DateTime? _created;
 
-  ObjectBoxHouseholdDatabase(Store store, this.prefs) {
-    box = store.box<ObjectBoxHouseholdMember>();
+  ObjectBoxHouseholdDatabase(Store store, this.prefs) : super() {
+    constructDb(store);
 
-    // Check if household_id and household_created exist in preferences
     if (!prefs.containsKey('household_id') || !prefs.containsKey('household_created')) {
       _createNewHousehold();
     } else {
@@ -27,8 +27,7 @@ class ObjectBoxHouseholdDatabase extends HouseholdDatabase {
     final query = box.query(ObjectBoxHouseholdMember_.isAdmin.equals(true)).build();
     final results = query.find();
     query.close();
-
-    return results.map((objBoxMember) => objBoxMember.toHouseholdMember()).toList();
+    return results.map(toModel).toList();
   }
 
   @override
@@ -38,63 +37,22 @@ class ObjectBoxHouseholdDatabase extends HouseholdDatabase {
   String get id => _householdId!;
 
   @override
-  List<HouseholdMember> all() {
-    return box.getAll().map((objBoxMember) => objBoxMember.toHouseholdMember()).toList();
+  Condition<ObjectBoxHouseholdMember> buildIdCondition(String id) {
+    return ObjectBoxHouseholdMember_.userId.equals(id);
   }
 
   @override
-  void delete(HouseholdMember member) {
-    final query = box.query(ObjectBoxHouseholdMember_.userId.equals(member.userId)).build();
-    final result = query.findFirst();
-    query.close();
-
-    if (result != null) {
-      box.remove(result.objectBoxId);
-    }
+  Condition<ObjectBoxHouseholdMember> buildIdsCondition(List<String> ids) {
+    return ObjectBoxHouseholdMember_.userId.oneOf(ids);
   }
 
   @override
-  void deleteAll() {
-    box.removeAll();
+  Condition<ObjectBoxHouseholdMember> buildSinceCondition(DateTime since) {
+    return ObjectBoxHouseholdMember_.updated.greaterThan(since.millisecondsSinceEpoch);
   }
 
   @override
-  void deleteById(String userId) {
-    final query = box.query(ObjectBoxHouseholdMember_.userId.equals(userId)).build();
-    final member = query.findFirst();
-    query.close();
-
-    if (member != null) {
-      box.remove(member.objectBoxId);
-    }
-  }
-
-  @override
-  HouseholdMember? get(String userId) {
-    final query = box.query(ObjectBoxHouseholdMember_.userId.equals(userId)).build();
-    final member = query.findFirst();
-    query.close();
-
-    return member?.toHouseholdMember();
-  }
-
-  @override
-  List<HouseholdMember> getAll(List<String> userIds) {
-    final query = box.query(ObjectBoxHouseholdMember_.userId.oneOf(userIds)).build();
-    final members = query.find();
-    query.close();
-
-    return members.map((objBoxMember) => objBoxMember.toHouseholdMember()).toList();
-  }
-
-  @override
-  List<HouseholdMember> getChanges(DateTime since) {
-    final query = box
-        .query(ObjectBoxHouseholdMember_.updated.greaterThan(since.millisecondsSinceEpoch))
-        .build();
-    final results = query.find();
-    return results.map((objBoxMember) => objBoxMember.toHouseholdMember()).toList();
-  }
+  ObjectBoxHouseholdMember fromModel(HouseholdMember model) => ObjectBoxHouseholdMember.from(model);
 
   @override
   void leave() {
@@ -103,34 +61,14 @@ class ObjectBoxHouseholdDatabase extends HouseholdDatabase {
   }
 
   @override
-  Map<String, HouseholdMember> map() {
-    final all = box.getAll();
-    return {
-      for (final objBoxMember in all)
-        objBoxMember.objectBoxId.toString(): objBoxMember.toHouseholdMember()
-    };
-  }
-
-  @override
-  void put(HouseholdMember member) {
-    final identifierOb = ObjectBoxHouseholdMember.from(member);
-
-    final query = box.query(ObjectBoxHouseholdMember_.userId.equals(member.userId)).build();
-    final exists = query.findFirst();
-    query.close();
-
-    if (exists != null && identifierOb.objectBoxId != exists.objectBoxId) {
-      identifierOb.objectBoxId = exists.objectBoxId;
-    }
-
-    box.put(identifierOb);
-  }
+  HouseholdMember toModel(ObjectBoxHouseholdMember objectBoxEntity) =>
+      objectBoxEntity.toHouseholdMember();
 
   void _createNewHousehold() {
     _householdId = const Uuid().v4();
     _created = DateTime.now();
     prefs.setString('household_id', _householdId!);
-    prefs.setInt('household_created', created.millisecondsSinceEpoch);
+    prefs.setInt('household_created', _created!.millisecondsSinceEpoch);
   }
 
   void _loadHousehold() {

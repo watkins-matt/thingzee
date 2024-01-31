@@ -1,93 +1,32 @@
 import 'package:repository/database/inventory_database.dart';
 import 'package:repository/model/inventory.dart';
+import 'package:repository_ob/database/database.dart'; // Adjust the import as needed
 import 'package:repository_ob/model/inventory.ob.dart';
 import 'package:repository_ob/objectbox.g.dart';
 
-class ObjectBoxInventoryDatabase extends InventoryDatabase {
-  late Box<ObjectBoxInventory> box;
-
+class ObjectBoxInventoryDatabase extends InventoryDatabase
+    with ObjectBoxDatabase<Inventory, ObjectBoxInventory> {
   ObjectBoxInventoryDatabase(Store store) {
-    box = store.box<ObjectBoxInventory>();
+    constructDb(store);
   }
 
   @override
-  List<Inventory> all() {
-    final all = box.getAll();
-    return all.map((objBoxInv) => objBoxInv.toInventory()).toList();
+  Condition<ObjectBoxInventory> buildIdCondition(String id) {
+    return ObjectBoxInventory_.upc.equals(id);
   }
 
   @override
-  void delete(Inventory inv) {
-    assert(inv.upc.isNotEmpty);
-    final query = box.query(ObjectBoxInventory_.upc.equals(inv.upc)).build();
-    final result = query.findFirst();
-    query.close();
-
-    if (result != null) {
-      box.remove(result.objectBoxId);
-    }
+  Condition<ObjectBoxInventory> buildIdsCondition(List<String> ids) {
+    return ObjectBoxInventory_.upc.oneOf(ids);
   }
 
   @override
-  void deleteAll() {
-    box.removeAll();
+  Condition<ObjectBoxInventory> buildSinceCondition(DateTime since) {
+    return ObjectBoxInventory_.updated.greaterThan(since.millisecondsSinceEpoch);
   }
 
   @override
-  void deleteById(String upc) {
-    final query = box.query(ObjectBoxInventory_.upc.equals(upc)).build();
-    final result = query.findFirst();
-    query.close();
-
-    if (result != null) {
-      box.remove(result.objectBoxId);
-    }
-  }
-
-  @override
-  Inventory? get(String upc) {
-    assert(upc.isNotEmpty);
-    final query = box.query(ObjectBoxInventory_.upc.equals(upc)).build();
-    var result = query.findFirst()?.toInventory();
-    query.close();
-
-    return result;
-  }
-
-  @override
-  List<Inventory> getAll(List<String> upcs) {
-    if (upcs.isEmpty) {
-      return [];
-    }
-
-    final query = box.query(ObjectBoxInventory_.upc.oneOf(upcs)).build();
-    final results = query.find();
-    query.close();
-
-    // Convert to list of Inventory objects
-    var inventoryList = results.map((objBoxInv) => objBoxInv.toInventory()).toList();
-    return inventoryList;
-  }
-
-  @override
-  List<Inventory> getChanges(DateTime since) {
-    final query =
-        box.query(ObjectBoxInventory_.updated.greaterThan(since.millisecondsSinceEpoch)).build();
-    final results = query.find();
-    return results.map((objBoxInv) => objBoxInv.toInventory()).toList();
-  }
-
-  @override
-  Map<String, Inventory> map() {
-    Map<String, Inventory> map = {};
-    final allInventory = all();
-
-    for (final inv in allInventory) {
-      map[inv.upc] = inv;
-    }
-
-    return map;
-  }
+  ObjectBoxInventory fromModel(Inventory model) => ObjectBoxInventory.from(model);
 
   @override
   List<Inventory> outs() {
@@ -95,30 +34,12 @@ class ObjectBoxInventoryDatabase extends InventoryDatabase {
         .query(
             ObjectBoxInventory_.amount.lessOrEqual(0).and(ObjectBoxInventory_.restock.equals(true)))
         .build();
-
     final results = query.find();
     query.close();
 
-    // Convert to list of Inventory objects
-    var outs = results.map((objBoxInv) => objBoxInv.toInventory()).toList();
-    return outs;
+    return results.map(toModel).toList();
   }
 
-  // Find the product info and replace with our new info. We have to find the id of the old
-  // object to update correctly.
   @override
-  void put(Inventory inv) {
-    assert(inv.upc.isNotEmpty);
-    final invOb = ObjectBoxInventory.from(inv);
-
-    final query = box.query(ObjectBoxInventory_.upc.equals(inv.upc)).build();
-    final exists = query.findFirst();
-    query.close();
-
-    if (exists != null && invOb.objectBoxId != exists.objectBoxId) {
-      invOb.objectBoxId = exists.objectBoxId;
-    }
-
-    box.put(invOb);
-  }
+  Inventory toModel(ObjectBoxInventory objectBoxEntity) => objectBoxEntity.toInventory();
 }
