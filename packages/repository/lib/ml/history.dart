@@ -130,6 +130,11 @@ class History extends Model<History> {
     return series.fold(0, (sum, s) => sum + s.observations.length);
   }
 
+  @override
+  DateTime? get updated {
+    return lastTimestamp ?? super.updated;
+  }
+
   /// Adds a new data point to the history series.
   /// [timestamp] represents the time of the data point in milliseconds since epoch. This value cannot be zero.
   /// [amount] represents the amount of inventory.
