@@ -34,7 +34,6 @@ class InventoryCsvImporter {
         inv = inv.copyWith(history: historyResult);
       }
 
-      r.items.put(inventoryRow.toItem());
       r.inv.put(inv);
     }
 
