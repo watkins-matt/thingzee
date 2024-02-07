@@ -159,7 +159,7 @@ class EditableItem extends StateNotifier<EditableItemState> {
       updatedInventory = updatedInventory.copyWith(upc: updatedItem.upc);
     }
 
-    if (state.inventory.history.upc != updatedItem.upc) {
+    if (updatedInventory.history.upc != updatedItem.upc) {
       updatedInventory = updatedInventory.copyWith(
         history: updatedInventory.history.copyWith(upc: updatedItem.upc),
       );
