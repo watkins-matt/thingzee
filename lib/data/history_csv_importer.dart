@@ -54,8 +54,14 @@ class HistoryCsvImporter {
     // Add HistorySeries objects to the corresponding History object.
     for (final upc in upcHistoryMap.keys) {
       var seriesList = upcSeriesListMap[upc];
-      if (seriesList != null) {
-        var history = upcHistoryMap[upc]!.copyWith(series: seriesList);
+
+      // Ensure that the seriesList is not empty and that the last series has observations
+      if (seriesList != null && seriesList.isNotEmpty && seriesList.last.observations.isNotEmpty) {
+        final updatedTimestamp = seriesList.last.observations.last.timestamp;
+
+        var history = upcHistoryMap[upc]!.copyWith(
+            series: seriesList,
+            updated: DateTime.fromMillisecondsSinceEpoch(updatedTimestamp.round()));
         r.hist.put(history);
       }
     }
