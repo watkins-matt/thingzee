@@ -213,9 +213,9 @@ class History extends Model<History> {
     }
     // Otherwise, add the new observation as usual
     else {
-      // If the new observation's amount is greater than the last one,
-      // start a new series and add the new observation
-      if (observation.amount > lastObservation.amount) {
+      // If the new observation's amount is greater than or equal to
+      // the last one, start a new series and add the new observation
+      if (observation.amount >= lastObservation.amount) {
         // If the predicted outage timestamp is earlier than the new timestamp, add a zero amount observation
         if (updatedHistory.predictedOutageTimestamp < timestamp) {
           currentSeries.observations.add(Observation(
@@ -228,10 +228,8 @@ class History extends Model<History> {
         updatedSeries.add(HistorySeries());
         updatedSeries.last.observations.add(observation);
       }
-      // If the new observation's amount is the same as the last one, do nothing
 
       // If the new observation's amount is less than the last one, add the new observation
-
       else if (observation.amount < lastObservation.amount) {
         // If the new observation's amount is zero and the predicted outage timestamp is earlier than the new timestamp,
         // add a zero amount observation
