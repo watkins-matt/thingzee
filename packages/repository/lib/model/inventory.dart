@@ -211,7 +211,12 @@ class Inventory extends Model<Inventory> {
           uid == other.uid;
 
   @override
-  Inventory merge(Inventory other) => _$mergeInventory(this, other);
+  Inventory merge(Inventory other) {
+    // Ensure that the history merged together correctly
+    final mergedHistory = history.merge(other.history);
+    final mergedInventory = _$mergeInventory(this, other);
+    return mergedInventory.copyWith(history: mergedHistory);
+  }
 
   @override
   Map<String, dynamic> toJson() => _$InventoryToJson(this);
