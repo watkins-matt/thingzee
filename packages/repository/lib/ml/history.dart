@@ -248,7 +248,7 @@ class History extends Model<History> {
     }
 
     // Return a new History instance with the updated series
-    return updatedHistory.copyWith(series: updatedSeries);
+    return updatedHistory.copyWith(series: updatedSeries, updated: DateTime.now());
   }
 
   // Remove any invalid observations from the history
@@ -347,11 +347,12 @@ class History extends Model<History> {
       ..sort((a, b) => a.minTimestamp.compareTo(b.minTimestamp));
 
     return History(
-      upc: upc,
-      series: mergedSeries,
-      created: created.older(other.created),
-      updated: DateTime.now(), // Updated time is now, as it's a new merged entity
-    );
+        upc: upc,
+        series: mergedSeries,
+        created: created.older(other.created),
+        updated: !mergedSeries.equals(series) // Only change the updated time if the series changed
+            ? DateTime.now()
+            : DateTime.fromMillisecondsSinceEpoch(series.last.observations.last.timestamp.toInt()));
   }
 
   double predict(double timestamp) {
