@@ -6,6 +6,7 @@ import 'package:repository/extension/duration.dart';
 import 'package:repository/extension/list.dart';
 import 'package:repository/merge_generator.dart';
 import 'package:repository/ml/history.dart';
+import 'package:repository/ml/history_provider.dart';
 import 'package:repository/ml/regressor.dart';
 import 'package:repository/model/abstract/model.dart';
 import 'package:repository/model/serializer_datetime.dart';
@@ -25,9 +26,6 @@ class Inventory extends Model<Inventory> {
   final bool restock;
   final String uid;
 
-  @JsonKey(includeFromJson: false, includeToJson: false, defaultValue: null)
-  final History history; // generator:transient
-
   @JsonKey(name: 'upc')
   final String _upc; // generator:unique, generator:property
 
@@ -36,20 +34,20 @@ class Inventory extends Model<Inventory> {
     this.unitCount = 1,
     this.expirationDates = const <DateTime>[],
     this.locations = const <String>[],
-    History? history,
     this.restock = true,
     String upc = '',
     this.uid = '',
     super.created,
     super.updated,
-  })  : _upc = upc,
-        history = history?.copyWith(upc: upc) ?? History(upc: upc);
+  }) : _upc = upc;
 
   factory Inventory.fromJson(Map<String, dynamic> json) => _$InventoryFromJson(json);
 
   bool get canPredict {
     return history.canPredict;
   }
+
+  History get history => HistoryProvider().getHistory(upc);
 
   @override
   String get id => upc;
@@ -176,7 +174,6 @@ class Inventory extends Model<Inventory> {
     int? unitCount,
     List<DateTime>? expirationDates,
     List<String>? locations,
-    History? history,
     bool? restock,
     String? upc,
     String? uid,
@@ -190,7 +187,6 @@ class Inventory extends Model<Inventory> {
       unitCount: unitCount ?? this.unitCount,
       expirationDates: expirationDates ?? this.expirationDates,
       locations: locations ?? this.locations,
-      history: history?.copyWith(upc: newUpc) ?? this.history.copyWith(upc: newUpc),
       restock: restock ?? this.restock,
       upc: newUpc,
       uid: uid ?? this.uid,
@@ -211,12 +207,7 @@ class Inventory extends Model<Inventory> {
           uid == other.uid;
 
   @override
-  Inventory merge(Inventory other) {
-    // Ensure that the history merged together correctly
-    final mergedHistory = history.merge(other.history);
-    final mergedInventory = _$mergeInventory(this, other);
-    return mergedInventory.copyWith(history: mergedHistory);
-  }
+  Inventory merge(Inventory other) => _$mergeInventory(this, other);
 
   @override
   Map<String, dynamic> toJson() => _$InventoryToJson(this);

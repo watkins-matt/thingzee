@@ -27,10 +27,3 @@ int get dbLastUpdate {
 set dbLastUpdate(int value) {
   updated = value != 0 ? DateTime.fromMillisecondsSinceEpoch(value) : null;
 }
-
-String get upc => _upc;
-
-set upc(String value) {
-  _upc = value;
-  history = history.copyWith(upc: value);
-}

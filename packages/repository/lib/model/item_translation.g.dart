@@ -6,7 +6,8 @@ part of 'item_translation.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-ItemTranslation _$ItemTranslationFromJson(Map<String, dynamic> json) => ItemTranslation(
+ItemTranslation _$ItemTranslationFromJson(Map<String, dynamic> json) =>
+    ItemTranslation(
       upc: json['upc'] as String? ?? '',
       languageCode: json['languageCode'] as String? ?? 'en',
       name: json['name'] as String? ?? '',
@@ -20,7 +21,8 @@ ItemTranslation _$ItemTranslationFromJson(Map<String, dynamic> json) => ItemTran
           json['updated'], const NullableDateTimeSerializer().fromJson),
     );
 
-Map<String, dynamic> _$ItemTranslationToJson(ItemTranslation instance) => <String, dynamic>{
+Map<String, dynamic> _$ItemTranslationToJson(ItemTranslation instance) =>
+    <String, dynamic>{
       'created': const NullableDateTimeSerializer().toJson(instance.created),
       'updated': const NullableDateTimeSerializer().toJson(instance.updated),
       'upc': instance.upc,
