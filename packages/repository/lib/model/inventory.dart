@@ -25,9 +25,7 @@ class Inventory extends Model<Inventory> {
   final List<DateTime> expirationDates;
   final bool restock;
   final String uid;
-
-  @JsonKey(name: 'upc')
-  final String _upc; // generator:unique, generator:property
+  final String upc; // generator:unique
 
   Inventory({
     this.amount = 0,
@@ -35,11 +33,11 @@ class Inventory extends Model<Inventory> {
     this.expirationDates = const <DateTime>[],
     this.locations = const <String>[],
     this.restock = true,
-    String upc = '',
+    this.upc = '',
     this.uid = '',
     super.created,
     super.updated,
-  }) : _upc = upc;
+  });
 
   factory Inventory.fromJson(Map<String, dynamic> json) => _$InventoryFromJson(json);
 
@@ -158,8 +156,6 @@ class Inventory extends Model<Inventory> {
     return amount * unitCount;
   }
 
-  String get upc => _upc;
-
   double get usageRateDays {
     return history.regressor.usageRateDays;
   }
@@ -180,15 +176,13 @@ class Inventory extends Model<Inventory> {
     DateTime? created,
     DateTime? updated,
   }) {
-    String newUpc = upc ?? _upc;
-
     return Inventory(
       amount: amount ?? this.amount,
       unitCount: unitCount ?? this.unitCount,
       expirationDates: expirationDates ?? this.expirationDates,
       locations: locations ?? this.locations,
       restock: restock ?? this.restock,
-      upc: newUpc,
+      upc: upc ?? this.upc,
       uid: uid ?? this.uid,
       created: created ?? this.created,
       updated: updated ?? this.updated,
