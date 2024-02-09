@@ -37,6 +37,7 @@ Future<void> main() async {
     };
 
     App.offlineDb = await ObjectBoxRepository.create();
+    HistoryProvider().init(App.offlineDb!);
     App.thumbnailCache = await createThumbnailCache();
 
     runApp(
@@ -68,8 +69,6 @@ final initializationProvider = FutureProvider<Repository>((ref) async {
   if (objectbox is MockRepository) {
     throw Exception('Offline database is not ready yet.');
   }
-
-  HistoryProvider().init(objectbox);
 
   final appwrite = await _retryOnFailure(() => AppwriteRepository.create(connectivity));
   Log.i('initializationProvider: AppwriteRepository initialization complete.');
