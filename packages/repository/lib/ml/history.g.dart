@@ -14,16 +14,15 @@ History _$HistoryFromJson(Map<String, dynamic> json) => History(
           const [],
       created: _$JsonConverterFromJson<int, DateTime?>(
           json['created'], const NullableDateTimeSerializer().fromJson),
-      updated: json['updated'] == null
-          ? null
-          : DateTime.parse(json['updated'] as String),
+      updated: _$JsonConverterFromJson<int, DateTime?>(
+          json['updated'], const NullableDateTimeSerializer().fromJson),
     );
 
 Map<String, dynamic> _$HistoryToJson(History instance) => <String, dynamic>{
       'created': const NullableDateTimeSerializer().toJson(instance.created),
       'upc': instance.upc,
       'series': instance.series.map((e) => e.toJson()).toList(),
-      'updated': instance.updated?.toIso8601String(),
+      'updated': const NullableDateTimeSerializer().toJson(instance.updated),
     };
 
 Value? _$JsonConverterFromJson<Json, Value>(
