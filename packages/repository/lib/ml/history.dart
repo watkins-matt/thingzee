@@ -131,6 +131,7 @@ class History extends Model<History> {
   }
 
   @override
+  @NullableDateTimeSerializer()
   DateTime? get updated {
     return lastTimestamp ?? super.updated;
   }
