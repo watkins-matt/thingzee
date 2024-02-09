@@ -11,6 +11,14 @@ class HiveInventoryAdapter extends TypeAdapter<HiveInventory> {
   final int typeId = 0;
 
   @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is HiveInventoryAdapter && runtimeType == other.runtimeType && typeId == other.typeId;
+
+  @override
   HiveInventory read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
@@ -25,8 +33,7 @@ class HiveInventoryAdapter extends TypeAdapter<HiveInventory> {
       ..expirationDates = (fields[5] as List).cast<DateTime>()
       ..restock = fields[6] as bool
       ..uid = fields[7] as String
-      ..history = fields[8] as History
-      ..upc = fields[9] as String;
+      ..upc = fields[8] as String;
   }
 
   @override
@@ -48,20 +55,6 @@ class HiveInventoryAdapter extends TypeAdapter<HiveInventory> {
       ..writeByte(6)
       ..write(obj.restock)
       ..writeByte(7)
-      ..write(obj.uid)
-      ..writeByte(8)
-      ..write(obj.history)
-      ..writeByte(9)
-      ..write(obj.upc);
+      ..write(obj.uid);
   }
-
-  @override
-  int get hashCode => typeId.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is HiveInventoryAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
 }

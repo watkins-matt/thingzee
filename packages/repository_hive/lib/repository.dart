@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:repository/database/joined_inventory_database.dart';
 import 'package:repository/database/preferences_default.dart';
 import 'package:repository/database/preferences_secure.dart';
 import 'package:repository/repository.dart';
@@ -25,9 +24,7 @@ class HiveRepository extends Repository {
 
     items = HiveItemDatabase();
     hist = HiveHistoryDatabase();
-
-    final inventory = HiveInventoryDatabase();
-    inv = JoinedInventoryDatabase(inventory, hist);
+    inv = HiveInventoryDatabase();
 
     ready = true;
   }

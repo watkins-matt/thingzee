@@ -1,6 +1,7 @@
 import 'package:csv/csv.dart';
 import 'package:log/log.dart';
 import 'package:repository/ml/history.dart';
+import 'package:repository/ml/history_provider.dart';
 import 'package:repository/ml/history_series.dart';
 import 'package:repository/repository.dart';
 import 'package:thingzee/data/history_csv_row.dart';
@@ -62,7 +63,9 @@ class HistoryCsvImporter {
         var history = upcHistoryMap[upc]!.copyWith(
             series: seriesList,
             updated: DateTime.fromMillisecondsSinceEpoch(updatedTimestamp.round()));
+
         r.hist.put(history);
+        HistoryProvider().updateHistory(history);
       }
     }
 

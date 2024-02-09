@@ -1,8 +1,6 @@
 // ignore_for_file: annotate_overrides
 
-
 import 'package:objectbox/objectbox.dart';
-import 'package:repository/ml/history.dart';
 import 'package:repository/model/inventory.dart';
 import 'package:repository_ob/model_custom/object_box_model.dart';
 
@@ -20,10 +18,8 @@ class ObjectBoxInventory extends ObjectBoxModel {
   List<DateTime> expirationDates = [];
   late bool restock;
   late String uid;
-  @Transient()
-  History history = History();
   @Unique(onConflict: ConflictStrategy.replace)
-  late String _upc;
+  late String upc;
   ObjectBoxInventory();
   ObjectBoxInventory.from(Inventory original) {
     created = original.created;
@@ -34,23 +30,8 @@ class ObjectBoxInventory extends ObjectBoxModel {
     expirationDates = original.expirationDates;
     restock = original.restock;
     uid = original.uid;
-    history = original.history;
     upc = original.upc;
   }
-  Inventory toInventory() {
-    return Inventory(
-        created: created,
-        updated: updated,
-        amount: amount,
-        unitCount: unitCount,
-        locations: locations,
-        expirationDates: expirationDates,
-        restock: restock,
-        uid: uid,
-        history: history,
-        upc: upc);
-  }
-
   List<String> get dbExpirationDates {
     List<String> dates = [];
     for (final exp in expirationDates) {
@@ -80,10 +61,16 @@ class ObjectBoxInventory extends ObjectBoxModel {
     updated = value != 0 ? DateTime.fromMillisecondsSinceEpoch(value) : null;
   }
 
-  String get upc => _upc;
-
-  set upc(String value) {
-    _upc = value;
-    history = history.copyWith(upc: value);
+  Inventory toInventory() {
+    return Inventory(
+        created: created,
+        updated: updated,
+        amount: amount,
+        unitCount: unitCount,
+        locations: locations,
+        expirationDates: expirationDates,
+        restock: restock,
+        uid: uid,
+        upc: upc);
   }
 }

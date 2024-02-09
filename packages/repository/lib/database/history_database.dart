@@ -1,6 +1,5 @@
 import 'package:repository/database/database.dart';
 import 'package:repository/ml/history.dart';
-import 'package:repository/model/inventory.dart';
 
 abstract class HistoryDatabase implements Database<History> {
   @override
@@ -17,33 +16,6 @@ abstract class HistoryDatabase implements Database<History> {
     }
 
     return changes;
-  }
-
-  Map<String, Inventory> join(Map<String, Inventory> inventoryMap) {
-    final allHistory = map();
-
-    for (var inventory in inventoryMap.values) {
-      if (inventory.upc.isNotEmpty && allHistory.containsKey(inventory.upc)) {
-        final history = allHistory[inventory.upc]!;
-        assert(history.upc.isNotEmpty && history.upc == inventory.upc);
-        inventory = inventory.copyWith(history: history);
-      }
-    }
-    return inventoryMap;
-  }
-
-  List<Inventory> joinList(List<Inventory> inventoryList) {
-    final allHistory = map();
-
-    for (var inventory in inventoryList) {
-      if (inventory.upc.isNotEmpty && allHistory.containsKey(inventory.upc)) {
-        final history = allHistory[inventory.upc]!;
-        assert(history.upc.isNotEmpty && history.upc == inventory.upc);
-        inventory = inventory.copyWith(history: history);
-      }
-    }
-
-    return inventoryList;
   }
 
   Set<String> predictedOuts({int days = 12}) {

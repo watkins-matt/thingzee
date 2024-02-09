@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:log/log.dart';
 import 'package:qr_mobile_vision/qr_camera.dart';
-import 'package:repository/ml/history.dart';
 import 'package:repository/model/inventory.dart';
 import 'package:repository/model/item.dart';
 import 'package:thingzee/main.dart';
@@ -86,17 +85,16 @@ class _BarcodeScannerPageState extends ConsumerState<BarcodeScannerPage> {
     // First try to find the product in the product db
     Item item = repo.items.get(barcode) ?? defaultItem;
 
-    final defaultHistory = History(upc: barcode);
     final defaultInventory = Inventory(
       upc: barcode,
       amount: 1,
-      history: defaultHistory,
       updated: DateTime.now(),
     );
-    final inv = repo.inv.get(barcode) ?? defaultInventory;
 
+    final inv = repo.inv.get(barcode) ?? defaultInventory;
     final itemProv = ref.watch(editableItemProvider.notifier);
-    itemProv.copyFrom(item, inv); // These are guaranteed to be valid (initialized above)
+
+    itemProv.init(item, inv); // These are guaranteed to be valid (initialized above)
     await Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => ItemDetailPage(item)),

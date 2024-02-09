@@ -383,7 +383,7 @@ class ItemDetailPage extends HookConsumerWidget {
     Inventory inventory,
   ) async {
     final itemProv = ref.read(editableItemProvider.notifier);
-    itemProv.copyFrom(item, inventory);
+    itemProv.init(item, inventory);
 
     return await Navigator.push(
       context,

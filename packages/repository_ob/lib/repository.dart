@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:log/log.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
-import 'package:repository/database/joined_inventory_database.dart';
 import 'package:repository/database/preferences_default.dart';
 import 'package:repository/database/preferences_secure.dart';
 import 'package:repository/repository.dart';
@@ -36,8 +35,7 @@ class ObjectBoxRepository extends Repository {
 
     items = ObjectBoxItemDatabase(store);
     hist = ObjectBoxHistoryDatabase(store);
-    final objInventory = ObjectBoxInventoryDatabase(store);
-    inv = JoinedInventoryDatabase(objInventory, hist);
+    inv = ObjectBoxInventoryDatabase(store);
     household = ObjectBoxHouseholdDatabase(store, prefs);
     location = ObjectBoxLocationDatabase(store);
 

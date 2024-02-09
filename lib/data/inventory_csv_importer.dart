@@ -27,13 +27,7 @@ class InventoryCsvImporter {
       InventoryCsvRow inventoryRow = InventoryCsvRow();
       inventoryRow.fromRow(row, headerIndices);
 
-      // Pull the history before updating the inventory
       var inv = inventoryRow.toInventory();
-      final historyResult = r.hist.get(inv.upc);
-      if (historyResult != null) {
-        inv = inv.copyWith(history: historyResult);
-      }
-
       r.inv.put(inv);
     }
 

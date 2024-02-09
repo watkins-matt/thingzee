@@ -1,8 +1,6 @@
 // ignore_for_file: annotate_overrides
 
-
 import 'package:hive/hive.dart';
-import 'package:repository/ml/history.dart';
 import 'package:repository/model/inventory.dart';
 
 part 'inventory.hive.g.dart';
@@ -26,8 +24,6 @@ class HiveInventory extends HiveObject {
   @HiveField(7)
   late String uid;
   @HiveField(8)
-  late History history;
-  @HiveField(9)
   late String upc;
   HiveInventory();
   HiveInventory.from(Inventory original) {
@@ -39,7 +35,6 @@ class HiveInventory extends HiveObject {
     expirationDates = original.expirationDates;
     restock = original.restock;
     uid = original.uid;
-    history = original.history;
     upc = original.upc;
   }
   Inventory toInventory() {
@@ -52,7 +47,6 @@ class HiveInventory extends HiveObject {
         expirationDates: expirationDates,
         restock: restock,
         uid: uid,
-        history: history,
         upc: upc);
   }
 }

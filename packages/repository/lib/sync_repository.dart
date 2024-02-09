@@ -2,8 +2,6 @@ import 'dart:async';
 
 import 'package:log/log.dart';
 import 'package:repository/cloud_repository.dart';
-import 'package:repository/database/inventory_database.dart';
-import 'package:repository/database/joined_inventory_database.dart';
 import 'package:repository/database/preferences_default.dart';
 import 'package:repository/database/preferences_secure.dart';
 import 'package:repository/database/synchronized/sync_history_database.dart';
@@ -90,7 +88,7 @@ class SynchronizedRepository extends CloudRepository {
     await remote.sync();
 
     final syncItems = items as SynchronizedItemDatabase;
-    final syncInv = _getSyncDatabase(inv);
+    final syncInv = inv as SynchronizedInventoryDatabase;
     final syncHistory = hist as SynchronizedHistoryDatabase;
     final syncHousehold = household as SynchronizedHouseholdDatabase;
     final syncLocation = location as SynchronizedLocationDatabase;
@@ -104,21 +102,6 @@ class SynchronizedRepository extends CloudRepository {
     Log.timerEnd(timer, 'SynchronizedRepository: finished sync in \$seconds seconds.');
 
     return true;
-  }
-
-  SynchronizedInventoryDatabase _getSyncDatabase(InventoryDatabase inv) {
-    if (inv is SynchronizedInventoryDatabase) {
-      return inv;
-    } else if (inv is JoinedInventoryDatabase) {
-      final joinedInv = inv.inventoryDatabase;
-      if (joinedInv is SynchronizedInventoryDatabase) {
-        return joinedInv;
-      } else {
-        throw Exception('Invalid inventory database type: ${joinedInv.runtimeType}');
-      }
-    } else {
-      throw Exception('Invalid inventory database type: ${inv.runtimeType}');
-    }
   }
 
   Future<void> _init() async {

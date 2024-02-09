@@ -1,5 +1,6 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:repository/database/joined_item_database.dart';
+import 'package:repository/ml/history_provider.dart';
 import 'package:repository/repository.dart';
 import 'package:thingzee/main.dart';
 
@@ -47,10 +48,12 @@ class ShoppingCart extends StateNotifier<ShoppingCartState> {
         updated: now,
         amount: inventory.amount + 1,
       );
+
       final newHistory = inventory.history.add(now.millisecondsSinceEpoch, inventory.amount, 2);
-      inventory = inventory.copyWith(history: newHistory);
 
       repo.inv.put(inventory);
+      repo.hist.put(newHistory);
+      HistoryProvider().updateHistory(newHistory);
     }
 
     state = state.copyWith(

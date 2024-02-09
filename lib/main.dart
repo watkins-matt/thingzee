@@ -5,6 +5,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:log/log.dart';
 import 'package:repository/database/joined_item_database.dart';
 import 'package:repository/database/mock/repository.dart';
+import 'package:repository/ml/history_provider.dart';
 import 'package:repository/model/filter.dart';
 import 'package:repository/network/connectivity_service.dart';
 import 'package:repository/repository.dart';
@@ -68,10 +69,14 @@ final initializationProvider = FutureProvider<Repository>((ref) async {
     throw Exception('Offline database is not ready yet.');
   }
 
+  HistoryProvider().init(objectbox);
+
   final appwrite = await _retryOnFailure(() => AppwriteRepository.create(connectivity));
   Log.i('initializationProvider: AppwriteRepository initialization complete.');
   final repo = await SynchronizedRepository.create(objectbox, appwrite as AppwriteRepository);
   Log.i('initializationProvider: SynchronizedRepository initialization complete.');
+
+  HistoryProvider().init(repo);
 
   assert(repo.ready);
   return repo;
