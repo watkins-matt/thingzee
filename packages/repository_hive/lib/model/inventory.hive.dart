@@ -1,5 +1,6 @@
 // ignore_for_file: annotate_overrides
 
+
 import 'package:hive/hive.dart';
 import 'package:repository/model/inventory.dart';
 
