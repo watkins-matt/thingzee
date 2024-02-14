@@ -9,8 +9,8 @@ class NormalizedRegressor implements Regressor {
   double yScale;
 
   factory NormalizedRegressor(Regressor regressor, Map<double, double> data,
-      {double? yScale, double? baseTimestamp}) {
-    var normalizer = MapNormalizer(data);
+      {double? yScale, double? baseTimestamp, int? startIndex, int? endIndex}) {
+    var normalizer = MapNormalizer(data, startIndex: startIndex, endIndex: endIndex);
     return NormalizedRegressor._(regressor, data,
         yScale: yScale ?? normalizer.maxAmount,
         normalizer: normalizer,

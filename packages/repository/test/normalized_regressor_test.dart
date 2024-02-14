@@ -279,4 +279,31 @@ void main() {
           closeTo(originalDaysToXIntercept * normalizedRegressor.yScaleProp, 0.01));
     });
   });
+
+  test('Values should always decrease from the original.', () {
+    final points = {1701378720000.0: 0.5, 1704395220000.0: 0.15, 1705008420000.0: 0.0};
+
+    const newTimestamp = 1707356040000.0;
+    const firstPoint = 1.1;
+    const futureTimestamp = newTimestamp + 2043792000.0;
+
+    SpecificPointRegressor specificPointRegressor12 = SpecificPointRegressor(1, 2, points);
+    SpecificPointRegressor specificPointRegressor02 = SpecificPointRegressor(0, 2, points);
+    HoltLinearRegressor holtLinearRegressor = HoltLinearRegressor.fromMap(points, 0.75, 0.15);
+
+    var normalizedRegressor = NormalizedRegressor(specificPointRegressor12, points,
+        yScale: firstPoint, baseTimestamp: newTimestamp, startIndex: 1, endIndex: 2);
+    var prediction = normalizedRegressor.predict(futureTimestamp);
+    expect(prediction, lessThan(firstPoint));
+
+    normalizedRegressor = NormalizedRegressor(specificPointRegressor02, points,
+        yScale: firstPoint, baseTimestamp: newTimestamp, startIndex: 0, endIndex: 2);
+    prediction = normalizedRegressor.predict(futureTimestamp);
+    expect(prediction, lessThan(firstPoint));
+
+    normalizedRegressor = NormalizedRegressor(holtLinearRegressor, points,
+        yScale: firstPoint, baseTimestamp: newTimestamp);
+    prediction = normalizedRegressor.predict(futureTimestamp);
+    expect(prediction, lessThan(firstPoint));
+  });
 }

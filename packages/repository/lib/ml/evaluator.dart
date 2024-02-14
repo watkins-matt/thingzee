@@ -286,7 +286,7 @@ class Evaluator {
         var points = series.toPoints();
         final simple = SimpleLinearRegressor(points);
         final naive = NaiveRegressor.fromMap(points);
-        final holt = HoltLinearRegressor.fromMap(points, .9, .9);
+        final holt = HoltLinearRegressor.fromMap(points, 0.75, 0.15);
         final shifted = ShiftedInterceptLinearRegressor(points);
         final weighted = WeightedLeastSquaresLinearRegressor(points);
         final firstLast = SpecificPointRegressor(0, points.length - 1, points);
@@ -295,7 +295,10 @@ class Evaluator {
         regressors.add(NormalizedRegressor(simple, points,
             baseTimestamp: history.baseTimestamp, yScale: history.baseAmount));
         regressors.add(NormalizedRegressor(naive, points,
-            baseTimestamp: history.baseTimestamp, yScale: history.baseAmount));
+            baseTimestamp: history.baseTimestamp,
+            yScale: history.baseAmount,
+            startIndex: points.length - 2,
+            endIndex: points.length - 1));
         regressors.add(NormalizedRegressor(holt, points,
             baseTimestamp: history.baseTimestamp, yScale: history.baseAmount));
         regressors.add(NormalizedRegressor(shifted, points,
@@ -303,9 +306,15 @@ class Evaluator {
         regressors.add(NormalizedRegressor(weighted, points,
             baseTimestamp: history.baseTimestamp, yScale: history.baseAmount));
         regressors.add(NormalizedRegressor(firstLast, points,
-            baseTimestamp: history.baseTimestamp, yScale: history.baseAmount));
+            baseTimestamp: history.baseTimestamp,
+            yScale: history.baseAmount,
+            startIndex: 0,
+            endIndex: points.length - 1));
         regressors.add(NormalizedRegressor(secondLast, points,
-            baseTimestamp: history.baseTimestamp, yScale: history.baseAmount));
+            baseTimestamp: history.baseTimestamp,
+            yScale: history.baseAmount,
+            startIndex: 1,
+            endIndex: points.length - 1));
 
       // final average = _createAverageRegressor(points, regressors);
       // regressors.add(NormalizedRegressor.withBase(normalizer, average, history.baseTimestamp,
