@@ -5,7 +5,27 @@ class MapNormalizer {
   late double minAmount;
   late double maxAmount;
 
-  MapNormalizer(this.data) {
+  MapNormalizer(this.data, {int? startIndex, int? endIndex}) {
+    var sortedKeys = data.keys.toList()..sort();
+
+    // Ensure startIndex and endIndex have default values
+    startIndex ??= 0;
+    endIndex ??= sortedKeys.length - 1;
+
+    // Separately clamp startIndex and endIndex to the valid range
+    startIndex = startIndex.clamp(0, sortedKeys.length - 1);
+    endIndex = endIndex.clamp(0, sortedKeys.length - 1);
+
+    // Check logic after clamping to ensure startIndex is not greater than endIndex
+    if (startIndex > endIndex) {
+      throw ArgumentError('startIndex cannot be greater than endIndex');
+    }
+
+    var filteredKeys = sortedKeys.getRange(startIndex, endIndex + 1).toList();
+    var filteredData = Map.fromEntries(filteredKeys.map((k) => MapEntry(k, data[k]!)));
+
+    data = filteredData;
+
     minTime = data.keys.reduce((a, b) => a < b ? a : b);
     maxTime = data.keys.reduce((a, b) => a > b ? a : b);
     minAmount = data.values.reduce((a, b) => a < b ? a : b);
@@ -47,7 +67,25 @@ class ScaledMapNormalizer {
   late double minAmount;
   late double maxAmount;
 
-  ScaledMapNormalizer(this.data) {
+  ScaledMapNormalizer(this.data, {int? startIndex, int? endIndex}) {
+    var sortedKeys = data.keys.toList()..sort();
+    // Ensure startIndex and endIndex have default values
+    startIndex ??= 0;
+    endIndex ??= sortedKeys.length - 1;
+
+    // Separately clamp startIndex and endIndex to the valid range
+    startIndex = startIndex.clamp(0, sortedKeys.length - 1);
+    endIndex = endIndex.clamp(0, sortedKeys.length - 1);
+
+    // Check logic after clamping to ensure startIndex is not greater than endIndex
+    if (startIndex > endIndex) {
+      throw ArgumentError('startIndex cannot be greater than endIndex');
+    }
+
+    var filteredKeys = sortedKeys.getRange(startIndex, endIndex + 1).toList();
+    var filteredData = Map.fromEntries(filteredKeys.map((k) => MapEntry(k, data[k]!)));
+
+    data = filteredData;
     minTime = data.keys.reduce((a, b) => a < b ? a : b);
     maxTime = data.keys.reduce((a, b) => a > b ? a : b);
     minAmount = data.values.reduce((a, b) => a < b ? a : b);
