@@ -85,6 +85,22 @@ class TargetParser extends ReceiptParser {
     return text.replaceAllMapped(nameRegex, replaceZerosWithOs);
   }
 
+  String correctNumericSequence(String sequence) {
+    String cleanedSequence = sequence
+        .toUpperCase()
+        .replaceAll('O', '0')
+        .replaceAll('I', '1')
+        .replaceAll('Z', '2')
+        .replaceAll('S', '5')
+        .replaceAll('D', '0')
+        .replaceAll('A', '4')
+        .replaceAll('E', '6')
+        .replaceAll('U', '0')
+        .replaceAll(RegExp(r'\s+'), ''); // Remove all spaces
+
+    return cleanedSequence;
+  }
+
   String errorCorrection(String text) {
     // Correct 0/O mismatches in item names
     text = correctNameErrors(text);
@@ -221,7 +237,7 @@ class TargetParser extends ReceiptParser {
   }
 
   bool _isItemLine(String line) {
-    final itemRegex = RegExp(r"(\d{9,})\s+([A-Z\s'&]+)");
+    final itemRegex = RegExp(r"([0-9OIlZSDAEU\s]{9,})\s+([A-Z\s'&]+)", caseSensitive: false);
     return itemRegex.hasMatch(line);
   }
 
@@ -277,33 +293,14 @@ class TargetParser extends ReceiptParser {
     return null;
   }
 
-  // DateTime? _parseDateLine(String line) {
-  //   final dateRegex = RegExp(r'(\d{1,2}/\d{1,2}/\d{4}) (\d{1,2}:\d{2} [AP]M)');
-  //   final match = dateRegex.firstMatch(line);
-
-  //   if (match != null) {
-  //     final dateString = match.group(1)!;
-  //     final timeString = match.group(2)!;
-
-  //     try {
-  //       final format = DateFormat('MM/dd/yyyy hh:mm a');
-  //       return format.parse('$dateString $timeString', true);
-  //     } catch (e) {
-  //       Log.e('Error parsing date: $e');
-  //       return null;
-  //     }
-  //   }
-
-  //   return null;
-  // }
-
   ReceiptItem? _parseItemLine(String line) {
-    final strictItemRegex = RegExp(r"(\d{9,})\s+([A-Za-z&'\s\-]+)\s+\$?(\d*\.\d{2})");
+    final strictItemRegex = RegExp(r"([0-9OIlZSDAEU\s]{9,})\s+([A-Za-z&'\s\-]+)\s+\$?(\d*\.\d{2})",
+        caseSensitive: false);
     final strictMatch = strictItemRegex.firstMatch(line);
 
     // If strict regex matches, extract detailed information
     if (strictMatch != null) {
-      final barcode = strictMatch.group(1)!.trim();
+      final barcode = correctNumericSequence(strictMatch.group(1)!.trim());
       var name = strictMatch.group(2)!.trim();
       final priceString = strictMatch.group(3);
       final price = priceString != null ? double.tryParse(priceString) ?? 0.0 : 0.0;
@@ -317,11 +314,12 @@ class TargetParser extends ReceiptParser {
     }
 
     // If strict regex fails, use a simpler regex
-    final simplerItemRegex = RegExp(r"(\d{9,})\s+([A-Za-z&'\s\-]+)");
+    final simplerItemRegex =
+        RegExp(r"([0-9OIlZSDAE\s]{9,})\s+([A-Za-z&'\s\-]+)", caseSensitive: false);
     final simplerMatch = simplerItemRegex.firstMatch(line);
 
     if (simplerMatch != null) {
-      final barcode = simplerMatch.group(1)!.trim();
+      final barcode = correctNumericSequence(simplerMatch.group(1)!.trim());
       var name = simplerMatch.group(2)!.trim();
       final codes = extractCodes(name);
       name = name.replaceAll(codes, '');
