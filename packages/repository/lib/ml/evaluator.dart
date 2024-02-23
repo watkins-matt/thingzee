@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:kmeans_cluster/kmeans.dart';
 import 'package:log/log.dart';
 import 'package:repository/extension/list.dart';
@@ -137,7 +139,18 @@ class Evaluator {
       return 0;
     }
 
-    return best.predict(timestamp);
+    double result = best.predict(timestamp);
+    double latestValue = history.current.observations.last.amount;
+
+    if (result > (latestValue * 1.5)) {
+      Log.w('Predicted value for upc ${history.upc} is more '
+          'than 150% greater than the latest value. '
+          'Predicted: $result, Latest: $latestValue');
+    }
+
+    // If the user put a value in the app, we should not predict
+    // a value that is greater than the user's value.
+    return min(result, latestValue);
   }
 
   /// Trains the evaluator by generating all possible regressors
