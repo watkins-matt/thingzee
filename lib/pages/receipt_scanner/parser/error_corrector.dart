@@ -102,4 +102,20 @@ class ErrorCorrector {
 
     return text;
   }
+
+  String correctNumericSequence(String sequence) {
+    String cleanedSequence = sequence
+        .toUpperCase()
+        .replaceAll('O', '0')
+        .replaceAll('I', '1')
+        .replaceAll('Z', '2')
+        .replaceAll('S', '5')
+        .replaceAll('D', '0')
+        .replaceAll('A', '4')
+        .replaceAll('E', '6')
+        .replaceAll('U', '0')
+        .replaceAll(RegExp(r'\s+'), ''); // Remove all spaces
+
+    return cleanedSequence;
+  }
 }

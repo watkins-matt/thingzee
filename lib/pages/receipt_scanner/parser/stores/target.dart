@@ -87,22 +87,6 @@ class TargetParser extends ReceiptParser {
     return text.replaceAllMapped(nameRegex, replaceZerosWithOs);
   }
 
-  String correctNumericSequence(String sequence) {
-    String cleanedSequence = sequence
-        .toUpperCase()
-        .replaceAll('O', '0')
-        .replaceAll('I', '1')
-        .replaceAll('Z', '2')
-        .replaceAll('S', '5')
-        .replaceAll('D', '0')
-        .replaceAll('A', '4')
-        .replaceAll('E', '6')
-        .replaceAll('U', '0')
-        .replaceAll(RegExp(r'\s+'), ''); // Remove all spaces
-
-    return cleanedSequence;
-  }
-
   String errorCorrection(String text) {
     // Correct 0/O mismatches in item names
     text = correctNameErrors(text);
@@ -305,7 +289,7 @@ class TargetParser extends ReceiptParser {
 
     // If strict regex matches, extract detailed information
     if (strictMatch != null) {
-      final barcode = correctNumericSequence(strictMatch.group(1)!.trim());
+      final barcode = _errorCorrector.correctNumericSequence(strictMatch.group(1)!.trim());
       var name = strictMatch.group(2)!.trim();
       final priceString = strictMatch.group(3);
       final price = priceString != null ? double.tryParse(priceString) ?? 0.0 : 0.0;
@@ -324,7 +308,7 @@ class TargetParser extends ReceiptParser {
     final simplerMatch = simplerItemRegex.firstMatch(line);
 
     if (simplerMatch != null) {
-      final barcode = correctNumericSequence(simplerMatch.group(1)!.trim());
+      final barcode = _errorCorrector.correctNumericSequence(simplerMatch.group(1)!.trim());
       var name = simplerMatch.group(2)!.trim();
       final codes = extractCodes(name);
       name = name.replaceAll(codes, '');
