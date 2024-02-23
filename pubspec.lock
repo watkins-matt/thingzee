@@ -571,7 +571,7 @@ packages:
     source: sdk
     version: "0.0.0"
   fuzzy:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: fuzzy
       sha256: af5fbd36f2f8de0663a5b562ef5ca209aea957e81a2f0e97f97475cfbed044ec
