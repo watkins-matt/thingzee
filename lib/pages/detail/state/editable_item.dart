@@ -132,7 +132,7 @@ class EditableItem extends StateNotifier<EditableItemState> {
 
     repo.inv.put(inv);
     repo.hist.put(cleanHistory);
-    HistoryProvider().updateHistory(cleanHistory);
+    HistoryProvider().updateHistory(cleanHistory, allowDataLoss: true);
 
     state = EditableItemState(state.item, inv, state.history, state.changedFields);
   }
@@ -141,6 +141,7 @@ class EditableItem extends StateNotifier<EditableItemState> {
     var history = state.history;
     history = history.delete(index);
 
+    state.changedFields.add('history');
     state = EditableItemState(state.item, state.inventory, history, state.changedFields);
   }
 
@@ -184,6 +185,12 @@ class EditableItem extends StateNotifier<EditableItemState> {
 
       repo.hist.put(newHistory);
       HistoryProvider().updateHistory(newHistory);
+    }
+
+    // If we deleted history, we should still update it
+    else if (state.changedFields.contains('history')) {
+      repo.hist.put(state.history);
+      HistoryProvider().updateHistory(state.history, allowDataLoss: true);
     }
 
     // Save each location

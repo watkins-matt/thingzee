@@ -23,7 +23,7 @@ class _HistoryPageState extends ConsumerState<HistoryPage> {
 
   @override
   Widget build(BuildContext context) {
-    final history = ref.watch(editableItemProvider).inventory.history;
+    final history = ref.watch(editableItemProvider).history;
 
     return Scaffold(
       appBar: AppBar(),

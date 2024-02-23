@@ -37,15 +37,16 @@ class HistoryProvider {
     _instance._repo = repository;
   }
 
-  void updateHistory(History newHistory, [bool force = false]) {
+  void updateHistory(History newHistory, {bool allowDataLoss = false}) {
     final upc = newHistory.upc;
     final currentHistory = _history[upc];
 
-    if (!force &&
-            (currentHistory != null) &&
-            (newHistory.series.length < currentHistory.series.length) ||
-        (newHistory.totalPoints < currentHistory!.totalPoints)) {
-      throw Exception('Cannot replace history with a version containing less data.');
+    if (!allowDataLoss) {
+      if (currentHistory != null &&
+          (newHistory.series.length < currentHistory.series.length ||
+              newHistory.totalPoints < currentHistory.totalPoints)) {
+        throw Exception('Cannot replace history with a version containing less data.');
+      }
     }
 
     _history[upc] = newHistory;
