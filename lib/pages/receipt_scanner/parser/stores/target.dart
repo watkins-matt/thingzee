@@ -3,6 +3,7 @@ import 'package:log/log.dart';
 import 'package:repository/model/receipt.dart';
 import 'package:repository/model/receipt_item.dart';
 import 'package:thingzee/pages/receipt_scanner/parser/error_corrector.dart';
+import 'package:thingzee/pages/receipt_scanner/parser/ocr_text.dart';
 import 'package:thingzee/pages/receipt_scanner/parser/order_tracker.dart';
 import 'package:thingzee/pages/receipt_scanner/parser/parser.dart';
 import 'package:thingzee/pages/receipt_scanner/util/frequency_tracker.dart';
@@ -29,13 +30,14 @@ class TargetParser extends ReceiptParser {
   ];
 
   final FrequencyTracker<double> _totalTracker = FrequencyTracker<double>();
-
   final FrequencyTracker<double> _subtotalTracker = FrequencyTracker<double>();
   final FrequencyTracker<double> _taxTracker = FrequencyTracker<double>();
   final FrequencyTracker<DateTime> _dateTracker = FrequencyTracker<DateTime>();
   final FrequencyTracker<double> _discountTracker = FrequencyTracker<double>();
   final ReceiptItemFrequencySet _frequencySet = ReceiptItemFrequencySet();
   final ErrorCorrector _errorCorrector = ErrorCorrector();
+  final OcrText _ocrText = OcrText();
+
   TargetParser() {
     _errorCorrector.addWords(commonWords);
   }
@@ -180,7 +182,10 @@ class TargetParser extends ReceiptParser {
     final page = OrderedPage();
 
     text = errorCorrection(text);
-    _rawText = text;
+
+    OcrText newText = OcrText.fromString(text);
+    _ocrText.merge(newText);
+    _rawText = _ocrText.text;
 
     // Parse date and time from the entire raw text before processing individual lines
     final parsedDate = _parseDateFromText(text);
@@ -237,7 +242,7 @@ class TargetParser extends ReceiptParser {
   }
 
   bool _isItemLine(String line) {
-    final itemRegex = RegExp(r"([0-9OIlZSDAEU\s]{9,})\s+([A-Z\s'&]+)", caseSensitive: false);
+    final itemRegex = RegExp(r"([0-9OIlZSDAEU\s]{9,})\s+([\w\.\s'&]+)", caseSensitive: false);
     return itemRegex.hasMatch(line);
   }
 
@@ -294,8 +299,8 @@ class TargetParser extends ReceiptParser {
   }
 
   ReceiptItem? _parseItemLine(String line) {
-    final strictItemRegex = RegExp(r"([0-9OIlZSDAEU\s]{9,})\s+([A-Za-z&'\s\-]+)\s+\$?(\d*\.\d{2})",
-        caseSensitive: false);
+    final strictItemRegex =
+        RegExp(r"([0-9OIlZSDAEU\s]{9,})\s+([\w\.&'\s\-]+)\s+\$?(\d*\.\d{2})", caseSensitive: false);
     final strictMatch = strictItemRegex.firstMatch(line);
 
     // If strict regex matches, extract detailed information
@@ -315,7 +320,7 @@ class TargetParser extends ReceiptParser {
 
     // If strict regex fails, use a simpler regex
     final simplerItemRegex =
-        RegExp(r"([0-9OIlZSDAE\s]{9,})\s+([A-Za-z&'\s\-]+)", caseSensitive: false);
+        RegExp(r"([0-9OIlZSDAE\s]{9,})\s+([\w\.&'\s\-]+)", caseSensitive: false);
     final simplerMatch = simplerItemRegex.firstMatch(line);
 
     if (simplerMatch != null) {
