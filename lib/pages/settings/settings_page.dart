@@ -120,7 +120,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     final repo = ref.watch(repositoryProvider);
     await CsvExportService().exportAllData(repo);
 
-    if (!mounted) return;
+    if (!context.mounted) return;
+
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
       content: Text('Data exported successfully.'),
     ));
@@ -130,7 +131,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     final repo = ref.watch(repositoryProvider);
     await CsvImportService().importAllData(repo);
 
-    if (!mounted) return;
+    if (!context.mounted) return;
     await _refreshPostImport(context);
   }
 
@@ -225,7 +226,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     await view.refresh();
     await view.downloadImages(imageCache);
 
-    if (!mounted) return;
+    if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
       content: Text('Backup imported.'),
     ));
