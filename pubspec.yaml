@@ -35,7 +35,7 @@ dependencies:
   money2: ^4.0.0
   path: ^1.8.3
   path_provider: ^2.0.15
-  qr_mobile_vision: ^4.1.3
+  qr_mobile_vision: ^5.0.1
   repository:
     path: packages/repository
   repository_appw:
