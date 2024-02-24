@@ -27,7 +27,7 @@ class ImportLookupTable:
             "Manufacturer": "import 'package:repository/model/manufacturer.dart';",
             "Product": "import 'package:repository/model/product.dart';",
             "ShoppingItem": "import 'package:repository/model/shopping_item.dart';",
-            "ItemIdentifier": "import 'package:repository/model/identifier.dart';",
+            "Identifier": "import 'package:repository/model/identifier.dart';",
             "ReceiptItem": "import 'package:repository/model/receipt_item.dart';",
             "Receipt": "import 'package:repository/model/receipt.dart';",
         }
