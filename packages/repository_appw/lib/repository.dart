@@ -11,6 +11,7 @@ import 'package:repository/repository.dart';
 import 'package:repository/util/hash.dart';
 import 'package:repository_appw/database/history_db.dart';
 import 'package:repository_appw/database/household_db.dart';
+import 'package:repository_appw/database/identifier_db.dart';
 import 'package:repository_appw/database/inventory_db.dart';
 import 'package:repository_appw/database/invitation_db.dart';
 import 'package:repository_appw/database/item_db.dart';
@@ -81,6 +82,7 @@ class AppwriteRepository extends CloudRepository {
       final household = this.household as AppwriteHouseholdDatabase;
       final invitation = this.invitation as AppwriteInvitationDatabase;
       final location = this.location as AppwriteLocationDatabase;
+      final identifiers = this.identifiers as AppwriteIdentifierDatabase;
 
       await items.handleConnectionChange(online, _session);
       await inv.handleConnectionChange(online, _session);
@@ -88,6 +90,7 @@ class AppwriteRepository extends CloudRepository {
       await household.handleConnectionChange(online, _session);
       await invitation.handleConnectionChange(online, _session);
       await location.handleConnectionChange(online, _session);
+      await identifiers.handleConnectionChange(online, _session);
 
       Log.i('AppwriteRepository: Connectivity status handling completed.');
       _lastSync = DateTime.now();
@@ -146,6 +149,7 @@ class AppwriteRepository extends CloudRepository {
       final household = this.household as AppwriteHouseholdDatabase;
       final invitation = this.invitation as AppwriteInvitationDatabase;
       final location = this.location as AppwriteLocationDatabase;
+      final identifiers = this.identifiers as AppwriteIdentifierDatabase;
 
       await items.handleConnectionChange(false, null);
       await inv.handleConnectionChange(false, null);
@@ -153,6 +157,7 @@ class AppwriteRepository extends CloudRepository {
       await household.handleConnectionChange(false, null);
       await invitation.handleConnectionChange(false, null);
       await location.handleConnectionChange(false, null);
+      await identifiers.handleConnectionChange(false, null);
 
       Log.i('AppwriteRepository: Successfully logged out user.');
     }
@@ -218,6 +223,7 @@ class AppwriteRepository extends CloudRepository {
     final household = this.household as AppwriteHouseholdDatabase;
     final invitation = this.invitation as AppwriteInvitationDatabase;
     final location = this.location as AppwriteLocationDatabase;
+    final identifiers = this.identifiers as AppwriteIdentifierDatabase;
 
     await items.handleConnectionChange(true, _session);
     await inv.handleConnectionChange(true, _session);
@@ -225,6 +231,7 @@ class AppwriteRepository extends CloudRepository {
     await household.handleConnectionChange(true, _session);
     await invitation.handleConnectionChange(true, _session);
     await location.handleConnectionChange(true, _session);
+    await identifiers.handleConnectionChange(true, _session);
 
     Log.timerEnd(timer, 'AppwriteRepository: Sync completed in \$seconds seconds.');
     _lastSync = DateTime.now();
@@ -252,6 +259,7 @@ class AppwriteRepository extends CloudRepository {
     household = AppwriteHouseholdDatabase(_teams, _databases, prefs, 'test', 'user_household');
     invitation = AppwriteInvitationDatabase(prefs, _databases, 'test', 'invitation', household.id);
     location = AppwriteLocationDatabase(prefs, _databases, 'test', 'user_location');
+    identifiers = AppwriteIdentifierDatabase(prefs, _databases, 'test', 'user_identifier');
 
     Log.timerEnd(timer, 'AppwriteRepository: initialized in \$seconds seconds.');
     ready = true;

@@ -1,6 +1,5 @@
 // ignore_for_file: annotate_overrides
 
-
 import 'package:hive/hive.dart';
 import 'package:repository/model/identifier.dart';
 
@@ -19,19 +18,14 @@ class HiveItemIdentifier extends HiveObject {
   @HiveField(4)
   late String uid;
   HiveItemIdentifier();
-  HiveItemIdentifier.from(ItemIdentifier original) {
+  HiveItemIdentifier.from(Identifier original) {
     created = original.created;
     updated = original.updated;
     type = original.type;
     value = original.value;
     uid = original.uid;
   }
-  ItemIdentifier toItemIdentifier() {
-    return ItemIdentifier(
-        created: created,
-        updated: updated,
-        type: type,
-        value: value,
-        uid: uid);
+  Identifier toItemIdentifier() {
+    return Identifier(created: created, updated: updated, type: type, value: value, uid: uid);
   }
 }

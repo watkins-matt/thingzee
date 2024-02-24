@@ -5,7 +5,7 @@ import 'package:repository_ob/model/identifier.ob.dart';
 import 'package:repository_ob/objectbox.g.dart';
 
 class ObjectBoxIdentifierDatabase extends IdentifierDatabase
-    with ObjectBoxDatabase<ItemIdentifier, ObjectBoxItemIdentifier> {
+    with ObjectBoxDatabase<Identifier, ObjectBoxItemIdentifier> {
   ObjectBoxIdentifierDatabase(Store store) {
     constructDb(store);
   }
@@ -26,9 +26,8 @@ class ObjectBoxIdentifierDatabase extends IdentifierDatabase
   }
 
   @override
-  ObjectBoxItemIdentifier fromModel(ItemIdentifier model) => ObjectBoxItemIdentifier.from(model);
+  ObjectBoxItemIdentifier fromModel(Identifier model) => ObjectBoxItemIdentifier.from(model);
 
   @override
-  ItemIdentifier toModel(ObjectBoxItemIdentifier objectBoxEntity) =>
-      objectBoxEntity.toItemIdentifier();
+  Identifier toModel(ObjectBoxItemIdentifier objectBoxEntity) => objectBoxEntity.toItemIdentifier();
 }

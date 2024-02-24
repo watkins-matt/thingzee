@@ -8,7 +8,7 @@ import 'package:repository_appw/util/appwrite_database.dart';
 import 'package:repository_appw/util/synchronizable.dart';
 
 class AppwriteIdentifierDatabase extends IdentifierDatabase
-    with AppwriteSynchronizable<ItemIdentifier>, AppwriteDatabase<ItemIdentifier> {
+    with AppwriteSynchronizable<Identifier>, AppwriteDatabase<Identifier> {
   static const String TAG = 'AppwriteIdentifierDatabase';
 
   AppwriteIdentifierDatabase(
@@ -24,5 +24,5 @@ class AppwriteIdentifierDatabase extends IdentifierDatabase
   }
 
   @override
-  ItemIdentifier? deserialize(Map<String, dynamic> json) => ItemIdentifier.fromJson(json);
+  Identifier? deserialize(Map<String, dynamic> json) => Identifier.fromJson(json);
 }

@@ -6,6 +6,7 @@ import 'package:repository/database/preferences_default.dart';
 import 'package:repository/database/preferences_secure.dart';
 import 'package:repository/database/synchronized/sync_history_database.dart';
 import 'package:repository/database/synchronized/sync_household_database.dart';
+import 'package:repository/database/synchronized/sync_identifier_database.dart';
 import 'package:repository/database/synchronized/sync_inventory_database.dart';
 import 'package:repository/database/synchronized/sync_item_database.dart';
 import 'package:repository/database/synchronized/sync_location_database.dart';
@@ -92,6 +93,7 @@ class SynchronizedRepository extends CloudRepository {
     final syncHistory = hist as SynchronizedHistoryDatabase;
     final syncHousehold = household as SynchronizedHouseholdDatabase;
     final syncLocation = location as SynchronizedLocationDatabase;
+    final syncIdentifiers = identifiers as SynchronizedIdentifierDatabase;
 
     Log.i('SynchronizedRepository: syncing differences between remote and local.');
     syncItems.syncDifferences();
@@ -99,6 +101,7 @@ class SynchronizedRepository extends CloudRepository {
     syncHistory.syncDifferences();
     syncHousehold.syncDifferences();
     syncLocation.syncDifferences();
+    syncIdentifiers.syncDifferences();
     Log.timerEnd(timer, 'SynchronizedRepository: finished sync in \$seconds seconds.');
 
     return true;
@@ -120,6 +123,7 @@ class SynchronizedRepository extends CloudRepository {
     invitation = remote.invitation;
 
     location = SynchronizedLocationDatabase(local.location, remote.location, prefs);
+    identifiers = SynchronizedIdentifierDatabase(local.identifiers, remote.identifiers, prefs);
 
     ready = true;
   }

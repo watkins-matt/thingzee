@@ -2,9 +2,9 @@
 
 part of 'identifier.dart';
 
-ItemIdentifier _$mergeItemIdentifier(ItemIdentifier first, ItemIdentifier second) {
+Identifier _$mergeItemIdentifier(Identifier first, Identifier second) {
   final newer = first.updated.newer(second.updated) == first.updated ? first : second;
-  var merged = ItemIdentifier(
+  var merged = Identifier(
     type: newer.type.isNotEmpty ? newer.type : first.type,
     value: newer.value.isNotEmpty ? newer.value : first.value,
     uid: newer.uid.isNotEmpty ? newer.uid : first.uid,
