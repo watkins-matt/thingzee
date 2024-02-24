@@ -6,17 +6,27 @@ part of 'identifier.hive.dart';
 // TypeAdapterGenerator
 // **************************************************************************
 
-class HiveItemIdentifierAdapter extends TypeAdapter<HiveItemIdentifier> {
+class HiveItemIdentifierAdapter extends TypeAdapter<HiveIdentifier> {
   @override
   final int typeId = 0;
 
   @override
-  HiveItemIdentifier read(BinaryReader reader) {
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is HiveItemIdentifierAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+
+  @override
+  HiveIdentifier read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return HiveItemIdentifier()
+    return HiveIdentifier()
       ..created = fields[0] as DateTime?
       ..updated = fields[1] as DateTime?
       ..type = fields[2] as String
@@ -25,7 +35,7 @@ class HiveItemIdentifierAdapter extends TypeAdapter<HiveItemIdentifier> {
   }
 
   @override
-  void write(BinaryWriter writer, HiveItemIdentifier obj) {
+  void write(BinaryWriter writer, HiveIdentifier obj) {
     writer
       ..writeByte(5)
       ..writeByte(0)
@@ -39,14 +49,4 @@ class HiveItemIdentifierAdapter extends TypeAdapter<HiveItemIdentifier> {
       ..writeByte(4)
       ..write(obj.uid);
   }
-
-  @override
-  int get hashCode => typeId.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is HiveItemIdentifierAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
 }
