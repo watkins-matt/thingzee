@@ -17,4 +17,7 @@ class SynchronizedIdentifierDatabase extends IdentifierDatabase
       prefs,
     );
   }
+
+  @override
+  List<Identifier> getAllForUpc(String upc) => local.getAllForUpc(upc);
 }

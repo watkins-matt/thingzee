@@ -29,5 +29,11 @@ class ObjectBoxIdentifierDatabase extends IdentifierDatabase
   ObjectBoxIdentifier fromModel(Identifier model) => ObjectBoxIdentifier.from(model);
 
   @override
+  List<Identifier> getAllForUpc(String upc) {
+    final query = box.query(ObjectBoxIdentifier_.uid.equals(upc)).build();
+    return query.find().map((e) => e.toIdentifier()).toList();
+  }
+
+  @override
   Identifier toModel(ObjectBoxIdentifier objectBoxEntity) => objectBoxEntity.toIdentifier();
 }
