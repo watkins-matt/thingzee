@@ -35,6 +35,7 @@ dependencies:
   money2: ^4.0.0
   path: ^1.8.3
   path_provider: ^2.0.15
+  petitparser: ^6.0.2
   qr_mobile_vision: ^5.0.1
   repository:
     path: packages/repository
