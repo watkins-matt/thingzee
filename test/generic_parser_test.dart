@@ -24,7 +24,7 @@ void main() {
 
     test('Returns null for input with less than half digits', () {
       final parser = barcodeParser();
-      final result = parser.parse('123ABC');
+      final result = parser.parse('123WXY');
       expect(result, isA<Failure>());
     });
 
@@ -33,6 +33,13 @@ void main() {
       final result = parser.parse('123456');
       expect(result, isA<Success>());
       expect(result.value, equals('123456'));
+    });
+
+    test('Corrects small numeric sequence with letter substitutions', () {
+      final parser = barcodeParser();
+      final result = parser.parse('0D00');
+      expect(result, isA<Success>());
+      expect(result.value, equals('0000'));
     });
 
     test('Corrects numeric sequence with letter substitutions', () {

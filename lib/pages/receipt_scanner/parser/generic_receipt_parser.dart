@@ -8,12 +8,10 @@ import 'package:thingzee/pages/receipt_scanner/util/frequency_tracker.dart';
 
 Parser<String> barcodeParser() {
   // Start with a digit and allow letters or whitespace, but ensure we capture till the last digit
-  final startWithDigit = digit();
-  final allowedChar = letter() | whitespace();
-  final digitThenOther = digit().seq(allowedChar).star();
+  final digitThenOther = digit().star().seq(letter().trim() | digit().trim());
 
   // Combine the parsers to ensure we capture a sequence starting with digits and optionally followed by letters or whitespaces
-  final combined = startWithDigit.seq(digitThenOther) & digit().star();
+  final combined = whitespace().optional() & digitThenOther.star() & digit().star();
 
   return combined.flatten().map(correctNumericSequence).where((correctedSequence) {
     // Validation to ensure the corrected sequence is predominantly digits and meets length criteria
