@@ -8,7 +8,6 @@ import 'package:thingzee/pages/receipt_scanner/util/frequency_tracker.dart';
 
 Parser<String> barcodeParser() {
   // Start with a digit and allow letters or whitespace, but ensure we capture till the last digit
-  // final letterOrDigit = letter() | digit() | whitespace();
   final digitThenOther = digit().seq(letter() | whitespace() | digit());
   final letterThenOther = letter().seq(digit() | whitespace());
 
@@ -253,11 +252,12 @@ class GenericReceiptParser extends ReceiptParser {
       // If we have text and a price, we can add the item
       else if (result.count == 2 && result.text != null && result.price != null) {
         // Check for special fields at the end of the receipt
-        if (line.toLowerCase().contains('subtotal')) {
+        if (line.toLowerCase().contains('subtotal') || line.toLowerCase().contains('sub total')) {
           _subtotalTracker.add(result.price!);
           doneParsingItems = true;
           continue;
-        } else if (line.toLowerCase().contains('total')) {
+        } else if (line.toLowerCase().contains('total') ||
+            result.text!.toLowerCase() == 'balance') {
           _totalTracker.add(result.price!);
           doneParsingItems = true;
           continue;
@@ -265,7 +265,8 @@ class GenericReceiptParser extends ReceiptParser {
           _taxTracker.add(result.price!);
           doneParsingItems = true;
           continue;
-        } else if (line.toLowerCase().contains('discount')) {
+        } else if (line.toLowerCase().contains('discount') ||
+            line.toLowerCase().contains('savings')) {
           _discountTracker.add(result.price!);
           doneParsingItems = true;
           continue;
