@@ -47,6 +47,10 @@ void main() {
       final result = parser.parse('O123D123');
       expect(result, isA<Success>());
       expect(result.value, equals('01230123'));
+
+      final result2 = parser.parse('O12D123');
+      expect(result2, isA<Success>());
+      expect(result2.value, equals('0120123'));
     });
 
     test('Removes whitespace from the input', () {
