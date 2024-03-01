@@ -23,6 +23,7 @@ String correctNumericSequence(String sequence) {
   return sequence
       .toUpperCase()
       .replaceAll('O', '0')
+      .replaceAll('C', '0')
       .replaceAll('I', '1')
       .replaceAll('Z', '2')
       .replaceAll('S', '5')
