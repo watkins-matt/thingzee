@@ -6,7 +6,8 @@ Parser<String> barcodeParser() {
   final letterThenOther = letter().seq(digit() | whitespace());
 
   // Combine the parsers to ensure we capture a sequence starting with digits and optionally followed by letters or whitespaces
-  final combined = whitespace().optional() &
+  final combined = (letter() & whitespace()).not() &
+      whitespace().optional() &
       digit().trim().optional() &
       (digitThenOther | letterThenOther).star() &
       digit().trim().optional() &

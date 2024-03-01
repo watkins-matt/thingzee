@@ -74,7 +74,14 @@ void main() {
       expect(result.value, equals('123456'));
     });
 
-    // test('Test parsing barcode at the end.', () {
+    test('Test parsing barcode at the end.', () {
+      final parser = skipToBarcodeParser();
+      final result = parser.parse(r'Article 30546706');
+      expect(result, isA<Success>());
+      expect(result.value, equals('30546706'));
+    });
+
+    // test('Test parsing barcode at the end with price before.', () {
     //   final parser = skipToBarcodeParser();
     //   final result = parser.parse(r'Test Item $123.45 123456');
     //   expect(result, isA<Success>());
