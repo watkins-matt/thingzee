@@ -1,145 +1,213 @@
-import 'package:intl/intl.dart';
-import 'package:log/log.dart';
+import 'package:petitparser/petitparser.dart';
 import 'package:repository/model/receipt.dart';
 import 'package:repository/model/receipt_item.dart';
-import 'package:thingzee/pages/receipt_scanner/parser/error_corrector.dart';
+import 'package:thingzee/pages/receipt_scanner/parser/element/barcode.dart';
+import 'package:thingzee/pages/receipt_scanner/parser/element/item_text.dart';
+import 'package:thingzee/pages/receipt_scanner/parser/element/price.dart';
+import 'package:thingzee/pages/receipt_scanner/parser/ocr_text.dart';
 import 'package:thingzee/pages/receipt_scanner/parser/parser.dart';
-import 'package:thingzee/pages/receipt_scanner/util/frequency_tracker.dart';
-import 'package:thingzee/pages/receipt_scanner/util/receipt_item_frequency.dart';
 
-class GenericParser extends ReceiptParser {
-  String _rawText = '';
-  final FrequencyTracker<double> _totalTracker = FrequencyTracker<double>();
+typedef LineParseResult = ({String? barcode, String? text, double? price, int count});
 
-  final FrequencyTracker<double> _subtotalTracker = FrequencyTracker<double>();
-  final FrequencyTracker<double> _taxTracker = FrequencyTracker<double>();
-  final FrequencyTracker<DateTime> _dateTracker = FrequencyTracker<DateTime>();
-  final FrequencyTracker<double> _discountTracker = FrequencyTracker<double>();
-  final ReceiptItemFrequencySet _frequencySet = ReceiptItemFrequencySet();
-  // final RegExp _phonePattern = RegExp(r'\d{3}-\d{3}-\d{4}');
-  final RegExp _datePattern = RegExp(r'\d{1,2}/\d{1,2}/\d{2,4}|\d{1,2}-\d{1,2}-\d{2,4}');
+class GenericReceiptParser extends ReceiptParser {
+  final List<String> _queueBarcode = [];
+  final List<String> _queueItemText = [];
+  final List<String> _queuePrice = [];
+  final List<ReceiptItem> _items = [];
 
-  final RegExp _timePattern = RegExp(r'\d{1,2}:\d{2} (AM|PM|am|pm)');
-  final RegExp _itemNamePattern = RegExp(r'[A-Za-z0-9\s]+');
-  final RegExp _pricePattern = RegExp(r'\$?(\d+\.\d{2})');
-  final RegExp _barcodePattern = RegExp(r'\b\d{6,}\b');
-  final RegExp _quantityPattern = RegExp(r'\b\d{1,2}\b');
-  final RegExp _subtotalPattern = RegExp(r'subtotal', caseSensitive: false);
-
-  final RegExp _taxPattern = RegExp(r'tax', caseSensitive: false);
-  final RegExp _totalPattern = RegExp(r'total', caseSensitive: false);
-  final ErrorCorrector _errorCorrector = ErrorCorrector();
   @override
-  String get rawText => _rawText;
+  String get rawText => ocrText.text;
 
   @override
   Receipt get receipt {
     return Receipt(
-      items: _frequencySet.items,
-      date: _dateTracker.getMostFrequent() ?? DateTime.now(),
-      subtotal: _subtotalTracker.getMostFrequent() ?? 0.0,
-      discounts: _discountTracker.getMostFrequentList(),
-      tax: _taxTracker.getMostFrequent() ?? 0.0,
-      total: _totalTracker.getMostFrequent() ?? 0.0,
+      items: _items,
+      date: dateTracker.getMostFrequent() ?? DateTime.now(),
+      subtotal: subtotalTracker.getMostFrequent() ?? 0.0,
+      discounts: discountTracker.getMostFrequentList(),
+      tax: taxTracker.getMostFrequent() ?? 0.0,
+      total: totalTracker.getMostFrequent() ?? 0.0,
     );
   }
 
+  void clearQueues() {
+    _queueBarcode.clear();
+    _queueItemText.clear();
+    _queuePrice.clear();
+  }
+
   @override
-  String getSearchUrl(String barcode) {
-    return 'https://www.google.com/search?q=$barcode';
+  String getSearchUrl(String barcode) => 'https://www.google.com/search?q=$barcode';
+
+  bool isValidLine(String text) {
+    // Check to see if 2/3 parses succeed on the given line
+    final parsedBarcode = skipToBarcodeParser().parse(text);
+    final parsedItemText = skipToItemTextParser().parse(text);
+    final parsedPrice = skipToPriceParser().parse(text);
+    int success = 0;
+
+    if (parsedBarcode is Success) {
+      success++;
+    }
+    if (parsedItemText is Success) {
+      success++;
+    }
+    if (parsedPrice is Success) {
+      success++;
+    }
+
+    return success >= 2;
   }
 
   @override
   void parse(String text) {
-    text = _errorCorrector.correctErrors(text);
-    _rawText = text;
+    _items.clear();
+    text = errorCorrector.correctErrors(text);
 
-    final lines = text.split('\n');
-    ReceiptItem? lastItem;
+    OcrText newText = OcrText.fromString(text);
+    ocrText.merge(newText);
 
-    for (final line in lines) {
-      if (_isItemLine(line)) {
-        final item = _parseItemLine(line);
-        if (item != null) {
-          _frequencySet.add(item);
-          lastItem = item;
+    bool startedParsing = false;
+    bool doneParsingItems = false;
+    final splitText = ocrText.text.split('\n');
+
+    for (final line in splitText) {
+      final result = parseLine(line);
+
+      // Don't start parsing until we reach the first price
+      if (result.price != null) {
+        startedParsing = true;
+        _queuePrice.add(result.price.toString());
+      }
+
+      // There might be a barcode on the line above the first item, so we check for that
+      if (result.barcode != null) {
+        _queueBarcode.clear();
+        _queueBarcode.add(result.barcode!);
+      }
+
+      if (result.text != null) {
+        _queueItemText.clear();
+        _queueItemText.add(result.text!);
+      }
+
+      // We have only encountered unrelated text on the receipt so far
+      // so don't build any items yet
+      if (!startedParsing) {
+        continue;
+      }
+
+      // If we have a full line, we can process the items
+      if (!doneParsingItems && result.count == 3) {
+        final barcode = result.barcode;
+        final itemText = result.text;
+        final price = result.price;
+
+        ReceiptItem item = ReceiptItem(
+          barcode: barcode!,
+          name: itemText!,
+          price: price!,
+        );
+
+        _items.add(item);
+        clearQueues();
+        continue;
+      }
+
+      // If we have text and a price, we can add the item
+      else if (result.count == 2 && result.text != null && result.price != null) {
+        // Check for special fields at the end of the receipt
+        if (line.toLowerCase().contains('subtotal') ||
+            line.toLowerCase().contains('sub total') ||
+            line.toLowerCase().contains('net total')) {
+          subtotalTracker.add(result.price!);
+          doneParsingItems = true;
+          continue;
+        } else if (line.toLowerCase().contains('total') ||
+            result.text!.toLowerCase() == 'balance') {
+          totalTracker.add(result.price!);
+          doneParsingItems = true;
+          continue;
+        } else if (line.toLowerCase().contains('tax')) {
+          taxTracker.add(result.price!);
+          doneParsingItems = true;
+          continue;
+        } else if (line.toLowerCase().contains('discount') ||
+            line.toLowerCase().contains('savings')) {
+          discountTracker.add(result.price!);
+          doneParsingItems = true;
+          continue;
         }
-      } else {
-        _parseNonItemLine(line, lastItem);
+
+        _queueItemText.add(result.text!);
+        _queuePrice.add(result.price.toString());
+      }
+
+      // Check for a full queue
+      if (!doneParsingItems &&
+          _queueBarcode.isNotEmpty &&
+          _queueItemText.isNotEmpty &&
+          _queuePrice.isNotEmpty) {
+        final barcode = _queueBarcode.removeAt(0);
+        final itemText = _queueItemText.removeAt(0);
+        final price = _queuePrice.removeAt(0);
+
+        ReceiptItem item = ReceiptItem(
+          barcode: barcode,
+          name: itemText,
+          price: double.parse(price),
+        );
+
+        _items.add(item);
+        clearQueues();
+      }
+    }
+
+    if (_items.isEmpty) {
+      // If we did not parse any items, this means that the receipt does not
+      // have one of the required fields (barcode, item text, price).
+      // So we go through the queues, and add items based on which fields are
+      // present in the queue.
+      if (_queueItemText.isNotEmpty && _queuePrice.isNotEmpty) {
+        for (int i = 0; i < _queueItemText.length; i++) {
+          final itemText = _queueItemText[i];
+          final price = _queuePrice[i];
+
+          ReceiptItem item = ReceiptItem(
+            name: itemText,
+            price: double.parse(price),
+          );
+
+          _items.add(item);
+        }
       }
     }
   }
 
-  bool _isDateLine(String line) => _datePattern.hasMatch(line);
+  LineParseResult parseLine(String text) {
+    final parsedBarcode = skipToBarcodeParser().parse(text);
+    final parsedItemText = skipToItemTextParser().parse(text);
+    final parsedPrice = skipToPriceParser().parse(text);
 
-  bool _isItemLine(String line) {
-    return _itemNamePattern.hasMatch(line) &&
-        (_pricePattern.hasMatch(line) || _barcodePattern.hasMatch(line));
-  }
+    // If the parser is Success, we return parser.value, otherwise an empty string
+    final barcode = parsedBarcode is Success ? parsedBarcode.value : null;
+    final itemText = parsedItemText is Success ? parsedItemText.value : null;
+    final price = parsedPrice is Success && parsedPrice.value.isNotEmpty
+        ? double.parse(parsedPrice.value)
+        : null;
 
-  // bool _isPhoneLine(String line) => _phonePattern.hasMatch(line);
-  bool _isSubtotalLine(String line) => _subtotalPattern.hasMatch(line);
-  bool _isTaxLine(String line) => _taxPattern.hasMatch(line);
-  bool _isTimeLine(String line) => _timePattern.hasMatch(line);
-  bool _isTotalLine(String line) => _totalPattern.hasMatch(line);
-
-  DateTime? _parseDate(String line) {
-    final match = _datePattern.firstMatch(line);
-    if (match != null) {
-      try {
-        final format = DateFormat('MM/dd/yyyy');
-        return format.parse(match.group(0)!, true);
-      } catch (e) {
-        Log.e('Error parsing date: $e');
-        return null;
-      }
+    // Set count to 0 if any of the values are null, otherwise increment it
+    int count = 0;
+    if (barcode != null) {
+      count++;
     }
-    return null;
-  }
-
-  ReceiptItem? _parseItemLine(String line) {
-    final itemNameMatch = _itemNamePattern.firstMatch(line);
-    final priceMatch = _pricePattern.firstMatch(line);
-    final barcodeMatch = _barcodePattern.firstMatch(line);
-    final quantityMatch = _quantityPattern.firstMatch(line);
-
-    if (itemNameMatch != null) {
-      String name = itemNameMatch.group(0)!;
-      double? price = priceMatch != null ? double.tryParse(priceMatch.group(1)!) : null;
-      String? barcode = barcodeMatch?.group(0);
-      int quantity = quantityMatch != null ? int.parse(quantityMatch.group(0)!) : 1;
-
-      return ReceiptItem(
-          name: name,
-          barcode: barcode ?? '',
-          price: price ?? 0.0,
-          quantity: quantity,
-          taxable: true);
+    if (itemText != null) {
+      count++;
+    }
+    if (price != null) {
+      count++;
     }
 
-    return null;
-  }
-
-  void _parseNonItemLine(String line, ReceiptItem? lastItem) {
-    if (_isSubtotalLine(line)) {
-      final subtotal = _parsePrice(line);
-      _subtotalTracker.add(subtotal);
-    } else if (_isTaxLine(line)) {
-      final tax = _parsePrice(line);
-      _taxTracker.add(tax);
-    } else if (_isTotalLine(line)) {
-      final total = _parsePrice(line);
-      _totalTracker.add(total);
-    } else if (_isDateLine(line) || _isTimeLine(line)) {
-      final date = _parseDate(line);
-      if (date != null) {
-        _dateTracker.add(date);
-      }
-    }
-  }
-
-  double _parsePrice(String line) {
-    final match = _pricePattern.firstMatch(line);
-    return match != null ? double.parse(match.group(0)!.replaceAll('\$', '')) : 0.0;
+    return (barcode: barcode, text: itemText, price: price, count: count);
   }
 }
