@@ -59,7 +59,8 @@ class ErrorCorrector {
 
     // Correcting ':' within prices where ':' is the first part and should be '1',
     // but avoiding situations where the pattern could be part of a time format.
-    RegExp priceColonRegExp = RegExp(r'\b:(\d+\.\d{2})\b(?!\s*(AM|PM))', caseSensitive: false);
+    RegExp priceColonRegExp =
+        RegExp(r'(?:\b|\$):(\d+\.\d{2})\b(?!\s*(AM|PM))', caseSensitive: false);
     text = text.replaceAllMapped(priceColonRegExp, (match) {
       // Replace ':' with '1'
       return '1${match[1]}';
@@ -73,12 +74,10 @@ class ErrorCorrector {
     });
 
     // Price correction (for missing $)
-    RegExp priceRegExp = RegExp(r'(?<!\$)\b\d+\.\d{2}\b(?!\s+on)');
+    RegExp priceRegExp = RegExp(r'(?<!\$)\b\d+\.\d{2}\b');
     text = text.replaceAllMapped(priceRegExp, (match) {
-      // Extract the matched string
-      String matchedPrice = match[0]!;
-      // Remove the first character and prepend with '$'
-      return '\$${matchedPrice.substring(1)}';
+      // Directly prepend '$' to the matched price
+      return '\$${match[0]}';
     });
 
     // Correcting 'O' within 9 digit numbers
@@ -107,6 +106,7 @@ class ErrorCorrector {
     String cleanedSequence = sequence
         .toUpperCase()
         .replaceAll('O', '0')
+        .replaceAll('C', '0')
         .replaceAll('I', '1')
         .replaceAll('Z', '2')
         .replaceAll('S', '5')
