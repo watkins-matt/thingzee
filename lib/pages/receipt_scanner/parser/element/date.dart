@@ -28,17 +28,23 @@ String normalizeDate(String sequence) {
   final parts = sequence.split(RegExp(r'[-/]')).map((part) => part.trim()).toList();
   String year, month, day;
 
+  if (parts.length != 3) return sequence;
+
   // Determine the format based on the length of the first part
   if (parts[0].length == 4) {
     // Format is assumed to be YYYY-MM-DD or YYYY/MM/DD
     year = parts[0];
     month = parts[1].padLeft(2, '0');
     day = parts[2].padLeft(2, '0');
-  } else {
+  } else if (parts[2].length == 4) {
     // Format is assumed to be MM-DD-YYYY or MM/DD/YYYY
     year = parts[2];
     month = parts[0].padLeft(2, '0');
     day = parts[1].padLeft(2, '0');
+  }
+  // Invalid date format, return the original sequence
+  else {
+    return sequence;
   }
 
   // Return the normalized date string
