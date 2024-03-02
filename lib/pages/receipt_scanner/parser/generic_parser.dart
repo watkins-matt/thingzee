@@ -39,28 +39,9 @@ class GenericReceiptParser extends ReceiptParser {
   @override
   String getSearchUrl(String barcode) => 'https://www.google.com/search?q=$barcode';
 
-  bool isValidLine(String text) {
-    // Check to see if 2/3 parses succeed on the given line
-    final parsedBarcode = skipToBarcodeParser().parse(text);
-    final parsedItemText = skipToItemTextParser().parse(text);
-    final parsedPrice = skipToPriceParser().parse(text);
-    int success = 0;
-
-    if (parsedBarcode is Success) {
-      success++;
-    }
-    if (parsedItemText is Success) {
-      success++;
-    }
-    if (parsedPrice is Success) {
-      success++;
-    }
-
-    return success >= 2;
-  }
-
   @override
   void parse(String text) {
+    clearQueues();
     _items.clear();
     text = errorCorrector.correctErrors(text);
 
