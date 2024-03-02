@@ -24,16 +24,25 @@ Parser<String> dateWithSlashesParser() {
 }
 
 String normalizeDate(String sequence) {
-  // Assume sequence is already in 'YYYY-MM-DD' format or needs conversion from 'MM/DD/YYYY'
-  final parts = sequence.split(RegExp(r'[-/]'));
-  if (parts.length == 3) {
-    if (sequence.contains('/')) {
-      // Convert from MM/DD/YYYY to YYYY-MM-DD
-      return '${parts[2]}-${parts[0].padLeft(2, '0')}-${parts[1].padLeft(2, '0')}';
-    }
+  // Split the sequence by either dash (-) or slash (/)
+  final parts = sequence.split(RegExp(r'[-/]')).map((part) => part.trim()).toList();
+  String year, month, day;
+
+  // Determine the format based on the length of the first part
+  if (parts[0].length == 4) {
+    // Format is assumed to be YYYY-MM-DD or YYYY/MM/DD
+    year = parts[0];
+    month = parts[1].padLeft(2, '0');
+    day = parts[2].padLeft(2, '0');
+  } else {
+    // Format is assumed to be MM-DD-YYYY or MM/DD/YYYY
+    year = parts[2];
+    month = parts[0].padLeft(2, '0');
+    day = parts[1].padLeft(2, '0');
   }
 
-  return sequence;
+  // Return the normalized date string
+  return '$year-$month-$day';
 }
 
 Parser<String> skipToDateParser() {
