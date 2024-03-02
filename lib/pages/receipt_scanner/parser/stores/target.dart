@@ -1,13 +1,84 @@
 import 'package:intl/intl.dart';
 import 'package:log/log.dart';
+import 'package:petitparser/petitparser.dart';
 import 'package:repository/model/receipt.dart';
 import 'package:repository/model/receipt_item.dart';
+import 'package:thingzee/pages/receipt_scanner/parser/element/price.dart';
+import 'package:thingzee/pages/receipt_scanner/parser/element/quantity.dart';
 import 'package:thingzee/pages/receipt_scanner/parser/error_corrector.dart';
 import 'package:thingzee/pages/receipt_scanner/parser/ocr_text.dart';
 import 'package:thingzee/pages/receipt_scanner/parser/order_tracker.dart';
 import 'package:thingzee/pages/receipt_scanner/parser/parser.dart';
 import 'package:thingzee/pages/receipt_scanner/util/frequency_tracker.dart';
 import 'package:thingzee/pages/receipt_scanner/util/receipt_item_frequency.dart';
+
+Parser<double> skipToTargetBottleDepositFeeParser() {
+  final parser = targetBottleDepositFeeParser();
+
+  // This parser lazily consumes any characters until it reaches the condition defined in targetBottleDepositFeeParser.
+  var skipUntilPrice = any().starLazy(parser).flatten();
+
+  // After skipping, capture the price. The use of .map((values) => values.last) ensures the return type is String.
+  return skipUntilPrice.seq(parser).map((values) => values[1] as double);
+}
+
+Parser<TargetQuantityParseResult> skipToTargetQuantityParser() {
+  final parser = targetQuantityParser();
+
+  // This parser lazily consumes any characters until it reaches the condition defined in quantityParser.
+  var skipUntilQuantity = any().starLazy(parser).flatten();
+
+  // After skipping, capture the quantity. The use of .map((values) => values.last) ensures the return type is String.
+  return skipUntilQuantity.seq(parser).map((values) => values[1] as TargetQuantityParseResult);
+}
+
+Parser<double> skipToTargetRegularPriceParser() {
+  final parser = targetRegularPriceParser();
+
+  // This parser lazily consumes any characters until it reaches the condition defined in targetRegularPriceParser.
+  var skipUntilPrice = any().starLazy(parser).flatten();
+
+  // After skipping, capture the price. The use of .map((values) => values.last) ensures the return type is String.
+  return skipUntilPrice.seq(parser).map((values) => values[1] as double);
+}
+
+// Create a parser for "Bottle Deposit Fee $0.10" lines
+Parser<double> targetBottleDepositFeeParser() {
+  return (string('Bottle') &
+          whitespace().star() &
+          string('Deposit') &
+          whitespace().star() &
+          string('Fee') &
+          whitespace().star() &
+          priceParser())
+      .map((values) => double.parse(values[6] as String));
+}
+
+// Parses "5 @ $10.99" lines
+Parser<TargetQuantityParseResult> targetQuantityParser() {
+  return (quantityParser() &
+          whitespace().optional() &
+          char('@').trim() &
+          whitespace().optional() &
+          priceParser())
+      .map((values) {
+    final int quantity = int.parse(values[0] as String);
+    final double price = double.parse(values[4] as String);
+    return (quantity: quantity, price: price);
+  });
+}
+
+// Parses "Regular Price $10.99" lines,
+Parser<double> targetRegularPriceParser() {
+  return (string('Regular') &
+          whitespace().star() &
+          string('Price') &
+          whitespace().star() &
+          priceParser())
+      .map((values) => double.parse(values[4] as String));
+}
+
+typedef TargetQuantityParseResult = ({int quantity, double price});
 
 class TargetParser extends ReceiptParser {
   String _rawText = '';
