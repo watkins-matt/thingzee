@@ -1,20 +1,15 @@
 import 'package:petitparser/petitparser.dart';
+import 'package:thingzee/pages/receipt_scanner/parser/element/phone_number.dart';
+import 'package:thingzee/pages/receipt_scanner/parser/element/price.dart';
 
 Parser<String> barcodeParser() {
-  // Start with a digit and allow letters or whitespace, but ensure we capture till the last digit
-  final digitThenOther = digit().seq(letter() | whitespace() | digit());
-  final letterThenOther = letter().seq(digit() | whitespace());
+  // Define a digit sequence that must start and end with a digit, allowing letters in between
+  final barcodePattern = digit().trim() &
+      (letter().trim() | digit().trim() | whitespace().trim()).starGreedy(digit()) &
+      digit().trim();
 
-  // Combine the parsers to ensure we capture a sequence starting with digits and optionally followed by letters or whitespaces
-  final combined = (letter() & whitespace()).not() &
-      whitespace().optional() &
-      digit().trim().optional() &
-      (digitThenOther | letterThenOther).star() &
-      digit().trim().optional() &
-      whitespace().optional();
-
-  return combined.flatten().map(correctNumericSequence).where((correctedSequence) {
-    // Validation to ensure the corrected sequence is predominantly digits and meets length criteria
+  return barcodePattern.flatten().map(correctNumericSequence).where((correctedSequence) {
+    // Validate the corrected sequence is predominantly digits and meets length criteria
     int digitCount = correctedSequence.replaceAll(RegExp(r'[^0-9]'), '').length;
     return digitCount >= (correctedSequence.length * 0.7).floor() && correctedSequence.length >= 4;
   });
@@ -37,11 +32,13 @@ String correctNumericSequence(String sequence) {
 
 Parser<String> skipToBarcodeParser() {
   final barcode = barcodeParser();
+  final phoneNumberPattern = phoneNumberParser();
+  final pricePattern = priceParser();
 
-  // Consume any character until a potential barcode sequence is encountered.
-  // The logic here should be adjusted to ensure it matches the start of a valid barcode.
-  var skipUntilPotentialBarcode = pattern('^-.').starLazy(barcode).flatten();
+  // Skip any input until we find a sequence that is not a phone number or price,
+  // indicating a potential barcode
+  final skipUntilPotentialBarcode =
+      (phoneNumberPattern | pricePattern | any()).starLazy(barcode).flatten();
 
-  // The final parser sequence: skip until a potential barcode is found, then parse the barcode.
-  return skipUntilPotentialBarcode.seq(barcode).map((values) => values[1] as String);
+  return (skipUntilPotentialBarcode & barcode).map((values) => values[1] as String);
 }

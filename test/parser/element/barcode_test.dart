@@ -44,11 +44,11 @@ void main() {
 
     test('Corrects numeric sequence with letter substitutions', () {
       final parser = barcodeParser();
-      final result = parser.parse('O123D123');
+      final result = parser.parse('0123D123');
       expect(result, isA<Success>());
       expect(result.value, equals('01230123'));
 
-      final result2 = parser.parse('O12D123');
+      final result2 = parser.parse('012D123');
       expect(result2, isA<Success>());
       expect(result2.value, equals('0120123'));
     });
@@ -81,19 +81,19 @@ void main() {
       expect(result.value, equals('30546706'));
     });
 
-    // test('Test parsing barcode at the end with price before.', () {
-    //   final parser = skipToBarcodeParser();
-    //   final result = parser.parse(r'Test Item $123.45 123456');
-    //   expect(result, isA<Success>());
-    //   expect(result.value, equals('123456'));
-    // });
+    test('Test parsing barcode at the end with price before.', () {
+      final parser = skipToBarcodeParser();
+      final result = parser.parse(r'Test Item $123.45 123456');
+      expect(result, isA<Success>());
+      expect(result.value, equals('123456'));
+    });
 
-    // test('Test parsing barcode in the middle.', () {
-    //   final parser = skipToBarcodeParser();
-    //   final result = parser.parse(r'Test Item 123456 $123.45');
-    //   expect(result, isA<Success>());
-    //   expect(result.value, equals('123456'));
-    // });
+    test('Test parsing barcode in the middle.', () {
+      final parser = skipToBarcodeParser();
+      final result = parser.parse(r'Test Item 123456 $123.45');
+      expect(result, isA<Success>());
+      expect(result.value, equals('123456'));
+    });
 
     test('Test parsing barcode with other items.', () {
       final parser = skipToBarcodeParser();
