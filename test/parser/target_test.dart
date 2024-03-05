@@ -12,14 +12,14 @@ void main() {
 
     test('Test parsing with other text before', () {
       final parser = skipToTargetQuantityParser();
-      final result = parser.parse(r'Some text before 1 @ $10.99');
+      final result = parser.parse(r'Some text before 1 @ $10.99 ea');
       expect(result, isA<Success>());
       expect(result.value, equals((quantity: 1, price: 10.99)));
     });
 
     test('Test parsing with surrounding text', () {
       final parser = skipToTargetQuantityParser();
-      final result = parser.parse(r'1 @ $10.99 Some text after');
+      final result = parser.parse(r'1 @ $10.99 ea Some text after');
       expect(result, isA<Success>());
       expect(result.value, equals((quantity: 1, price: 10.99)));
     });
@@ -28,21 +28,21 @@ void main() {
   group('targetQuantityParser tests', () {
     test('Test parsing target quantity with valid input.', () {
       final parser = targetQuantityParser();
-      final result = parser.parse(r'1 @ $10.99');
+      final result = parser.parse(r'1 @ $10.99 ea');
       expect(result, isA<Success>());
       expect(result.value, equals((quantity: 1, price: 10.99)));
     });
 
     test('Test parsing with no whitespace', () {
       final parser = targetQuantityParser();
-      final result = parser.parse(r'1@$10.99');
+      final result = parser.parse(r'1@$10.99 ea');
       expect(result, isA<Success>());
       expect(result.value, equals((quantity: 1, price: 10.99)));
     });
 
     test('Test parsing target quantity with invalid input.', () {
       final parser = targetQuantityParser();
-      final result = parser.parse(r'ABC @ $10.99');
+      final result = parser.parse(r'ABC @ $10.99 ea');
       expect(result, isA<Failure>());
     });
   });
@@ -55,7 +55,7 @@ void main() {
 
     test('Test parsing with other text before', () {
       final parser = skipToTargetRegularPriceParser();
-      final result = parser.parse(r'Some text before Regular Price $10.99');
+      final result = parser.parse(r'Some text before Regular Price $10.99 ea');
       expect(result, isA<Success>());
       expect(result.value, equals(10.99));
     });

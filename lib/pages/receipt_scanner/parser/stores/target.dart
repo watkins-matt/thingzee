@@ -54,13 +54,15 @@ Parser<double> targetBottleDepositFeeParser() {
       .map((values) => double.parse(values[6] as String));
 }
 
-// Parses "5 @ $10.99" lines
+// Parses "5 @ $10.99 ea" lines
 Parser<TargetQuantityParseResult> targetQuantityParser() {
   return (quantityParser() &
           whitespace().optional() &
           char('@').trim() &
           whitespace().optional() &
-          priceParser())
+          priceParser() &
+          whitespace().optional() &
+          string('ea'))
       .map((values) {
     final int quantity = int.parse(values[0] as String);
     final double price = double.parse(values[4] as String);
