@@ -1,11 +1,10 @@
 import 'package:uuid/uuid.dart';
 
-String hashBarcode(String username, String barcode) {
-  const namespace = '6d622152-e5b1-4e7c-af71-996588c3711c';
-  final joinedString = '$username-$barcode';
+String hashBarcode(String barcode) {
+  const namespace = '98570464-0dcb-47ab-ad30-8b286bed69af';
 
   var uuid = const Uuid();
-  return uuid.v5(namespace, joinedString);
+  return uuid.v5(namespace, barcode);
 }
 
 String hashEmail(String email) {
@@ -14,4 +13,12 @@ String hashEmail(String email) {
 
   var uuid = const Uuid();
   return uuid.v5(namespace, reversedEmail);
+}
+
+String hashUsernameBarcode(String username, String barcode) {
+  const namespace = '6d622152-e5b1-4e7c-af71-996588c3711c';
+  final joinedString = '$username-$barcode';
+
+  var uuid = const Uuid();
+  return uuid.v5(namespace, joinedString);
 }
