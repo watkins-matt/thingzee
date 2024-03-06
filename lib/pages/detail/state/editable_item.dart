@@ -63,7 +63,9 @@ class EditableItem extends StateNotifier<EditableItemState> {
     return entries;
   }
 
+  Map<String, String> get identifiers => state.identifiers;
   String get imageUrl => state.item.imageUrl;
+
   set imageUrl(String imageUrl) {
     final item = state.item.copyWith(imageUrl: imageUrl.trim());
 
@@ -72,8 +74,8 @@ class EditableItem extends StateNotifier<EditableItemState> {
   }
 
   List<String> get locations => state.inventory.locations;
-
   String get name => state.item.name;
+
   set name(String name) {
     final item = state.item.copyWith(name: name.trim());
 
@@ -81,9 +83,10 @@ class EditableItem extends StateNotifier<EditableItemState> {
   }
 
   String get predictedAmount => state.inventory.predictedAmount.toStringNoZero(2);
-  double get totalUnitCount => state.inventory.units;
 
+  double get totalUnitCount => state.inventory.units;
   String get type => state.item.type;
+
   set type(String type) {
     final item = state.item.copyWith(type: type.trim());
 
@@ -92,6 +95,7 @@ class EditableItem extends StateNotifier<EditableItemState> {
   }
 
   String get uid => state.item.uid;
+
   int get unitCount => state.inventory.unitCount;
 
   set unitCount(int value) {
@@ -99,6 +103,14 @@ class EditableItem extends StateNotifier<EditableItemState> {
     final item = state.item.copyWith(unitCount: value);
 
     state = EditableItemState(item, inv, state.history, state.changedFields);
+  }
+
+  List<String> get unusedIdentifierTypes {
+    final usedTypes = state.identifiers.keys.toSet();
+    usedTypes.add(IdentifierType.upc);
+
+    final allTypes = IdentifierType.validIdentifierTypes;
+    return allTypes.difference(usedTypes).toList();
   }
 
   String get upc => state.item.upc;
@@ -114,10 +126,21 @@ class EditableItem extends StateNotifier<EditableItemState> {
   }
 
   String get variety => state.item.variety;
+
   set variety(String variety) {
     final item = state.item.copyWith(variety: variety.trim());
-
     state = EditableItemState(item, state.inventory, state.history, state.changedFields);
+  }
+
+  void addIdentifier(String key) {
+    if (key.isEmpty || state.identifiers.containsKey(key) || !IdentifierType.isValid(key)) {
+      Log.w('Attempted to add invalid identifier type: $key for upc: ${state.item.upc}.');
+      return;
+    }
+
+    state.identifiers[key] = '';
+    state = EditableItemState(
+        state.item, state.inventory, state.history, state.changedFields, state.identifiers);
   }
 
   void addLocation(String location) {
@@ -240,6 +263,10 @@ class EditableItem extends StateNotifier<EditableItemState> {
 
       repo.identifiers.put(identifier);
     }
+  }
+
+  void updateIdentifier(String key, String value) {
+    state.identifiers[key] = value;
   }
 }
 

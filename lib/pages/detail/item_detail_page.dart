@@ -62,6 +62,18 @@ class ItemDetailPage extends HookConsumerWidget {
       );
     }
 
+    List<LabeledEditableText> identifierWidgets = [];
+    for (final identifier in editableItem.identifiers.entries) {
+      identifierWidgets.add(LabeledEditableText(
+        labelText: identifier.key,
+        keyboardType: TextInputType.number,
+        controller: useTextEditingController(text: identifier.value),
+        onChanged: (value) {
+          ref.read(editableItemProvider.notifier).updateIdentifier(identifier.key, value);
+        },
+      ));
+    }
+
     return PopScope(
       canPop: true,
       onPopInvoked: (pop) async => onBackButtonPressed(context, ref),
@@ -227,10 +239,11 @@ class ItemDetailPage extends HookConsumerWidget {
                   height: 8,
                 ),
                 MaterialCardWidget(children: [
-                  const TitleHeaderWidget(
+                  TitleHeaderWidget(
                       title: 'Identifiers',
-                      actionButton:
-                          IconButton(onPressed: null, icon: Icon(Icons.add, color: Colors.blue))),
+                      actionButton: IconButton(
+                          onPressed: () async => await onAddIdentifierButtonPressed(context, ref),
+                          icon: const Icon(Icons.add, color: Colors.blue))),
                   LabeledText(labelText: 'UID', value: editableItem.uid),
                   LabeledEditableText(
                     labelText: 'UPC',
@@ -240,6 +253,7 @@ class ItemDetailPage extends HookConsumerWidget {
                       ref.read(editableItemProvider.notifier).upc = value;
                     },
                   ),
+                  ...identifierWidgets,
                   // ChoiceBoxEditableText(
                   //     choices: const ['UPC', 'EAN'],
                   //     keyboardType: TextInputType.number,
@@ -297,6 +311,34 @@ class ItemDetailPage extends HookConsumerWidget {
         ),
       ),
     );
+  }
+
+  Future<void> onAddIdentifierButtonPressed(BuildContext context, WidgetRef ref) async {
+    // Retrieve the list of unused identifier types from the provider
+    final validIdentifierTypes = ref.watch(editableItemProvider.notifier).unusedIdentifierTypes;
+
+    // Show a dialog or a bottom sheet to let the user pick an identifier type
+    final String? selectedType = await showModalBottomSheet<String>(
+      context: context,
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Wrap(
+            children: validIdentifierTypes.map((type) {
+              return ListTile(
+                leading: const Icon(Icons.label),
+                title: Text(type),
+                onTap: () => Navigator.of(context).pop(type),
+              );
+            }).toList(),
+          ),
+        );
+      },
+    );
+
+    // Add the identifier selected by the user
+    if (selectedType != null) {
+      ref.read(editableItemProvider.notifier).addIdentifier(selectedType);
+    }
   }
 
   Future<bool> onAddLocationPressed(BuildContext context, WidgetRef ref) async {
