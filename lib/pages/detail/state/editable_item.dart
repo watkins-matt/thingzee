@@ -1,6 +1,9 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:log/log.dart';
+import 'package:repository/database/identifier_database.dart';
 import 'package:repository/ml/history.dart';
 import 'package:repository/ml/history_provider.dart';
+import 'package:repository/model/identifier.dart';
 import 'package:repository/model/inventory.dart';
 import 'package:repository/model/item.dart';
 import 'package:repository/repository.dart';
@@ -150,7 +153,7 @@ class EditableItem extends StateNotifier<EditableItemState> {
     state = EditableItemState(state.item, state.inventory, history, state.changedFields);
   }
 
-  void init(Item item, Inventory inv) {
+  void init(Item item, Inventory inv, [Map<String, String> identifiers = const {}]) {
     assert(item.upc == inv.upc);
     assert(item.upc == inv.history.upc);
 
@@ -165,7 +168,7 @@ class EditableItem extends StateNotifier<EditableItemState> {
       inv = inv.copyWith(uid: item.uid);
     }
 
-    state = EditableItemState(item, inv, inv.history, state.changedFields);
+    state = EditableItemState(item, inv, inv.history, state.changedFields, identifiers);
   }
 
   void removeLocation(String location) {
@@ -215,6 +218,28 @@ class EditableItem extends StateNotifier<EditableItemState> {
     }
 
     // Save all identifiers
+    for (final entry in state.identifiers.entries) {
+      // Ensure all data is present
+      if (entry.key.isEmpty || entry.value.isEmpty || state.item.uid.isEmpty) {
+        Log.w(
+            'Invalid identifier: "${entry.key}=${entry.value}" for upc: ${state.item.upc} and uid ${state.item.uid}. Skipping.');
+        continue;
+      }
+
+      // Ensure the identifier type is valid
+      if (!IdentifierType.isValid(entry.key)) {
+        Log.w('Invalid identifier type: ${entry.key} for upc: ${state.item.upc}. Skipping.');
+        continue;
+      }
+
+      final identifier = Identifier(
+        type: entry.key,
+        value: entry.value,
+        uid: state.item.uid,
+      );
+
+      repo.identifiers.put(identifier);
+    }
   }
 }
 
@@ -225,6 +250,7 @@ class EditableItemState {
   Set<String> changedFields = {};
   Map<String, String> identifiers = {};
 
-  EditableItemState(this.item, this.inventory, this.history, this.changedFields);
+  EditableItemState(this.item, this.inventory, this.history, this.changedFields,
+      [this.identifiers = const {}]);
   EditableItemState.empty();
 }

@@ -383,8 +383,9 @@ class ItemDetailPage extends HookConsumerWidget {
     Item item,
     Inventory inventory,
   ) async {
+    final identifiers = ref.read(repositoryProvider).identifiers.getMapForUpc(item.upc);
     final itemProv = ref.read(editableItemProvider.notifier);
-    itemProv.init(item, inventory);
+    itemProv.init(item, inventory, identifiers);
 
     return await Navigator.push(
       context,

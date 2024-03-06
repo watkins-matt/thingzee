@@ -93,8 +93,9 @@ class _BarcodeScannerPageState extends ConsumerState<BarcodeScannerPage> {
 
     final inv = repo.inv.get(barcode) ?? defaultInventory;
     final itemProv = ref.watch(editableItemProvider.notifier);
+    final identifiers = repo.identifiers.getMapForUpc(item.upc);
 
-    itemProv.init(item, inv); // These are guaranteed to be valid (initialized above)
+    itemProv.init(item, inv, identifiers); // These are guaranteed to be valid (initialized above)
     await Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => ItemDetailPage(item)),
