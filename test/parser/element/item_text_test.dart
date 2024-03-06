@@ -50,6 +50,13 @@ void main() {
       expect(result2, isA<Success>());
       expect(result2.value, equals('Test Item'));
     });
+
+    test('Test parsing with item text the number with decimal', () {
+      final parser = skipToItemTextParser();
+      final result = parser.parse(r'Test Item .12');
+      expect(result, isA<Success>());
+      expect(result.value, equals('Test Item'));
+    });
   });
 
   group('itemTextParser tests', () {

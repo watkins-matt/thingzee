@@ -5,7 +5,11 @@ Parser<String> itemTextParser() {
       (letter() | digit() | pattern(' \'&.-')).starGreedy(letter() | newline() | endOfInput()) &
       (letter() | newline() | endOfInput());
 
-  return textPattern.flatten().map((String value) => value.trim());
+  return textPattern.flatten().map(removeDecimalFromEnd).map((String value) => value.trim());
+}
+
+String removeDecimalFromEnd(String itemText) {
+  return itemText.replaceAll(RegExp(r' \.\d+$'), '');
 }
 
 Parser<String> skipToItemTextParser() {
