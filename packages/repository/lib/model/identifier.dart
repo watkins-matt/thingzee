@@ -27,7 +27,7 @@ class Identifier extends Model<Identifier> {
   factory Identifier.fromJson(Map<String, dynamic> json) => _$ItemIdentifierFromJson(json);
 
   @override
-  String get id => '$type:$value';
+  String get id => '$type-$value';
 
   @override
   Identifier copyWith({
