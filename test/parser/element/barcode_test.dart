@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:petitparser/debug.dart';
 import 'package:petitparser/petitparser.dart';
 import 'package:petitparser/reflection.dart';
 import 'package:thingzee/pages/receipt_scanner/parser/element/barcode.dart';
@@ -63,7 +62,7 @@ void main() {
 
     test('Correctly parse the text 123456 T2', () {
       final parser = barcodeParser();
-      final result = trace(parser).parse('123456 T2');
+      final result = parser.parse('123456 T2');
       expect(result, isA<Success>());
       expect(result.value, equals('123456'));
     });
