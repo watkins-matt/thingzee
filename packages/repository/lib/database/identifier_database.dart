@@ -14,4 +14,30 @@ abstract class IdentifierDatabase implements Database<Identifier> {
 
     return map;
   }
+
+  String? uidFromUPC(String upc);
+}
+
+class IdentifierType {
+  static const String upc = 'UPC';
+  static const String ean = 'EAN';
+  static const String isbn = 'ISBN';
+  static const String asin = 'ASIN';
+  static const String bestBuy = 'BestBuy';
+  static const String walmart = 'Walmart';
+  static const String target = 'Target';
+
+  static final Set<String> validIdentifierTypes = {
+    IdentifierType.upc,
+    IdentifierType.ean,
+    IdentifierType.isbn,
+    IdentifierType.asin,
+    IdentifierType.bestBuy,
+    IdentifierType.walmart,
+    IdentifierType.target,
+  };
+
+  static bool isValid(String identifierType) {
+    return validIdentifierTypes.contains(identifierType);
+  }
 }
