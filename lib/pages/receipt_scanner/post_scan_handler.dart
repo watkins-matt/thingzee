@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:thingzee/pages/receipt_scanner/parser/generic_parser.dart';
 import 'package:thingzee/pages/receipt_scanner/parser/parser.dart';
 import 'package:thingzee/pages/receipt_scanner/parser/stores/target.dart';
 import 'package:thingzee/pages/receipt_scanner/receipt_detail_page.dart';
@@ -11,8 +10,8 @@ class DebugPostScanHandler extends PostScanHandler {
 
   @override
   void handleScannedText(BuildContext context, WidgetRef ref, String text) {
-    TargetParser parser = TargetParser();
-    text = parser.errorCorrection(text);
+    TargetReceiptParser parser = TargetReceiptParser();
+    text = parser.errorCorrector.correctErrors(text);
     Navigator.pushReplacement(
         context, MaterialPageRoute(builder: (context) => OCRTextView(text: text)));
   }
@@ -41,6 +40,6 @@ abstract class PostScanHandler {
       return parser!;
     }
 
-    return GenericReceiptParser();
+    return TargetReceiptParser();
   }
 }

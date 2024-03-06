@@ -83,7 +83,7 @@ class LiveTextScanner extends ConsumerStatefulWidget {
 
 class _LiveTextScannerState extends ConsumerState<LiveTextScanner> with WidgetsBindingObserver {
   bool _isProcessing = false;
-  TargetParser parser = TargetParser();
+  TargetReceiptParser parser = TargetReceiptParser();
   Receipt currentReceipt = Receipt(items: const [], date: DateTime.now());
   DateTime _lastProcessedTime = DateTime.now();
 
