@@ -1,29 +1,20 @@
 import 'package:petitparser/petitparser.dart';
 
 Parser<String> itemTextParser() {
-  // Optional initial whitespace, followed by a letter as the start of the item text.
-  var optionalInitialWhitespace = whitespace().optional();
-  var startWithLetter = letter();
+  final textPattern = letter().trim() &
+      (letter() | digit() | pattern(' \'&.')).starGreedy(letter() | newline() | endOfInput()) &
+      (letter() | newline() | endOfInput());
 
-  // Parser for allowed item text characters: letters, digits, and horizontal spaces (excluding newlines).
-  var allowedChars = (letter() | digit() | pattern(' \t\'&.')).star();
-
-  // Combine the initial optional whitespace, mandatory starting letter, and allowed characters.
-  var itemTextContent = optionalInitialWhitespace & startWithLetter & allowedChars;
-
-  // Define a parser that consumes trailing whitespace or stops at a newline or the end of the input.
-  var endOfText = (whitespace() | char('\n')).star();
-
-  // Combine everything, flatten, and trim the result to remove any leading or trailing whitespace.
-  return (itemTextContent & endOfText).flatten().map((String value) => value.trim());
+  return textPattern.flatten().map((String value) => value.trim());
 }
 
 Parser<String> skipToItemTextParser() {
   final parser = itemTextParser();
+  final barcode = (letter() | digit()).plus().flatten();
 
-  // This parser lazily consumes any characters until it reaches the condition defined in itemTextParser.
-  var skipUntilItemText = any().starLazy(parser).flatten();
+  // Skip any input until we find a sequence that is not a phone number or price,
+  // indicating a potential barcode
+  final skipUntilPotentialBarcode = (barcode | any()).starLazy(parser).flatten();
 
-  // After skipping, capture the item text. The use of .map((values) => values.last) ensures the return type is String.
-  return skipUntilItemText.seq(parser).map((values) => values[1] as String);
+  return (skipUntilPotentialBarcode & parser).map((values) => values[1] as String);
 }
