@@ -231,6 +231,7 @@ class ItemDetailPage extends HookConsumerWidget {
                       title: 'Identifiers',
                       actionButton:
                           IconButton(onPressed: null, icon: Icon(Icons.add, color: Colors.blue))),
+                  LabeledText(labelText: 'UID', value: editableItem.uid),
                   LabeledEditableText(
                     labelText: 'UPC',
                     keyboardType: TextInputType.number,

@@ -4,7 +4,9 @@ import 'package:repository/ml/history_provider.dart';
 import 'package:repository/model/inventory.dart';
 import 'package:repository/model/item.dart';
 import 'package:repository/repository.dart';
+import 'package:repository/util/hash.dart';
 import 'package:stats/double.dart';
+import 'package:uuid/uuid.dart';
 
 final editableItemProvider = StateNotifierProvider<EditableItem, EditableItemState>((ref) {
   return EditableItem();
@@ -86,7 +88,9 @@ class EditableItem extends StateNotifier<EditableItemState> {
     state = EditableItemState(item, state.inventory, state.history, state.changedFields);
   }
 
+  String get uid => state.item.uid;
   int get unitCount => state.inventory.unitCount;
+
   set unitCount(int value) {
     final inv = state.inventory.copyWith(unitCount: value);
     final item = state.item.copyWith(unitCount: value);
@@ -95,6 +99,7 @@ class EditableItem extends StateNotifier<EditableItemState> {
   }
 
   String get upc => state.item.upc;
+
   set upc(String upc) {
     upc = upc.trim();
 
@@ -149,6 +154,17 @@ class EditableItem extends StateNotifier<EditableItemState> {
     assert(item.upc == inv.upc);
     assert(item.upc == inv.history.upc);
 
+    // If the item is missing a uid, generate one
+    if (item.uid.isEmpty) {
+      var itemUid = item.upc.isNotEmpty ? hashBarcode(item.upc) : const Uuid().v4();
+      item = item.copyWith(uid: itemUid);
+    }
+
+    // The inventory should point to the same uid as the item
+    if (inv.uid.isEmpty || inv.uid != item.uid) {
+      inv = inv.copyWith(uid: item.uid);
+    }
+
     state = EditableItemState(item, inv, inv.history, state.changedFields);
   }
 
@@ -197,6 +213,8 @@ class EditableItem extends StateNotifier<EditableItemState> {
     for (final location in state.inventory.locations) {
       repo.location.store(location, state.item.upc);
     }
+
+    // Save all identifiers
   }
 }
 
@@ -205,6 +223,7 @@ class EditableItemState {
   Inventory inventory = Inventory();
   History history = History();
   Set<String> changedFields = {};
+  Map<String, String> identifiers = {};
 
   EditableItemState(this.item, this.inventory, this.history, this.changedFields);
   EditableItemState.empty();
