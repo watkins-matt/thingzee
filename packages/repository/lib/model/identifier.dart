@@ -26,6 +26,10 @@ class Identifier extends Model<Identifier> {
 
   factory Identifier.fromJson(Map<String, dynamic> json) => _$ItemIdentifierFromJson(json);
 
+  /// For our unique id, we use $type-$value. For any given type, for
+  /// example UPC, the value should always be unique. However, the same
+  /// value can be (in theory) used for different types, so using both together
+  /// gets us a unique id.
   @override
   String get id => '$type-$value';
 
