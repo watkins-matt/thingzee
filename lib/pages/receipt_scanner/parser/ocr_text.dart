@@ -263,6 +263,18 @@ class OcrText {
     }
   }
 
+  OcrText sublist(int start, [int? end]) {
+    if (start == -1) {
+      start = 0;
+    }
+
+    if (end == null || end == -1) {
+      end = lines.length;
+    }
+
+    return OcrText(lines.sublist(start, end));
+  }
+
   static double fuzzyMatch(OcrLine firstLine, OcrLine secondLine) {
     // Calculate the absolute difference in length between the two lines
     int lengthDifference = (firstLine.text.length - secondLine.text.length).abs();
