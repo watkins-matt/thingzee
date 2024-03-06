@@ -16,6 +16,5 @@ Parser<String> skipToItemTextParser() {
   // indicating a potential barcode
   final skipUntilPotentialBarcode = (barcode | any()).starLazy(parser).flatten();
 
-  return (skipUntilPotentialBarcode & letter().optional() & parser)
-      .map((values) => values[2] as String);
+  return (skipUntilPotentialBarcode & parser).map((values) => values[1] as String);
 }
