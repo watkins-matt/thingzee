@@ -74,6 +74,31 @@ void main() {
       expect(linter(parser), isEmpty);
     });
 
+    test('Parses barcode with leading letter', () {
+      final parser = skipToBarcodeParser();
+      final result = parser.parse('A123456');
+      expect(result, isA<Success>());
+      expect(result.value, equals('123456'));
+
+      final result2 = parser.parse('Z123456 Test Item');
+      expect(result2, isA<Success>());
+      expect(result2.value, equals('123456'));
+    });
+
+    test('Parses barcode with leading space', () {
+      final parser = skipToBarcodeParser();
+      final result = parser.parse(' 123456');
+      expect(result, isA<Success>());
+      expect(result.value, equals('123456'));
+    });
+
+    test('Parses barcode with trailing letter', () {
+      final parser = skipToBarcodeParser();
+      final result = parser.parse('123456A');
+      expect(result, isA<Success>());
+      expect(result.value, equals('123456'));
+    });
+
     test('Test parsing barcode between other tokens.', () {
       final parser = skipToBarcodeParser();
       final result = parser.parse(r'123456 Test Item $123.45');
