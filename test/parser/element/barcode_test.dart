@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:petitparser/debug.dart';
 import 'package:petitparser/petitparser.dart';
 import 'package:petitparser/reflection.dart';
 import 'package:thingzee/pages/receipt_scanner/parser/element/barcode.dart';
@@ -56,6 +57,13 @@ void main() {
     test('Removes whitespace from the input', () {
       final parser = barcodeParser();
       final result = parser.parse(' 1 2 3 4 5 6 ');
+      expect(result, isA<Success>());
+      expect(result.value, equals('123456'));
+    });
+
+    test('Correctly parse the text 123456 T2', () {
+      final parser = barcodeParser();
+      final result = trace(parser).parse('123456 T2');
       expect(result, isA<Success>());
       expect(result.value, equals('123456'));
     });
