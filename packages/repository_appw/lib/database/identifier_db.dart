@@ -29,4 +29,10 @@ class AppwriteIdentifierDatabase extends IdentifierDatabase
   @override
   List<Identifier> getAllForUpc(String upc) =>
       values.where((identifier) => identifier.uid == upc).toList();
+
+  @override
+  String? uidFromUPC(String upc) => values
+      .where((identifier) => identifier.type == IdentifierType.upc && identifier.value == upc)
+      .map((e) => e.uid)
+      .firstOrNull;
 }

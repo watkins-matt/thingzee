@@ -36,4 +36,13 @@ class ObjectBoxIdentifierDatabase extends IdentifierDatabase
 
   @override
   Identifier toModel(ObjectBoxIdentifier objectBoxEntity) => objectBoxEntity.toIdentifier();
+
+  @override
+  String? uidFromUPC(String upc) {
+    final query = box
+        .query(ObjectBoxIdentifier_.type.equals('UPC').and(ObjectBoxIdentifier_.value.equals(upc)))
+        .build();
+    final identifier = query.findFirst();
+    return identifier?.uid;
+  }
 }
