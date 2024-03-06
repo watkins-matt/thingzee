@@ -192,6 +192,6 @@ mixin AppwriteDatabase<T extends Model> {
       throw Exception('$_tag: User ID is empty, cannot generate unique document ID.');
     }
 
-    return hashBarcode(userId, id);
+    return hashUsernameBarcode(userId, id);
   }
 }
