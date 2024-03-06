@@ -50,6 +50,7 @@ dependencies:
   stats:
     path: packages/stats
   url_launcher: ^6.2.2
+  uuid: ^4.3.3
 
 dev_dependencies:
   flutter_lints: ^3.0.1
