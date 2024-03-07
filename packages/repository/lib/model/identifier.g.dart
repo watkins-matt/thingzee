@@ -6,7 +6,7 @@ part of 'identifier.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-Identifier _$ItemIdentifierFromJson(Map<String, dynamic> json) => Identifier(
+Identifier _$IdentifierFromJson(Map<String, dynamic> json) => Identifier(
       type: json['type'] as String? ?? '',
       value: json['value'] as String? ?? '',
       uid: json['uid'] as String? ?? '',
@@ -16,7 +16,8 @@ Identifier _$ItemIdentifierFromJson(Map<String, dynamic> json) => Identifier(
           json['updated'], const NullableDateTimeSerializer().fromJson),
     );
 
-Map<String, dynamic> _$ItemIdentifierToJson(Identifier instance) => <String, dynamic>{
+Map<String, dynamic> _$IdentifierToJson(Identifier instance) =>
+    <String, dynamic>{
       'created': const NullableDateTimeSerializer().toJson(instance.created),
       'updated': const NullableDateTimeSerializer().toJson(instance.updated),
       'type': instance.type,

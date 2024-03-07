@@ -24,7 +24,7 @@ class Identifier extends Model<Identifier> {
     super.updated,
   });
 
-  factory Identifier.fromJson(Map<String, dynamic> json) => _$ItemIdentifierFromJson(json);
+  factory Identifier.fromJson(Map<String, dynamic> json) => _$IdentifierFromJson(json);
 
   /// For our unique id, we use $type-$value. For any given type, for
   /// example UPC, the value should always be unique. However, the same
@@ -56,8 +56,8 @@ class Identifier extends Model<Identifier> {
   }
 
   @override
-  Identifier merge(Identifier other) => _$mergeItemIdentifier(this, other);
+  Identifier merge(Identifier other) => _$mergeIdentifier(this, other);
 
   @override
-  Map<String, dynamic> toJson() => _$ItemIdentifierToJson(this);
+  Map<String, dynamic> toJson() => _$IdentifierToJson(this);
 }
