@@ -167,7 +167,7 @@ mixin AppwriteDatabase<T extends Model> {
               data: serialize(item),
               permissions: permissions);
         } else {
-          Log.e('Failed to put item $key: [AppwriteException]', e.message);
+          Log.e('$_tag: Failed to put item $key: [AppwriteException]', e.message);
           // Removing the inventory from local cache since we
           // failed to add it to the database
           _items.remove(key);
