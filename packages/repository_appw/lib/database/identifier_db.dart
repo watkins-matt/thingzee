@@ -27,8 +27,22 @@ class AppwriteIdentifierDatabase extends IdentifierDatabase
   Identifier? deserialize(Map<String, dynamic> json) => Identifier.fromJson(json);
 
   @override
-  List<Identifier> getAllForUpc(String upc) =>
-      values.where((identifier) => identifier.uid == upc).toList();
+  List<Identifier> getAllForUpc(String upc) {
+    final uid = uidFromUPC(upc);
+
+    if (uid == null) {
+      return [];
+    }
+
+    return values.where((identifier) => identifier.uid == uid).toList();
+  }
+
+  @override
+  Map<String, dynamic> serialize(Identifier identifier) {
+    var json = identifier.toJson();
+    json['userId'] = userId;
+    return json;
+  }
 
   @override
   String? uidFromUPC(String upc) => values
