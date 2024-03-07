@@ -1,5 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:meta/meta.dart';
+import 'package:repository/database/identifier_database.dart';
 import 'package:repository/extension/date_time.dart';
 import 'package:repository/extension/list.dart';
 import 'package:repository/merge_generator.dart';
@@ -29,6 +30,8 @@ class Receipt extends Model<Receipt> {
   @JsonKey(defaultValue: '')
   final String uid;
 
+  final String barcodeType;
+
   Receipt({
     required this.items,
     required this.date,
@@ -36,6 +39,7 @@ class Receipt extends Model<Receipt> {
     this.discounts = const [],
     this.tax = 0.0,
     this.total = 0.0,
+    this.barcodeType = IdentifierType.upc,
     String? uid,
     super.created,
     super.updated,
@@ -66,6 +70,7 @@ class Receipt extends Model<Receipt> {
     List<double>? discounts,
     double? tax,
     double? total,
+    String? barcodeType,
     DateTime? created,
     DateTime? updated,
   }) {
@@ -76,6 +81,7 @@ class Receipt extends Model<Receipt> {
       discounts: discounts ?? this.discounts,
       tax: tax ?? this.tax,
       total: total ?? this.total,
+      barcodeType: barcodeType ?? this.barcodeType,
       created: created ?? this.created,
       updated: updated ?? this.updated,
     );
@@ -89,6 +95,7 @@ class Receipt extends Model<Receipt> {
         discounts.equals(other.discounts) &&
         tax == other.tax &&
         total == other.total &&
+        barcodeType == other.barcodeType &&
         items.equals(other.items);
   }
 

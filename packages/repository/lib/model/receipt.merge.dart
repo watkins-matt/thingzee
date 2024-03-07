@@ -12,6 +12,7 @@ Receipt _$mergeReceipt(Receipt first, Receipt second) {
     tax: newer.tax,
     total: newer.total,
     uid: newer.uid.isNotEmpty ? newer.uid : first.uid,
+    barcodeType: newer.barcodeType.isNotEmpty ? newer.barcodeType : first.barcodeType,
     created: first.created.older(second.created),
     updated: newer.updated,
   );
