@@ -206,6 +206,37 @@ class Inventory extends Model<Inventory> {
   @override
   Map<String, dynamic> toJson() => _$InventoryToJson(this);
 
+  /// Update the amount to the predicted amount if the last update was more than a day ago.
+  Inventory updateAmountToPrediction() {
+    final now = DateTime.now();
+
+    if (canPredict && history.lastTimestamp != null) {
+      final lastTimestamp = history.lastTimestamp;
+      final timeSinceLastUpdate = now.difference(lastTimestamp!);
+
+      // The last history update was more than a day ago, use predicted
+      if (timeSinceLastUpdate.inDays > 1) {
+        return copyWith(amount: predictedAmount);
+      }
+    }
+
+    // Note that if the last update was less than a day ago, we'll
+    // just use the last amount by default, because this is probably accurate.
+    return this;
+  }
+
+  Inventory updateAmountToPredictionAtTimestamp(int timestamp) {
+    final now = DateTime.now();
+    final timeSinceLastUpdate = now.difference(DateTime.fromMillisecondsSinceEpoch(timestamp));
+
+    if (canPredict && timeSinceLastUpdate.inDays > 1) {
+      final predictedQuantity = history.predict(timestamp.toDouble());
+      return copyWith(amount: predictedQuantity);
+    }
+
+    return this;
+  }
+
   Inventory withUnits(double value) {
     assert(unitCount != 0);
     double newAmount = value / unitCount;
