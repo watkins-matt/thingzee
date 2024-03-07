@@ -263,6 +263,21 @@ class EditableItem extends StateNotifier<EditableItemState> {
 
       repo.identifiers.put(identifier);
     }
+
+    // Check to see if the upc identifier is present, and add it to the
+    // database if necessary
+    final upcIdentifier = repo.identifiers.get('${IdentifierType.upc}-${state.item.uid}');
+    if (upcIdentifier == null) {
+      assert(state.item.uid.isNotEmpty && state.item.upc.isNotEmpty);
+
+      final identifier = Identifier(
+        type: IdentifierType.upc,
+        value: state.item.upc,
+        uid: state.item.uid,
+      );
+
+      repo.identifiers.put(identifier);
+    }
   }
 
   void updateIdentifier(String key, String value) {
