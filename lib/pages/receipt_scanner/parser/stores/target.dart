@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:petitparser/petitparser.dart';
+import 'package:repository/database/identifier_database.dart';
 import 'package:repository/model/receipt.dart';
 import 'package:repository/model/receipt_item.dart';
 import 'package:thingzee/pages/receipt_scanner/parser/element/date.dart';
@@ -117,6 +118,7 @@ class TargetReceiptParser extends GenericReceiptParser {
       discounts: discountTracker.getMostFrequentList(),
       tax: taxTracker.getMostFrequent() ?? 0.0,
       total: totalTracker.getMostFrequent() ?? 0.0,
+      barcodeType: IdentifierType.target,
     );
   }
 
