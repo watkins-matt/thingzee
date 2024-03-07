@@ -15,6 +15,11 @@ abstract class IdentifierDatabase implements Database<Identifier> {
     return map;
   }
 
+  Identifier? getTypeForUpc(String upc, String type) =>
+      getAllForUpc(upc).where((identifier) => identifier.type == type).firstOrNull;
+
+  String? getUidFromType(String type, String barcode) => get('$type-$barcode')?.uid;
+  String? getUpcFromUid(String uid) => get('${IdentifierType.upc}-$uid')?.value;
   String? uidFromUPC(String upc);
 }
 
