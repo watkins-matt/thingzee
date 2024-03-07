@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:repository/database/identifier_database.dart';
 import 'package:repository/model/item.dart';
 import 'package:repository/model/receipt.dart';
 import 'package:repository/model/receipt_item.dart';
@@ -137,11 +138,42 @@ class _ReceiptConfirmationPageState extends ConsumerState<ReceiptConfirmationPag
         continue;
       }
 
-      ReceiptItem item = matchedItem.receiptItem;
+      ReceiptItem receiptItem = matchedItem.receiptItem;
       final provider = ref.read(inventoryProvider.notifier);
       final itemDb = provider.r.items;
 
-      final query = _getSearchQuery(item);
+      final receiptBarcodeType = widget.receipt.barcodeType;
+      if (receiptBarcodeType == IdentifierType.upc && receiptItem.barcode.isNotEmpty) {
+        // Because the barcode is a UPC, we can directly check
+        // if the item exists in the database.
+        final item = itemDb.get(receiptItem.barcode);
+
+        if (item != null) {
+          matchedItemsNotifier.updateStatus(i, 'Confirmed ${item.name}', matchedItem: item);
+          continue;
+        }
+      }
+
+      // Another barcode type, check the identifier database
+      else if (receiptItem.barcode.isNotEmpty) {
+        final identifierDb = ref.read(repositoryProvider).identifiers;
+        final barcodeType = widget.receipt.barcodeType;
+        final uid = identifierDb.getUidFromType(barcodeType, receiptItem.barcode);
+
+        if (uid != null && uid.isNotEmpty) {
+          final upc = identifierDb.getUpcFromUid(uid);
+
+          if (upc != null) {
+            final item = itemDb.get(upc);
+            if (item != null) {
+              matchedItemsNotifier.updateStatus(i, 'Confirmed ${item.name}', matchedItem: item);
+              continue;
+            }
+          }
+        }
+      }
+
+      final query = _getSearchQuery(receiptItem);
       if (query.isEmpty) {
         continue;
       }
