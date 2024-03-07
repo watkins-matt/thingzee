@@ -27,6 +27,11 @@ class AppwriteIdentifierDatabase extends IdentifierDatabase
   Identifier? deserialize(Map<String, dynamic> json) => Identifier.fromJson(json);
 
   @override
+  List<Identifier> getAllForUid(String uid) {
+    return values.where((identifier) => identifier.uid == uid).toList();
+  }
+
+  @override
   List<Identifier> getAllForUpc(String upc) {
     final uid = uidFromUPC(upc);
 

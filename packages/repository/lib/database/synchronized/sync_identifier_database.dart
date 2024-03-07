@@ -19,6 +19,11 @@ class SynchronizedIdentifierDatabase extends IdentifierDatabase
   }
 
   @override
+  List<Identifier> getAllForUid(String uid) {
+    return local.getAllForUid(uid);
+  }
+
+  @override
   List<Identifier> getAllForUpc(String upc) => local.getAllForUpc(upc);
 
   @override

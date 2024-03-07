@@ -161,7 +161,7 @@ class _ReceiptConfirmationPageState extends ConsumerState<ReceiptConfirmationPag
         final uid = identifierDb.getUidFromType(barcodeType, receiptItem.barcode);
 
         if (uid != null && uid.isNotEmpty) {
-          final upc = identifierDb.getUpcFromUid(uid);
+          final upc = identifierDb.upcFromUid(uid);
 
           if (upc != null) {
             final item = itemDb.get(upc);

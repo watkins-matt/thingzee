@@ -2,6 +2,7 @@ import 'package:repository/database/database.dart';
 import 'package:repository/model/identifier.dart';
 
 abstract class IdentifierDatabase implements Database<Identifier> {
+  List<Identifier> getAllForUid(String uid);
   List<Identifier> getAllForUpc(String upc);
 
   Map<String, String> getMapForUpc(String upc) {
@@ -19,8 +20,18 @@ abstract class IdentifierDatabase implements Database<Identifier> {
       getAllForUpc(upc).where((identifier) => identifier.type == type).firstOrNull;
 
   String? getUidFromType(String type, String barcode) => get('$type-$barcode')?.uid;
-  String? getUpcFromUid(String uid) => get('${IdentifierType.upc}-$uid')?.value;
   String? uidFromUPC(String upc);
+
+  String? upcFromUid(String uid) {
+    List<Identifier> all = getAllForUid(uid);
+    for (final Identifier identifier in all) {
+      if (identifier.type == IdentifierType.upc) {
+        return identifier.value;
+      }
+    }
+
+    return null;
+  }
 }
 
 class IdentifierType {

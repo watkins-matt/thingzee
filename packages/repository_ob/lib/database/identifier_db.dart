@@ -12,12 +12,21 @@ class ObjectBoxIdentifierDatabase extends IdentifierDatabase
 
   @override
   Condition<ObjectBoxIdentifier> buildIdCondition(String id) {
-    return ObjectBoxIdentifier_.value.equals(id);
+    // Split the id on the first -
+    final parts = id.split('-');
+    final type = parts[0];
+    final value = parts[1];
+
+    return ObjectBoxIdentifier_.type.equals(type).and(ObjectBoxIdentifier_.value.equals(value));
   }
 
   @override
   Condition<ObjectBoxIdentifier> buildIdsCondition(List<String> ids) {
-    return ObjectBoxIdentifier_.value.oneOf(ids);
+    final parts = ids.map((e) => e.split('-')).toList();
+    final types = parts.map((e) => e[0]).toList();
+    final values = parts.map((e) => e[1]).toList();
+
+    return ObjectBoxIdentifier_.type.oneOf(types).and(ObjectBoxIdentifier_.value.oneOf(values));
   }
 
   @override
@@ -29,9 +38,21 @@ class ObjectBoxIdentifierDatabase extends IdentifierDatabase
   ObjectBoxIdentifier fromModel(Identifier model) => ObjectBoxIdentifier.from(model);
 
   @override
-  List<Identifier> getAllForUpc(String upc) {
-    final query = box.query(ObjectBoxIdentifier_.uid.equals(upc)).build();
+  List<Identifier> getAllForUid(String uid) {
+    final query = box.query(ObjectBoxIdentifier_.uid.equals(uid)).build();
     return query.find().map((e) => e.toIdentifier()).toList();
+  }
+
+  @override
+  List<Identifier> getAllForUpc(String upc) {
+    final uid = uidFromUPC(upc);
+
+    if (uid != null) {
+      final query = box.query(ObjectBoxIdentifier_.uid.equals(uid)).build();
+      return query.find().map((e) => e.toIdentifier()).toList();
+    }
+
+    return [];
   }
 
   @override
