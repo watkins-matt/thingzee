@@ -180,6 +180,11 @@ class EditableItem extends StateNotifier<EditableItemState> {
     assert(item.upc == inv.upc);
     assert(item.upc == inv.history.upc);
 
+    // Upc is modified by properties instead of the identifiers map
+    if (identifiers.containsKey(IdentifierType.upc)) {
+      identifiers.remove(IdentifierType.upc);
+    }
+
     // If the item is missing a uid, generate one
     if (item.uid.isEmpty) {
       var itemUid = item.upc.isNotEmpty ? hashBarcode(item.upc) : const Uuid().v4();
