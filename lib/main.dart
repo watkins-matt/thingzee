@@ -17,6 +17,8 @@ import 'package:thingzee/app.dart';
 import 'package:thingzee/pages/inventory/state/item_thumbnail_cache.dart';
 
 Future<void> main() async {
+  final timer = Log.timerStart('Starting app.');
+
   await runZonedGuarded(() async {
     // This line must be first
     WidgetsFlutterBinding.ensureInitialized();
@@ -38,7 +40,9 @@ Future<void> main() async {
 
     App.offlineDb = await ObjectBoxRepository.create();
     HistoryProvider().init(App.offlineDb!);
+    Log.timerShow(timer, r'Initialized offline database ($seconds seconds).');
     App.thumbnailCache = await createThumbnailCache();
+    Log.timerShow(timer, r'Initialized thumbnail cache ($seconds seconds).');
 
     runApp(
       ProviderScope(
@@ -49,7 +53,9 @@ Future<void> main() async {
             (ref) => App.thumbnailCache!,
           )
         ],
-        child: const App(),
+        child: App(
+          startupTimer: timer,
+        ),
       ),
     );
   },

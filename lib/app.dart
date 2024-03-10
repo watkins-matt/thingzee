@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:log/log.dart';
 import 'package:repository/repository.dart';
 import 'package:thingzee/pages/bottom_nav_bar/bottom_nav_bar.dart';
 import 'package:thingzee/pages/inventory/state/item_thumbnail_cache.dart';
@@ -12,13 +13,18 @@ final navigatorKeyProvider = Provider((_) => navigatorKey);
 class App extends ConsumerWidget {
   static Repository? offlineDb;
   static ItemThumbnailCache? thumbnailCache;
+  final Stopwatch? startupTimer;
 
-  const App({super.key});
+  const App({super.key, this.startupTimer});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // Load all thumbnails in the background
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (startupTimer != null) {
+        Log.timerEnd(startupTimer!, r'Finished loading app ($seconds seconds).');
+      }
+
       if (thumbnailCache != null) {
         await thumbnailCache!.loadAllImages();
       }

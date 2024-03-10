@@ -64,6 +64,12 @@ class Log {
     _logger.i(finalMessage);
   }
 
+  static void timerShow(Stopwatch stopwatch, String message) {
+    var seconds = stopwatch.elapsedMilliseconds / 1000;
+    var finalMessage = message.replaceAll('\$seconds', seconds.toStringAsFixed(2));
+    _logger.i(finalMessage);
+  }
+
   static Stopwatch timerStart([String message = '']) {
     if (message.isNotEmpty) {
       _logger.i(message);
