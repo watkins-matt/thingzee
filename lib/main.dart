@@ -17,11 +17,12 @@ import 'package:thingzee/app.dart';
 import 'package:thingzee/pages/inventory/state/item_thumbnail_cache.dart';
 
 Future<void> main() async {
-  final timer = Log.timerStart('Starting app.');
-
   await runZonedGuarded(() async {
     // This line must be first
     WidgetsFlutterBinding.ensureInitialized();
+
+    // Measure app startup time
+    final timer = Log.timerStart('Starting app.');
 
     // Set demangleStackTrace to handle Riverpod stack traces
     FlutterError.demangleStackTrace = (StackTrace stack) {
