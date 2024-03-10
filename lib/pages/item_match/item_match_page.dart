@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:log/log.dart';
 import 'package:repository/model/item.dart';
@@ -6,12 +7,13 @@ import 'package:repository/model/receipt_item.dart';
 import 'package:thingzee/pages/detail/widget/material_card_widget.dart';
 import 'package:thingzee/pages/inventory/state/item_view.dart';
 import 'package:thingzee/pages/item_match/widget/add_item_browser_page.dart';
+import 'package:thingzee/pages/item_match/widget/draggable_bottom_sheet.dart';
 import 'package:thingzee/pages/item_match/widget/text_button_with_dropdown.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class ItemMatchPage extends ConsumerStatefulWidget {
   final ReceiptItem receiptItem;
   final String searchUrl;
+
   const ItemMatchPage({super.key, required this.receiptItem, required this.searchUrl});
 
   @override
@@ -34,8 +36,8 @@ class ItemMatchPage extends ConsumerStatefulWidget {
 }
 
 class _ItemMatchPageState extends ConsumerState<ItemMatchPage> {
-  String searchQuery = '';
   late TextEditingController _controller;
+  String searchQuery = '';
 
   void addNewItemFromWeb(BuildContext context) {
     AddItemBrowserPage.push(context, widget.searchUrl).then((item) {
@@ -47,7 +49,6 @@ class _ItemMatchPageState extends ConsumerState<ItemMatchPage> {
 
   @override
   Widget build(BuildContext context) {
-    List<Item> items = ref.watch(itemViewProvider);
     ThemeData theme = Theme.of(context);
 
     return Scaffold(
@@ -55,10 +56,6 @@ class _ItemMatchPageState extends ConsumerState<ItemMatchPage> {
         title: Text(widget.receiptItem.name),
         backgroundColor: theme.appBarTheme.backgroundColor,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.app_registration, color: Colors.white),
-            onPressed: () => openSearchUrl(context, widget.searchUrl),
-          ),
           TextButtonWithDropdown<String>(
             label: 'Add New',
             icon: Icons.add,
@@ -70,20 +67,19 @@ class _ItemMatchPageState extends ConsumerState<ItemMatchPage> {
           ),
         ],
       ),
-      // floatingActionButton: FloatingActionButton.extended(
-      //   heroTag: 'FabItemMatchAddNewBarcode',
-      //   onPressed: () async {
-      //     await Navigator.push(
-      //       context,
-      //       MaterialPageRoute(
-      //           builder: (context) => const BarcodeScannerPage(BarcodeScannerMode.showItemDetail)),
-      //     );
-      //   },
-      //   tooltip: 'New Item',
-      //   icon: const Icon(IconLibrary.barcode),
-      //   label: const Text('New Item'),
-      // ),
-      body: Column(
+      body: buildBody(context),
+      bottomSheet: DraggableBottomSheet(child: buildWebView()),
+    );
+  }
+
+  Widget buildBody(BuildContext context) {
+    List<Item> items = ref.watch(itemViewProvider);
+    ThemeData theme = Theme.of(context);
+
+    return Padding(
+      // Padding to ensure the content is not covered by the bottom sheet
+      padding: const EdgeInsets.only(bottom: 30),
+      child: Column(
         children: [
           Container(
             padding: const EdgeInsets.all(10),
@@ -128,6 +124,13 @@ class _ItemMatchPageState extends ConsumerState<ItemMatchPage> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget buildWebView() {
+    return InAppWebView(
+      initialUrlRequest: URLRequest(url: WebUri(widget.searchUrl)),
+      initialSettings: InAppWebViewSettings(),
     );
   }
 
@@ -177,18 +180,5 @@ class _ItemMatchPageState extends ConsumerState<ItemMatchPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       initializeSearchQuery();
     });
-  }
-
-  Future<void> openSearchUrl(BuildContext context, String url) async {
-    if (url.isNotEmpty) {
-      final Uri uri = Uri.parse(url);
-      if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-        Log.e('Could not launch $uri');
-      }
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Error: No search URL available.')),
-      );
-    }
   }
 }
