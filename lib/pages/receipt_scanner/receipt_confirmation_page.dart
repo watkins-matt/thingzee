@@ -70,16 +70,7 @@ class _ReceiptConfirmationPageState extends ConsumerState<ReceiptConfirmationPag
                           ? Colors.blue
                           : Colors.red),
             ),
-            onTap: () async {
-              final result = await ItemMatchPage.push(context, item,
-                  widget.parser.getSearchUrl(item.barcode.isNotEmpty ? item.barcode : item.name));
-
-              if (result != null) {
-                ref
-                    .read(matchedItemsProvider(widget.receipt.items).notifier)
-                    .updateStatus(index, 'Confirmed ${result.name}');
-              }
-            },
+            onTap: () async => await onItemTapped(item, index),
           );
         },
       ),
@@ -123,6 +114,17 @@ class _ReceiptConfirmationPageState extends ConsumerState<ReceiptConfirmationPag
     }
 
     return true;
+  }
+
+  Future<void> onItemTapped(ReceiptItem item, int index) async {
+    final result = await ItemMatchPage.push(context, item,
+        widget.parser.getSearchUrl(item.barcode.isNotEmpty ? item.barcode : item.name));
+
+    if (result != null) {
+      ref
+          .read(matchedItemsProvider(widget.receipt.items).notifier)
+          .updateStatus(index, 'Confirmed ${result.name}', matchedItem: result);
+    }
   }
 
   void performInitialFuzzySearch() {
@@ -183,7 +185,8 @@ class _ReceiptConfirmationPageState extends ConsumerState<ReceiptConfirmationPag
       // Check if there's a single match or a small number of matches.
       if (matches.isNotEmpty && matches.length <= 3) {
         // Update the match status for this item.
-        matchedItemsNotifier.updateStatus(i, 'Matched ${matches.first.name}');
+        matchedItemsNotifier.updateStatus(i, 'Matched ${matches.first.name}',
+            matchedItem: matches.first);
       }
     }
   }
