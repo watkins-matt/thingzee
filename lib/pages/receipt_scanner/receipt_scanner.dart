@@ -26,13 +26,17 @@ class ReceiptScannerPage extends ConsumerWidget {
             return Scaffold(
               appBar: AppBar(title: const Text('Receipt Scanner')),
               body: Stack(
+                fit: StackFit.expand,
                 children: [
                   CameraPreview(controller),
                   Align(
                     alignment: Alignment.bottomCenter,
-                    child: FloatingActionButton(
-                      onPressed: () => _takePicture(context, ref, controller),
-                      child: const Icon(Icons.camera_alt),
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 20),
+                      child: FloatingActionButton(
+                        onPressed: () => _takePicture(context, ref, controller),
+                        child: const Icon(Icons.camera_alt),
+                      ),
                     ),
                   ),
                 ],
