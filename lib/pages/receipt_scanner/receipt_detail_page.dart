@@ -58,9 +58,13 @@ class ReceiptDetailsPage extends ConsumerWidget {
                 itemCount: receipt.items.length,
                 itemBuilder: (context, index) {
                   final item = receipt.items[index];
+                  final bottleDeposit = item.bottleDeposit;
+                  final bottleDepositString =
+                      bottleDeposit > 0 ? 'BD: ${bottleDeposit.toStringAsFixed(2)}' : '';
+
                   return ListTile(
                     title: Text(item.name, style: const TextStyle(fontSize: 16)),
-                    subtitle: Text('Barcode: ${item.barcode}'),
+                    subtitle: Text('Barcode: ${item.barcode} $bottleDepositString'.trim()),
                     trailing: Text('x ${item.quantity} - \$${item.price.toStringAsFixed(2)}'),
                     onLongPress: () => _showLongPressMenu(context, ref, index),
                     onTap: () {
