@@ -34,4 +34,7 @@ abstract class ReceiptParser {
 
     return sortedItems;
   }
+
+  bool validateBarcode(String barcode) => true;
+  bool validatePrice(double price) => price > 0.0 && price < 1000.0;
 }

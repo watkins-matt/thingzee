@@ -61,11 +61,20 @@ class ReceiptDetailsPage extends ConsumerWidget {
                   final bottleDeposit = item.bottleDeposit;
                   final bottleDepositString =
                       bottleDeposit > 0 ? 'BD: ${bottleDeposit.toStringAsFixed(2)}' : '';
+                  final barcodeValid = parser.validateBarcode(item.barcode);
+                  // Get the normal text color:
+                  final color = Theme.of(context).textTheme.bodyLarge!.color!;
+                  final barcodeColor = barcodeValid ? color : Colors.red;
+
+                  final priceValid = parser.validatePrice(item.price);
+                  final priceColor = priceValid ? color : Colors.red;
 
                   return ListTile(
                     title: Text(item.name, style: const TextStyle(fontSize: 16)),
-                    subtitle: Text('Barcode: ${item.barcode} $bottleDepositString'.trim()),
-                    trailing: Text('x ${item.quantity} - \$${item.price.toStringAsFixed(2)}'),
+                    subtitle: Text('Barcode: ${item.barcode} $bottleDepositString'.trim(),
+                        style: TextStyle(color: barcodeColor)),
+                    trailing: Text('x ${item.quantity} - \$${item.price.toStringAsFixed(2)}',
+                        style: TextStyle(color: priceColor)),
                     onLongPress: () => _showLongPressMenu(context, ref, index),
                     onTap: () {
                       // Show the edit item dialog
