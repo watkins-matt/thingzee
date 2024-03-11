@@ -358,6 +358,7 @@ class TargetReceiptParser extends GenericReceiptParser {
     }
   }
 
+  @override
   bool validateBarcode(String barcode) {
     int digitCount = barcode.replaceAll(RegExp(r'[^0-9]'), '').length;
     return digitCount == barcode.length && barcode.length == 9;
