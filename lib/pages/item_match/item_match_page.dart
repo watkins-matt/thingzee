@@ -37,6 +37,8 @@ class ItemMatchPage extends ConsumerStatefulWidget {
 
 class _ItemMatchPageState extends ConsumerState<ItemMatchPage> {
   late TextEditingController _controller;
+  late FocusNode _focusNode;
+  final DraggableBottomSheetController _bottomSheetController = DraggableBottomSheetController();
   String searchQuery = '';
 
   void addNewItemFromWeb(BuildContext context) {
@@ -68,7 +70,7 @@ class _ItemMatchPageState extends ConsumerState<ItemMatchPage> {
         ],
       ),
       body: buildBody(context),
-      bottomSheet: DraggableBottomSheet(child: buildWebView()),
+      bottomSheet: DraggableBottomSheet(controller: _bottomSheetController, child: buildWebView()),
     );
   }
 
@@ -85,6 +87,7 @@ class _ItemMatchPageState extends ConsumerState<ItemMatchPage> {
             padding: const EdgeInsets.all(10),
             child: TextField(
               controller: _controller,
+              focusNode: _focusNode,
               onChanged: (value) {
                 setState(() {
                   searchQuery = value;
@@ -134,6 +137,13 @@ class _ItemMatchPageState extends ConsumerState<ItemMatchPage> {
     );
   }
 
+  @override
+  void dispose() {
+    _controller.dispose();
+    _focusNode.dispose();
+    super.dispose();
+  }
+
   void handleAddNewAction(BuildContext context, String? action) {
     switch (action) {
       case 'web':
@@ -175,6 +185,19 @@ class _ItemMatchPageState extends ConsumerState<ItemMatchPage> {
   void initState() {
     super.initState();
     _controller = TextEditingController();
+    _focusNode = FocusNode(); // Initialize the FocusNode
+
+    // Listen for focus changes
+    _focusNode.addListener(() {
+      if (_focusNode.hasFocus) {
+        _controller.selection = TextSelection(
+          baseOffset: 0,
+          extentOffset: _controller.text.length,
+        );
+
+        _bottomSheetController.collapse();
+      }
+    });
 
     // Schedule a microtask to perform initial search after the build phase.
     WidgetsBinding.instance.addPostFrameCallback((_) {

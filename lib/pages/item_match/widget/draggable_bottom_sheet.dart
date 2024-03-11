@@ -2,10 +2,28 @@ import 'package:flutter/material.dart';
 
 class DraggableBottomSheet extends StatefulWidget {
   final Widget child;
-  const DraggableBottomSheet({super.key, required this.child});
+  final DraggableBottomSheetController? controller;
+
+  const DraggableBottomSheet({
+    super.key,
+    required this.child,
+    this.controller,
+  });
 
   @override
   State<DraggableBottomSheet> createState() => _DraggableBottomSheetState();
+}
+
+class DraggableBottomSheetController {
+  ValueNotifier<bool> isExpanded = ValueNotifier(false);
+
+  void collapse() {
+    isExpanded.value = false;
+  }
+
+  void expand() {
+    isExpanded.value = true;
+  }
 }
 
 class _DraggableBottomSheetState extends State<DraggableBottomSheet> {
@@ -81,10 +99,33 @@ class _DraggableBottomSheetState extends State<DraggableBottomSheet> {
     );
   }
 
+  @override
+  void dispose() {
+    widget.controller?.isExpanded.removeListener(_handleControllerChange);
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    widget.controller?.isExpanded.addListener(_handleControllerChange);
+  }
+
+  void _handleControllerChange() {
+    setState(() {
+      _bottomSheetHeight =
+          widget.controller?.isExpanded.value == true ? _bottomSheetHeight : grabberHeight;
+    });
+  }
+
   void _onVerticalDragEnd(DragEndDetails details) {
     if (_bottomSheetHeight < MediaQuery.of(context).size.height * 0.2) {
       setState(() {
         _bottomSheetHeight = grabberHeight;
+
+        if (widget.controller != null) {
+          widget.controller!.isExpanded.value = false;
+        }
       });
     }
   }
@@ -99,6 +140,10 @@ class _DraggableBottomSheetState extends State<DraggableBottomSheet> {
     setState(() {
       double newHeight = _currentSheetHeight - dragDistance;
       _bottomSheetHeight = newHeight.clamp(minSheetHeight, _maxSheetHeight);
+
+      if (widget.controller != null && _bottomSheetHeight > grabberHeight) {
+        widget.controller!.isExpanded.value = true;
+      }
     });
   }
 }
