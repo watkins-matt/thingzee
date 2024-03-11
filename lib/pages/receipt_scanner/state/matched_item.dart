@@ -67,7 +67,8 @@ class MatchedItemsNotifier extends StateNotifier<List<MatchedItem>> {
         HistoryProvider().updateHistory(newHistory);
 
         // If we have a confirmed item and the barcode type is not UPC, add the identifier
-        if (matchedItem.status == 'Confirmed' && receipt.barcodeType != IdentifierType.upc) {
+        if (matchedItem.status.startsWith('Confirmed') &&
+            receipt.barcodeType != IdentifierType.upc) {
           final identifierType = receipt.barcodeType;
           final identifier = Identifier(
             type: identifierType,
