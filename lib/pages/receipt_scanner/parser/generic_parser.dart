@@ -36,6 +36,20 @@ class GenericReceiptParser extends ReceiptParser {
     _queuePrice.clear();
   }
 
+  /// Returns the index of the last item in the list that does not
+  /// have a bottle deposit. This is necessary because in some receipts,
+  /// the bottle deposits are not always listed directly after the item, but
+  /// as a sequence of bottle deposits after all the items requiring deposits.
+  int getLastWithoutBottleDeposit() {
+    for (int i = _items.length - 1; i >= 0; i--) {
+      if (_items[i].bottleDeposit == 0) {
+        return i;
+      }
+    }
+
+    return -1;
+  }
+
   @override
   String getSearchUrl(String barcode) => 'https://www.google.com/search?q=$barcode';
 
@@ -88,9 +102,13 @@ class GenericReceiptParser extends ReceiptParser {
 
         // Handle lines specifically for bottle deposits
         if (isBottleDeposit(price!) && _items.isNotEmpty) {
-          _items.last = _items.last.copyWith(
-            bottleDeposit: price,
-          );
+          int lastItem = getLastWithoutBottleDeposit();
+          if (lastItem != -1) {
+            _items[lastItem] = _items[lastItem].copyWith(
+              bottleDeposit: price,
+            );
+          }
+
           continue;
         }
 
@@ -145,9 +163,13 @@ class GenericReceiptParser extends ReceiptParser {
 
         // Handle lines specifically for bottle deposits
         if (isBottleDeposit(price) && _items.isNotEmpty) {
-          _items.last = _items.last.copyWith(
-            bottleDeposit: price,
-          );
+          int lastItem = getLastWithoutBottleDeposit();
+          if (lastItem != -1) {
+            _items[lastItem] = _items[lastItem].copyWith(
+              bottleDeposit: price,
+            );
+          }
+
           continue;
         }
 
@@ -174,9 +196,13 @@ class GenericReceiptParser extends ReceiptParser {
 
           // Handle lines specifically for bottle deposits
           if (isBottleDeposit(price) && _items.isNotEmpty) {
-            _items.last = _items.last.copyWith(
-              bottleDeposit: price,
-            );
+            int lastItem = getLastWithoutBottleDeposit();
+            if (lastItem != -1) {
+              _items[lastItem] = _items[lastItem].copyWith(
+                bottleDeposit: price,
+              );
+            }
+
             continue;
           }
 
