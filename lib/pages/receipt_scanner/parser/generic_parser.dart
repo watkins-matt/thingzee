@@ -39,6 +39,8 @@ class GenericReceiptParser extends ReceiptParser {
   @override
   String getSearchUrl(String barcode) => 'https://www.google.com/search?q=$barcode';
 
+  bool isBottleDeposit(double price) => price == 0.05 || price == 0.10 || price == 0.15;
+
   @override
   void parse(String text) {
     clearQueues();
@@ -84,10 +86,18 @@ class GenericReceiptParser extends ReceiptParser {
         final itemText = result.text;
         final price = result.price;
 
+        // Handle lines specifically for bottle deposits
+        if (isBottleDeposit(price!) && _items.isNotEmpty) {
+          _items.last = _items.last.copyWith(
+            bottleDeposit: price,
+          );
+          continue;
+        }
+
         ReceiptItem item = ReceiptItem(
           barcode: barcode!,
           name: itemText!,
-          price: price!,
+          price: price,
         );
 
         _items.add(item);
@@ -131,12 +141,20 @@ class GenericReceiptParser extends ReceiptParser {
           _queuePrice.isNotEmpty) {
         final barcode = _queueBarcode.removeAt(0);
         final itemText = _queueItemText.removeAt(0);
-        final price = _queuePrice.removeAt(0);
+        final price = double.tryParse(_queuePrice.removeAt(0)) ?? 0;
+
+        // Handle lines specifically for bottle deposits
+        if (isBottleDeposit(price) && _items.isNotEmpty) {
+          _items.last = _items.last.copyWith(
+            bottleDeposit: price,
+          );
+          continue;
+        }
 
         ReceiptItem item = ReceiptItem(
           barcode: barcode,
           name: itemText,
-          price: double.parse(price),
+          price: price,
         );
 
         _items.add(item);
@@ -152,11 +170,19 @@ class GenericReceiptParser extends ReceiptParser {
       if (_queueItemText.isNotEmpty && _queuePrice.isNotEmpty) {
         for (int i = 0; i < _queueItemText.length; i++) {
           final itemText = _queueItemText[i];
-          final price = _queuePrice[i];
+          final price = double.tryParse(_queuePrice[i]) ?? 0;
+
+          // Handle lines specifically for bottle deposits
+          if (isBottleDeposit(price) && _items.isNotEmpty) {
+            _items.last = _items.last.copyWith(
+              bottleDeposit: price,
+            );
+            continue;
+          }
 
           ReceiptItem item = ReceiptItem(
             name: itemText,
-            price: double.parse(price),
+            price: price,
           );
 
           _items.add(item);
@@ -174,7 +200,7 @@ class GenericReceiptParser extends ReceiptParser {
     final barcode = parsedBarcode is Success ? parsedBarcode.value : null;
     final itemText = parsedItemText is Success ? parsedItemText.value : null;
     final price = parsedPrice is Success && parsedPrice.value.isNotEmpty
-        ? double.parse(parsedPrice.value)
+        ? double.tryParse(parsedPrice.value) ?? 0
         : null;
 
     // Set count to 0 if any of the values are null, otherwise increment it
