@@ -115,6 +115,8 @@ class _ItemMatchPageState extends ConsumerState<ItemMatchPage> {
                     children: [
                       ListTile(
                         title: Text(item.name, style: theme.textTheme.titleMedium),
+                        subtitle:
+                            item.unitCount != 1 ? Text('Unit Count: ${item.unitCount}') : null,
                         onTap: () {
                           Navigator.of(context).pop(item);
                         },
