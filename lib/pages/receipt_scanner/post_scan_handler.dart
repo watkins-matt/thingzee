@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:thingzee/pages/receipt_scanner/parser/generic_parser.dart';
 import 'package:thingzee/pages/receipt_scanner/parser/parser.dart';
 import 'package:thingzee/pages/receipt_scanner/parser/stores/target.dart';
 import 'package:thingzee/pages/receipt_scanner/receipt_detail_page.dart';
@@ -31,6 +32,7 @@ class ParsingPostScanHandler extends PostScanHandler {
 
 abstract class PostScanHandler {
   ReceiptParser? parser;
+  ReceiptParser defaultParser = GenericReceiptParser();
   PostScanHandler([this.parser]);
 
   void handleScannedText(BuildContext context, WidgetRef ref, String text);
@@ -40,6 +42,6 @@ abstract class PostScanHandler {
       return parser!;
     }
 
-    return TargetReceiptParser();
+    return defaultParser;
   }
 }

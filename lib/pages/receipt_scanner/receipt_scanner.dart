@@ -3,16 +3,28 @@ import 'package:flutter/material.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:log/log.dart';
+import 'package:thingzee/extension/string.dart';
+import 'package:thingzee/pages/receipt_scanner/parser/generic_parser.dart';
+import 'package:thingzee/pages/receipt_scanner/parser/stores/target.dart';
 import 'package:thingzee/pages/receipt_scanner/post_scan_handler.dart';
 import 'package:thingzee/pages/receipt_scanner/state/camera_state.dart';
 import 'package:thingzee/pages/receipt_scanner/text_merge_strategy.dart';
 
-class ReceiptScannerPage extends ConsumerWidget {
+enum ParserType { generic, target }
+
+class ReceiptScannerPage extends ConsumerStatefulWidget {
   final PostScanHandler postScanHandler;
   const ReceiptScannerPage({super.key, required this.postScanHandler});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ReceiptScannerPage> createState() => _ReceiptScannerPageState();
+}
+
+class _ReceiptScannerPageState extends ConsumerState<ReceiptScannerPage> {
+  ParserType selectedParser = ParserType.generic;
+
+  @override
+  Widget build(BuildContext context) {
     return ref.watch(cameraControllerProvider).when(
           loading: () => Scaffold(
             appBar: AppBar(title: const Text('Receipt Scanner')),
@@ -24,7 +36,12 @@ class ReceiptScannerPage extends ConsumerWidget {
           ),
           data: (controller) {
             return Scaffold(
-              appBar: AppBar(title: const Text('Receipt Scanner')),
+              appBar: AppBar(
+                title: const Text('Receipt Scanner'),
+                actions: [
+                  _buildParserDropdown(),
+                ],
+              ),
               body: Stack(
                 fit: StackFit.expand,
                 children: [
@@ -44,6 +61,31 @@ class ReceiptScannerPage extends ConsumerWidget {
             );
           },
         );
+  }
+
+  Widget _buildParserDropdown() {
+    return DropdownButton<ParserType>(
+      value: selectedParser,
+      onChanged: (ParserType? newValue) {
+        setState(() {
+          selectedParser = newValue!;
+          switch (newValue) {
+            case ParserType.generic:
+              widget.postScanHandler.defaultParser = GenericReceiptParser();
+              break;
+            case ParserType.target:
+              widget.postScanHandler.defaultParser = TargetReceiptParser();
+              break;
+          }
+        });
+      },
+      items: ParserType.values.map((ParserType type) {
+        return DropdownMenuItem<ParserType>(
+          value: type,
+          child: Text(type.toString().split('.').last.titleCase),
+        );
+      }).toList(),
+    );
   }
 
   Future<String> _recognizeAndMergeText(RecognizedText recognizedText, Size size) async {
@@ -71,7 +113,7 @@ class ReceiptScannerPage extends ConsumerWidget {
       final String text = await _recognizeText(ref, image);
 
       if (context.mounted) {
-        postScanHandler.handleScannedText(context, ref, text);
+        widget.postScanHandler.handleScannedText(context, ref, text);
       }
     } catch (e) {
       Log.e(e);
