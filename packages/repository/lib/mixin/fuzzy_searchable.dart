@@ -1,4 +1,5 @@
 import 'package:fuzzy/fuzzy.dart';
+import 'package:log/log.dart';
 import 'package:repository/model/abstract/nameable.dart';
 
 mixin FuzzySearchable<T extends Nameable> {
@@ -27,20 +28,14 @@ mixin FuzzySearchable<T extends Nameable> {
     // Perform the search.
     final result = fuzzy.search(query);
 
-    // Prepare a map for quick lookup from item name to a list of items.
-    Map<String, List<T>> nameToItemsMap = {};
-    for (final item in allItems) {
-      nameToItemsMap.putIfAbsent(item.name, () => []).add(item);
-    }
-
-    // Map the results back to items using the item name for lookup.
     List<T> matchedItems = [];
-    for (final r in result) {
-      String matchedName = r.item; // The matched item name.
-      // Check if the matched name exists in the map and add all corresponding items to the results.
-      List<T>? items = nameToItemsMap[matchedName];
-      if (items != null) {
-        matchedItems.addAll(items);
+    for (final item in result) {
+      final index = item.matches.first.arrayIndex;
+
+      if (index < allItems.length) {
+        matchedItems.add(allItems[index]);
+      } else {
+        Log.w('fuzzySearch: Index out of bounds: $index, length: ${allItems.length}');
       }
     }
 
