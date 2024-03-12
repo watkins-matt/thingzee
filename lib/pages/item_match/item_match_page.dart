@@ -85,23 +85,41 @@ class _ItemMatchPageState extends ConsumerState<ItemMatchPage> {
         children: [
           Container(
             padding: const EdgeInsets.all(10),
-            child: TextField(
-              controller: _controller,
-              focusNode: _focusNode,
-              onChanged: (value) {
-                setState(() {
-                  searchQuery = value;
-                });
-                ref.read(itemViewProvider.notifier).fuzzySearch(value);
-              },
-              decoration: InputDecoration(
-                labelText: 'Search',
-                hintText: 'Type to search items',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(30)),
-                prefixIcon: Icon(Icons.search, color: theme.iconTheme.color),
-                filled: true,
-                fillColor: theme.inputDecorationTheme.fillColor ?? theme.canvasColor,
-              ),
+            child: Stack(
+              alignment: Alignment.centerRight,
+              children: [
+                TextField(
+                  controller: _controller,
+                  focusNode: _focusNode,
+                  onChanged: (value) {
+                    setState(() {
+                      searchQuery = value;
+                    });
+                    ref.read(itemViewProvider.notifier).fuzzySearch(value);
+                  },
+                  decoration: InputDecoration(
+                    labelText: 'Search',
+                    hintText: 'Type to search items',
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(30)),
+                    prefixIcon: Icon(Icons.search, color: theme.iconTheme.color),
+                    filled: true,
+                    fillColor: theme.inputDecorationTheme.fillColor ?? theme.canvasColor,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(right: 4),
+                  child: IconButton(
+                    icon: const Icon(Icons.clear),
+                    onPressed: () {
+                      setState(() {
+                        _controller.clear();
+                        searchQuery = '';
+                      });
+                      ref.read(itemViewProvider.notifier).fuzzySearch('');
+                    },
+                  ),
+                ),
+              ],
             ),
           ),
           Expanded(
@@ -187,7 +205,7 @@ class _ItemMatchPageState extends ConsumerState<ItemMatchPage> {
   void initState() {
     super.initState();
     _controller = TextEditingController();
-    _focusNode = FocusNode(); // Initialize the FocusNode
+    _focusNode = FocusNode();
 
     // Listen for focus changes
     _focusNode.addListener(() {
