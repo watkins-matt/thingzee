@@ -18,8 +18,10 @@ mixin FuzzySearchable<T extends Nameable> {
 
     final options = FuzzyOptions(
       findAllMatches: true,
-      threshold: 0.3,
+      threshold: 0.1,
       isCaseSensitive: false,
+      tokenize: true,
+      maxPatternLength: 64,
     );
 
     // Initialize Fuzzy with the list of item names.
