@@ -51,7 +51,7 @@ Parser<double> targetBottleDepositFeeParser() {
           string('Fee') &
           whitespace().star() &
           priceParser())
-      .map((values) => double.parse(values[6] as String));
+      .map((values) => double.tryParse(values[6] as String) ?? 0.0);
 }
 
 // Parses "5 @ $10.99 ea" lines
@@ -77,7 +77,7 @@ Parser<double> targetRegularPriceParser() {
           string('Price') &
           whitespace().star() &
           priceParser())
-      .map((values) => double.parse(values[4] as String));
+      .map((values) => double.tryParse(values[4] as String) ?? 0.0);
 }
 
 typedef TargetQuantityParseResult = ({int quantity, double price});
