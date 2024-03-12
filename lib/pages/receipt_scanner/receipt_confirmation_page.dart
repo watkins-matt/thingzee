@@ -8,6 +8,7 @@ import 'package:thingzee/main.dart';
 import 'package:thingzee/pages/bottom_nav_bar/state/bottom_nav_state.dart';
 import 'package:thingzee/pages/inventory/state/inventory_view.dart';
 import 'package:thingzee/pages/item_match/item_match_page.dart';
+import 'package:thingzee/pages/item_match/state/matched_item_cache.dart';
 import 'package:thingzee/pages/receipt_scanner/parser/parser.dart';
 import 'package:thingzee/pages/receipt_scanner/state/matched_item.dart';
 
@@ -117,13 +118,17 @@ class _ReceiptConfirmationPageState extends ConsumerState<ReceiptConfirmationPag
   }
 
   Future<void> onItemTapped(ReceiptItem item, int index) async {
-    final result = await ItemMatchPage.push(context, item,
+    final matchedItem = await ItemMatchPage.push(context, item,
         widget.parser.getSearchUrl(item.barcode.isNotEmpty ? item.barcode : item.name));
 
-    if (result != null) {
+    if (matchedItem != null) {
       ref
           .read(matchedItemsProvider(widget.receipt.items).notifier)
-          .updateStatus(index, 'Confirmed ${result.name}', matchedItem: result);
+          .updateStatus(index, 'Confirmed ${matchedItem.name}', matchedItem: matchedItem);
+
+      // Store this match in the cache, so that if the user comes back
+      // to this page, the match will be remembered.
+      ref.read(matchedItemCacheProvider.notifier).put(item.barcode, matchedItem.upc);
     }
   }
 
@@ -158,6 +163,20 @@ class _ReceiptConfirmationPageState extends ConsumerState<ReceiptConfirmationPag
 
       // Another barcode type, check the identifier database
       else if (receiptItem.barcode.isNotEmpty) {
+        // First check the cache
+        final cache = ref.read(matchedItemCacheProvider.notifier);
+        final cachedMatch = cache.get(receiptItem.barcode);
+
+        // We found a match in the cache
+        if (cachedMatch != null) {
+          final item = itemDb.get(cachedMatch);
+          if (item != null) {
+            matchedItemsNotifier.updateStatus(i, 'Confirmed ${item.name}', matchedItem: item);
+            continue;
+          }
+        }
+
+        // No cached match, check the identifier database
         final identifierDb = ref.read(repositoryProvider).identifiers;
         final barcodeType = widget.receipt.barcodeType;
         final uid = identifierDb.getUidFromType(barcodeType, receiptItem.barcode);
