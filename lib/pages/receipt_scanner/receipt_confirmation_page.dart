@@ -72,6 +72,7 @@ class _ReceiptConfirmationPageState extends ConsumerState<ReceiptConfirmationPag
                           : Colors.red),
             ),
             onTap: () async => await onItemTapped(item, index),
+            onLongPress: () async => await onItemLongPress(item, index),
           );
         },
       ),
@@ -115,6 +116,10 @@ class _ReceiptConfirmationPageState extends ConsumerState<ReceiptConfirmationPag
     }
 
     return true;
+  }
+
+  Future<void> onItemLongPress(ReceiptItem item, int index) async {
+    ref.read(matchedItemsProvider(widget.receipt.items).notifier).clearStatus(index);
   }
 
   Future<void> onItemTapped(ReceiptItem item, int index) async {
