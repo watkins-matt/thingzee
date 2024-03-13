@@ -65,7 +65,7 @@ class _ItemMatchPageState extends ConsumerState<ItemMatchPage> {
               'web': 'From Web',
               'scan': 'By Scanning Barcode',
             },
-            onSelected: (string) => handleAddNewAction(context, string),
+            onSelected: (string) => onAddNewItemSelected(context, string),
           ),
         ],
       ),
@@ -91,12 +91,7 @@ class _ItemMatchPageState extends ConsumerState<ItemMatchPage> {
                 TextField(
                   controller: _controller,
                   focusNode: _focusNode,
-                  onChanged: (value) {
-                    setState(() {
-                      searchQuery = value;
-                    });
-                    ref.read(itemViewProvider.notifier).fuzzySearch(value);
-                  },
+                  onChanged: onSearchTextChanged,
                   decoration: InputDecoration(
                     labelText: 'Search',
                     hintText: 'Type to search items',
@@ -110,13 +105,7 @@ class _ItemMatchPageState extends ConsumerState<ItemMatchPage> {
                   padding: const EdgeInsets.only(right: 4),
                   child: IconButton(
                     icon: const Icon(Icons.clear),
-                    onPressed: () {
-                      setState(() {
-                        _controller.clear();
-                        searchQuery = '';
-                      });
-                      ref.read(itemViewProvider.notifier).fuzzySearch('');
-                    },
+                    onPressed: onClearButtonPressed,
                   ),
                 ),
               ],
@@ -162,19 +151,6 @@ class _ItemMatchPageState extends ConsumerState<ItemMatchPage> {
     _controller.dispose();
     _focusNode.dispose();
     super.dispose();
-  }
-
-  void handleAddNewAction(BuildContext context, String? action) {
-    switch (action) {
-      case 'web':
-        addNewItemFromWeb(context);
-        break;
-      // case 'scan':
-      //   addNewItemByScanning(context);
-      //   break;
-      default:
-        Log.e('Unknown action: $action');
-    }
   }
 
   void initializeSearchQuery() {
@@ -223,5 +199,34 @@ class _ItemMatchPageState extends ConsumerState<ItemMatchPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       initializeSearchQuery();
     });
+  }
+
+  void onAddNewItemSelected(BuildContext context, String? action) {
+    switch (action) {
+      case 'web':
+        addNewItemFromWeb(context);
+        break;
+      // case 'scan':
+      //   addNewItemByScanning(context);
+      //   break;
+      default:
+        Log.e('Unknown action: $action');
+    }
+  }
+
+  void onClearButtonPressed() {
+    setState(() {
+      _controller.clear();
+      searchQuery = '';
+      _focusNode.requestFocus();
+    });
+    ref.read(itemViewProvider.notifier).fuzzySearch('');
+  }
+
+  void onSearchTextChanged(String value) {
+    setState(() {
+      searchQuery = value;
+    });
+    ref.read(itemViewProvider.notifier).fuzzySearch(value);
   }
 }
