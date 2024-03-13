@@ -82,6 +82,13 @@ class MatchedItemsNotifier extends StateNotifier<List<MatchedItem>> {
     }
   }
 
+  void clearStatus(int index) {
+    var currentMatchedItem = state[index];
+    currentMatchedItem.status = 'No Match';
+    currentMatchedItem.match = null;
+    state = [...state];
+  }
+
   void updateStatus(int index, String newStatus, {Item? matchedItem}) {
     var currentMatchedItem = state[index];
 
