@@ -10,7 +10,9 @@ import 'package:repository/ml/history_provider.dart';
 import 'package:repository/ml/regressor.dart';
 import 'package:repository/model/abstract/model.dart';
 import 'package:repository/model/serializer_datetime.dart';
+import 'package:repository/util/hash.dart';
 import 'package:stats/double.dart';
+import 'package:uuid/uuid.dart';
 
 part 'inventory.g.dart';
 part 'inventory.merge.dart';
@@ -34,10 +36,12 @@ class Inventory extends Model<Inventory> {
     this.locations = const <String>[],
     this.restock = true,
     this.upc = '',
-    this.uid = '',
+    String? uid,
     super.created,
     super.updated,
-  });
+  }) : uid = uid != null && uid.isNotEmpty
+            ? uid
+            : (upc.isNotEmpty ? hashBarcode(upc) : const Uuid().v4());
 
   factory Inventory.fromJson(Map<String, dynamic> json) => _$InventoryFromJson(json);
 
@@ -183,7 +187,9 @@ class Inventory extends Model<Inventory> {
       locations: locations ?? this.locations,
       restock: restock ?? this.restock,
       upc: upc ?? this.upc,
-      uid: uid ?? this.uid,
+      uid: uid != null && uid.isNotEmpty
+          ? uid
+          : (upc != null && upc.isNotEmpty ? hashBarcode(upc) : this.uid),
       created: created ?? this.created,
       updated: updated ?? this.updated,
     );

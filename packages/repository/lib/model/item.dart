@@ -5,6 +5,8 @@ import 'package:repository/merge_generator.dart';
 import 'package:repository/model/abstract/model.dart';
 import 'package:repository/model/abstract/nameable.dart';
 import 'package:repository/model/serializer_datetime.dart';
+import 'package:repository/util/hash.dart';
+import 'package:uuid/uuid.dart';
 
 part 'item.g.dart';
 part 'item.merge.dart';
@@ -31,23 +33,25 @@ class Item extends Model<Item> implements Comparable<Item>, Nameable {
   final bool consumable;
   final String languageCode;
 
-  Item({
-    this.upc = '',
-    this.uid = '',
-    this.name = '',
-    this.variety = '',
-    this.category = '',
-    this.type = '',
-    this.typeId = '',
-    this.unitCount = 1,
-    this.unitName = '',
-    this.unitPlural = '',
-    this.imageUrl = '',
-    this.consumable = true,
-    this.languageCode = 'en',
-    super.created,
-    super.updated,
-  });
+  Item(
+      {this.upc = '',
+      String? uid,
+      this.name = '',
+      this.variety = '',
+      this.category = '',
+      this.type = '',
+      this.typeId = '',
+      this.unitCount = 1,
+      this.unitName = '',
+      this.unitPlural = '',
+      this.imageUrl = '',
+      this.consumable = true,
+      this.languageCode = 'en',
+      super.created,
+      super.updated})
+      : uid = uid != null && uid.isNotEmpty
+            ? uid
+            : (upc.isNotEmpty ? hashBarcode(upc) : const Uuid().v4());
 
   factory Item.fromJson(Map<String, dynamic> json) => _$ItemFromJson(json);
 
@@ -79,7 +83,9 @@ class Item extends Model<Item> implements Comparable<Item>, Nameable {
   }) {
     return Item(
       upc: upc ?? this.upc,
-      uid: uid ?? this.uid,
+      uid: uid != null && uid.isNotEmpty
+          ? uid
+          : (upc != null && upc.isNotEmpty ? hashBarcode(upc) : this.uid),
       name: name ?? this.name,
       variety: variety ?? this.variety,
       category: category ?? this.category,

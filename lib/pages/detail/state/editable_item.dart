@@ -7,9 +7,7 @@ import 'package:repository/model/identifier.dart';
 import 'package:repository/model/inventory.dart';
 import 'package:repository/model/item.dart';
 import 'package:repository/repository.dart';
-import 'package:repository/util/hash.dart';
 import 'package:stats/double.dart';
-import 'package:uuid/uuid.dart';
 
 final editableItemProvider = StateNotifierProvider<EditableItem, EditableItemState>((ref) {
   return EditableItem();
@@ -179,16 +177,11 @@ class EditableItem extends StateNotifier<EditableItemState> {
   void init(Item item, Inventory inv, [Map<String, String> identifiers = const {}]) {
     assert(item.upc == inv.upc);
     assert(item.upc == inv.history.upc);
+    assert(item.uid.isNotEmpty);
 
     // Upc is modified by properties instead of the identifiers map
     if (identifiers.containsKey(IdentifierType.upc)) {
       identifiers.remove(IdentifierType.upc);
-    }
-
-    // If the item is missing a uid, generate one
-    if (item.uid.isEmpty) {
-      var itemUid = item.upc.isNotEmpty ? hashBarcode(item.upc) : const Uuid().v4();
-      item = item.copyWith(uid: itemUid);
     }
 
     // The inventory should point to the same uid as the item
