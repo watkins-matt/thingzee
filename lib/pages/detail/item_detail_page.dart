@@ -3,6 +3,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:log/log.dart';
 import 'package:repository/database/joined_item_database.dart';
+import 'package:repository/extension/uuid.dart';
 import 'package:repository/model/inventory.dart';
 import 'package:repository/model/item.dart';
 import 'package:repository/model/location.dart';
@@ -244,7 +245,12 @@ class ItemDetailPage extends HookConsumerWidget {
                       actionButton: IconButton(
                           onPressed: () async => await onAddIdentifierButtonPressed(context, ref),
                           icon: const Icon(Icons.add, color: Colors.blue))),
-                  LabeledText(labelText: 'UID', value: editableItem.uid),
+                  LabeledText(
+                    labelText: 'UID',
+                    value: editableItem.uid.abbreviatedUuid,
+                    valueTextStyle: const TextStyle(
+                        fontStyle: FontStyle.normal, fontSize: 16, color: Colors.blue),
+                  ),
                   LabeledEditableText(
                     labelText: 'UPC',
                     keyboardType: TextInputType.number,
@@ -254,11 +260,6 @@ class ItemDetailPage extends HookConsumerWidget {
                     },
                   ),
                   ...identifierWidgets,
-                  // ChoiceBoxEditableText(
-                  //     choices: const ['UPC', 'EAN'],
-                  //     keyboardType: TextInputType.number,
-                  //     controller: useTextEditingController(),
-                  //     onChanged: (value) {}),
                 ]),
                 const SizedBox(
                   height: 8,
