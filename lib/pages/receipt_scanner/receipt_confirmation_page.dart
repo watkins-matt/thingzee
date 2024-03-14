@@ -113,6 +113,12 @@ class _ReceiptConfirmationPageState extends ConsumerState<ReceiptConfirmationPag
 
       // Switch back to the inventory view tab
       ref.read(bottomNavBarIndexProvider.notifier).state = 0;
+
+      // Pop the receipt confirmation page
+      if (context.mounted) {
+        Navigator.pop(context);
+        Navigator.pop(context);
+      }
     }
 
     return true;
