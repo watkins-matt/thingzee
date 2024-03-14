@@ -35,6 +35,7 @@ class MatchedItemsNotifier extends StateNotifier<List<MatchedItem>> {
 
   void addItemsToInventory(Repository repo, Receipt receipt) {
     final time = receipt.date ?? DateTime.now();
+    bool addedAlready = false;
 
     for (final matchedItem in state) {
       final item = matchedItem.match;
@@ -43,8 +44,11 @@ class MatchedItemsNotifier extends StateNotifier<List<MatchedItem>> {
       if (item != null) {
         var inventory = repo.inv.get(item.upc);
 
-        // Increment the inventory if it exists
         if (inventory != null) {
+          // Check to see if we already added this inventory item to the
+          // history within the last 24 hours
+          addedAlready = wasInventoryAddedAlready(inventory, time);
+
           inventory = inventory.updateAmountToPredictionAtTimestamp(time.millisecondsSinceEpoch);
           inventory = inventory.copyWith(
             amount: inventory.amount + matchedItem.receiptItem.quantity,
@@ -61,12 +65,17 @@ class MatchedItemsNotifier extends StateNotifier<List<MatchedItem>> {
           );
         }
 
-        final newHistory = inventory.history.add(time.millisecondsSinceEpoch, inventory.amount, 2);
-        repo.inv.put(inventory);
-        repo.hist.put(newHistory);
-        HistoryProvider().updateHistory(newHistory);
+        // Only make changes to the inventory if we haven't added it already
+        if (!addedAlready) {
+          final newHistory =
+              inventory.history.add(time.millisecondsSinceEpoch, inventory.amount, 2);
+          repo.inv.put(inventory);
+          repo.hist.put(newHistory);
+          HistoryProvider().updateHistory(newHistory);
+        }
 
-        // If we have a confirmed item and the barcode type is not UPC, add the identifier
+        // If we have a confirmed item and the barcode type is not UPC,
+        // add the identifier
         if (matchedItem.status.startsWith('Confirmed') &&
             receipt.barcodeType != IdentifierType.upc) {
           final identifierType = receipt.barcodeType;
@@ -89,6 +98,10 @@ class MatchedItemsNotifier extends StateNotifier<List<MatchedItem>> {
     state = [...state];
   }
 
+  bool isWithinDuration(DateTime time, DateTime otherTime, Duration duration) {
+    return time.difference(otherTime).abs() <= duration;
+  }
+
   void updateStatus(int index, String newStatus, {Item? matchedItem}) {
     var currentMatchedItem = state[index];
 
@@ -100,5 +113,22 @@ class MatchedItemsNotifier extends StateNotifier<List<MatchedItem>> {
     }
 
     state = [...state];
+  }
+
+  /// Check to see if the inventory level was increased within 24 hours
+  bool wasInventoryAddedAlready(Inventory inventory, DateTime time) {
+    const timeFrame = Duration(days: 1);
+    final history = HistoryProvider().getHistory(inventory.upc);
+    final currentSeries = history.current;
+
+    for (final observation in currentSeries.observations) {
+      final observationTime = DateTime.fromMillisecondsSinceEpoch(observation.timestamp.round());
+
+      if (isWithinDuration(time, observationTime, timeFrame)) {
+        return true;
+      }
+    }
+
+    return false;
   }
 }
