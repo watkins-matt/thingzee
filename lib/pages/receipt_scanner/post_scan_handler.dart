@@ -7,7 +7,7 @@ import 'package:thingzee/pages/receipt_scanner/receipt_detail_page.dart';
 import 'package:thingzee/pages/receipt_scanner/widget/ocr_text_view.dart';
 
 class DebugPostScanHandler extends PostScanHandler {
-  DebugPostScanHandler([super.parser]);
+  DebugPostScanHandler({super.parser});
 
   @override
   void handleScannedText(BuildContext context, WidgetRef ref, String text) {
@@ -19,29 +19,18 @@ class DebugPostScanHandler extends PostScanHandler {
 }
 
 class ParsingPostScanHandler extends PostScanHandler {
-  ParsingPostScanHandler([super.parser]);
+  ParsingPostScanHandler({super.parser});
 
   @override
   void handleScannedText(BuildContext context, WidgetRef ref, String text) {
-    final parser = super._chooseParser(text);
     parser.parse(text);
-
     ReceiptDetailsPage.pushReplacement(context, ref, parser);
   }
 }
 
 abstract class PostScanHandler {
-  ReceiptParser? parser;
-  ReceiptParser defaultParser = GenericReceiptParser();
-  PostScanHandler([this.parser]);
+  ReceiptParser parser;
+  PostScanHandler({ReceiptParser? parser}) : parser = parser ?? GenericReceiptParser();
 
   void handleScannedText(BuildContext context, WidgetRef ref, String text);
-
-  ReceiptParser _chooseParser(String text) {
-    if (parser != null) {
-      return parser!;
-    }
-
-    return defaultParser;
-  }
 }
