@@ -224,10 +224,12 @@ class EditableItem extends StateNotifier<EditableItemState> {
       state.history = newHistory;
 
       repo.hist.put(newHistory);
-      HistoryProvider().updateHistory(newHistory);
+
+      bool historyDeleted = state.changedFields.contains('history');
+      HistoryProvider().updateHistory(newHistory, allowDataLoss: historyDeleted);
     }
 
-    // If we deleted history, we should still update it
+    // If we only deleted history, we should still update it
     else if (state.changedFields.contains('history')) {
       repo.hist.put(state.history);
       HistoryProvider().updateHistory(state.history, allowDataLoss: true);
