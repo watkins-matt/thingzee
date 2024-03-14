@@ -21,7 +21,7 @@ class ReceiptScannerPage extends ConsumerStatefulWidget {
 }
 
 class _ReceiptScannerPageState extends ConsumerState<ReceiptScannerPage> {
-  ParserType selectedParser = ParserType.generic;
+  late ParserType selectedParser;
 
   @override
   Widget build(BuildContext context) {
@@ -63,6 +63,16 @@ class _ReceiptScannerPageState extends ConsumerState<ReceiptScannerPage> {
         );
   }
 
+  @override
+  void initState() {
+    super.initState();
+
+    // Update the selected parser if the default parser is changed
+    selectedParser = widget.postScanHandler.parser is GenericReceiptParser
+        ? ParserType.generic
+        : ParserType.target;
+  }
+
   Widget _buildParserDropdown() {
     return DropdownButton<ParserType>(
       value: selectedParser,
@@ -71,10 +81,10 @@ class _ReceiptScannerPageState extends ConsumerState<ReceiptScannerPage> {
           selectedParser = newValue!;
           switch (newValue) {
             case ParserType.generic:
-              widget.postScanHandler.defaultParser = GenericReceiptParser();
+              widget.postScanHandler.parser = GenericReceiptParser();
               break;
             case ParserType.target:
-              widget.postScanHandler.defaultParser = TargetReceiptParser();
+              widget.postScanHandler.parser = TargetReceiptParser();
               break;
           }
         });

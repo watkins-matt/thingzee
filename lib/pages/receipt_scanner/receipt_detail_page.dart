@@ -252,7 +252,7 @@ class ReceiptDetailsPage extends ConsumerWidget {
       context,
       MaterialPageRoute(
         builder: (context) => ReceiptScannerPage(
-          postScanHandler: ParsingPostScanHandler(parser),
+          postScanHandler: ParsingPostScanHandler(parser: parser),
         ),
       ),
     );
