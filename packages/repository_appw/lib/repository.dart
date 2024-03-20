@@ -113,7 +113,7 @@ class AppwriteRepository extends CloudRepository {
 
       // If no valid session, then login
       if (_session == null) {
-        _session = await _account.createEmailSession(email: email, password: password);
+        _session = await _account.createEmailPasswordSession(email: email, password: password);
 
         await prefs.setString('appwrite_session_id', _session!.$id);
         await prefs.setString('appwrite_session_expire', _session!.expire);
