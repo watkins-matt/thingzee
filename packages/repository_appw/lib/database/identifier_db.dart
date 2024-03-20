@@ -18,8 +18,10 @@ class AppwriteIdentifierDatabase extends IdentifierDatabase
     String collectionId,
   ) : super() {
     constructDatabase(TAG, database, databaseId, collectionId);
-    constructSynchronizable(TAG, prefs, onConnectivityChange: () async {
-      await taskQueue.runUntilComplete();
+    constructSynchronizable(TAG, prefs, onConnectivityChange: (bool online) async {
+      if (online) {
+        await taskQueue.runUntilComplete();
+      }
     });
   }
 

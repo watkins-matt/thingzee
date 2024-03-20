@@ -10,13 +10,13 @@ mixin AppwriteSynchronizable<T> {
   String _userId = '';
   String _syncKey = '';
   String _tag = '';
-  Future<void> Function()? onConnectivityChange;
+  Future<void> Function(bool online)? onConnectivityChange;
 
   bool get online => _online;
   String get userId => _userId;
 
   void constructSynchronizable(String tag, Preferences prefs,
-      {Future<void> Function()? onConnectivityChange}) {
+      {Future<void> Function(bool online)? onConnectivityChange}) {
     this._tag = tag;
     this._syncKey = '$tag.lastSync';
     this._prefs = prefs;
@@ -43,7 +43,7 @@ mixin AppwriteSynchronizable<T> {
       _userId = session.userId;
 
       if (onConnectivityChange != null) {
-        await onConnectivityChange!();
+        await onConnectivityChange!(online);
       }
 
       await sync();
