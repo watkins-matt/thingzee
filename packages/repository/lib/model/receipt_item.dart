@@ -21,6 +21,7 @@ class ReceiptItem extends Model<ReceiptItem> {
   final String barcode;
   final bool taxable;
   final double bottleDeposit;
+  final String receiptUid;
 
   ReceiptItem({
     required this.name,
@@ -30,6 +31,7 @@ class ReceiptItem extends Model<ReceiptItem> {
     this.barcode = '',
     this.taxable = true,
     this.bottleDeposit = 0.0,
+    this.receiptUid = '',
     super.created,
     super.updated,
   });
@@ -52,6 +54,7 @@ class ReceiptItem extends Model<ReceiptItem> {
     double? bottleDeposit,
     DateTime? created,
     DateTime? updated,
+    String? receiptUid,
   }) {
     return ReceiptItem(
       name: name ?? this.name,
@@ -63,6 +66,7 @@ class ReceiptItem extends Model<ReceiptItem> {
       bottleDeposit: bottleDeposit ?? this.bottleDeposit,
       created: created ?? this.created,
       updated: updated ?? this.updated,
+      receiptUid: receiptUid ?? this.receiptUid,
     );
   }
 
@@ -74,7 +78,8 @@ class ReceiptItem extends Model<ReceiptItem> {
         regularPrice == other.regularPrice &&
         quantity == other.quantity &&
         taxable == other.taxable &&
-        bottleDeposit == other.bottleDeposit;
+        bottleDeposit == other.bottleDeposit &&
+        receiptUid == other.receiptUid;
   }
 
   @override

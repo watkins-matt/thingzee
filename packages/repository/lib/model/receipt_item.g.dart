@@ -14,6 +14,7 @@ ReceiptItem _$ReceiptItemFromJson(Map<String, dynamic> json) => ReceiptItem(
       barcode: json['barcode'] as String? ?? '',
       taxable: json['taxable'] as bool? ?? true,
       bottleDeposit: (json['bottleDeposit'] as num?)?.toDouble() ?? 0.0,
+      receiptUid: json['receiptUid'] as String? ?? '',
       created: _$JsonConverterFromJson<int, DateTime?>(
           json['created'], const NullableDateTimeSerializer().fromJson),
       updated: _$JsonConverterFromJson<int, DateTime?>(
@@ -31,6 +32,7 @@ Map<String, dynamic> _$ReceiptItemToJson(ReceiptItem instance) =>
       'barcode': instance.barcode,
       'taxable': instance.taxable,
       'bottleDeposit': instance.bottleDeposit,
+      'receiptUid': instance.receiptUid,
     };
 
 Value? _$JsonConverterFromJson<Json, Value>(
