@@ -6,7 +6,6 @@
     - serializer_datetime.dart
     - serializer_invitation_status.dart
     - filter.dart
-    - receipt.dart
     - nameable.dart
 - input:
     - ../../packages/repository/lib/model/

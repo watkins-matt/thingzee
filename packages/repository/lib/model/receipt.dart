@@ -17,7 +17,7 @@ part 'receipt.merge.dart';
 @Mergeable()
 class Receipt extends Model<Receipt> {
   @JsonKey(defaultValue: [])
-  final List<ReceiptItem> items;
+  final List<ReceiptItem> items; // generator:transient
 
   @JsonKey(defaultValue: null)
   final DateTime? date;

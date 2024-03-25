@@ -557,7 +557,7 @@
     },
     {
       "id": "32:2424801468099308795",
-      "lastPropertyId": "10:3283187960644019746",
+      "lastPropertyId": "11:3789302729946291262",
       "name": "ObjectBoxReceiptItem",
       "properties": [
         {
@@ -610,6 +610,11 @@
           "id": "10:3283187960644019746",
           "name": "updated",
           "type": 10
+        },
+        {
+          "id": "11:3789302729946291262",
+          "name": "receiptUid",
+          "type": 9
         }
       ],
       "relations": []
@@ -662,9 +667,68 @@
         }
       ],
       "relations": []
+    },
+    {
+      "id": "34:4842040687820616720",
+      "lastPropertyId": "10:6275782331319882540",
+      "name": "ObjectBoxReceipt",
+      "properties": [
+        {
+          "id": "1:379222046820891227",
+          "name": "objectBoxId",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:7091728040505849939",
+          "name": "created",
+          "type": 10
+        },
+        {
+          "id": "3:1636634476981007687",
+          "name": "updated",
+          "type": 10
+        },
+        {
+          "id": "4:9116542872001265340",
+          "name": "date",
+          "type": 10
+        },
+        {
+          "id": "5:8010882142712419719",
+          "name": "subtotal",
+          "type": 8
+        },
+        {
+          "id": "6:6884647754859486833",
+          "name": "discounts",
+          "type": 29
+        },
+        {
+          "id": "7:1692820663667485931",
+          "name": "tax",
+          "type": 8
+        },
+        {
+          "id": "8:6786393335707745360",
+          "name": "total",
+          "type": 8
+        },
+        {
+          "id": "9:8343660129430174024",
+          "name": "uid",
+          "type": 9
+        },
+        {
+          "id": "10:6275782331319882540",
+          "name": "barcodeType",
+          "type": 9
+        }
+      ],
+      "relations": []
     }
   ],
-  "lastEntityId": "33:2540654278505596072",
+  "lastEntityId": "34:4842040687820616720",
   "lastIndexId": "12:8681464753538219313",
   "lastRelationId": "0:0",
   "lastSequenceId": "0:0",

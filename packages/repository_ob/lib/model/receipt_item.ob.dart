@@ -20,6 +20,7 @@ class ObjectBoxReceiptItem extends ObjectBoxModel {
   late String barcode;
   late bool taxable;
   late double bottleDeposit;
+  late String receiptUid;
   ObjectBoxReceiptItem();
   ObjectBoxReceiptItem.from(ReceiptItem original) {
     created = original.created;
@@ -31,6 +32,7 @@ class ObjectBoxReceiptItem extends ObjectBoxModel {
     barcode = original.barcode;
     taxable = original.taxable;
     bottleDeposit = original.bottleDeposit;
+    receiptUid = original.receiptUid;
   }
   ReceiptItem toReceiptItem() {
     return ReceiptItem(
@@ -42,6 +44,7 @@ class ObjectBoxReceiptItem extends ObjectBoxModel {
         quantity: quantity,
         barcode: barcode,
         taxable: taxable,
-        bottleDeposit: bottleDeposit);
+        bottleDeposit: bottleDeposit,
+        receiptUid: receiptUid);
   }
 }
