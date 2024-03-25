@@ -38,7 +38,7 @@ class ReceiptDetailsPage extends ConsumerWidget {
             ),
           IconButton(
             icon: const Icon(Icons.help_outline),
-            onPressed: () => _showInfoDialog(context, receipt),
+            onPressed: () => _showInfoDialog(context, ref, receipt),
           ),
           IconButton(
             icon: const Icon(Icons.check, color: Colors.green),
@@ -206,16 +206,19 @@ class ReceiptDetailsPage extends ConsumerWidget {
     );
   }
 
-  TableRow _buildTableRow(String label, String value) {
+  TableRow _buildTableRow(String label, String value, {VoidCallback? onTap}) {
     return TableRow(
       children: [
         Padding(
           padding: const EdgeInsets.all(8),
           child: Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
         ),
-        Padding(
-          padding: const EdgeInsets.all(8),
-          child: Text(value),
+        InkWell(
+          onTap: onTap ?? () {},
+          child: Padding(
+            padding: const EdgeInsets.all(8),
+            child: Text(value),
+          ),
         ),
       ],
     );
@@ -245,6 +248,21 @@ class ReceiptDetailsPage extends ConsumerWidget {
         );
       },
     );
+  }
+
+  Future<void> _pickDate(BuildContext context, WidgetRef ref) async {
+    final receipt = ref.read(editableReceiptProvider);
+
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: receipt.date, // Set initial date from receipt data
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2050),
+    );
+    if (picked != null && picked != receipt.date) {
+      // Update receipt date and UI
+      ref.read(editableReceiptProvider.notifier).updateDate(picked);
+    }
   }
 
   Future<void> _scanAnotherPage(BuildContext context) async {
@@ -296,35 +314,39 @@ class ReceiptDetailsPage extends ConsumerWidget {
     );
   }
 
-  void _showInfoDialog(BuildContext context, Receipt receipt) {
-    final date = receipt.date ?? DateTime.now();
-
-    // Format the date to a more readable form
-    String formattedDate = DateFormat('MMM dd, yyyy hh:mm a').format(date);
-
+  void _showInfoDialog(BuildContext context, WidgetRef ref, Receipt receipt) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Receipt Information'),
           content: SingleChildScrollView(
-            child: Table(
-              // Define column widths for alignment
-              columnWidths: const {
-                0: IntrinsicColumnWidth(),
-                1: FlexColumnWidth(),
-              },
-              // Add a border to the table for better visual separation
-              border: TableBorder.all(color: Colors.grey, width: 0.5),
-              children: [
-                _buildTableRow('Date:', formattedDate),
-                _buildTableRow('Item Count:', '${receipt.items.length}'),
-                if (receipt.discounts.isNotEmpty)
-                  _buildTableRow('Discounts:', '\$${receipt.discounts.join(", ")}'),
-                _buildTableRow('Tax:', '${receipt.tax.toStringAsFixed(2)}%'),
-                _buildTableRow('Total:', '\$${receipt.total.toStringAsFixed(2)}'),
-              ],
-            ),
+            child: Consumer(builder: (context, ref, child) {
+              final date = ref.watch(editableReceiptProvider).date ?? DateTime.now();
+              final formattedDate = DateFormat('MMM dd, yyyy hh:mm a').format(date);
+
+              return Table(
+                // Define column widths for alignment
+                columnWidths: const {
+                  0: IntrinsicColumnWidth(),
+                  1: FlexColumnWidth(),
+                },
+                // Add a border to the table for better visual separation
+                border: TableBorder.all(color: Colors.grey, width: 0.5),
+                children: [
+                  _buildTableRow(
+                    'Date:',
+                    formattedDate,
+                    onTap: () async => await _pickDate(context, ref),
+                  ),
+                  _buildTableRow('Item Count:', '${receipt.items.length}'),
+                  if (receipt.discounts.isNotEmpty)
+                    _buildTableRow('Discounts:', '\$${receipt.discounts.join(", ")}'),
+                  _buildTableRow('Tax:', '${receipt.tax.toStringAsFixed(2)}%'),
+                  _buildTableRow('Total:', '\$${receipt.total.toStringAsFixed(2)}'),
+                ],
+              );
+            }),
           ),
           actions: <Widget>[
             TextButton(

@@ -32,6 +32,10 @@ class EditableReceipt extends StateNotifier<Receipt> {
     state = state.copyWith(items: newItems);
   }
 
+  void updateDate(DateTime newDate) {
+    state = state.copyWith(date: newDate);
+  }
+
   void updateItem(int index, ReceiptItem newItem) {
     state = state.copyAndReplaceItem(index, newItem);
   }
