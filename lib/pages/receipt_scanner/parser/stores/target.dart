@@ -65,7 +65,7 @@ Parser<TargetQuantityParseResult> targetQuantityParser() {
           string('ea'))
       .map((values) {
     final int quantity = int.parse(values[0] as String);
-    final double price = double.parse(values[4] as String);
+    final double price = double.tryParse(values[4] as String) ?? 0;
     return (quantity: quantity, price: price);
   });
 }
