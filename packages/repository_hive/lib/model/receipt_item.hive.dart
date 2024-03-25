@@ -26,6 +26,8 @@ class HiveReceiptItem extends HiveObject {
   late bool taxable;
   @HiveField(8)
   late double bottleDeposit;
+  @HiveField(9)
+  late String receiptUid;
   HiveReceiptItem();
   HiveReceiptItem.from(ReceiptItem original) {
     created = original.created;
@@ -37,6 +39,7 @@ class HiveReceiptItem extends HiveObject {
     barcode = original.barcode;
     taxable = original.taxable;
     bottleDeposit = original.bottleDeposit;
+    receiptUid = original.receiptUid;
   }
   ReceiptItem toReceiptItem() {
     return ReceiptItem(
@@ -48,6 +51,7 @@ class HiveReceiptItem extends HiveObject {
         quantity: quantity,
         barcode: barcode,
         taxable: taxable,
-        bottleDeposit: bottleDeposit);
+        bottleDeposit: bottleDeposit,
+        receiptUid: receiptUid);
   }
 }
