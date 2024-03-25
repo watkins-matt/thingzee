@@ -8,7 +8,7 @@ part of 'item.dart';
 
 Item _$ItemFromJson(Map<String, dynamic> json) => Item(
       upc: json['upc'] as String? ?? '',
-      uid: json['uid'] as String? ?? '',
+      uid: json['uid'] as String?,
       name: json['name'] as String? ?? '',
       variety: json['variety'] as String? ?? '',
       category: json['category'] as String? ?? '',

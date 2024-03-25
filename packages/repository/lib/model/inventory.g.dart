@@ -19,7 +19,7 @@ Inventory _$InventoryFromJson(Map<String, dynamic> json) => Inventory(
           const <String>[],
       restock: json['restock'] as bool? ?? true,
       upc: json['upc'] as String? ?? '',
-      uid: json['uid'] as String? ?? '',
+      uid: json['uid'] as String?,
       created: _$JsonConverterFromJson<int, DateTime?>(
           json['created'], const NullableDateTimeSerializer().fromJson),
       updated: _$JsonConverterFromJson<int, DateTime?>(
