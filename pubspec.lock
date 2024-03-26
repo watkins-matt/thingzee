@@ -29,10 +29,10 @@ packages:
     dependency: "direct main"
     description:
       name: appwrite
-      sha256: "335faac24642aaf66627c21ce26a5c64bcbc3911e624c61b9dfbe0eec7be1342"
+      sha256: "1a602cfc6122ec9f179403b44526ff60a6baac9a8f4e8578061fc5e85df67211"
       url: "https://pub.dev"
     source: hosted
-    version: "12.0.1"
+    version: "11.0.1"
   archive:
     dependency: "direct main"
     description:
@@ -540,18 +540,18 @@ packages:
     dependency: transitive
     description:
       name: flutter_web_auth_2
-      sha256: "3ea3a0cc539ca74319f4f2f7484f62742fe5b2ff9a0fca37575426d6e6f07901"
+      sha256: "0da41e631a368e02366fc1a9b79dd8da191e700a836878bc54466fff51c07df2"
       url: "https://pub.dev"
     source: hosted
-    version: "3.1.1"
+    version: "2.2.1"
   flutter_web_auth_2_platform_interface:
     dependency: transitive
     description:
       name: flutter_web_auth_2_platform_interface
-      sha256: e8669e262005a8354389ba2971f0fc1c36188481234ff50d013aaf993f30f739
+      sha256: f6fa7059ff3428c19cd756c02fef8eb0147131c7e64591f9060c90b5ab84f094
       url: "https://pub.dev"
     source: hosted
-    version: "3.1.0"
+    version: "2.1.4"
   flutter_web_plugins:
     dependency: transitive
     description: flutter

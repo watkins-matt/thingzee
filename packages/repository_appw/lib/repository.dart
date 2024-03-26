@@ -55,8 +55,18 @@ class AppwriteRepository extends CloudRepository {
     // Users will never become unverified, so only check once
     if (_verified) return true;
 
-    final userInfo = await _account.get();
-    _verified = userInfo.emailVerification;
+    try {
+      final userInfo = await _account.get();
+      _verified = userInfo.emailVerification;
+    } on AppwriteException catch (e) {
+      Log.e('AppwriteRepository: Failed to check verification status: [AppwriteException]',
+          e.message);
+      return false;
+    } on TypeError catch (e) {
+      Log.e('AppwriteRepository: Type error:', e);
+      return false;
+    }
+
     return _verified;
   }
 
@@ -113,7 +123,7 @@ class AppwriteRepository extends CloudRepository {
 
       // If no valid session, then login
       if (_session == null) {
-        _session = await _account.createEmailPasswordSession(email: email, password: password);
+        _session = await _account.createEmailSession(email: email, password: password);
 
         await prefs.setString('appwrite_session_id', _session!.$id);
         await prefs.setString('appwrite_session_expire', _session!.expire);
