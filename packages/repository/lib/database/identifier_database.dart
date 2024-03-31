@@ -42,6 +42,7 @@ class IdentifierType {
   static const String bestBuy = 'BestBuy';
   static const String walmart = 'Walmart';
   static const String target = 'Target';
+  static const String costco = 'Costco';
 
   static final Set<String> validIdentifierTypes = {
     IdentifierType.upc,
@@ -51,6 +52,7 @@ class IdentifierType {
     IdentifierType.bestBuy,
     IdentifierType.walmart,
     IdentifierType.target,
+    IdentifierType.costco,
   };
 
   static bool isValid(String identifierType) {
