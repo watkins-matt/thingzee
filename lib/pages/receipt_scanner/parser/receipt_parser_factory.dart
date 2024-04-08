@@ -1,4 +1,5 @@
 import 'package:petitparser/petitparser.dart';
+import 'package:repository/model/receipt.dart';
 import 'package:repository/model/receipt_item.dart';
 import 'package:thingzee/pages/receipt_scanner/parser/element/barcode.dart';
 import 'package:thingzee/pages/receipt_scanner/parser/element/item_text.dart';
@@ -20,7 +21,30 @@ mixin ParserFactory on ReceiptParser {
   ItemState currentState = ItemState.empty;
 
   final List<ReceiptItem> _items = [];
+  Map<LineElement, Parser<String>> elementToParser = {
+    LineElement.barcode: barcodeParser(),
+    LineElement.name: itemTextParser(),
+    LineElement.price: priceParser(),
+    LineElement.regularPrice: priceParser(),
+  };
+
   List<LineElement> get primaryLineFormat;
+
+  @override
+  String get rawText => ocrText.text;
+
+  @override
+  Receipt get receipt {
+    return Receipt(
+      items: _items,
+      date: dateTracker.getMostFrequent() ?? DateTime.now(),
+      subtotal: subtotalTracker.getMostFrequent() ?? 0.0,
+      discounts: discountTracker.getMostFrequentList(),
+      tax: taxTracker.getMostFrequent() ?? 0.0,
+      total: totalTracker.getMostFrequent() ?? 0.0,
+    );
+  }
+
   List<LineElement>? get secondaryLineFormat;
 
   ReceiptItem createNewItemFromPrimary(Map<LineElement, String> results) {
@@ -106,35 +130,39 @@ mixin ParserFactory on ReceiptParser {
   }
 
   Map<LineElement, String> parseLineAccordingToFormat(String line, List<LineElement> format) {
-    Map<LineElement, String> parsedResults = {};
+    if (format.isEmpty) {
+      throw ArgumentError('Format list cannot be empty.');
+    }
 
-    // Iterate over the format to use the specific parser for each element
-    for (final element in format) {
-      String? value;
-      switch (element) {
-        case LineElement.barcode:
-          var parsed = skipToBarcodeParser().parse(line);
-          if (parsed is Success) value = parsed.value;
-          break;
-        case LineElement.name:
-          var parsed = skipToItemTextParser().parse(line);
-          if (parsed is Success) value = parsed.value;
-          break;
-        case LineElement.price:
-          var parsed = skipToPriceParser().parse(line);
-          if (parsed is Success && parsed.value.isNotEmpty) {
-            value = parsed.value;
-          }
-          break;
-        case LineElement.regularPrice:
-          var parsed = skipToPriceParser().parse(line);
-          if (parsed is Success && parsed.value.isNotEmpty) {
-            value = parsed.value;
-          }
-          break;
-      }
-      if (value != null) {
-        parsedResults[element] = value;
+    List<Parser> parsers = format
+        .map((element) => elementToParser[element] ?? FailureParser('Unknown element'))
+        .toList();
+
+    if (parsers.isEmpty || parsers.any((parser) => parser is FailureParser)) {
+      throw ArgumentError('There must be a valid parser for each element in the format.');
+    }
+
+    // Start with the first parser in the list
+    Parser<List<dynamic>> compositeParser = parsers.first.map((result) => [result]);
+
+    // Sequentially combine each subsequent parser
+    for (var i = 1; i < parsers.length; i++) {
+      compositeParser = compositeParser.seq(parsers[i]).map((List<dynamic> results) {
+        // The current results list contains the accumulated results in the first slot
+        // and the latest result as the second slot
+        var accumulatedResults = results[0] as List;
+        var newResult = results[1];
+        return accumulatedResults..add(newResult);
+      });
+    }
+
+    var result = compositeParser.parse(line);
+
+    Map<LineElement, String> parsedResults = {};
+    if (result is Success) {
+      List<dynamic> values = result.value;
+      for (int i = 0; i < format.length; i++) {
+        parsedResults[format[i]] = values[i] as String;
       }
     }
 
