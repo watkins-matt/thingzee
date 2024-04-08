@@ -4,17 +4,13 @@ import 'package:repository/model/receipt_item.dart';
 import 'package:thingzee/pages/receipt_scanner/parser/element/barcode.dart';
 import 'package:thingzee/pages/receipt_scanner/parser/element/item_text.dart';
 import 'package:thingzee/pages/receipt_scanner/parser/element/price.dart';
+import 'package:thingzee/pages/receipt_scanner/parser/element/quantity.dart';
 import 'package:thingzee/pages/receipt_scanner/parser/ocr_text.dart';
 import 'package:thingzee/pages/receipt_scanner/parser/parser.dart';
 
 enum ItemState { empty, primaryLine, secondaryLine, extraInfo }
 
-enum LineElement {
-  barcode,
-  name,
-  price,
-  regularPrice,
-}
+enum LineElement { barcode, name, price, regularPrice, quantity }
 
 mixin ParserFactory on ReceiptParser {
   ReceiptItem? currentItem;
@@ -26,6 +22,7 @@ mixin ParserFactory on ReceiptParser {
     LineElement.name: itemTextParser(),
     LineElement.price: priceParser(),
     LineElement.regularPrice: priceParser(),
+    LineElement.quantity: quantityParser(),
   };
 
   List<LineElement> get primaryLineFormat;
@@ -220,11 +217,14 @@ mixin ParserFactory on ReceiptParser {
       var updatedPrice = double.tryParse(results[LineElement.price] ?? '') ?? currentItem!.price;
       var updatedRegularPrice =
           double.tryParse(results[LineElement.regularPrice] ?? '') ?? currentItem!.regularPrice;
+      var updatedQuantity =
+          int.tryParse(results[LineElement.quantity] ?? '') ?? currentItem!.quantity;
 
       // Update the current item with new values
       currentItem = currentItem!.copyWith(
         price: updatedPrice,
         regularPrice: updatedRegularPrice,
+        quantity: updatedQuantity,
       );
     }
   }
