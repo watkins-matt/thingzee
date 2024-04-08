@@ -16,8 +16,8 @@ enum LineElement {
 }
 
 mixin ParserFactory on ReceiptParser {
-  ReceiptItem? _currentItem;
-  ItemState _currentState = ItemState.empty;
+  ReceiptItem? currentItem;
+  ItemState currentState = ItemState.empty;
 
   final List<ReceiptItem> _items = [];
   List<LineElement> get primaryLineFormat;
@@ -39,17 +39,17 @@ mixin ParserFactory on ReceiptParser {
   }
 
   void finalizeCurrentItem() {
-    if (_currentItem != null) {
-      _items.add(_currentItem!);
-      _currentItem = null;
+    if (currentItem != null) {
+      _items.add(currentItem!);
+      currentItem = null;
     }
   }
 
   @override
   void parse(String text) {
     _items.clear();
-    _currentItem = null;
-    _currentState = ItemState.empty;
+    currentItem = null;
+    currentState = ItemState.empty;
     text = errorCorrector.correctErrors(text);
 
     OcrText newText = OcrText.fromString(text);
@@ -75,20 +75,20 @@ mixin ParserFactory on ReceiptParser {
 
     // The line does not have primary data, so treat it as extra info
     if (extraPrimaryResults.isEmpty) {
-      _currentItem = parseSpecialCases(_currentItem!, line);
-      _currentState = ItemState.extraInfo;
+      currentItem = parseSpecialCases(currentItem!, line);
+      currentState = ItemState.extraInfo;
     }
 
     // The line contains primary data, so finalize the current item and start a new one
     else {
       finalizeCurrentItem();
-      _currentItem = createNewItemFromPrimary(extraPrimaryResults);
-      _currentState = ItemState.primaryLine;
+      currentItem = createNewItemFromPrimary(extraPrimaryResults);
+      currentState = ItemState.primaryLine;
     }
   }
 
   void parseLine(String line) {
-    switch (_currentState) {
+    switch (currentState) {
       // Attempt to parse the primary line format when we have no current item data
       case ItemState.empty:
         parsePrimaryLine(line);
@@ -145,18 +145,18 @@ mixin ParserFactory on ReceiptParser {
     var newPrimaryResults = parseLineAccordingToFormat(line, primaryLineFormat);
     if (newPrimaryResults.isNotEmpty) {
       finalizeCurrentItem();
-      _currentItem = createNewItemFromPrimary(newPrimaryResults);
-      _currentState = ItemState.primaryLine; // Start new item
+      currentItem = createNewItemFromPrimary(newPrimaryResults);
+      currentState = ItemState.primaryLine; // Start new item
     } else {
-      _currentItem = parseSpecialCases(_currentItem!, line); // Continue accumulating extra info
+      currentItem = parseSpecialCases(currentItem!, line); // Continue accumulating extra info
     }
   }
 
   void parsePrimaryLine(String line) {
     var primaryResults = parseLineAccordingToFormat(line, primaryLineFormat);
     if (primaryResults.isNotEmpty) {
-      _currentItem = createNewItemFromPrimary(primaryResults);
-      _currentState = ItemState.primaryLine; // We now have primary data
+      currentItem = createNewItemFromPrimary(primaryResults);
+      currentState = ItemState.primaryLine; // We now have primary data
     }
   }
 
@@ -166,7 +166,7 @@ mixin ParserFactory on ReceiptParser {
       var secondaryResults = parseLineAccordingToFormat(line, secondaryLineFormat!);
       if (secondaryResults.isNotEmpty) {
         updateCurrentItemWithSecondary(secondaryResults);
-        _currentState = ItemState.secondaryLine; // We have secondary data
+        currentState = ItemState.secondaryLine; // We have secondary data
         return; // Ready for extra info or new primary line
       }
     }
@@ -187,14 +187,14 @@ mixin ParserFactory on ReceiptParser {
   }
 
   void updateCurrentItemWithSecondary(Map<LineElement, String> results) {
-    if (_currentItem != null) {
+    if (currentItem != null) {
       // The secondary line might contain updates to price or additional details like bottle deposit
-      var updatedPrice = double.tryParse(results[LineElement.price] ?? '') ?? _currentItem!.price;
+      var updatedPrice = double.tryParse(results[LineElement.price] ?? '') ?? currentItem!.price;
       var updatedRegularPrice =
-          double.tryParse(results[LineElement.regularPrice] ?? '') ?? _currentItem!.regularPrice;
+          double.tryParse(results[LineElement.regularPrice] ?? '') ?? currentItem!.regularPrice;
 
       // Update the current item with new values
-      _currentItem = _currentItem!.copyWith(
+      currentItem = currentItem!.copyWith(
         price: updatedPrice,
         regularPrice: updatedRegularPrice,
       );
