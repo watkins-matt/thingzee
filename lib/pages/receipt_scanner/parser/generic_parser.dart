@@ -50,9 +50,6 @@ class GenericReceiptParser extends ReceiptParser {
     return -1;
   }
 
-  @override
-  String getSearchUrl(String barcode) => 'https://www.google.com/search?q=$barcode';
-
   bool isBottleDeposit(double price) => price == 0.05 || price == 0.10 || price == 0.15;
 
   @override

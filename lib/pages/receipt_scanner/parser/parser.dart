@@ -17,7 +17,8 @@ abstract class ReceiptParser {
   RelativeOrderTracker orderTracker = RelativeOrderTracker();
   String get rawText;
   Receipt get receipt;
-  String getSearchUrl(String barcode);
+  String getSearchUrl(String barcode) => 'https://www.google.com/search?q=$barcode';
+
   void parse(String text);
 
   List<ReceiptItem> sortItems(List<ReceiptItem> items) {
