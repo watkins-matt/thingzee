@@ -20,7 +20,7 @@ dependencies:
     path: ../kmeans_cluster
   log:
     path: ../log
-  meta: ^1.9.1
+  meta: ^1.11.1
   ml_algo: ^16.17.7
   ml_dataframe: ^1.6.0
   ml_linalg: ^13.11.31

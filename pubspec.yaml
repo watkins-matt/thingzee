@@ -32,6 +32,7 @@ dependencies:
   material_floating_search_bar_2: ^0.5.0
   mealie_api:
     path: packages/mealie_api
+  meta: ^1.11.0
   ml_linalg: ^13.11.31
   money2: ^4.0.0
   path: ^1.8.3
