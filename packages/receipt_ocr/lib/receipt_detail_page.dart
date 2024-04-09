@@ -2,10 +2,11 @@ import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:receipt_ocr/edit_item_dialog.dart';
 import 'package:receipt_ocr/post_scan_handler.dart';
 import 'package:receipt_ocr/receipt_scanner.dart';
 import 'package:receipt_ocr/state/editable_receipt.dart';
+import 'package:receipt_ocr/widget/edit_item_name_dialog.dart';
+import 'package:receipt_ocr/widget/edit_item_price_dialog.dart';
 import 'package:receipt_ocr/widget/ocr_text_view.dart';
 import 'package:receipt_parser/model/receipt.dart';
 import 'package:receipt_parser/model/receipt_item.dart';
@@ -78,15 +79,33 @@ class ReceiptDetailPage extends ConsumerWidget {
                     title: Text(item.name, style: const TextStyle(fontSize: 16)),
                     subtitle: Text('Barcode: ${item.barcode} $bottleDepositString'.trim(),
                         style: TextStyle(color: barcodeColor)),
-                    trailing: Text('x ${item.quantity} - \$${item.price.toStringAsFixed(2)}',
-                        style: TextStyle(color: priceColor)),
+                    trailing: GestureDetector(
+                      onTap: () {
+                        // Show the EditPriceDialog
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return EditItemPriceDialog(
+                              item: item,
+                              onItemEdited: (editedItem) {
+                                ref
+                                    .read(editableReceiptProvider.notifier)
+                                    .updateItem(index, editedItem);
+                              },
+                            );
+                          },
+                        );
+                      },
+                      child: Text('x ${item.quantity} - \$${item.price.toStringAsFixed(2)}',
+                          style: TextStyle(color: priceColor)),
+                    ),
                     onLongPress: () => _showLongPressMenu(context, ref, index),
                     onTap: () {
-                      // Show the edit item dialog
+                      // Show the EditItemNameDialog
                       showDialog(
                         context: context,
                         builder: (BuildContext context) {
-                          return EditItemDialog(
+                          return EditItemNameDialog(
                             item: item,
                             onItemEdited: (editedItem) {
                               ref
@@ -242,10 +261,9 @@ class ReceiptDetailPage extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return EditItemDialog(
+        return EditItemNameDialog(
           item: newItem,
           onItemEdited: (editedItem) {
-            // Call the insertItem method with the edited item
             ref
                 .read(editableReceiptProvider.notifier)
                 .insertItem(before ? index : index + 1, editedItem);
