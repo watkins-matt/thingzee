@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:receipt_parser/parser/ocr_text.dart';
+import 'package:receipt_parser/ocr_text.dart';
 
 void main() {
   group('OcrLine tests', () {

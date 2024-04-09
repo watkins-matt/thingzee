@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:log/log.dart';
-import 'package:receipt_parser/parser/generic_parser.dart';
-import 'package:receipt_parser/parser/stores/target.dart';
+import 'package:receipt_parser/generic_parser.dart';
+import 'package:receipt_parser/stores/target.dart';
 import 'package:util/extension/string.dart';
 
 import 'post_scan_handler.dart';

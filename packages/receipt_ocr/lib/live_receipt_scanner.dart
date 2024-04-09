@@ -11,7 +11,7 @@ import 'package:receipt_ocr/post_scan_handler.dart';
 import 'package:receipt_ocr/state/camera_state.dart';
 import 'package:receipt_ocr/text_merge_strategy.dart';
 import 'package:receipt_parser/model/receipt.dart';
-import 'package:receipt_parser/parser/stores/target.dart';
+import 'package:receipt_parser/stores/target.dart';
 
 class LiveReceiptScannerPage extends ConsumerWidget {
   final PostScanHandler postScanHandler;

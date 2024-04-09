@@ -1,9 +1,9 @@
 import 'package:intl/intl.dart';
 import 'package:log/log.dart';
+import 'package:receipt_parser/error_corrector.dart';
 import 'package:receipt_parser/model/receipt.dart';
 import 'package:receipt_parser/model/receipt_item.dart';
-import 'package:receipt_parser/parser/error_corrector.dart';
-import 'package:receipt_parser/parser/parser.dart';
+import 'package:receipt_parser/parser.dart';
 import 'package:receipt_parser/util/frequency_tracker.dart';
 import 'package:receipt_parser/util/receipt_item_frequency.dart';
 

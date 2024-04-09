@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:receipt_parser/model/receipt.dart';
 import 'package:receipt_parser/model/receipt_item.dart';
-import 'package:receipt_parser/parser/parser.dart';
+import 'package:receipt_parser/parser.dart';
 import 'package:repository/database/identifier_database.dart';
 import 'package:repository/model/item.dart';
 import 'package:thingzee/main.dart';

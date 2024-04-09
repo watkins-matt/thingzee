@@ -9,7 +9,7 @@ import 'package:receipt_ocr/state/editable_receipt.dart';
 import 'package:receipt_ocr/widget/ocr_text_view.dart';
 import 'package:receipt_parser/model/receipt.dart';
 import 'package:receipt_parser/model/receipt_item.dart';
-import 'package:receipt_parser/parser/parser.dart';
+import 'package:receipt_parser/parser.dart';
 
 typedef AcceptPressedCallback = void Function(BuildContext, Receipt, ReceiptParser);
 

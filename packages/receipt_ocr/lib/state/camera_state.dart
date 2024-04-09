@@ -4,7 +4,7 @@ import 'package:camera/camera.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:receipt_parser/model/receipt.dart';
-import 'package:receipt_parser/parser/parser.dart';
+import 'package:receipt_parser/parser.dart';
 
 final cameraControllerProvider = FutureProvider.autoDispose<CameraController>((ref) async {
   final cameras = await availableCameras();

@@ -1,6 +1,6 @@
 import 'package:petitparser/petitparser.dart';
 import 'package:petitparser/reflection.dart';
-import 'package:receipt_parser/parser/element/price.dart';
+import 'package:receipt_parser/element/price.dart';
 import 'package:test/test.dart';
 
 void main() {

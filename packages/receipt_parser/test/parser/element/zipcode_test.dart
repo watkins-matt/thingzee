@@ -1,5 +1,5 @@
 import 'package:petitparser/petitparser.dart';
-import 'package:receipt_parser/parser/element/zipcode.dart';
+import 'package:receipt_parser/element/zipcode.dart';
 import 'package:test/test.dart';
 
 void main() {

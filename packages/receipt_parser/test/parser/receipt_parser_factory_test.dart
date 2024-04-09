@@ -1,6 +1,6 @@
 import 'package:receipt_parser/model/receipt_item.dart';
-import 'package:receipt_parser/parser/parser.dart';
-import 'package:receipt_parser/parser/receipt_parser_factory.dart';
+import 'package:receipt_parser/parser.dart';
+import 'package:receipt_parser/receipt_parser_factory.dart';
 import 'package:test/test.dart';
 
 void main() {

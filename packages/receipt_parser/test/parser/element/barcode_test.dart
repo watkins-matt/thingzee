@@ -1,6 +1,6 @@
 import 'package:petitparser/petitparser.dart';
 import 'package:petitparser/reflection.dart';
-import 'package:receipt_parser/parser/element/barcode.dart';
+import 'package:receipt_parser/element/barcode.dart';
 import 'package:test/test.dart';
 
 void main() {
