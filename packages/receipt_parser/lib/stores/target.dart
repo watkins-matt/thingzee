@@ -293,6 +293,18 @@ class TargetReceiptParser extends GenericReceiptParser {
         continue;
       }
 
+      // Look for prices alone on the next line
+      final parsedPrice = priceParser().parse(line);
+      if (parsedPrice is Success) {
+        final price = double.tryParse(parsedPrice.value) ?? 0;
+
+        // We are missing the price, and we found a price alone on a line
+        if (_items.isNotEmpty && _items.last.price == 0 && price != 0) {
+          _items.last = _items.last.copyWith(price: price);
+        }
+        continue;
+      }
+
       // If we have a full line, we can process the items
       if (!doneParsingItems && result.count == 3) {
         final barcode = result.barcode;
