@@ -1,10 +1,10 @@
 import 'package:csv/csv.dart';
 import 'package:log/log.dart';
-import 'package:repository/extension/string.dart';
 import 'package:repository/model/inventory.dart';
 import 'package:repository/model/item.dart';
 import 'package:repository/repository.dart';
 import 'package:thingzee/data/csv_exporter.dart';
+import 'package:util/extension/upc.dart';
 
 class InventoryCsvExporter implements CsvExporter {
   @override

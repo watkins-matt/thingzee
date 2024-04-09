@@ -37,8 +37,11 @@ dependencies:
   money2: ^4.0.0
   path: ^1.8.3
   path_provider: ^2.0.15
-  petitparser: ^6.0.2
   qr_mobile_vision: ^5.0.1
+  receipt_ocr:
+    path: packages/receipt_ocr
+  receipt_parser:
+    path: packages/receipt_parser
   repository:
     path: packages/repository
   repository_appw:
@@ -52,6 +55,8 @@ dependencies:
   stats:
     path: packages/stats
   url_launcher: ^6.2.2
+  util:
+    path: packages/util
   uuid: ^4.3.3
 
 dev_dependencies:

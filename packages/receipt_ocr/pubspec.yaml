@@ -1,0 +1,24 @@
+name: receipt_ocr
+description: A Flutter package for OCR-based receipt scanning views and widgets.
+publish_to: "none"
+
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+dependencies:
+  camera: ^0.10.5+9
+  flutter:
+    sdk: flutter
+  flutter_hooks: ^0.20.3
+  google_mlkit_text_recognition: ^0.11.0
+  hooks_riverpod: ^2.3.6
+  receipt_parser:
+    path: ../receipt_parser
+  util:
+    path: ../util
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter

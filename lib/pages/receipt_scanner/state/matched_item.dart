@@ -1,11 +1,11 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:receipt_parser/model/receipt.dart';
+import 'package:receipt_parser/model/receipt_item.dart';
 import 'package:repository/database/identifier_database.dart';
 import 'package:repository/ml/history_provider.dart';
 import 'package:repository/model/identifier.dart';
 import 'package:repository/model/inventory.dart';
 import 'package:repository/model/item.dart';
-import 'package:repository/model/receipt.dart';
-import 'package:repository/model/receipt_item.dart';
 import 'package:repository/repository.dart';
 
 final matchedItemsProvider =

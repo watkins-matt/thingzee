@@ -4,7 +4,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:settings_ui/settings_ui.dart';
 import 'package:thingzee/data/csv_export_service.dart';
 import 'package:thingzee/data/csv_import_service.dart';
-import 'package:thingzee/extension/string.dart';
 import 'package:thingzee/main.dart';
 import 'package:thingzee/pages/inventory/state/inventory_view.dart';
 import 'package:thingzee/pages/inventory/state/item_thumbnail_cache.dart';
@@ -14,6 +13,7 @@ import 'package:thingzee/pages/settings/state/settings_state.dart';
 import 'package:thingzee/pages/settings/widget/text_entry_dialog.dart';
 import 'package:thingzee/pages/settings/widget/theme_picker_dialog.dart';
 import 'package:thingzee/pages/shopping/state/shopping_list.dart';
+import 'package:util/extension/string.dart';
 
 // Settings page
 // Features to include:

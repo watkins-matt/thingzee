@@ -3,7 +3,6 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:log/log.dart';
 import 'package:repository/database/joined_item_database.dart';
-import 'package:repository/extension/uuid.dart';
 import 'package:repository/model/inventory.dart';
 import 'package:repository/model/item.dart';
 import 'package:repository/model/location.dart';
@@ -27,6 +26,7 @@ import 'package:thingzee/pages/inventory/state/inventory_view.dart';
 import 'package:thingzee/pages/inventory/state/item_thumbnail_cache.dart';
 import 'package:thingzee/pages/settings/state/settings_state.dart';
 import 'package:thingzee/pages/shopping/state/shopping_list.dart';
+import 'package:util/extension/uuid.dart';
 
 class ItemDetailPage extends HookConsumerWidget {
   final Item item;

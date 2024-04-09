@@ -1,0 +1,15 @@
+name: util
+description: Helpful extension functions and utilities for Dart and Flutter projects.
+
+publish_to: "none"
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+dependencies:
+  duration: ^3.0.13
+
+dev_dependencies:
+  flutter_lints: ^3.0.1
+  test: ^1.17.0

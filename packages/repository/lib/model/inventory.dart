@@ -1,9 +1,6 @@
 import 'package:intl/intl.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:meta/meta.dart';
-import 'package:repository/extension/date_time.dart';
-import 'package:repository/extension/duration.dart';
-import 'package:repository/extension/list.dart';
 import 'package:repository/merge_generator.dart';
 import 'package:repository/ml/history.dart';
 import 'package:repository/ml/history_provider.dart';
@@ -12,6 +9,9 @@ import 'package:repository/model/abstract/model.dart';
 import 'package:repository/model/serializer_datetime.dart';
 import 'package:repository/util/hash.dart';
 import 'package:stats/double.dart';
+import 'package:util/extension/date_time.dart';
+import 'package:util/extension/duration.dart';
+import 'package:util/extension/list.dart';
 import 'package:uuid/uuid.dart';
 
 part 'inventory.g.dart';

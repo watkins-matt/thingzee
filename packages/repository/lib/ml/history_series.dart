@@ -2,8 +2,8 @@ import 'dart:math';
 
 import 'package:json_annotation/json_annotation.dart';
 import 'package:ml_dataframe/ml_dataframe.dart';
-import 'package:repository/extension/list.dart';
 import 'package:repository/ml/observation.dart';
+import 'package:util/extension/list.dart';
 
 part 'history_series.g.dart';
 

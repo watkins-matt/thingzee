@@ -1,7 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:log/log.dart';
 import 'package:meta/meta.dart';
-import 'package:repository/extension/date_time.dart';
 import 'package:repository/ml/evaluator.dart';
 import 'package:repository/ml/evaluator_provider.dart';
 import 'package:repository/ml/history_series.dart';
@@ -9,6 +8,7 @@ import 'package:repository/ml/observation.dart';
 import 'package:repository/ml/regressor.dart';
 import 'package:repository/model/abstract/model.dart';
 import 'package:repository/model/serializer_datetime.dart';
+import 'package:util/extension/date_time.dart';
 
 part 'history.g.dart';
 

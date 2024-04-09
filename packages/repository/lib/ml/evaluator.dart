@@ -2,11 +2,11 @@ import 'dart:math';
 
 import 'package:kmeans_cluster/kmeans.dart';
 import 'package:log/log.dart';
-import 'package:repository/extension/list.dart';
 import 'package:repository/ml/history.dart';
 import 'package:repository/ml/history_series.dart';
 import 'package:repository/ml/observation.dart';
 import 'package:repository/ml/regressor.dart';
+import 'package:util/extension/list.dart';
 
 class Evaluator {
   Map<String, Regressor> regressors = {};

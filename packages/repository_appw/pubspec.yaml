@@ -18,6 +18,8 @@ dependencies:
   repository:
     path: ../repository
   shared_preferences: ^2.2.0
+  util:
+    path: ../util
   uuid: ^4.2.1
 
 dev_dependencies:

@@ -27,6 +27,8 @@ dependencies:
   shared_preferences: ^2.2.0
   stats:
     path: ../stats
+  util:
+    path: ../util
   uuid: ^4.2.1
 
 dev_dependencies:

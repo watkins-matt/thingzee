@@ -1,6 +1,6 @@
-import 'package:repository/extension/string.dart';
 import 'package:repository/model/inventory.dart';
 import 'package:repository/model/item.dart';
+import 'package:util/extension/upc.dart';
 
 class InventoryCsvRow {
   String upc = '';

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:receipt_ocr/post_scan_handler.dart';
+import 'package:receipt_ocr/receipt_scanner.dart';
 import 'package:thingzee/pages/bottom_nav_bar/state/bottom_nav_state.dart';
 import 'package:thingzee/pages/inventory/state/inventory_view.dart';
-import 'package:thingzee/pages/receipt_scanner/post_scan_handler.dart';
-import 'package:thingzee/pages/receipt_scanner/receipt_scanner.dart';
+import 'package:thingzee/pages/receipt_scanner/receipt_confirmation_page.dart';
 import 'package:thingzee/pages/shopping/confirmation_dialog.dart';
 import 'package:thingzee/pages/shopping/state/shopping_cart.dart';
 import 'package:thingzee/pages/shopping/state/shopping_list.dart';
@@ -124,12 +125,13 @@ class ShoppingListPage extends ConsumerWidget {
 
   void _navigateToReceiptScannerPage(BuildContext context) {
     Navigator.push(
-      context,
-      MaterialPageRoute(
-          builder: (context) => ReceiptScannerPage(
-                postScanHandler: ParsingPostScanHandler(),
-              )),
-    );
+        context,
+        MaterialPageRoute(
+            builder: (newContext) => ReceiptScannerPage(postScanHandler: ShowReceiptDetailHandler(
+                  onAcceptPressed: (context, receipt, parser) async {
+                    await ReceiptConfirmationPage.push(context, receipt, parser);
+                  },
+                ))));
     // Navigator.push(
     //     context,
     //     MaterialPageRoute(

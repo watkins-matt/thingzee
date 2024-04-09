@@ -3,9 +3,9 @@ import 'dart:ui';
 import 'package:flutter/widgets.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:repository/database/preferences.dart';
-import 'package:thingzee/extension/enum.dart';
 import 'package:thingzee/main.dart';
 import 'package:thingzee/pages/settings/state/preference_keys.dart';
+import 'package:util/extension/enum.dart';
 
 final isDarkModeProvider = Provider.family<bool, BuildContext>((ref, context) {
   final themeMode = ref.watch(themeModeProvider);

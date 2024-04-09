@@ -25,8 +25,6 @@ import 'model/item_translation.ob.dart';
 import 'model/location.ob.dart';
 import 'model/manufacturer.ob.dart';
 import 'model/product.ob.dart';
-import 'model/receipt.ob.dart';
-import 'model/receipt_item.ob.dart';
 import 'model/shopping_item.ob.dart';
 import 'model_custom/history_ob.dart';
 
@@ -582,70 +580,6 @@ final _entities = <obx_int.ModelEntity>[
       relations: <obx_int.ModelRelation>[],
       backlinks: <obx_int.ModelBacklink>[]),
   obx_int.ModelEntity(
-      id: const obx_int.IdUid(32, 2424801468099308795),
-      name: 'ObjectBoxReceiptItem',
-      lastPropertyId: const obx_int.IdUid(11, 3789302729946291262),
-      flags: 0,
-      properties: <obx_int.ModelProperty>[
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(1, 1409804839355144907),
-            name: 'name',
-            type: 9,
-            flags: 0),
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(2, 4901825100975296988),
-            name: 'price',
-            type: 8,
-            flags: 0),
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(3, 4555738625603270309),
-            name: 'regularPrice',
-            type: 8,
-            flags: 0),
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(4, 6561748397873684137),
-            name: 'quantity',
-            type: 6,
-            flags: 0),
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(5, 310986992928624842),
-            name: 'barcode',
-            type: 9,
-            flags: 0),
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(6, 7816061209567866527),
-            name: 'taxable',
-            type: 1,
-            flags: 0),
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(7, 7920296738618385040),
-            name: 'bottleDeposit',
-            type: 8,
-            flags: 0),
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(8, 4540687088627323783),
-            name: 'objectBoxId',
-            type: 6,
-            flags: 1),
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(9, 1743567812000270236),
-            name: 'created',
-            type: 10,
-            flags: 0),
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(10, 3283187960644019746),
-            name: 'updated',
-            type: 10,
-            flags: 0),
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(11, 3789302729946291262),
-            name: 'receiptUid',
-            type: 9,
-            flags: 0)
-      ],
-      relations: <obx_int.ModelRelation>[],
-      backlinks: <obx_int.ModelBacklink>[]),
-  obx_int.ModelEntity(
       id: const obx_int.IdUid(33, 2540654278505596072),
       name: 'ObjectBoxInvitation',
       lastPropertyId: const obx_int.IdUid(8, 3890612321366565942),
@@ -689,65 +623,6 @@ final _entities = <obx_int.ModelEntity>[
         obx_int.ModelProperty(
             id: const obx_int.IdUid(8, 3890612321366565942),
             name: 'recipientEmail',
-            type: 9,
-            flags: 0)
-      ],
-      relations: <obx_int.ModelRelation>[],
-      backlinks: <obx_int.ModelBacklink>[]),
-  obx_int.ModelEntity(
-      id: const obx_int.IdUid(34, 4842040687820616720),
-      name: 'ObjectBoxReceipt',
-      lastPropertyId: const obx_int.IdUid(10, 6275782331319882540),
-      flags: 0,
-      properties: <obx_int.ModelProperty>[
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(1, 379222046820891227),
-            name: 'objectBoxId',
-            type: 6,
-            flags: 1),
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(2, 7091728040505849939),
-            name: 'created',
-            type: 10,
-            flags: 0),
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(3, 1636634476981007687),
-            name: 'updated',
-            type: 10,
-            flags: 0),
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(4, 9116542872001265340),
-            name: 'date',
-            type: 10,
-            flags: 0),
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(5, 8010882142712419719),
-            name: 'subtotal',
-            type: 8,
-            flags: 0),
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(6, 6884647754859486833),
-            name: 'discounts',
-            type: 29,
-            flags: 0),
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(7, 1692820663667485931),
-            name: 'tax',
-            type: 8,
-            flags: 0),
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(8, 6786393335707745360),
-            name: 'total',
-            type: 8,
-            flags: 0),
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(9, 8343660129430174024),
-            name: 'uid',
-            type: 9,
-            flags: 0),
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(10, 6275782331319882540),
-            name: 'barcodeType',
             type: 9,
             flags: 0)
       ],
@@ -814,7 +689,9 @@ obx_int.ModelDefinition getObjectBoxModel() {
         6355597710876493410,
         8501125382873435329,
         6997640042144843407,
-        3255552557810191530
+        3255552557810191530,
+        2424801468099308795,
+        4842040687820616720
       ],
       retiredIndexUids: const [8142794481267609707],
       retiredPropertyUids: const [
@@ -958,7 +835,28 @@ obx_int.ModelDefinition getObjectBoxModel() {
         7543468242257706711,
         592784928820256951,
         8432369276528276973,
-        5133401553044031820
+        5133401553044031820,
+        1409804839355144907,
+        4901825100975296988,
+        4555738625603270309,
+        6561748397873684137,
+        310986992928624842,
+        7816061209567866527,
+        7920296738618385040,
+        4540687088627323783,
+        1743567812000270236,
+        3283187960644019746,
+        3789302729946291262,
+        379222046820891227,
+        7091728040505849939,
+        1636634476981007687,
+        9116542872001265340,
+        8010882142712419719,
+        6884647754859486833,
+        1692820663667485931,
+        6786393335707745360,
+        8343660129430174024,
+        6275782331319882540
       ],
       retiredRelationUids: const [],
       modelVersion: 5,
@@ -1580,70 +1478,8 @@ obx_int.ModelDefinition getObjectBoxModel() {
 
           return object;
         }),
-    ObjectBoxReceiptItem: obx_int.EntityDefinition<ObjectBoxReceiptItem>(
-        model: _entities[11],
-        toOneRelations: (ObjectBoxReceiptItem object) => [],
-        toManyRelations: (ObjectBoxReceiptItem object) => {},
-        getId: (ObjectBoxReceiptItem object) => object.objectBoxId,
-        setId: (ObjectBoxReceiptItem object, int id) {
-          object.objectBoxId = id;
-        },
-        objectToFB: (ObjectBoxReceiptItem object, fb.Builder fbb) {
-          final nameOffset = fbb.writeString(object.name);
-          final barcodeOffset = fbb.writeString(object.barcode);
-          final receiptUidOffset = fbb.writeString(object.receiptUid);
-          fbb.startTable(12);
-          fbb.addOffset(0, nameOffset);
-          fbb.addFloat64(1, object.price);
-          fbb.addFloat64(2, object.regularPrice);
-          fbb.addInt64(3, object.quantity);
-          fbb.addOffset(4, barcodeOffset);
-          fbb.addBool(5, object.taxable);
-          fbb.addFloat64(6, object.bottleDeposit);
-          fbb.addInt64(7, object.objectBoxId);
-          fbb.addInt64(8, object.created?.millisecondsSinceEpoch);
-          fbb.addInt64(9, object.updated?.millisecondsSinceEpoch);
-          fbb.addOffset(10, receiptUidOffset);
-          fbb.finish(fbb.endTable());
-          return object.objectBoxId;
-        },
-        objectFromFB: (obx.Store store, ByteData fbData) {
-          final buffer = fb.BufferContext(fbData);
-          final rootOffset = buffer.derefObject(0);
-          final createdValue =
-              const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 20);
-          final updatedValue =
-              const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 22);
-          final object = ObjectBoxReceiptItem()
-            ..name = const fb.StringReader(asciiOptimization: true)
-                .vTableGet(buffer, rootOffset, 4, '')
-            ..price =
-                const fb.Float64Reader().vTableGet(buffer, rootOffset, 6, 0)
-            ..regularPrice =
-                const fb.Float64Reader().vTableGet(buffer, rootOffset, 8, 0)
-            ..quantity =
-                const fb.Int64Reader().vTableGet(buffer, rootOffset, 10, 0)
-            ..barcode = const fb.StringReader(asciiOptimization: true)
-                .vTableGet(buffer, rootOffset, 12, '')
-            ..taxable =
-                const fb.BoolReader().vTableGet(buffer, rootOffset, 14, false)
-            ..bottleDeposit =
-                const fb.Float64Reader().vTableGet(buffer, rootOffset, 16, 0)
-            ..objectBoxId =
-                const fb.Int64Reader().vTableGet(buffer, rootOffset, 18, 0)
-            ..created = createdValue == null
-                ? null
-                : DateTime.fromMillisecondsSinceEpoch(createdValue)
-            ..updated = updatedValue == null
-                ? null
-                : DateTime.fromMillisecondsSinceEpoch(updatedValue)
-            ..receiptUid = const fb.StringReader(asciiOptimization: true)
-                .vTableGet(buffer, rootOffset, 24, '');
-
-          return object;
-        }),
     ObjectBoxInvitation: obx_int.EntityDefinition<ObjectBoxInvitation>(
-        model: _entities[12],
+        model: _entities[11],
         toOneRelations: (ObjectBoxInvitation object) => [],
         toManyRelations: (ObjectBoxInvitation object) => {},
         getId: (ObjectBoxInvitation object) => object.objectBoxId,
@@ -1694,69 +1530,6 @@ obx_int.ModelDefinition getObjectBoxModel() {
                 .vTableGet(buffer, rootOffset, 16, '')
             ..recipientEmail = const fb.StringReader(asciiOptimization: true)
                 .vTableGet(buffer, rootOffset, 18, '');
-
-          return object;
-        }),
-    ObjectBoxReceipt: obx_int.EntityDefinition<ObjectBoxReceipt>(
-        model: _entities[13],
-        toOneRelations: (ObjectBoxReceipt object) => [],
-        toManyRelations: (ObjectBoxReceipt object) => {},
-        getId: (ObjectBoxReceipt object) => object.objectBoxId,
-        setId: (ObjectBoxReceipt object, int id) {
-          object.objectBoxId = id;
-        },
-        objectToFB: (ObjectBoxReceipt object, fb.Builder fbb) {
-          final discountsOffset = fbb.writeListFloat64(object.discounts);
-          final uidOffset = fbb.writeString(object.uid);
-          final barcodeTypeOffset = fbb.writeString(object.barcodeType);
-          fbb.startTable(11);
-          fbb.addInt64(0, object.objectBoxId);
-          fbb.addInt64(1, object.created?.millisecondsSinceEpoch);
-          fbb.addInt64(2, object.updated?.millisecondsSinceEpoch);
-          fbb.addInt64(3, object.date?.millisecondsSinceEpoch);
-          fbb.addFloat64(4, object.subtotal);
-          fbb.addOffset(5, discountsOffset);
-          fbb.addFloat64(6, object.tax);
-          fbb.addFloat64(7, object.total);
-          fbb.addOffset(8, uidOffset);
-          fbb.addOffset(9, barcodeTypeOffset);
-          fbb.finish(fbb.endTable());
-          return object.objectBoxId;
-        },
-        objectFromFB: (obx.Store store, ByteData fbData) {
-          final buffer = fb.BufferContext(fbData);
-          final rootOffset = buffer.derefObject(0);
-          final createdValue =
-              const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 6);
-          final updatedValue =
-              const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 8);
-          final dateValue =
-              const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 10);
-          final object = ObjectBoxReceipt()
-            ..objectBoxId =
-                const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0)
-            ..created = createdValue == null
-                ? null
-                : DateTime.fromMillisecondsSinceEpoch(createdValue)
-            ..updated = updatedValue == null
-                ? null
-                : DateTime.fromMillisecondsSinceEpoch(updatedValue)
-            ..date = dateValue == null
-                ? null
-                : DateTime.fromMillisecondsSinceEpoch(dateValue)
-            ..subtotal =
-                const fb.Float64Reader().vTableGet(buffer, rootOffset, 12, 0)
-            ..discounts =
-                const fb.ListReader<double>(fb.Float64Reader(), lazy: false)
-                    .vTableGet(buffer, rootOffset, 14, [])
-            ..tax =
-                const fb.Float64Reader().vTableGet(buffer, rootOffset, 16, 0)
-            ..total =
-                const fb.Float64Reader().vTableGet(buffer, rootOffset, 18, 0)
-            ..uid = const fb.StringReader(asciiOptimization: true)
-                .vTableGet(buffer, rootOffset, 20, '')
-            ..barcodeType = const fb.StringReader(asciiOptimization: true)
-                .vTableGet(buffer, rootOffset, 22, '');
 
           return object;
         })
@@ -2155,127 +1928,37 @@ class ObjectBoxIdentifier_ {
       _entities[10].properties[5]);
 }
 
-/// [ObjectBoxReceiptItem] entity fields to define ObjectBox queries.
-class ObjectBoxReceiptItem_ {
-  /// see [ObjectBoxReceiptItem.name]
-  static final name = obx.QueryStringProperty<ObjectBoxReceiptItem>(
-      _entities[11].properties[0]);
-
-  /// see [ObjectBoxReceiptItem.price]
-  static final price = obx.QueryDoubleProperty<ObjectBoxReceiptItem>(
-      _entities[11].properties[1]);
-
-  /// see [ObjectBoxReceiptItem.regularPrice]
-  static final regularPrice = obx.QueryDoubleProperty<ObjectBoxReceiptItem>(
-      _entities[11].properties[2]);
-
-  /// see [ObjectBoxReceiptItem.quantity]
-  static final quantity = obx.QueryIntegerProperty<ObjectBoxReceiptItem>(
-      _entities[11].properties[3]);
-
-  /// see [ObjectBoxReceiptItem.barcode]
-  static final barcode = obx.QueryStringProperty<ObjectBoxReceiptItem>(
-      _entities[11].properties[4]);
-
-  /// see [ObjectBoxReceiptItem.taxable]
-  static final taxable = obx.QueryBooleanProperty<ObjectBoxReceiptItem>(
-      _entities[11].properties[5]);
-
-  /// see [ObjectBoxReceiptItem.bottleDeposit]
-  static final bottleDeposit = obx.QueryDoubleProperty<ObjectBoxReceiptItem>(
-      _entities[11].properties[6]);
-
-  /// see [ObjectBoxReceiptItem.objectBoxId]
-  static final objectBoxId = obx.QueryIntegerProperty<ObjectBoxReceiptItem>(
-      _entities[11].properties[7]);
-
-  /// see [ObjectBoxReceiptItem.created]
-  static final created =
-      obx.QueryDateProperty<ObjectBoxReceiptItem>(_entities[11].properties[8]);
-
-  /// see [ObjectBoxReceiptItem.updated]
-  static final updated =
-      obx.QueryDateProperty<ObjectBoxReceiptItem>(_entities[11].properties[9]);
-
-  /// see [ObjectBoxReceiptItem.receiptUid]
-  static final receiptUid = obx.QueryStringProperty<ObjectBoxReceiptItem>(
-      _entities[11].properties[10]);
-}
-
 /// [ObjectBoxInvitation] entity fields to define ObjectBox queries.
 class ObjectBoxInvitation_ {
   /// see [ObjectBoxInvitation.objectBoxId]
   static final objectBoxId = obx.QueryIntegerProperty<ObjectBoxInvitation>(
-      _entities[12].properties[0]);
+      _entities[11].properties[0]);
 
   /// see [ObjectBoxInvitation.created]
   static final created =
-      obx.QueryDateProperty<ObjectBoxInvitation>(_entities[12].properties[1]);
+      obx.QueryDateProperty<ObjectBoxInvitation>(_entities[11].properties[1]);
 
   /// see [ObjectBoxInvitation.updated]
   static final updated =
-      obx.QueryDateProperty<ObjectBoxInvitation>(_entities[12].properties[2]);
+      obx.QueryDateProperty<ObjectBoxInvitation>(_entities[11].properties[2]);
 
   /// see [ObjectBoxInvitation.id]
   static final id =
-      obx.QueryStringProperty<ObjectBoxInvitation>(_entities[12].properties[3]);
+      obx.QueryStringProperty<ObjectBoxInvitation>(_entities[11].properties[3]);
 
   /// see [ObjectBoxInvitation.householdId]
   static final householdId =
-      obx.QueryStringProperty<ObjectBoxInvitation>(_entities[12].properties[4]);
+      obx.QueryStringProperty<ObjectBoxInvitation>(_entities[11].properties[4]);
 
   /// see [ObjectBoxInvitation.inviterEmail]
   static final inviterEmail =
-      obx.QueryStringProperty<ObjectBoxInvitation>(_entities[12].properties[5]);
+      obx.QueryStringProperty<ObjectBoxInvitation>(_entities[11].properties[5]);
 
   /// see [ObjectBoxInvitation.inviterUserId]
   static final inviterUserId =
-      obx.QueryStringProperty<ObjectBoxInvitation>(_entities[12].properties[6]);
+      obx.QueryStringProperty<ObjectBoxInvitation>(_entities[11].properties[6]);
 
   /// see [ObjectBoxInvitation.recipientEmail]
   static final recipientEmail =
-      obx.QueryStringProperty<ObjectBoxInvitation>(_entities[12].properties[7]);
-}
-
-/// [ObjectBoxReceipt] entity fields to define ObjectBox queries.
-class ObjectBoxReceipt_ {
-  /// see [ObjectBoxReceipt.objectBoxId]
-  static final objectBoxId =
-      obx.QueryIntegerProperty<ObjectBoxReceipt>(_entities[13].properties[0]);
-
-  /// see [ObjectBoxReceipt.created]
-  static final created =
-      obx.QueryDateProperty<ObjectBoxReceipt>(_entities[13].properties[1]);
-
-  /// see [ObjectBoxReceipt.updated]
-  static final updated =
-      obx.QueryDateProperty<ObjectBoxReceipt>(_entities[13].properties[2]);
-
-  /// see [ObjectBoxReceipt.date]
-  static final date =
-      obx.QueryDateProperty<ObjectBoxReceipt>(_entities[13].properties[3]);
-
-  /// see [ObjectBoxReceipt.subtotal]
-  static final subtotal =
-      obx.QueryDoubleProperty<ObjectBoxReceipt>(_entities[13].properties[4]);
-
-  /// see [ObjectBoxReceipt.discounts]
-  static final discounts = obx.QueryDoubleVectorProperty<ObjectBoxReceipt>(
-      _entities[13].properties[5]);
-
-  /// see [ObjectBoxReceipt.tax]
-  static final tax =
-      obx.QueryDoubleProperty<ObjectBoxReceipt>(_entities[13].properties[6]);
-
-  /// see [ObjectBoxReceipt.total]
-  static final total =
-      obx.QueryDoubleProperty<ObjectBoxReceipt>(_entities[13].properties[7]);
-
-  /// see [ObjectBoxReceipt.uid]
-  static final uid =
-      obx.QueryStringProperty<ObjectBoxReceipt>(_entities[13].properties[8]);
-
-  /// see [ObjectBoxReceipt.barcodeType]
-  static final barcodeType =
-      obx.QueryStringProperty<ObjectBoxReceipt>(_entities[13].properties[9]);
+      obx.QueryStringProperty<ObjectBoxInvitation>(_entities[11].properties[7]);
 }

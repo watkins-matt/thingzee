@@ -1,11 +1,11 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:meta/meta.dart';
-import 'package:repository/extension/date_time.dart';
 import 'package:repository/merge_generator.dart';
 import 'package:repository/model/abstract/model.dart';
 import 'package:repository/model/abstract/nameable.dart';
 import 'package:repository/model/serializer_datetime.dart';
 import 'package:repository/util/hash.dart';
+import 'package:util/extension/date_time.dart';
 import 'package:uuid/uuid.dart';
 
 part 'item.g.dart';

@@ -1,5 +1,5 @@
-import 'package:repository/extension/string.dart';
 import 'package:repository/ml/observation.dart';
+import 'package:util/extension/upc.dart';
 
 class HistoryCsvRow {
   static int defaultHouseholdCount = 2;

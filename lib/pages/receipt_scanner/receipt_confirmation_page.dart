@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:receipt_parser/model/receipt.dart';
+import 'package:receipt_parser/model/receipt_item.dart';
+import 'package:receipt_parser/parser/parser.dart';
 import 'package:repository/database/identifier_database.dart';
 import 'package:repository/model/item.dart';
-import 'package:repository/model/receipt.dart';
-import 'package:repository/model/receipt_item.dart';
 import 'package:thingzee/main.dart';
 import 'package:thingzee/pages/bottom_nav_bar/state/bottom_nav_state.dart';
 import 'package:thingzee/pages/inventory/state/inventory_view.dart';
 import 'package:thingzee/pages/item_match/item_match_page.dart';
 import 'package:thingzee/pages/item_match/state/matched_item_cache.dart';
-import 'package:thingzee/pages/receipt_scanner/parser/parser.dart';
 import 'package:thingzee/pages/receipt_scanner/state/matched_item.dart';
 
 class ReceiptConfirmationPage extends ConsumerStatefulWidget {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:thingzee/extension/string.dart';
 import 'package:thingzee/pages/settings/state/preference_keys.dart';
+import 'package:util/extension/string.dart';
 
 typedef OnThemeSelected = void Function(AppTheme selectedTheme);
 
