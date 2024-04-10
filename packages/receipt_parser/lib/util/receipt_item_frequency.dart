@@ -1,5 +1,5 @@
 import 'package:receipt_parser/model/receipt_item.dart';
-import 'frequency_tracker.dart';
+import 'package:receipt_parser/util/frequency_tracker.dart';
 
 class ReceiptItemFrequencies {
   int totalCount = 0;

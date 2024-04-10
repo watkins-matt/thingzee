@@ -1,10 +1,9 @@
+import 'package:receipt_parser/error_corrector.dart';
 import 'package:receipt_parser/model/receipt.dart';
 import 'package:receipt_parser/model/receipt_item.dart';
-
-import '../util/frequency_tracker.dart';
-import 'error_corrector.dart';
-import 'ocr_text.dart';
-import 'order_tracker.dart';
+import 'package:receipt_parser/ocr_text.dart';
+import 'package:receipt_parser/order_tracker.dart';
+import 'package:receipt_parser/util/frequency_tracker.dart';
 
 abstract class ReceiptParser {
   final FrequencyTracker<double> totalTracker = FrequencyTracker<double>();

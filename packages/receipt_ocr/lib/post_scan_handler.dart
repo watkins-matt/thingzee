@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:receipt_ocr/receipt_detail_page.dart';
+import 'package:receipt_ocr/widget/ocr_text_view.dart';
 import 'package:receipt_parser/generic_parser.dart';
 import 'package:receipt_parser/parser.dart';
 import 'package:receipt_parser/stores/target.dart';
-
-import '../widget/ocr_text_view.dart';
-import 'receipt_detail_page.dart';
 
 class DebugPostScanHandler extends PostScanHandler {
   DebugPostScanHandler({super.parser});

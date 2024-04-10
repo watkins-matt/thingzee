@@ -1,10 +1,13 @@
 include: package:flutter_lints/flutter.yaml
 
 analyzer:
-  exclude: [build/**, lib/**.include.dart, lib/**.g.dart]
+  exclude: [build/**, lib/**.include.dart, lib/**.g.dart, packages/**/**.g.dart]
+  errors:
+    avoid_renaming_method_parameters: ignore
 
 linter:
   rules:
+    - always_use_package_imports
     - always_declare_return_types
     #- always_specify_types
     - annotate_overrides
@@ -17,7 +20,7 @@ linter:
     - avoid_init_to_null
     - avoid_null_checks_in_equality_operators
     - avoid_relative_lib_imports
-    - avoid_renaming_method_parameters
+    # - avoid_renaming_method_parameters
     - avoid_return_types_on_setters
     - avoid_returning_null_for_void
     - avoid_shadowing_type_parameters
@@ -30,6 +33,7 @@ linter:
     - camel_case_extensions
     - camel_case_types
     - cancel_subscriptions
+    - close_sinks
     #- cascade_invocations
     - control_flow_in_finally
     - curly_braces_in_flow_control_structures

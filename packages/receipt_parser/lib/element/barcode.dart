@@ -1,6 +1,6 @@
 import 'package:petitparser/petitparser.dart';
-import 'phone_number.dart';
-import 'price.dart';
+import 'package:receipt_parser/element/phone_number.dart';
+import 'package:receipt_parser/element/price.dart';
 
 Parser<String> barcodeParser() {
   // Define a digit sequence that must start and end with a digit, allowing letters in between

@@ -1,14 +1,13 @@
 import 'package:petitparser/petitparser.dart';
+import 'package:receipt_parser/element/barcode.dart';
+import 'package:receipt_parser/element/item_text.dart';
+import 'package:receipt_parser/element/price.dart';
+import 'package:receipt_parser/element/quantity.dart';
 import 'package:receipt_parser/model/receipt.dart';
 import 'package:receipt_parser/model/receipt_item.dart';
+import 'package:receipt_parser/ocr_text.dart';
+import 'package:receipt_parser/parser.dart';
 import 'package:repository/database/identifier_database.dart';
-
-import 'element/barcode.dart';
-import 'element/item_text.dart';
-import 'element/price.dart';
-import 'element/quantity.dart';
-import 'ocr_text.dart';
-import 'parser.dart';
 
 enum ItemState { empty, primaryLine, secondaryLine, extraInfo }
 

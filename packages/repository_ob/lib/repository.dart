@@ -12,8 +12,7 @@ import 'package:repository_ob/database/identifier_db.dart';
 import 'package:repository_ob/database/inventory_db.dart';
 import 'package:repository_ob/database/item_db.dart';
 import 'package:repository_ob/database/location_db.dart';
-
-import 'objectbox.g.dart';
+import 'package:repository_ob/objectbox.g.dart';
 
 class ObjectBoxRepository extends Repository {
   late Store store;

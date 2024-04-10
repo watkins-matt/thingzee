@@ -1,12 +1,11 @@
 import 'package:petitparser/petitparser.dart';
+import 'package:receipt_parser/element/barcode.dart';
+import 'package:receipt_parser/element/item_text.dart';
+import 'package:receipt_parser/element/price.dart';
 import 'package:receipt_parser/model/receipt.dart';
 import 'package:receipt_parser/model/receipt_item.dart';
-
-import 'element/barcode.dart';
-import 'element/item_text.dart';
-import 'element/price.dart';
-import 'ocr_text.dart';
-import 'parser.dart';
+import 'package:receipt_parser/ocr_text.dart';
+import 'package:receipt_parser/parser.dart';
 
 typedef LineParseResult = ({String? barcode, String? text, double? price, int count});
 
