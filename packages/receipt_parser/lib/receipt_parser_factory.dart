@@ -1,6 +1,7 @@
 import 'package:petitparser/petitparser.dart';
 import 'package:receipt_parser/model/receipt.dart';
 import 'package:receipt_parser/model/receipt_item.dart';
+import 'package:repository/database/identifier_database.dart';
 
 import 'element/barcode.dart';
 import 'element/item_text.dart';
@@ -18,6 +19,7 @@ mixin ParserFactory on ReceiptParser {
   ItemState currentState = ItemState.empty;
 
   final List<ReceiptItem> _items = [];
+
   Map<LineElement, Parser<String>> elementToParser = {
     LineElement.barcode: barcodeParser(),
     LineElement.name: itemTextParser(),
@@ -25,6 +27,9 @@ mixin ParserFactory on ReceiptParser {
     LineElement.regularPrice: priceParser(),
     LineElement.quantity: quantityParser(),
   };
+
+  // Default barcode type is UPC, can be overridden by subclasses
+  String get barcodeType => IdentifierType.upc;
 
   List<LineElement> get primaryLineFormat;
 
