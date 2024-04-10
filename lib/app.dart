@@ -11,7 +11,7 @@ final navigatorKey = GlobalKey<NavigatorState>();
 final navigatorKeyProvider = Provider((_) => navigatorKey);
 
 class App extends ConsumerWidget {
-  static Repository? offlineDb;
+  static Repository? db;
   static ItemThumbnailCache? thumbnailCache;
   final Stopwatch? startupTimer;
 

@@ -3,80 +3,30 @@ import 'package:repository/database/database.dart';
 import 'package:repository/database/preferences.dart';
 import 'package:repository/model/abstract/model.dart';
 
-mixin SynchronizedDatabase<T extends Model, D extends Database<T>> on Database<T> {
-  late final D local;
-  late final D remote;
-  late final Preferences prefs;
-  late final String lastSyncKey;
+class SynchronizedPair<T extends Model> {
+  final Database<T> local;
+  final Database<T> remote;
+  final Preferences prefs;
+  String lastSyncKey;
   DateTime? lastSync;
-  late final String _tag;
+  final String tag;
 
-  @override
-  List<T> all() => local.all();
+  SynchronizedPair(this.tag, this.local, this.remote, this.prefs)
+      : lastSyncKey = 'Synchronized$tag.lastSync';
 
-  void constructSyncDb(String tag, D localDb, D remoteDb, Preferences preferences) {
-    _tag = tag;
-    lastSyncKey = '$tag.lastSync';
-    local = localDb;
-    remote = remoteDb;
-    prefs = preferences;
-  }
-
-  @override
-  void delete(T record) {
-    local.delete(record);
-    remote.delete(record);
-  }
-
-  @override
-  void deleteAll() {
-    local.deleteAll();
-    remote.deleteAll();
-  }
-
-  @override
-  void deleteById(String id) {
-    local.deleteById(id);
-    remote.deleteById(id);
-  }
-
-  @override
-  T? get(String id) => local.get(id);
-
-  @override
-  List<T> getAll(List<String> ids) {
-    return local.getAll(ids);
-  }
-
-  @override
-  List<T> getChanges(DateTime since) {
-    return local.getChanges(since);
-  }
-
-  @override
-  Map<String, T> map() {
-    return local.map();
-  }
-
-  @override
-  void put(T record) {
-    local.put(record);
-    remote.put(record);
-  }
-
-  void syncDifferences() {
+  void synchronize() {
     // Fetch the last synchronization time
     int? lastSyncMillis = prefs.getInt(lastSyncKey);
     lastSync = lastSyncMillis != null ? DateTime.fromMillisecondsSinceEpoch(lastSyncMillis) : null;
 
     // Synchronize everything if no last sync time is found
     if (lastSync == null) {
-      Log.d('$_tag: No last sync time found, synchronizing everything.');
-      synchronize();
+      Log.d('$tag: No last sync time found, synchronizing everything.');
+      synchronizeAll();
       return;
     }
 
-    Log.d('$_tag: Synchronizing differences...');
+    Log.d('$tag: Synchronizing differences...');
     var remoteChanges = remote.getChanges(lastSync!);
     var localChanges = local.getChanges(lastSync!);
     var remoteMap = {for (final r in remoteChanges) r.id: r};
@@ -112,23 +62,23 @@ mixin SynchronizedDatabase<T extends Model, D extends Database<T>> on Database<T
 
     // Perform a full synchronization if the databases are out of sync
     if (local.all().length != remote.all().length) {
-      Log.w('$_tag: Local and remote databases are out of sync, performing full synchronization.');
-      synchronize();
+      Log.w('$tag: Local and remote databases are out of sync, performing full synchronization.');
+      synchronizeAll();
       return;
     }
 
     // Log the number of synchronized items
     if (changes > 0) {
-      Log.d('$_tag: Synchronized $changes items.');
+      Log.d('$tag: Synchronized $changes items.');
     } else {
-      Log.d('$_tag: No synchronization necessary, everything up to date.');
+      Log.d('$tag: No synchronization necessary, everything up to date.');
     }
 
     // Update the last synchronization time
     _updateSyncTime();
   }
 
-  void synchronize() {
+  void synchronizeAll() {
     // Fetch all records from both local and remote databases
     var localRecords = local.map();
     var remoteRecords = remote.map();

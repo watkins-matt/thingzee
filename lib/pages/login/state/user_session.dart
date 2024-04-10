@@ -1,14 +1,18 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:log/log.dart';
 import 'package:repository/cloud_repository.dart';
-import 'package:repository/repository.dart';
-import 'package:repository/sync_repository.dart';
+import 'package:repository/database/mock/repository.dart';
 import 'package:repository/util/hash.dart';
 import 'package:thingzee/main.dart';
 
 final userSessionProvider = StateNotifierProvider<UserSession, SessionState>((ref) {
-  final repo = ref.watch(repositoryProvider);
-  return UserSession(repo);
+  final repo = ref.watch(cloudRepoProvider);
+
+  if (!repo.hasValue || repo.isLoading || repo.hasError) {
+    return UserSession(MockRepository() as CloudRepository);
+  }
+
+  return UserSession(repo.requireValue);
 });
 
 class SessionState {
@@ -32,23 +36,14 @@ class SessionState {
 }
 
 class UserSession extends StateNotifier<SessionState> {
-  final Repository _repo;
+  final CloudRepository repo;
 
-  UserSession(this._repo) : super(SessionState.initial());
+  UserSession(this.repo) : super(SessionState.initial());
 
   Future<bool> login(String email, String password) async {
-    if (!_repo.isMultiUser || _repo is! CloudRepository || _repo is! SynchronizedRepository) {
-      Log.w('Login not supported for this repository.');
-      return false;
-    }
-
-    CloudRepository repo;
-    if (_repo is SynchronizedRepository) {
-      repo = (_repo as SynchronizedRepository).remote;
-    } else if (_repo is CloudRepository) {
-      repo = _repo as CloudRepository;
-    } else {
-      Log.w('Login not supported for this repository.');
+    if (!repo.isMultiUser) {
+      Log.w(
+          'Login not supported for this repository. Please ensure the cloud repository is connected and online.');
       return false;
     }
 
@@ -69,26 +64,17 @@ class UserSession extends StateNotifier<SessionState> {
   }
 
   Future<void> logout() async {
-    assert(_repo.isMultiUser);
+    assert(repo.isMultiUser);
     state = SessionState.initial();
-    await (_repo as CloudRepository).logoutUser();
+    await repo.logoutUser();
   }
 
   Future<bool> register(String username, String email, String password) async {
-    if (!_repo.isMultiUser || _repo is! CloudRepository || _repo is! SynchronizedRepository) {
+    if (!repo.isMultiUser) {
       Log.w('Registration not supported for this repository.');
       return false;
     }
 
-    CloudRepository repo;
-    if (_repo is SynchronizedRepository) {
-      repo = (_repo as SynchronizedRepository).remote;
-    } else if (_repo is CloudRepository) {
-      repo = _repo as CloudRepository;
-    } else {
-      Log.w('Registration not supported for this repository.');
-      return false;
-    }
     bool registerSuccess = false;
 
     try {

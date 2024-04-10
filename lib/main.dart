@@ -3,17 +3,19 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:log/log.dart';
+import 'package:repository/cloud_repository.dart';
 import 'package:repository/database/joined_item_database.dart';
 import 'package:repository/database/mock/repository.dart';
+import 'package:repository/database/synchronized/synchronization_service.dart';
 import 'package:repository/ml/history_provider.dart';
 import 'package:repository/model/filter.dart';
 import 'package:repository/network/connectivity_service.dart';
 import 'package:repository/repository.dart';
-import 'package:repository/sync_repository.dart';
 import 'package:repository_appw/repository.dart';
 import 'package:repository_ob/repository.dart';
 import 'package:stack_trace/stack_trace.dart';
 import 'package:thingzee/app.dart';
+import 'package:thingzee/async_initializer.dart';
 import 'package:thingzee/pages/inventory/state/item_thumbnail_cache.dart';
 
 Future<void> main() async {
@@ -39,8 +41,8 @@ Future<void> main() async {
       Log.e('Flutter error:', details.exception, details.stack);
     };
 
-    App.offlineDb = await ObjectBoxRepository.create();
-    HistoryProvider().init(App.offlineDb!);
+    App.db = await ObjectBoxRepository.create();
+    HistoryProvider().init(App.db!);
     Log.timerShow(timer, r'Initialized offline database ($seconds seconds).');
     App.thumbnailCache = await createThumbnailCache();
     Log.timerShow(timer, r'Initialized thumbnail cache ($seconds seconds).');
@@ -49,13 +51,15 @@ Future<void> main() async {
       ProviderScope(
         overrides: [
           // Ensure that the offline database is always ready before the UI is created
-          offlineDatabaseProvider.overrideWithValue(App.offlineDb!),
+          repositoryProvider.overrideWithValue(App.db!),
           itemThumbnailCache.overrideWith(
             (ref) => App.thumbnailCache!,
           )
         ],
-        child: App(
-          startupTimer: timer,
+        child: AsyncInitializer(
+          child: App(
+            startupTimer: timer,
+          ),
         ),
       ),
     );
@@ -67,52 +71,71 @@ Future<void> main() async {
   });
 }
 
-final initializationProvider = FutureProvider<Repository>((ref) async {
-  final connectivity = ConnectivityService();
+final cloudRepoProvider = FutureProvider<CloudRepository>((ref) async {
+  final connectivity = ref.watch(connectivityProvider);
   await connectivity.ensureRunning();
   await _waitForOnlineStatus(connectivity);
 
-  final objectbox = ref.watch(offlineDatabaseProvider);
-  if (objectbox is MockRepository) {
+  final db = ref.watch(repositoryProvider);
+  if (db is MockRepository) {
     throw Exception('Offline database is not ready yet.');
   }
 
   final appwrite = await _retryOnFailure(() => AppwriteRepository.create(connectivity));
   Log.i('initializationProvider: AppwriteRepository initialization complete.');
-  final repo = await SynchronizedRepository.create(objectbox, appwrite as AppwriteRepository);
-  Log.i('initializationProvider: SynchronizedRepository initialization complete.');
 
-  HistoryProvider().init(repo);
-
-  assert(repo.ready);
-  return repo;
+  assert(appwrite.ready);
+  return appwrite as CloudRepository;
 });
 
-final offlineDatabaseProvider = Provider<Repository>((ref) {
-  // Note that App.offlineDb is initialized in main, so that it is
-  // ready before the UI is created
-  return App.offlineDb ?? MockRepository();
-});
+final connectivityProvider = Provider<ConnectivityService>((ref) => ConnectivityService());
 
-final repositoryProvider = Provider<Repository>((ref) {
-  final offlineDbState = ref.watch(offlineDatabaseProvider);
-  final initDbState = ref.watch(initializationProvider);
+final repositoryProvider = Provider<Repository>((ref) => MockRepository());
 
-  if (initDbState is AsyncData<Repository>) {
-    // Full repository is ready, return it
-    return initDbState.value;
-  } else {
-    // Full repository is not ready, return offline database
-    return offlineDbState;
+final syncServiceProvider = FutureProvider<SynchronizationService>((ref) async {
+  final db = ref.watch(repositoryProvider);
+  if (db is MockRepository) {
+    throw Exception('Database is not ready yet.');
   }
+
+  final connectivity = ref.watch(connectivityProvider);
+  final cloud = await ref.watch(cloudRepoProvider.future);
+  final syncService = SynchronizationService(db.prefs, connectivity);
+
+  // Set up the synchronization service. This ensures
+  // that when the app is online, all changes between the local
+  // and remote databases are synchronized.
+  syncService.add('Items', db.items, cloud.items);
+  syncService.add('Inventory', db.inv, cloud.inv);
+  syncService.add('History', db.hist, cloud.hist);
+  syncService.add('Household', db.household, cloud.household);
+  syncService.add('Location', db.location, cloud.location);
+  syncService.add('Identifiers', db.identifiers, cloud.identifiers);
+
+  // We need to add the remote so that the sync service
+  // will fetch new data from the remote before attempting synchronization
+  syncService.addRemote(cloud);
+
+  // We set up the local database with replication, so that changes
+  // made locally are instantly replicated to the cloud database.
+  db.items.replicateTo(cloud.items);
+  db.inv.replicateTo(cloud.inv);
+  db.hist.replicateTo(cloud.hist);
+  db.household.replicateTo(cloud.household);
+  db.location.replicateTo(cloud.location);
+  db.identifiers.replicateTo(cloud.identifiers);
+
+  await syncService.synchronize(skipFetch: true);
+
+  return syncService;
 });
 
 Future<ItemThumbnailCache> createThumbnailCache() async {
-  assert(App.offlineDb != null);
+  assert(App.db != null);
   const preloadCount = 10;
 
   // Offline db must be initialized first
-  final joinedItemDb = JoinedItemDatabase(App.offlineDb!.items, App.offlineDb!.inv);
+  final joinedItemDb = JoinedItemDatabase(App.db!.items, App.db!.inv);
   const defaultFilter = Filter();
 
   // Create a list of items using the default filter order by name
