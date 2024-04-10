@@ -3,13 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:log/log.dart';
+import 'package:receipt_ocr/post_scan_handler.dart';
+import 'package:receipt_ocr/state/camera_state.dart';
+import 'package:receipt_ocr/text_merge_strategy.dart';
 import 'package:receipt_parser/generic_parser.dart';
 import 'package:receipt_parser/stores/target.dart';
 import 'package:util/extension/string.dart';
-
-import 'post_scan_handler.dart';
-import 'state/camera_state.dart';
-import 'text_merge_strategy.dart';
 
 enum ParserType { generic, target }
 

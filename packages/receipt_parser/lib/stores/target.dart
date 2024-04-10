@@ -1,17 +1,16 @@
 import 'dart:math';
 
 import 'package:petitparser/petitparser.dart';
+import 'package:receipt_parser/element/date.dart';
+import 'package:receipt_parser/element/phone_number.dart';
+import 'package:receipt_parser/element/price.dart';
+import 'package:receipt_parser/element/quantity.dart';
+import 'package:receipt_parser/element/time.dart';
+import 'package:receipt_parser/generic_parser.dart';
 import 'package:receipt_parser/model/receipt.dart';
 import 'package:receipt_parser/model/receipt_item.dart';
+import 'package:receipt_parser/ocr_text.dart';
 import 'package:repository/database/identifier_database.dart';
-
-import '../element/date.dart';
-import '../element/phone_number.dart';
-import '../element/price.dart';
-import '../element/quantity.dart';
-import '../element/time.dart';
-import '../generic_parser.dart';
-import '../ocr_text.dart';
 
 Parser<double> skipToTargetBottleDepositFeeParser() {
   final parser = targetBottleDepositFeeParser();
