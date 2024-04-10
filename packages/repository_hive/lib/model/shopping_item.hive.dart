@@ -13,21 +13,24 @@ class HiveShoppingItem extends HiveObject {
   @HiveField(1)
   late DateTime? updated;
   @HiveField(2)
-  late String upc;
+  late String uid;
   @HiveField(3)
-  late String name;
+  late String upc;
   @HiveField(4)
-  late String category;
+  late String name;
   @HiveField(5)
-  late double price;
+  late String category;
   @HiveField(6)
-  late bool checked;
+  late double price;
   @HiveField(7)
+  late bool checked;
+  @HiveField(8)
   late String listName;
   HiveShoppingItem();
   HiveShoppingItem.from(ShoppingItem original) {
     created = original.created;
     updated = original.updated;
+    uid = original.uid;
     upc = original.upc;
     name = original.name;
     category = original.category;
@@ -39,6 +42,7 @@ class HiveShoppingItem extends HiveObject {
     return ShoppingItem(
         created: created,
         updated: updated,
+        uid: uid,
         upc: upc,
         name: name,
         category: category,

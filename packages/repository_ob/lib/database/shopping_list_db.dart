@@ -12,12 +12,12 @@ class ObjectBoxShoppingListDatabase extends ShoppingListDatabase
 
   @override
   Condition<ObjectBoxShoppingItem> buildIdCondition(String id) {
-    return ObjectBoxShoppingItem_.upc.equals(id);
+    return ObjectBoxShoppingItem_.uid.equals(id);
   }
 
   @override
   Condition<ObjectBoxShoppingItem> buildIdsCondition(List<String> ids) {
-    return ObjectBoxShoppingItem_.upc.oneOf(ids);
+    return ObjectBoxShoppingItem_.uid.oneOf(ids);
   }
 
   @override

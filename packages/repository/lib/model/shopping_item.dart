@@ -4,7 +4,9 @@ import 'package:repository/database/shopping_list.dart';
 import 'package:repository/merge_generator.dart';
 import 'package:repository/model/abstract/model.dart';
 import 'package:repository/model/serializer_datetime.dart';
+import 'package:repository/util/hash.dart';
 import 'package:util/extension/date_time.dart';
+import 'package:uuid/uuid.dart';
 
 part 'shopping_item.g.dart';
 part 'shopping_item.merge.dart';
@@ -13,47 +15,36 @@ part 'shopping_item.merge.dart';
 @immutable
 @Mergeable()
 class ShoppingItem extends Model<ShoppingItem> {
-  // The UPC of the item
-  @JsonKey(defaultValue: '')
-  final String upc;
-
-  // The name of the item; can potentially be a generic name like 'Bread'
-  @JsonKey(defaultValue: '')
-  final String name;
-
-  // The category of the item - where it would be found in a store
-  @JsonKey(defaultValue: '')
-  final String category;
-
-  // The price of the item, defaulting to 0.0 if not present
-  @JsonKey(defaultValue: 0.0)
-  final double price;
-
-  // Whether the item is checked or not
-  @JsonKey(defaultValue: false)
-  final bool checked;
-
-  @JsonKey(defaultValue: ShoppingListName.shopping)
-  final String listName;
+  final String uid; // Unique identifier for the item
+  final String upc; // The UPC of the item
+  final String name; // The name of the item
+  final String category; // The category of the item
+  final double price; // The price of the item
+  final bool checked; // Whether the item is checked or not
+  final String listName; // The name of the list the item is in
 
   ShoppingItem({
-    required this.upc,
-    required this.checked,
+    String? uid,
+    this.upc = '',
+    this.checked = false,
     this.listName = ShoppingListName.shopping,
     this.name = '',
     this.category = '',
     this.price = 0.0,
     super.created,
     super.updated,
-  });
+  }) : uid = uid != null && uid.isNotEmpty
+            ? uid
+            : (upc.isNotEmpty ? hashBarcode(upc) : const Uuid().v4());
 
   factory ShoppingItem.fromJson(Map<String, dynamic> json) => _$ShoppingItemFromJson(json);
 
   @override
-  String get id => upc;
+  String get id => uid;
 
   @override
   ShoppingItem copyWith({
+    String? uid,
     String? upc,
     bool? checked,
     String? listName,
@@ -64,6 +55,9 @@ class ShoppingItem extends Model<ShoppingItem> {
     DateTime? updated,
   }) {
     return ShoppingItem(
+      uid: uid != null && uid.isNotEmpty
+          ? uid
+          : (upc != null && upc.isNotEmpty ? hashBarcode(upc) : this.uid),
       upc: upc ?? this.upc,
       checked: checked ?? this.checked,
       listName: listName ?? this.listName,
@@ -77,7 +71,8 @@ class ShoppingItem extends Model<ShoppingItem> {
 
   @override
   bool equalTo(ShoppingItem other) {
-    return upc == other.upc &&
+    return uid == other.uid &&
+        upc == other.upc &&
         checked == other.checked &&
         listName == other.listName &&
         name == other.name &&

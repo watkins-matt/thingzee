@@ -5,6 +5,7 @@ part of 'shopping_item.dart';
 ShoppingItem _$mergeShoppingItem(ShoppingItem first, ShoppingItem second) {
   final newer = first.updated.newer(second.updated) == first.updated ? first : second;
   var merged = ShoppingItem(
+    uid: newer.uid.isNotEmpty ? newer.uid : first.uid,
     upc: newer.upc.isNotEmpty ? newer.upc : first.upc,
     name: newer.name.isNotEmpty ? newer.name : first.name,
     category: newer.category.isNotEmpty ? newer.category : first.category,

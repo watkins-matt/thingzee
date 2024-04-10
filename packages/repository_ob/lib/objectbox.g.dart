@@ -69,7 +69,7 @@ final _entities = <obx_int.ModelEntity>[
   obx_int.ModelEntity(
       id: const obx_int.IdUid(22, 4012899901862137920),
       name: 'ObjectBoxShoppingItem',
-      lastPropertyId: const obx_int.IdUid(5, 2383647298954806222),
+      lastPropertyId: const obx_int.IdUid(10, 8215490897377098631),
       flags: 0,
       properties: <obx_int.ModelProperty>[
         obx_int.ModelProperty(
@@ -96,6 +96,31 @@ final _entities = <obx_int.ModelEntity>[
             id: const obx_int.IdUid(5, 2383647298954806222),
             name: 'updated',
             type: 10,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(6, 6975486646059346812),
+            name: 'uid',
+            type: 9,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(7, 2518258497503168622),
+            name: 'name',
+            type: 9,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(8, 7740798758396629729),
+            name: 'category',
+            type: 9,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(9, 5996623426433638421),
+            name: 'price',
+            type: 8,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(10, 8215490897377098631),
+            name: 'listName',
+            type: 9,
             flags: 0)
       ],
       relations: <obx_int.ModelRelation>[],
@@ -917,12 +942,21 @@ obx_int.ModelDefinition getObjectBoxModel() {
         },
         objectToFB: (ObjectBoxShoppingItem object, fb.Builder fbb) {
           final upcOffset = fbb.writeString(object.upc);
-          fbb.startTable(6);
+          final uidOffset = fbb.writeString(object.uid);
+          final nameOffset = fbb.writeString(object.name);
+          final categoryOffset = fbb.writeString(object.category);
+          final listNameOffset = fbb.writeString(object.listName);
+          fbb.startTable(11);
           fbb.addOffset(0, upcOffset);
           fbb.addBool(1, object.checked);
           fbb.addInt64(2, object.objectBoxId);
           fbb.addInt64(3, object.created?.millisecondsSinceEpoch);
           fbb.addInt64(4, object.updated?.millisecondsSinceEpoch);
+          fbb.addOffset(5, uidOffset);
+          fbb.addOffset(6, nameOffset);
+          fbb.addOffset(7, categoryOffset);
+          fbb.addFloat64(8, object.price);
+          fbb.addOffset(9, listNameOffset);
           fbb.finish(fbb.endTable());
           return object.objectBoxId;
         },
@@ -945,7 +979,17 @@ obx_int.ModelDefinition getObjectBoxModel() {
                 : DateTime.fromMillisecondsSinceEpoch(createdValue)
             ..updated = updatedValue == null
                 ? null
-                : DateTime.fromMillisecondsSinceEpoch(updatedValue);
+                : DateTime.fromMillisecondsSinceEpoch(updatedValue)
+            ..uid = const fb.StringReader(asciiOptimization: true)
+                .vTableGet(buffer, rootOffset, 14, '')
+            ..name = const fb.StringReader(asciiOptimization: true)
+                .vTableGet(buffer, rootOffset, 16, '')
+            ..category = const fb.StringReader(asciiOptimization: true)
+                .vTableGet(buffer, rootOffset, 18, '')
+            ..price =
+                const fb.Float64Reader().vTableGet(buffer, rootOffset, 20, 0)
+            ..listName = const fb.StringReader(asciiOptimization: true)
+                .vTableGet(buffer, rootOffset, 22, '');
 
           return object;
         }),
@@ -1582,6 +1626,26 @@ class ObjectBoxShoppingItem_ {
   /// see [ObjectBoxShoppingItem.updated]
   static final updated =
       obx.QueryDateProperty<ObjectBoxShoppingItem>(_entities[1].properties[4]);
+
+  /// see [ObjectBoxShoppingItem.uid]
+  static final uid = obx.QueryStringProperty<ObjectBoxShoppingItem>(
+      _entities[1].properties[5]);
+
+  /// see [ObjectBoxShoppingItem.name]
+  static final name = obx.QueryStringProperty<ObjectBoxShoppingItem>(
+      _entities[1].properties[6]);
+
+  /// see [ObjectBoxShoppingItem.category]
+  static final category = obx.QueryStringProperty<ObjectBoxShoppingItem>(
+      _entities[1].properties[7]);
+
+  /// see [ObjectBoxShoppingItem.price]
+  static final price = obx.QueryDoubleProperty<ObjectBoxShoppingItem>(
+      _entities[1].properties[8]);
+
+  /// see [ObjectBoxShoppingItem.listName]
+  static final listName = obx.QueryStringProperty<ObjectBoxShoppingItem>(
+      _entities[1].properties[9]);
 }
 
 /// [ObjectBoxExpirationDate] entity fields to define ObjectBox queries.

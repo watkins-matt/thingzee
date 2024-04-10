@@ -13,6 +13,7 @@ class ObjectBoxShoppingItem extends ObjectBoxModel<ShoppingItem> {
   late DateTime? created;
   @Property(type: PropertyType.date)
   late DateTime? updated;
+  late String uid;
   late String upc;
   late String name;
   late String category;
@@ -23,6 +24,7 @@ class ObjectBoxShoppingItem extends ObjectBoxModel<ShoppingItem> {
   ObjectBoxShoppingItem.from(ShoppingItem original) {
     created = original.created;
     updated = original.updated;
+    uid = original.uid;
     upc = original.upc;
     name = original.name;
     category = original.category;
@@ -34,6 +36,7 @@ class ObjectBoxShoppingItem extends ObjectBoxModel<ShoppingItem> {
     return ShoppingItem(
         created: created,
         updated: updated,
+        uid: uid,
         upc: upc,
         name: name,
         category: category,
