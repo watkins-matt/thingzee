@@ -4,12 +4,13 @@ import 'dart:collection';
 import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/models.dart' hide Log, Preferences, Model;
 import 'package:log/log.dart';
+import 'package:repository/database/database.dart';
 import 'package:repository/model/abstract/model.dart';
 import 'package:repository/util/hash.dart';
 import 'package:repository_appw/util/appwrite_task_queue.dart';
 import 'package:util/extension/date_time.dart';
 
-mixin AppwriteDatabase<T extends Model> {
+mixin AppwriteDatabase<T extends Model> on Database<T> {
   AppwriteTaskQueue taskQueue = AppwriteTaskQueue();
   late final Databases _database;
   late final String collectionId;
@@ -19,6 +20,8 @@ mixin AppwriteDatabase<T extends Model> {
   String get userId;
 
   Iterable<T> get values => UnmodifiableListView(_items.values);
+
+  @override
   List<T> all() => _items.values.toList();
 
   void constructDatabase(String tag, Databases database, String databaseId, String collectionId) {
@@ -28,6 +31,7 @@ mixin AppwriteDatabase<T extends Model> {
     this.collectionId = collectionId;
   }
 
+  @override
   void delete(T item) {
     String id = item.id;
     _items.remove(id);
@@ -38,15 +42,25 @@ mixin AppwriteDatabase<T extends Model> {
         documentId: uniqueDocumentId(id),
       );
     });
+
+    replicateOperation((replica) async {
+      replica.delete(item);
+    });
   }
 
+  @override
   void deleteAll() {
     for (final id in _items.keys.toList()) {
       deleteById(id);
     }
     _items.clear();
+
+    replicateOperation((replica) async {
+      replica.deleteAll();
+    });
   }
 
+  @override
   void deleteById(String id) {
     _items.remove(id);
     taskQueue.queueTask(() async {
@@ -55,6 +69,10 @@ mixin AppwriteDatabase<T extends Model> {
         collectionId: collectionId,
         documentId: uniqueDocumentId(id),
       );
+    });
+
+    replicateOperation((replica) async {
+      replica.deleteById(id);
     });
   }
 
@@ -87,12 +105,15 @@ mixin AppwriteDatabase<T extends Model> {
         .toList();
   }
 
+  @override
   T? get(String id) => _items[id];
 
+  @override
   List<T> getAll(List<String> ids) {
     return ids.map((id) => _items[id]).where((element) => element != null).cast<T>().toList();
   }
 
+  @override
   List<T> getChanges(DateTime since) {
     return values.where((item) => item.updated != null && item.updated!.isAfter(since)).toList();
   }
@@ -118,6 +139,7 @@ mixin AppwriteDatabase<T extends Model> {
     return key.isNotEmpty;
   }
 
+  @override
   Map<String, T> map() => Map.unmodifiable(_items);
 
   void mergeState(List<T> newItems) {
@@ -133,6 +155,7 @@ mixin AppwriteDatabase<T extends Model> {
     }
   }
 
+  @override
   void put(T item, {List<String>? permissions}) {
     String key = item.id;
 
@@ -174,6 +197,10 @@ mixin AppwriteDatabase<T extends Model> {
           rethrow;
         }
       }
+    });
+
+    replicateOperation((replica) async {
+      replica.put(item);
     });
   }
 

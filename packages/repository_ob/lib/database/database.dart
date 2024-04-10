@@ -29,10 +29,20 @@ mixin ObjectBoxDatabase<T extends Model, O extends ObjectBoxModel> on Database<T
     if (result != null) {
       box.remove(result.objectBoxId);
     }
+
+    replicateOperation((replica) async {
+      replica.delete(item);
+    });
   }
 
   @override
-  void deleteAll() => box.removeAll();
+  void deleteAll() {
+    box.removeAll();
+
+    replicateOperation((replica) async {
+      replica.deleteAll();
+    });
+  }
 
   @override
   void deleteById(String id) {
@@ -45,6 +55,10 @@ mixin ObjectBoxDatabase<T extends Model, O extends ObjectBoxModel> on Database<T
     if (result != null) {
       box.remove(result.objectBoxId);
     }
+
+    replicateOperation((replica) async {
+      replica.deleteById(id);
+    });
   }
 
   O fromModel(T model);
@@ -93,6 +107,10 @@ mixin ObjectBoxDatabase<T extends Model, O extends ObjectBoxModel> on Database<T
     }
 
     box.put(itemOb);
+
+    replicateOperation((replica) async {
+      replica.put(item);
+    });
   }
 
   T toModel(O objectBoxEntity);
