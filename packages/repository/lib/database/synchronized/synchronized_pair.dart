@@ -26,7 +26,6 @@ class SynchronizedPair<T extends Model> {
       return;
     }
 
-    Log.d('$tag: Synchronizing differences...');
     var remoteChanges = remote.getChanges(lastSync!);
     var localChanges = local.getChanges(lastSync!);
     var remoteMap = {for (final r in remoteChanges) r.id: r};

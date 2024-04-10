@@ -40,7 +40,7 @@ class ObjectBoxRepository extends Repository {
     location = ObjectBoxLocationDatabase(store);
     identifiers = ObjectBoxIdentifierDatabase(store);
 
-    Log.timerEnd(timer, 'ObjectBox repository initialized in \$seconds seconds');
+    Log.timerEnd(timer, 'Initialized ObjectBox repository (\$seconds seconds)');
     ready = true;
   }
 
