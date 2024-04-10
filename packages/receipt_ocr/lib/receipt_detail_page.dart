@@ -18,7 +18,7 @@ class ReceiptDetailPage extends ConsumerWidget {
   final ReceiptParser parser;
   final AcceptPressedCallback? onAcceptPressed;
 
-  const ReceiptDetailPage({super.key, required this.parser, this.onAcceptPressed});
+  const ReceiptDetailPage({super.key, required this.parser, required this.onAcceptPressed});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
