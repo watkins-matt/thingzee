@@ -140,8 +140,18 @@ class Evaluator {
     }
 
     double result = best.predict(timestamp);
+
+    // If we don't have any observations, we can't compare to the
+    // latest value, so we just return the result.
+    if (history.current.observations.isEmpty) {
+      return result;
+    }
+
+    // Check to see what the most recent value is to compare with our prediction
     double latestValue = history.current.observations.last.amount;
 
+    // If the predicted value is more than 50% greater than the latest value,
+    // there is likely something wrong with the prediction.
     if (result > (latestValue * 1.5)) {
       Log.w('Predicted value for upc ${history.upc} is more '
           'than 150% greater than the latest value. '
