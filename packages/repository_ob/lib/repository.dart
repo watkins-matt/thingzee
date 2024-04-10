@@ -12,6 +12,7 @@ import 'package:repository_ob/database/identifier_db.dart';
 import 'package:repository_ob/database/inventory_db.dart';
 import 'package:repository_ob/database/item_db.dart';
 import 'package:repository_ob/database/location_db.dart';
+import 'package:repository_ob/database/shopping_list_db.dart';
 import 'package:repository_ob/objectbox.g.dart';
 
 class ObjectBoxRepository extends Repository {
@@ -39,6 +40,7 @@ class ObjectBoxRepository extends Repository {
     household = ObjectBoxHouseholdDatabase(store, prefs);
     location = ObjectBoxLocationDatabase(store);
     identifiers = ObjectBoxIdentifierDatabase(store);
+    shopping = ObjectBoxShoppingListDatabase(store);
 
     Log.timerEnd(timer, 'Initialized ObjectBox repository (\$seconds seconds)');
     ready = true;
