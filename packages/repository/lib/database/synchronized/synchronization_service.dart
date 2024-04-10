@@ -47,6 +47,6 @@ class SynchronizationService<T extends Model> {
 
     // Then, synchronize all the pairs.
     await Future.wait(pairs.map((pair) => Future.sync(() => pair.synchronize())));
-    Log.i('SynchronizationService: Synchronized ${pairs.length} pairs.');
+    Log.i('SynchronizationService: Synchronized ${pairs.length} database pairs.');
   }
 }

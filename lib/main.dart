@@ -24,7 +24,7 @@ Future<void> main() async {
     WidgetsFlutterBinding.ensureInitialized();
 
     // Measure app startup time
-    final timer = Log.timerStart('Starting app.');
+    final timer = Log.timerStart('Starting app...');
 
     // Set demangleStackTrace to handle Riverpod stack traces
     FlutterError.demangleStackTrace = (StackTrace stack) {
@@ -56,10 +56,8 @@ Future<void> main() async {
             (ref) => App.thumbnailCache!,
           )
         ],
-        child: AsyncInitializer(
-          child: App(
-            startupTimer: timer,
-          ),
+        child: const AsyncInitializer(
+          child: App(),
         ),
       ),
     );
