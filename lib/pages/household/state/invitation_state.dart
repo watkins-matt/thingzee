@@ -5,7 +5,7 @@ import 'package:repository/model/invitation.dart';
 import 'package:thingzee/main.dart';
 
 final invitationsProvider = StateNotifierProvider<InvitationState, List<Invitation>>((ref) {
-  final repo = ref.watch(repositoryProvider);
+  final repo = ref.watch(cloudRepoProvider);
   CloudRepository cloudRepo = repo as CloudRepository;
   return InvitationState(cloudRepo);
 });
