@@ -9,7 +9,10 @@ part of 'shopping_item.dart';
 ShoppingItem _$ShoppingItemFromJson(Map<String, dynamic> json) => ShoppingItem(
       upc: json['upc'] as String? ?? '',
       checked: json['checked'] as bool? ?? false,
-      listType: ShoppingItem.intToShoppingListType(json['listType'] as int),
+      listName: json['listName'] as String? ?? 'shopping',
+      name: json['name'] as String? ?? '',
+      category: json['category'] as String? ?? '',
+      price: (json['price'] as num?)?.toDouble() ?? 0.0,
       created: _$JsonConverterFromJson<int, DateTime?>(
           json['created'], const NullableDateTimeSerializer().fromJson),
       updated: _$JsonConverterFromJson<int, DateTime?>(
@@ -21,8 +24,11 @@ Map<String, dynamic> _$ShoppingItemToJson(ShoppingItem instance) =>
       'created': const NullableDateTimeSerializer().toJson(instance.created),
       'updated': const NullableDateTimeSerializer().toJson(instance.updated),
       'upc': instance.upc,
+      'name': instance.name,
+      'category': instance.category,
+      'price': instance.price,
       'checked': instance.checked,
-      'listType': ShoppingItem.shoppingListTypeToInt(instance.listType),
+      'listName': instance.listName,
     };
 
 Value? _$JsonConverterFromJson<Json, Value>(

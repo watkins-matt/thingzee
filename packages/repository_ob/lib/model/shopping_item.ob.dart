@@ -14,22 +14,31 @@ class ObjectBoxShoppingItem extends ObjectBoxModel {
   @Property(type: PropertyType.date)
   late DateTime? updated;
   late String upc;
+  late String name;
+  late String category;
+  late double price;
   late bool checked;
-  late ShoppingListType listType;
+  late String listName;
   ObjectBoxShoppingItem();
   ObjectBoxShoppingItem.from(ShoppingItem original) {
     created = original.created;
     updated = original.updated;
     upc = original.upc;
+    name = original.name;
+    category = original.category;
+    price = original.price;
     checked = original.checked;
-    listType = original.listType;
+    listName = original.listName;
   }
   ShoppingItem toShoppingItem() {
     return ShoppingItem(
         created: created,
         updated: updated,
         upc: upc,
+        name: name,
+        category: category,
+        price: price,
         checked: checked,
-        listType: listType);
+        listName: listName);
   }
 }

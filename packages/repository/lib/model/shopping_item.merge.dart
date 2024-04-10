@@ -6,8 +6,11 @@ ShoppingItem _$mergeShoppingItem(ShoppingItem first, ShoppingItem second) {
   final newer = first.updated.newer(second.updated) == first.updated ? first : second;
   var merged = ShoppingItem(
     upc: newer.upc.isNotEmpty ? newer.upc : first.upc,
+    name: newer.name.isNotEmpty ? newer.name : first.name,
+    category: newer.category.isNotEmpty ? newer.category : first.category,
+    price: newer.price,
     checked: newer.checked,
-    listType: newer.listType,
+    listName: newer.listName.isNotEmpty ? newer.listName : first.listName,
     created: first.created.older(second.created),
     updated: newer.updated,
   );

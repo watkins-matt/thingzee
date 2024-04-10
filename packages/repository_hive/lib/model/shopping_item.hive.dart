@@ -15,23 +15,35 @@ class HiveShoppingItem extends HiveObject {
   @HiveField(2)
   late String upc;
   @HiveField(3)
-  late bool checked;
+  late String name;
   @HiveField(4)
-  late ShoppingListType listType;
+  late String category;
+  @HiveField(5)
+  late double price;
+  @HiveField(6)
+  late bool checked;
+  @HiveField(7)
+  late String listName;
   HiveShoppingItem();
   HiveShoppingItem.from(ShoppingItem original) {
     created = original.created;
     updated = original.updated;
     upc = original.upc;
+    name = original.name;
+    category = original.category;
+    price = original.price;
     checked = original.checked;
-    listType = original.listType;
+    listName = original.listName;
   }
   ShoppingItem toShoppingItem() {
     return ShoppingItem(
         created: created,
         updated: updated,
         upc: upc,
+        name: name,
+        category: category,
+        price: price,
         checked: checked,
-        listType: listType);
+        listName: listName);
   }
 }
