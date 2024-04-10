@@ -53,6 +53,7 @@ class _AddItemBrowserPageState extends ConsumerState<AddItemBrowserPage> {
                   decoration: const InputDecoration(
                     labelText: 'Item Name',
                   ),
+                  keyboardType: TextInputType.text,
                 ),
               ),
               IconButton(
@@ -71,6 +72,7 @@ class _AddItemBrowserPageState extends ConsumerState<AddItemBrowserPage> {
             decoration: const InputDecoration(
               labelText: 'Item UPC',
             ),
+            keyboardType: TextInputType.number,
           ),
         ),
         Expanded(
