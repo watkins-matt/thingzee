@@ -5,6 +5,7 @@ import 'package:repository/merge_generator.dart';
 import 'package:repository/ml/history.dart';
 import 'package:repository/ml/regressor.dart';
 import 'package:repository/model/abstract/model.dart';
+import 'package:repository/model/item.dart';
 import 'package:repository/model/serializer_datetime.dart';
 import 'package:repository/model_provider.dart';
 import 'package:repository/util/hash.dart';
@@ -57,6 +58,8 @@ class Inventory extends Model<Inventory> {
   bool get isPredictedOut {
     return predictedAmount <= 0;
   }
+
+  Item get item => ModelProvider<Item>().get(upc, Item(upc: upc));
 
   String get lastUpdatedString {
     return updated != null ? DateFormat.yMMMd().format(updated!) : 'Never';

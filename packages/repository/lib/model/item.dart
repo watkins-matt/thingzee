@@ -3,7 +3,9 @@ import 'package:meta/meta.dart';
 import 'package:repository/merge_generator.dart';
 import 'package:repository/model/abstract/model.dart';
 import 'package:repository/model/abstract/nameable.dart';
+import 'package:repository/model/inventory.dart';
 import 'package:repository/model/serializer_datetime.dart';
+import 'package:repository/model_provider.dart';
 import 'package:repository/util/hash.dart';
 import 'package:util/extension/date_time.dart';
 import 'package:uuid/uuid.dart';
@@ -56,6 +58,8 @@ class Item extends Model<Item> implements Comparable<Item>, Nameable {
 
   @override
   String get id => upc;
+
+  Inventory get inventory => ModelProvider<Inventory>().get(upc, Inventory(upc: upc));
 
   @override
   int compareTo(Item other) {

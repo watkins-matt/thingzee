@@ -3,7 +3,10 @@ import 'package:meta/meta.dart';
 import 'package:repository/database/shopping_list.dart';
 import 'package:repository/merge_generator.dart';
 import 'package:repository/model/abstract/model.dart';
+import 'package:repository/model/inventory.dart';
+import 'package:repository/model/item.dart';
 import 'package:repository/model/serializer_datetime.dart';
+import 'package:repository/model_provider.dart';
 import 'package:repository/util/hash.dart';
 import 'package:util/extension/date_time.dart';
 import 'package:uuid/uuid.dart';
@@ -36,11 +39,14 @@ class ShoppingItem extends Model<ShoppingItem> {
   }) : uid = uid != null && uid.isNotEmpty
             ? uid
             : (upc.isNotEmpty ? hashBarcode(upc) : const Uuid().v4());
-
   factory ShoppingItem.fromJson(Map<String, dynamic> json) => _$ShoppingItemFromJson(json);
+
+  Inventory get history => ModelProvider<Inventory>().get(upc, Inventory(upc: upc));
 
   @override
   String get id => uid;
+
+  Item get item => ModelProvider<Item>().get(upc, Item(upc: upc));
 
   @override
   ShoppingItem copyWith({

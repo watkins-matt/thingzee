@@ -9,6 +9,8 @@ import 'package:repository/database/mock/repository.dart';
 import 'package:repository/database/synchronized/synchronization_service.dart';
 import 'package:repository/ml/history.dart';
 import 'package:repository/model/filter.dart';
+import 'package:repository/model/inventory.dart';
+import 'package:repository/model/item.dart';
 import 'package:repository/model_provider.dart';
 import 'package:repository/network/connectivity_service.dart';
 import 'package:repository/repository.dart';
@@ -44,7 +46,11 @@ Future<void> main() async {
 
     App.db = await ObjectBoxRepository.create();
 
+    // Initialize model providers
     ModelProvider<History>().init(App.db!.hist);
+    ModelProvider<Item>().init(App.db!.items);
+    ModelProvider<Inventory>().init(App.db!.inv);
+
     Log.timerShow(timer, r'Initialized offline database ($seconds seconds).');
     App.thumbnailCache = await createThumbnailCache();
     Log.timerShow(timer, r'Initialized thumbnail cache ($seconds seconds).');
