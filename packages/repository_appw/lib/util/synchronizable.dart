@@ -5,7 +5,7 @@ import 'package:repository/database/preferences.dart';
 
 mixin AppwriteSynchronizable<T> {
   bool _online = false;
-  DateTime? lastSync;
+  DateTime? lastFetch;
   late Preferences _prefs;
   String _userId = '';
   String _syncKey = '';
@@ -24,17 +24,29 @@ mixin AppwriteSynchronizable<T> {
 
     int? lastSyncMillis = prefs.getInt(_syncKey);
     if (lastSyncMillis != null) {
-      lastSync = DateTime.fromMillisecondsSinceEpoch(lastSyncMillis);
+      lastFetch = DateTime.fromMillisecondsSinceEpoch(lastSyncMillis);
     }
   }
 
   // Convert a document list to a list of <T>.
   List<T> documentsToList(DocumentList documents);
 
+  Future<void> fetch() async {
+    if (!_online) return;
+
+    final timer = Log.timerStart();
+    List<T> allItems = await _loadAllFromRemote();
+
+    replaceState(allItems); // Replace the current state with the fetched items.
+
+    Log.timerEnd(timer, '$_tag: Fetch completed in \$seconds seconds.');
+    _updateSyncTime();
+  }
+
   // Get all documents that match the given queries.
   Future<DocumentList> getDocuments(List<String> queries);
 
-  // Get all documents that have been modified since the last sync.
+  // Get all documents that have been modified since the last fetch.
   Future<DocumentList> getModifiedDocuments(DateTime? lastSyncTime);
 
   Future<void> handleConnectionChange(bool online, Session? session) async {
@@ -46,7 +58,7 @@ mixin AppwriteSynchronizable<T> {
         await onConnectivityChange!(online);
       }
 
-      await sync();
+      await fetch();
     } else {
       _online = false;
       _userId = '';
@@ -59,25 +71,13 @@ mixin AppwriteSynchronizable<T> {
   // Abstract method to replace the current state with new items.
   void replaceState(List<T> allItems);
 
-  Future<void> sync() async {
-    if (!_online) return;
-
-    final timer = Log.timerStart();
-    List<T> allItems = await _loadAllFromRemote();
-
-    replaceState(allItems); // Replace the current state with the fetched items.
-
-    Log.timerEnd(timer, '$_tag: Sync completed in \$seconds seconds.');
-    _updateSyncTime();
-  }
-
   Future<void> syncModified() async {
     if (!_online) return;
     final timer = Log.timerStart();
 
     try {
-      // Get all items that have been modified since the last sync.
-      DocumentList response = await getModifiedDocuments(lastSync);
+      // Get all items that have been modified since the last fetch.
+      DocumentList response = await getModifiedDocuments(lastFetch);
       List<T> changedItems = documentsToList(response);
 
       // Merge all changed items into the current state.
@@ -89,7 +89,7 @@ mixin AppwriteSynchronizable<T> {
       Log.e('$_tag: Error while syncing modifications: $e');
     }
 
-    Log.timerEnd(timer, '$_tag: Modified item sync completed in \$seconds seconds.');
+    Log.timerEnd(timer, '$_tag: Modified item fetch completed in \$seconds seconds.');
     _updateSyncTime();
   }
 
@@ -120,7 +120,7 @@ mixin AppwriteSynchronizable<T> {
   }
 
   void _updateSyncTime() {
-    lastSync = DateTime.now();
-    _prefs.setInt(_syncKey, lastSync!.millisecondsSinceEpoch);
+    lastFetch = DateTime.now();
+    _prefs.setInt(_syncKey, lastFetch!.millisecondsSinceEpoch);
   }
 }

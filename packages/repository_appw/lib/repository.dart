@@ -26,7 +26,7 @@ class AppwriteRepository extends CloudRepository {
   final String projectId = 'thingzee';
   final String verificationEndpoint = 'https://verify.thingzee.net';
   Session? _session;
-  DateTime? _lastSync;
+  DateTime? _lastFetch;
   final int syncCooldown = 60;
   bool _verified = false;
   String _userId = '';
@@ -71,8 +71,49 @@ class AppwriteRepository extends CloudRepository {
   }
 
   @override
+  Future<bool> fetch({bool ignoreCooldown = false}) async {
+    if (!ready || !loggedIn || connectivity.status != ConnectivityStatus.online) {
+      return false;
+    }
+
+    // Don't fetch if we are within the cooldown period
+    if (!ignoreCooldown &&
+        _lastFetch != null &&
+        DateTime.now().difference(_lastFetch!).inSeconds < syncCooldown) {
+      Log.i('AppwriteRepository: Cooldown period, not fetching data.');
+      return false;
+    }
+
+    final timer = Log.timerStart('AppwriteRepository: Fetching remote data...');
+
+    // Recheck verification status on each fetch
+    await checkVerificationStatus();
+
+    final items = this.items as AppwriteItemDatabase;
+    final inv = this.inv as AppwriteInventoryDatabase;
+    final hist = this.hist as AppwriteHistoryDatabase;
+    final household = this.household as AppwriteHouseholdDatabase;
+    final invitation = this.invitation as AppwriteInvitationDatabase;
+    final location = this.location as AppwriteLocationDatabase;
+    final identifiers = this.identifiers as AppwriteIdentifierDatabase;
+
+    await items.handleConnectionChange(true, _session);
+    await inv.handleConnectionChange(true, _session);
+    await hist.handleConnectionChange(true, _session);
+    await household.handleConnectionChange(true, _session);
+    await invitation.handleConnectionChange(true, _session);
+    await location.handleConnectionChange(true, _session);
+    await identifiers.handleConnectionChange(true, _session);
+
+    Log.timerEnd(timer, 'AppwriteRepository: Fetch data completed in \$seconds seconds.');
+    _lastFetch = DateTime.now();
+
+    return true;
+  }
+
+  @override
   void handleConnectivityChange(ConnectivityStatus status) {
-    // Don't sync anything if we haven't initialized yet
+    // Don't fetch anything if we haven't initialized yet
     if (!ready) {
       return;
     }
@@ -80,8 +121,8 @@ class AppwriteRepository extends CloudRepository {
     bool online = status == ConnectivityStatus.online;
 
     scheduleMicrotask(() async {
-      if (_lastSync != null && DateTime.now().difference(_lastSync!).inSeconds < syncCooldown) {
-        Log.i('AppwriteRepository: Cooldown period, skipping sync.');
+      if (_lastFetch != null && DateTime.now().difference(_lastFetch!).inSeconds < syncCooldown) {
+        Log.i('AppwriteRepository: Cooldown period, not fetching data.');
         return;
       }
 
@@ -103,7 +144,7 @@ class AppwriteRepository extends CloudRepository {
       await identifiers.handleConnectionChange(online, _session);
 
       Log.i('AppwriteRepository: Connectivity status handling completed.');
-      _lastSync = DateTime.now();
+      _lastFetch = DateTime.now();
     });
   }
 
@@ -127,7 +168,7 @@ class AppwriteRepository extends CloudRepository {
 
         await prefs.setString('appwrite_session_id', _session!.$id);
         await prefs.setString('appwrite_session_expire', _session!.expire);
-        await sync(ignoreCooldown: true);
+        await fetch(ignoreCooldown: true);
       }
     } catch (e, st) {
       Log.w('AppwriteRepository: Failed to login user:', e, st);
@@ -208,47 +249,6 @@ class AppwriteRepository extends CloudRepository {
     }
   }
 
-  @override
-  Future<bool> sync({bool ignoreCooldown = false}) async {
-    if (!ready || !loggedIn || connectivity.status != ConnectivityStatus.online) {
-      return false;
-    }
-
-    // Don't sync if we are within the cooldown period
-    if (!ignoreCooldown &&
-        _lastSync != null &&
-        DateTime.now().difference(_lastSync!).inSeconds < syncCooldown) {
-      Log.i('AppwriteRepository: Cooldown period, skipping sync.');
-      return false;
-    }
-
-    final timer = Log.timerStart('AppwriteRepository: Starting sync...');
-
-    // Recheck verification status on each sync
-    await checkVerificationStatus();
-
-    final items = this.items as AppwriteItemDatabase;
-    final inv = this.inv as AppwriteInventoryDatabase;
-    final hist = this.hist as AppwriteHistoryDatabase;
-    final household = this.household as AppwriteHouseholdDatabase;
-    final invitation = this.invitation as AppwriteInvitationDatabase;
-    final location = this.location as AppwriteLocationDatabase;
-    final identifiers = this.identifiers as AppwriteIdentifierDatabase;
-
-    await items.handleConnectionChange(true, _session);
-    await inv.handleConnectionChange(true, _session);
-    await hist.handleConnectionChange(true, _session);
-    await household.handleConnectionChange(true, _session);
-    await invitation.handleConnectionChange(true, _session);
-    await location.handleConnectionChange(true, _session);
-    await identifiers.handleConnectionChange(true, _session);
-
-    Log.timerEnd(timer, 'AppwriteRepository: Sync completed in \$seconds seconds.');
-    _lastSync = DateTime.now();
-
-    return true;
-  }
-
   Future<void> _init() async {
     final timer = Log.timerStart();
 
@@ -294,7 +294,7 @@ class AppwriteRepository extends CloudRepository {
         Log.i('AppwriteRepository: Session found, loading...');
         try {
           _session = await _account.getSession(sessionId: sessionId);
-          await sync(ignoreCooldown: true);
+          await fetch(ignoreCooldown: true);
         } on AppwriteException catch (e) {
           Log.e('AppwriteRepository._loadSession: Failed to load session: [AppwriteException]',
               e.message);
