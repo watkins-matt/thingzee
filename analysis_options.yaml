@@ -9,10 +9,8 @@ linter:
   rules:
     - always_use_package_imports
     - always_declare_return_types
-    #- always_specify_types
     - annotate_overrides
     - avoid_bool_literals_in_conditional_expressions
-    #- avoid_classes_with_only_static_members
     - avoid_empty_else
     - avoid_equals_and_hash_code_on_mutable_classes
     - avoid_field_initializers_in_const_classes
@@ -20,11 +18,10 @@ linter:
     - avoid_init_to_null
     - avoid_null_checks_in_equality_operators
     - avoid_relative_lib_imports
-    # - avoid_renaming_method_parameters
     - avoid_return_types_on_setters
     - avoid_returning_null_for_void
     - avoid_shadowing_type_parameters
-    # - avoid_single_cascade_in_expression_statements
+    - avoid_single_cascade_in_expression_statements
     - avoid_slow_async_io
     - avoid_types_as_parameter_names
     - avoid_unused_constructor_parameters
@@ -43,7 +40,7 @@ linter:
     - empty_statements
     - file_names
     - hash_and_equals
-    # - implementation_imports
+    - implementation_imports
     - library_names
     - library_prefixes
     - collection_methods_unrelated_type
@@ -51,7 +48,6 @@ linter:
     - no_duplicate_case_values
     - non_constant_identifier_names
     - null_closures
-    #- omit_local_variable_types
     - overridden_fields
     - package_api_docs
     - package_names
@@ -60,16 +56,15 @@ linter:
     - prefer_asserts_in_initializer_lists
     - prefer_collection_literals
     - prefer_conditional_assignment
-    # - prefer_const_declarations
-    # - prefer_const_literals_to_create_immutables
+    - prefer_const_declarations
     - prefer_constructors_over_static_methods
     - prefer_contains
     - prefer_final_fields
     - prefer_final_in_for_each
-    #- prefer_final_locals
+    # - prefer_final_locals
     - prefer_for_elements_to_map_fromIterable
     - prefer_generic_function_type_aliases
-    # - prefer_if_elements_to_conditional_expressions
+    - prefer_if_elements_to_conditional_expressions
     - prefer_if_null_operators
     - prefer_initializing_formals
     - prefer_inlined_adds
@@ -81,7 +76,6 @@ linter:
     - prefer_iterable_whereType
     - prefer_mixin
     - prefer_null_aware_operators
-    #- prefer_relative_imports
     - prefer_single_quotes
     - prefer_spread_collections
     - prefer_typing_uninitialized_variables
