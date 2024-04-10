@@ -19,10 +19,10 @@ abstract class CloudRepository extends Repository {
   String get userId;
 
   Future<bool> checkVerificationStatus();
+  Future<bool> fetch();
   void handleConnectivityChange(ConnectivityStatus status);
   Future<bool> loginUser(String email, String password);
   Future<void> logoutUser();
   Future<bool> registerUser(String username, String email, String password);
   Future<void> sendVerificationEmail(String email);
-  Future<bool> sync();
 }
