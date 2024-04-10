@@ -1,4 +1,4 @@
-import 'platform_stub.dart'
+import 'package:log/platform/platform_stub.dart'
     if (dart.library.js) 'platform_web.dart'
     if (dart.library.ui) 'platform_flutter.dart';
 
