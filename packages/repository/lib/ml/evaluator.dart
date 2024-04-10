@@ -235,6 +235,11 @@ class Evaluator {
 
     final pointsMap = series.toPoints();
 
+    // If there are not any points, return 0 for no errors
+    if (pointsMap.isEmpty) {
+      return 0;
+    }
+
     // Save the original baseTimestamp and yScale
     double originalBaseTimestamp = regressor.baseTimestamp;
     double originalYScale = regressor.yScale;
