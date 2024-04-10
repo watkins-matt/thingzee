@@ -31,7 +31,7 @@ class ObjectBoxItemDatabase extends ItemDatabase with ObjectBoxDatabase<Item, Ob
   List<Item> filter(Filter filter) {
     final query = box.query(filter.toObjectBoxItemCondition()).build();
     final results = query.find();
-    return results.map((objBoxItem) => objBoxItem.toItem()).toList();
+    return results.map((objBoxItem) => objBoxItem.convert()).toList();
   }
 
   @override
@@ -41,11 +41,8 @@ class ObjectBoxItemDatabase extends ItemDatabase with ObjectBoxDatabase<Item, Ob
   List<Item> search(String string) {
     final query = box.query(ObjectBoxItem_.name.contains(string, caseSensitive: false)).build();
     final results = query.find();
-    return results.map((objBoxItem) => objBoxItem.toItem()).toList();
+    return results.map((objBoxItem) => objBoxItem.convert()).toList();
   }
-
-  @override
-  Item toModel(ObjectBoxItem objectBoxEntity) => objectBoxEntity.toItem();
 }
 
 extension ObjectBoxCondition on Filter {

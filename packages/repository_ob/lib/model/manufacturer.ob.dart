@@ -6,7 +6,7 @@ import 'package:repository/model/manufacturer.dart';
 import 'package:repository_ob/model_custom/object_box_model.dart';
 
 @Entity()
-class ObjectBoxManufacturer extends ObjectBoxModel {
+class ObjectBoxManufacturer extends ObjectBoxModel<Manufacturer> {
   @Id()
   int objectBoxId = 0;
   @Property(type: PropertyType.date)
@@ -28,7 +28,7 @@ class ObjectBoxManufacturer extends ObjectBoxModel {
     parentName = original.parentName;
     parentUid = original.parentUid;
   }
-  Manufacturer toManufacturer() {
+  Manufacturer convert() {
     return Manufacturer(
         created: created,
         updated: updated,

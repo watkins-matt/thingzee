@@ -383,7 +383,7 @@ class DartClassGenerator(ABC):
             ).rstrip()
 
             return (
-                f"  {dart_class.name} to{dart_class.name}() {{\n"
+                f"  {dart_class.name} convert() {{\n"
                 f"    return {dart_class.name}()\n"
                 f"{attribute_assignments};\n"
                 f"  }}"
@@ -396,7 +396,7 @@ class DartClassGenerator(ABC):
                 for attribute in dart_class.attributes
             )
             return (
-                f"  {dart_class.name} to{dart_class.name}() {{\n"
+                f"  {dart_class.name} convert() {{\n"
                 f"    return {dart_class.name}(\n"
                 f"        {parameters});\n"
                 f"  }}"
@@ -407,7 +407,9 @@ class ObjectBoxGenerator(DartClassGenerator):
     def generate(self, dart_class: DartClass, custom_code: str = None) -> str:
         lines = []
         lines.append("@Entity()")
-        lines.append(f"class ObjectBox{dart_class.name} extends ObjectBoxModel {{")
+        lines.append(
+            f"class ObjectBox{dart_class.name} extends ObjectBoxModel<{dart_class.name}> {{"
+        )
 
         lines.append("  @Id()")
         lines.append("  int objectBoxId = 0;")

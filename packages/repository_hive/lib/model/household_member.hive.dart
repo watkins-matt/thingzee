@@ -32,7 +32,7 @@ class HiveHouseholdMember extends HiveObject {
     name = original.name;
     userId = original.userId;
   }
-  HouseholdMember toHouseholdMember() {
+  HouseholdMember convert() {
     return HouseholdMember(
         created: created,
         updated: updated,

@@ -6,7 +6,7 @@ import 'package:repository/model/product.dart';
 import 'package:repository_ob/model_custom/object_box_model.dart';
 
 @Entity()
-class ObjectBoxProduct extends ObjectBoxModel {
+class ObjectBoxProduct extends ObjectBoxModel<Product> {
   @Id()
   int objectBoxId = 0;
   @Property(type: PropertyType.date)
@@ -30,7 +30,7 @@ class ObjectBoxProduct extends ObjectBoxModel {
     category = original.category;
     upcs = original.upcs;
   }
-  Product toProduct() {
+  Product convert() {
     return Product(
         created: created,
         updated: updated,

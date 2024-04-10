@@ -6,7 +6,7 @@ import 'package:repository/model/identifier.dart';
 import 'package:repository_ob/model_custom/object_box_model.dart';
 
 @Entity()
-class ObjectBoxIdentifier extends ObjectBoxModel {
+class ObjectBoxIdentifier extends ObjectBoxModel<Identifier> {
   @Id()
   int objectBoxId = 0;
   @Property(type: PropertyType.date)
@@ -24,7 +24,7 @@ class ObjectBoxIdentifier extends ObjectBoxModel {
     value = original.value;
     uid = original.uid;
   }
-  Identifier toIdentifier() {
+  Identifier convert() {
     return Identifier(
         created: created,
         updated: updated,

@@ -6,7 +6,7 @@ import 'package:repository/model/item_translation.dart';
 import 'package:repository_ob/model_custom/object_box_model.dart';
 
 @Entity()
-class ObjectBoxItemTranslation extends ObjectBoxModel {
+class ObjectBoxItemTranslation extends ObjectBoxModel<ItemTranslation> {
   @Id()
   int objectBoxId = 0;
   @Property(type: PropertyType.date)
@@ -33,7 +33,7 @@ class ObjectBoxItemTranslation extends ObjectBoxModel {
     unitPlural = original.unitPlural;
     type = original.type;
   }
-  ItemTranslation toItemTranslation() {
+  ItemTranslation convert() {
     return ItemTranslation(
         created: created,
         updated: updated,

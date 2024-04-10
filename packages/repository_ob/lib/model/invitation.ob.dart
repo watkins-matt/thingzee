@@ -6,7 +6,7 @@ import 'package:repository/model/invitation.dart';
 import 'package:repository_ob/model_custom/object_box_model.dart';
 
 @Entity()
-class ObjectBoxInvitation extends ObjectBoxModel {
+class ObjectBoxInvitation extends ObjectBoxModel<Invitation> {
   @Id()
   int objectBoxId = 0;
   @Property(type: PropertyType.date)
@@ -30,7 +30,7 @@ class ObjectBoxInvitation extends ObjectBoxModel {
     recipientEmail = original.recipientEmail;
     status = original.status;
   }
-  Invitation toInvitation() {
+  Invitation convert() {
     return Invitation(
         created: created,
         updated: updated,

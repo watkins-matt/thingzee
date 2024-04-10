@@ -6,7 +6,7 @@ import 'package:repository/model/inventory.dart';
 import 'package:repository_ob/model_custom/object_box_model.dart';
 
 @Entity()
-class ObjectBoxInventory extends ObjectBoxModel {
+class ObjectBoxInventory extends ObjectBoxModel<Inventory> {
   @Id()
   int objectBoxId = 0;
   @Property(type: PropertyType.date)
@@ -33,7 +33,7 @@ class ObjectBoxInventory extends ObjectBoxModel {
     uid = original.uid;
     upc = original.upc;
   }
-  Inventory toInventory() {
+  Inventory convert() {
     return Inventory(
         created: created,
         updated: updated,

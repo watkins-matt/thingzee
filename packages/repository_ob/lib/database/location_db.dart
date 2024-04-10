@@ -130,7 +130,4 @@ class ObjectBoxLocationDatabase extends LocationDatabase
     final locObject = Location(name: location, upc: upc, created: time, updated: time);
     put(locObject);
   }
-
-  @override
-  Location toModel(ObjectBoxLocation objectBoxEntity) => objectBoxEntity.toLocation();
 }

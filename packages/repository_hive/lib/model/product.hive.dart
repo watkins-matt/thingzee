@@ -35,7 +35,7 @@ class HiveProduct extends HiveObject {
     category = original.category;
     upcs = original.upcs;
   }
-  Product toProduct() {
+  Product convert() {
     return Product(
         created: created,
         updated: updated,

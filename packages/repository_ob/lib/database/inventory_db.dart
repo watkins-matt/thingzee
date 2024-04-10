@@ -1,6 +1,6 @@
 import 'package:repository/database/inventory_database.dart';
 import 'package:repository/model/inventory.dart';
-import 'package:repository_ob/database/database.dart'; // Adjust the import as needed
+import 'package:repository_ob/database/database.dart';
 import 'package:repository_ob/model/inventory.ob.dart';
 import 'package:repository_ob/objectbox.g.dart';
 
@@ -37,9 +37,6 @@ class ObjectBoxInventoryDatabase extends InventoryDatabase
     final results = query.find();
     query.close();
 
-    return results.map(toModel).toList();
+    return results.map(convert).toList();
   }
-
-  @override
-  Inventory toModel(ObjectBoxInventory objectBoxEntity) => objectBoxEntity.toInventory();
 }

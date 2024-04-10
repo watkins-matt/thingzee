@@ -6,7 +6,7 @@ import 'package:repository/model/shopping_item.dart';
 import 'package:repository_ob/model_custom/object_box_model.dart';
 
 @Entity()
-class ObjectBoxShoppingItem extends ObjectBoxModel {
+class ObjectBoxShoppingItem extends ObjectBoxModel<ShoppingItem> {
   @Id()
   int objectBoxId = 0;
   @Property(type: PropertyType.date)
@@ -30,7 +30,7 @@ class ObjectBoxShoppingItem extends ObjectBoxModel {
     checked = original.checked;
     listName = original.listName;
   }
-  ShoppingItem toShoppingItem() {
+  ShoppingItem convert() {
     return ShoppingItem(
         created: created,
         updated: updated,

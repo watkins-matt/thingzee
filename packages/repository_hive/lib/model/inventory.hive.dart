@@ -38,7 +38,7 @@ class HiveInventory extends HiveObject {
     uid = original.uid;
     upc = original.upc;
   }
-  Inventory toInventory() {
+  Inventory convert() {
     return Inventory(
         created: created,
         updated: updated,

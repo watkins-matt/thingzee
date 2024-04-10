@@ -23,7 +23,7 @@ class HiveExpirationDate extends HiveObject {
     upc = original.upc;
     expirationDate = original.expirationDate;
   }
-  ExpirationDate toExpirationDate() {
+  ExpirationDate convert() {
     return ExpirationDate(
         created: created,
         updated: updated,

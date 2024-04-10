@@ -32,7 +32,7 @@ class HiveManufacturer extends HiveObject {
     parentName = original.parentName;
     parentUid = original.parentUid;
   }
-  Manufacturer toManufacturer() {
+  Manufacturer convert() {
     return Manufacturer(
         created: created,
         updated: updated,

@@ -13,7 +13,7 @@ class HiveInventoryDatabase extends InventoryDatabase {
   @override
   List<Inventory> all() {
     final all = box.values.toList();
-    return all.map((hiveInventory) => hiveInventory.toInventory()).toList();
+    return all.map((hiveInventory) => hiveInventory.convert()).toList();
   }
 
   @override
@@ -34,14 +34,14 @@ class HiveInventoryDatabase extends InventoryDatabase {
   @override
   Inventory? get(String upc) {
     final existingInventory = box.get(upc);
-    return existingInventory?.toInventory();
+    return existingInventory?.convert();
   }
 
   @override
   List<Inventory> getAll(List<String> upcs) {
     final matchingInventory =
         box.values.where((hiveInventory) => upcs.contains(hiveInventory.upc)).toList();
-    return matchingInventory.map((hiveInventory) => hiveInventory.toInventory()).toList();
+    return matchingInventory.map((hiveInventory) => hiveInventory.convert()).toList();
   }
 
   @override
@@ -50,7 +50,7 @@ class HiveInventoryDatabase extends InventoryDatabase {
         .where((hiveInventory) =>
             hiveInventory.updated != null && hiveInventory.updated!.isAfter(since))
         .toList();
-    return changedItems.map((hiveInventory) => hiveInventory.toInventory()).toList();
+    return changedItems.map((hiveInventory) => hiveInventory.convert()).toList();
   }
 
   @override
@@ -70,7 +70,7 @@ class HiveInventoryDatabase extends InventoryDatabase {
     final outsInventory = box.values
         .where((hiveInventory) => hiveInventory.amount <= 0 && hiveInventory.restock)
         .toList();
-    return outsInventory.map((hiveInventory) => hiveInventory.toInventory()).toList();
+    return outsInventory.map((hiveInventory) => hiveInventory.convert()).toList();
   }
 
   @override

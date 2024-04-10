@@ -35,7 +35,7 @@ class HiveInvitation extends HiveObject {
     recipientEmail = original.recipientEmail;
     status = original.status;
   }
-  Invitation toInvitation() {
+  Invitation convert() {
     return Invitation(
         created: created,
         updated: updated,

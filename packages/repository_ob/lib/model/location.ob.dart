@@ -6,7 +6,7 @@ import 'package:repository/model/location.dart';
 import 'package:repository_ob/model_custom/object_box_model.dart';
 
 @Entity()
-class ObjectBoxLocation extends ObjectBoxModel {
+class ObjectBoxLocation extends ObjectBoxModel<Location> {
   @Id()
   int objectBoxId = 0;
   @Property(type: PropertyType.date)
@@ -24,7 +24,7 @@ class ObjectBoxLocation extends ObjectBoxModel {
     name = original.name;
     quantity = original.quantity;
   }
-  Location toLocation() {
+  Location convert() {
     return Location(
         created: created,
         updated: updated,

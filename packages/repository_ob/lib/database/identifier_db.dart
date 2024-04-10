@@ -40,7 +40,7 @@ class ObjectBoxIdentifierDatabase extends IdentifierDatabase
   @override
   List<Identifier> getAllForUid(String uid) {
     final query = box.query(ObjectBoxIdentifier_.uid.equals(uid)).build();
-    return query.find().map((e) => e.toIdentifier()).toList();
+    return query.find().map((e) => e.convert()).toList();
   }
 
   @override
@@ -49,14 +49,11 @@ class ObjectBoxIdentifierDatabase extends IdentifierDatabase
 
     if (uid != null) {
       final query = box.query(ObjectBoxIdentifier_.uid.equals(uid)).build();
-      return query.find().map((e) => e.toIdentifier()).toList();
+      return query.find().map((e) => e.convert()).toList();
     }
 
     return [];
   }
-
-  @override
-  Identifier toModel(ObjectBoxIdentifier objectBoxEntity) => objectBoxEntity.toIdentifier();
 
   @override
   String? uidFromUPC(String upc) {

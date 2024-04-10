@@ -8,7 +8,7 @@ mixin ObjectBoxDatabase<T extends Model, O extends ObjectBoxModel> on Database<T
   late final Box<O> box;
 
   @override
-  List<T> all() => box.getAll().map(toModel).toList();
+  List<T> all() => box.getAll().map(convert).toList();
 
   Condition<O> buildIdCondition(String id);
   Condition<O> buildIdsCondition(List<String> ids);
@@ -17,6 +17,8 @@ mixin ObjectBoxDatabase<T extends Model, O extends ObjectBoxModel> on Database<T
   void constructDb(Store store) {
     box = store.box<O>();
   }
+
+  T convert(O objectBoxEntity) => objectBoxEntity.convert();
 
   @override
   void delete(T item) {
@@ -69,13 +71,13 @@ mixin ObjectBoxDatabase<T extends Model, O extends ObjectBoxModel> on Database<T
     var result = query.findFirst();
     query.close();
 
-    return result != null ? toModel(result) : null;
+    return result != null ? convert(result) : null;
   }
 
   @override
   List<T> getAll(List<String> ids) {
     final query = box.query(buildIdsCondition(ids)).build();
-    final results = query.find().map(toModel).toList();
+    final results = query.find().map(convert).toList();
     query.close();
     return results;
   }
@@ -83,7 +85,7 @@ mixin ObjectBoxDatabase<T extends Model, O extends ObjectBoxModel> on Database<T
   @override
   List<T> getChanges(DateTime since) {
     final query = box.query(buildSinceCondition(since)).build();
-    final results = query.find().map(toModel).toList();
+    final results = query.find().map(convert).toList();
     query.close();
     return results;
   }
@@ -112,6 +114,4 @@ mixin ObjectBoxDatabase<T extends Model, O extends ObjectBoxModel> on Database<T
       replica.put(item);
     });
   }
-
-  T toModel(O objectBoxEntity);
 }

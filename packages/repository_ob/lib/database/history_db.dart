@@ -38,7 +38,4 @@ class ObjectBoxHistoryDatabase extends HistoryDatabase
     // Use the put implementation from the mixin
     super.put(history);
   }
-
-  @override
-  History toModel(ObjectBoxHistory objectBoxEntity) => objectBoxEntity.toHistory();
 }

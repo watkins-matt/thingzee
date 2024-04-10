@@ -38,7 +38,7 @@ class ObjectBoxHistory extends ObjectBoxModel {
     history = History.fromJson(json).trim();
   }
 
-  History toHistory() {
+  History convert() {
     return history;
   }
 }

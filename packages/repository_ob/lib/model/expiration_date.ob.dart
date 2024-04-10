@@ -6,7 +6,7 @@ import 'package:repository/model/expiration_date.dart';
 import 'package:repository_ob/model_custom/object_box_model.dart';
 
 @Entity()
-class ObjectBoxExpirationDate extends ObjectBoxModel {
+class ObjectBoxExpirationDate extends ObjectBoxModel<ExpirationDate> {
   @Id()
   int objectBoxId = 0;
   @Property(type: PropertyType.date)
@@ -23,7 +23,7 @@ class ObjectBoxExpirationDate extends ObjectBoxModel {
     upc = original.upc;
     expirationDate = original.expirationDate;
   }
-  ExpirationDate toExpirationDate() {
+  ExpirationDate convert() {
     return ExpirationDate(
         created: created,
         updated: updated,

@@ -56,7 +56,7 @@ class HiveItem extends HiveObject {
     consumable = original.consumable;
     languageCode = original.languageCode;
   }
-  Item toItem() {
+  Item convert() {
     return Item(
         created: created,
         updated: updated,

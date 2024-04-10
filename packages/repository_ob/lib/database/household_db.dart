@@ -27,7 +27,7 @@ class ObjectBoxHouseholdDatabase extends HouseholdDatabase
     final query = box.query(ObjectBoxHouseholdMember_.isAdmin.equals(true)).build();
     final results = query.find();
     query.close();
-    return results.map(toModel).toList();
+    return results.map(convert).toList();
   }
 
   @override
@@ -59,10 +59,6 @@ class ObjectBoxHouseholdDatabase extends HouseholdDatabase
     box.removeAll();
     _createNewHousehold();
   }
-
-  @override
-  HouseholdMember toModel(ObjectBoxHouseholdMember objectBoxEntity) =>
-      objectBoxEntity.toHouseholdMember();
 
   void _createNewHousehold() {
     _householdId = const Uuid().v4();

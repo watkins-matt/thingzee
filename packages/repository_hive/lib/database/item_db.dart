@@ -14,7 +14,7 @@ class HiveItemDatabase extends ItemDatabase {
   @override
   List<Item> all() {
     final all = box.values.toList();
-    return all.map((hiveItem) => hiveItem.toItem()).toList();
+    return all.map((hiveItem) => hiveItem.convert()).toList();
   }
 
   @override
@@ -42,13 +42,13 @@ class HiveItemDatabase extends ItemDatabase {
       }
       return false;
     }).toList();
-    return filteredItems.map((hiveItem) => hiveItem.toItem()).toList();
+    return filteredItems.map((hiveItem) => hiveItem.convert()).toList();
   }
 
   @override
   Item? get(String upc) {
     final result = box.get(upc);
-    return result?.toItem();
+    return result?.convert();
   }
 
   @override
@@ -70,13 +70,13 @@ class HiveItemDatabase extends ItemDatabase {
     final changedItems = box.values
         .where((hiveItem) => hiveItem.updated != null && hiveItem.updated!.isAfter(since))
         .toList();
-    return changedItems.map((hiveItem) => hiveItem.toItem()).toList();
+    return changedItems.map((hiveItem) => hiveItem.convert()).toList();
   }
 
   @override
   Map<String, Item> map() {
     final all = box.values.toList();
-    return {for (final hiveItem in all) hiveItem.upc: hiveItem.toItem()};
+    return {for (final hiveItem in all) hiveItem.upc: hiveItem.convert()};
   }
 
   @override
@@ -91,6 +91,6 @@ class HiveItemDatabase extends ItemDatabase {
     final matchingItems = box.values
         .where((hiveItem) => hiveItem.name.toLowerCase().contains(string.toLowerCase()))
         .toList();
-    return matchingItems.map((hiveItem) => hiveItem.toItem()).toList();
+    return matchingItems.map((hiveItem) => hiveItem.convert()).toList();
   }
 }

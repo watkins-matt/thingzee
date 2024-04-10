@@ -35,7 +35,7 @@ class HiveShoppingItem extends HiveObject {
     checked = original.checked;
     listName = original.listName;
   }
-  ShoppingItem toShoppingItem() {
+  ShoppingItem convert() {
     return ShoppingItem(
         created: created,
         updated: updated,

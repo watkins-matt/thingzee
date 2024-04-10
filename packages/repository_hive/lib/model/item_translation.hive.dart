@@ -38,7 +38,7 @@ class HiveItemTranslation extends HiveObject {
     unitPlural = original.unitPlural;
     type = original.type;
   }
-  ItemTranslation toItemTranslation() {
+  ItemTranslation convert() {
     return ItemTranslation(
         created: created,
         updated: updated,

@@ -6,7 +6,7 @@ import 'package:repository/model/household_member.dart';
 import 'package:repository_ob/model_custom/object_box_model.dart';
 
 @Entity()
-class ObjectBoxHouseholdMember extends ObjectBoxModel {
+class ObjectBoxHouseholdMember extends ObjectBoxModel<HouseholdMember> {
   @Id()
   int objectBoxId = 0;
   @Property(type: PropertyType.date)
@@ -28,7 +28,7 @@ class ObjectBoxHouseholdMember extends ObjectBoxModel {
     name = original.name;
     userId = original.userId;
   }
-  HouseholdMember toHouseholdMember() {
+  HouseholdMember convert() {
     return HouseholdMember(
         created: created,
         updated: updated,

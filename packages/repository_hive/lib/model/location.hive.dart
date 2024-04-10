@@ -26,7 +26,7 @@ class HiveLocation extends HiveObject {
     name = original.name;
     quantity = original.quantity;
   }
-  Location toLocation() {
+  Location convert() {
     return Location(
         created: created,
         updated: updated,
