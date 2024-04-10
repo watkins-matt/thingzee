@@ -1,4 +1,4 @@
 import 'package:repository/database/database.dart';
 import 'package:repository/model/expiration_date.dart';
 
-abstract class ExpirationDatabase implements Database<ExpirationDate> {}
+abstract class ExpirationDatabase extends Database<ExpirationDate> {}

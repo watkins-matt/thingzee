@@ -1,7 +1,7 @@
 import 'package:repository/database/database.dart';
 import 'package:repository/model/identifier.dart';
 
-abstract class IdentifierDatabase implements Database<Identifier> {
+abstract class IdentifierDatabase extends Database<Identifier> {
   List<Identifier> getAllForUid(String uid);
   List<Identifier> getAllForUpc(String upc);
 

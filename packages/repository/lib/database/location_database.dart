@@ -1,7 +1,7 @@
 import 'package:repository/database/database.dart';
 import 'package:repository/model/location.dart';
 
-abstract class LocationDatabase implements Database<Location> {
+abstract class LocationDatabase extends Database<Location> {
   List<String> get names;
   List<String> getSubPaths(String location);
   List<String> getUpcList(String location);

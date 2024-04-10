@@ -1,7 +1,7 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:repository/database/preferences.dart';
 
-class SecurePreferences implements Preferences {
+class SecurePreferences extends Preferences {
   static SecurePreferences? _instance;
   final FlutterSecureStorage _storage;
 

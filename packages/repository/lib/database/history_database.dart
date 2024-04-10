@@ -1,7 +1,7 @@
 import 'package:repository/database/database.dart';
 import 'package:repository/ml/history.dart';
 
-abstract class HistoryDatabase implements Database<History> {
+abstract class HistoryDatabase extends Database<History> {
   @override
   List<History> getChanges(DateTime since) {
     final allHistory = all();

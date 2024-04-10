@@ -1,7 +1,7 @@
 import 'package:repository/database/database.dart';
 import 'package:repository/model/invitation.dart';
 
-abstract class InvitationDatabase implements Database<Invitation> {
+abstract class InvitationDatabase extends Database<Invitation> {
   bool get hasInvitations;
   int get pendingInviteCount;
   void accept(Invitation invitation);

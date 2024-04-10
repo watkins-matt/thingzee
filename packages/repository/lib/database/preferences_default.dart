@@ -1,7 +1,7 @@
 import 'package:repository/database/preferences.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class DefaultSharedPreferences implements Preferences {
+class DefaultSharedPreferences extends Preferences {
   static DefaultSharedPreferences? _instance;
   late final SharedPreferences _prefs;
 
