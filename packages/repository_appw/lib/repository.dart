@@ -97,18 +97,29 @@ class AppwriteRepository extends CloudRepository {
     final location = this.location as AppwriteLocationDatabase;
     final identifiers = this.identifiers as AppwriteIdentifierDatabase;
 
-    await items.handleConnectionChange(true, _session);
-    await inv.handleConnectionChange(true, _session);
-    await hist.handleConnectionChange(true, _session);
-    await household.handleConnectionChange(true, _session);
-    await invitation.handleConnectionChange(true, _session);
-    await location.handleConnectionChange(true, _session);
-    await identifiers.handleConnectionChange(true, _session);
+    try {
+      // Prepare a list of fetch operations for each database
+      final fetchOperations = [
+        items.handleConnectionChange(true, _session),
+        inv.handleConnectionChange(true, _session),
+        hist.handleConnectionChange(true, _session),
+        household.handleConnectionChange(true, _session),
+        invitation.handleConnectionChange(true, _session),
+        location.handleConnectionChange(true, _session),
+        identifiers.handleConnectionChange(true, _session),
+      ];
 
-    Log.timerEnd(timer, 'AppwriteRepository: Fetch data completed in \$seconds seconds.');
-    _lastFetch = DateTime.now();
+      // Execute all fetch operations simultaneously and wait for them to complete
+      await Future.wait(fetchOperations);
 
-    return true;
+      Log.timerEnd(timer, 'AppwriteRepository: Fetch data completed in \$seconds seconds.');
+      _lastFetch = DateTime.now();
+
+      return true;
+    } catch (e, stackTrace) {
+      Log.e('AppwriteRepository: Error during fetch.', e, stackTrace);
+      return false;
+    }
   }
 
   @override
@@ -135,13 +146,17 @@ class AppwriteRepository extends CloudRepository {
       final location = this.location as AppwriteLocationDatabase;
       final identifiers = this.identifiers as AppwriteIdentifierDatabase;
 
-      await items.handleConnectionChange(online, _session);
-      await inv.handleConnectionChange(online, _session);
-      await hist.handleConnectionChange(online, _session);
-      await household.handleConnectionChange(online, _session);
-      await invitation.handleConnectionChange(online, _session);
-      await location.handleConnectionChange(online, _session);
-      await identifiers.handleConnectionChange(online, _session);
+      final connectionChangeOperations = [
+        items.handleConnectionChange(online, _session),
+        inv.handleConnectionChange(online, _session),
+        hist.handleConnectionChange(online, _session),
+        household.handleConnectionChange(online, _session),
+        invitation.handleConnectionChange(online, _session),
+        location.handleConnectionChange(online, _session),
+        identifiers.handleConnectionChange(online, _session),
+      ];
+
+      await Future.wait(connectionChangeOperations);
 
       Log.i('AppwriteRepository: Connectivity status handling completed.');
       _lastFetch = DateTime.now();
@@ -202,14 +217,17 @@ class AppwriteRepository extends CloudRepository {
       final location = this.location as AppwriteLocationDatabase;
       final identifiers = this.identifiers as AppwriteIdentifierDatabase;
 
-      await items.handleConnectionChange(false, null);
-      await inv.handleConnectionChange(false, null);
-      await hist.handleConnectionChange(false, null);
-      await household.handleConnectionChange(false, null);
-      await invitation.handleConnectionChange(false, null);
-      await location.handleConnectionChange(false, null);
-      await identifiers.handleConnectionChange(false, null);
+      final connectionChangeOperations = [
+        items.handleConnectionChange(false, null),
+        inv.handleConnectionChange(false, null),
+        hist.handleConnectionChange(false, null),
+        household.handleConnectionChange(false, null),
+        invitation.handleConnectionChange(false, null),
+        location.handleConnectionChange(false, null),
+        identifiers.handleConnectionChange(false, null),
+      ];
 
+      await Future.wait(connectionChangeOperations);
       Log.i('AppwriteRepository: Successfully logged out user.');
     }
   }
