@@ -2,7 +2,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:log/log.dart';
 import 'package:repository/database/identifier_database.dart';
 import 'package:repository/ml/history.dart';
-import 'package:repository/ml/history_provider.dart';
 import 'package:repository/model/identifier.dart';
 import 'package:repository/model/inventory.dart';
 import 'package:repository/model/item.dart';
@@ -161,7 +160,6 @@ class EditableItem extends StateNotifier<EditableItemState> {
 
     repo.inv.put(inv);
     repo.hist.put(cleanHistory);
-    HistoryProvider().updateHistory(cleanHistory, allowDataLoss: true);
 
     state = EditableItemState(state.item, inv, state.history, state.changedFields);
   }
@@ -224,15 +222,11 @@ class EditableItem extends StateNotifier<EditableItemState> {
       state.history = newHistory;
 
       repo.hist.put(newHistory);
-
-      bool historyDeleted = state.changedFields.contains('history');
-      HistoryProvider().updateHistory(newHistory, allowDataLoss: historyDeleted);
     }
 
     // If we only deleted history, we should still update it
     else if (state.changedFields.contains('history')) {
       repo.hist.put(state.history);
-      HistoryProvider().updateHistory(state.history, allowDataLoss: true);
     }
 
     // Save each location

@@ -2,7 +2,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:receipt_parser/model/receipt.dart';
 import 'package:receipt_parser/model/receipt_item.dart';
 import 'package:repository/database/identifier_database.dart';
-import 'package:repository/ml/history_provider.dart';
 import 'package:repository/model/identifier.dart';
 import 'package:repository/model/inventory.dart';
 import 'package:repository/model/item.dart';
@@ -71,7 +70,6 @@ class MatchedItemsNotifier extends StateNotifier<List<MatchedItem>> {
               inventory.history.add(time.millisecondsSinceEpoch, inventory.amount, 2);
           repo.inv.put(inventory);
           repo.hist.put(newHistory);
-          HistoryProvider().updateHistory(newHistory);
         }
 
         // If we have a confirmed item and the barcode type is not UPC,
@@ -118,7 +116,7 @@ class MatchedItemsNotifier extends StateNotifier<List<MatchedItem>> {
   /// Check to see if the inventory level was increased within 24 hours
   bool wasInventoryAddedAlready(Inventory inventory, DateTime time) {
     const timeFrame = Duration(days: 1);
-    final history = HistoryProvider().getHistory(inventory.upc);
+    final history = inventory.history;
     final currentSeries = history.current;
 
     for (final observation in currentSeries.observations) {

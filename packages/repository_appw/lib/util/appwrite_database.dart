@@ -46,6 +46,8 @@ mixin AppwriteDatabase<T extends Model> on Database<T> {
     replicateOperation((replica) async {
       replica.delete(item);
     });
+
+    callHooks(item, DatabaseHookType.delete);
   }
 
   @override
@@ -58,11 +60,13 @@ mixin AppwriteDatabase<T extends Model> on Database<T> {
     replicateOperation((replica) async {
       replica.deleteAll();
     });
+
+    callHooks(null, DatabaseHookType.deleteAll);
   }
 
   @override
   void deleteById(String id) {
-    _items.remove(id);
+    final item = _items.remove(id);
     taskQueue.queueTask(() async {
       await _database.deleteDocument(
         databaseId: databaseId,
@@ -74,6 +78,10 @@ mixin AppwriteDatabase<T extends Model> on Database<T> {
     replicateOperation((replica) async {
       replica.deleteById(id);
     });
+
+    if (item != null) {
+      callHooks(item, DatabaseHookType.delete);
+    }
   }
 
   T? deserialize(Map<String, dynamic> json);
@@ -202,6 +210,8 @@ mixin AppwriteDatabase<T extends Model> on Database<T> {
     replicateOperation((replica) async {
       replica.put(item);
     });
+
+    callHooks(item, DatabaseHookType.put);
   }
 
   void replaceState(List<T> allItems) {

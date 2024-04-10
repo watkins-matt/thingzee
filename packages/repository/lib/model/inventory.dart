@@ -3,10 +3,10 @@ import 'package:json_annotation/json_annotation.dart';
 import 'package:meta/meta.dart';
 import 'package:repository/merge_generator.dart';
 import 'package:repository/ml/history.dart';
-import 'package:repository/ml/history_provider.dart';
 import 'package:repository/ml/regressor.dart';
 import 'package:repository/model/abstract/model.dart';
 import 'package:repository/model/serializer_datetime.dart';
+import 'package:repository/model_provider.dart';
 import 'package:repository/util/hash.dart';
 import 'package:stats/double.dart';
 import 'package:util/extension/date_time.dart';
@@ -49,7 +49,7 @@ class Inventory extends Model<Inventory> {
     return history.canPredict;
   }
 
-  History get history => HistoryProvider().getHistory(upc);
+  History get history => ModelProvider<History>().get(upc, History(upc: upc));
 
   @override
   String get id => upc;

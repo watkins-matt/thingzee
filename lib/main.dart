@@ -7,8 +7,9 @@ import 'package:repository/cloud_repository.dart';
 import 'package:repository/database/joined_item_database.dart';
 import 'package:repository/database/mock/repository.dart';
 import 'package:repository/database/synchronized/synchronization_service.dart';
-import 'package:repository/ml/history_provider.dart';
+import 'package:repository/ml/history.dart';
 import 'package:repository/model/filter.dart';
+import 'package:repository/model_provider.dart';
 import 'package:repository/network/connectivity_service.dart';
 import 'package:repository/repository.dart';
 import 'package:repository_appw/repository.dart';
@@ -42,7 +43,8 @@ Future<void> main() async {
     };
 
     App.db = await ObjectBoxRepository.create();
-    HistoryProvider().init(App.db!);
+
+    ModelProvider<History>().init(App.db!.hist);
     Log.timerShow(timer, r'Initialized offline database ($seconds seconds).');
     App.thumbnailCache = await createThumbnailCache();
     Log.timerShow(timer, r'Initialized thumbnail cache ($seconds seconds).');

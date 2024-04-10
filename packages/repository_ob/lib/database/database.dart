@@ -35,6 +35,8 @@ mixin ObjectBoxDatabase<T extends Model, O extends ObjectBoxModel> on Database<T
     replicateOperation((replica) async {
       replica.delete(item);
     });
+
+    callHooks(item, DatabaseHookType.delete);
   }
 
   @override
@@ -44,6 +46,8 @@ mixin ObjectBoxDatabase<T extends Model, O extends ObjectBoxModel> on Database<T
     replicateOperation((replica) async {
       replica.deleteAll();
     });
+
+    callHooks(null, DatabaseHookType.deleteAll);
   }
 
   @override
@@ -55,6 +59,7 @@ mixin ObjectBoxDatabase<T extends Model, O extends ObjectBoxModel> on Database<T
     query.close();
 
     if (result != null) {
+      callHooks(convert(result), DatabaseHookType.delete);
       box.remove(result.objectBoxId);
     }
 
@@ -113,5 +118,7 @@ mixin ObjectBoxDatabase<T extends Model, O extends ObjectBoxModel> on Database<T
     replicateOperation((replica) async {
       replica.put(item);
     });
+
+    callHooks(item, DatabaseHookType.put);
   }
 }
