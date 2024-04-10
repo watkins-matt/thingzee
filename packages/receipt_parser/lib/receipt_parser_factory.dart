@@ -43,7 +43,7 @@ mixin ParserFactory on ReceiptParser {
     );
   }
 
-  List<LineElement>? get secondaryLineFormat;
+  List<LineElement>? get secondaryLineFormat => null;
 
   ReceiptItem createNewItemFromPrimary(Map<LineElement, String> results) {
     var price = double.tryParse(results[LineElement.price] ?? '0') ?? 0.0;
