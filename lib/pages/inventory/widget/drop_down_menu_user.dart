@@ -27,12 +27,18 @@ class UserDropdownMenu extends BaseDropdownMenu {
   }
 
   static List<PopupMenuEntry<String>> _itemBuilder(WidgetRef ref, BuildContext context) {
-    final repo = ref.watch(repositoryProvider);
-    final loggedIn = repo.loggedIn;
-    final verified = repo.isUserVerified;
+    final repo = ref.watch(cloudRepoProvider);
+    bool loading = repo.isLoading || !repo.hasValue;
+    var loggedIn = false;
+    var verified = false;
+
+    if (!loading) {
+      loggedIn = repo.requireValue.loggedIn;
+      verified = repo.requireValue.isUserVerified;
+    }
 
     // Change the login option based on the user's status
-    var loginOption = 'Login or Register';
+    var loginOption = repo.isLoading ? 'Logging in...' : 'Login or Register';
     if (loggedIn && verified) {
       loginOption = 'Logout';
     } else if (loggedIn && !verified) {
