@@ -16,7 +16,7 @@ typedef AcceptPressedCallback = void Function(BuildContext, Receipt, ReceiptPars
 
 class ReceiptDetailPage extends ConsumerWidget {
   final ReceiptParser parser;
-  final AcceptPressedCallback? onAcceptPressed;
+  final AcceptPressedCallback onAcceptPressed;
 
   const ReceiptDetailPage({super.key, required this.parser, required this.onAcceptPressed});
 
@@ -47,9 +47,7 @@ class ReceiptDetailPage extends ConsumerWidget {
           IconButton(
             icon: const Icon(Icons.check, color: Colors.green),
             onPressed: () {
-              if (onAcceptPressed != null) {
-                onAcceptPressed!(context, receipt, parser);
-              }
+              onAcceptPressed(context, receipt, parser);
             },
           ),
         ],
@@ -293,7 +291,8 @@ class ReceiptDetailPage extends ConsumerWidget {
       context,
       MaterialPageRoute(
         builder: (context) => ReceiptScannerPage(
-          postScanHandler: ShowReceiptDetailHandler(parser: parser),
+          postScanHandler:
+              ShowReceiptDetailHandler(parser: parser, onAcceptPressed: onAcceptPressed),
         ),
       ),
     );
@@ -423,7 +422,7 @@ class ReceiptDetailPage extends ConsumerWidget {
     BuildContext context,
     WidgetRef ref,
     ReceiptParser parser,
-    AcceptPressedCallback? onAcceptPressed,
+    AcceptPressedCallback onAcceptPressed,
   ) async {
     final receiptNotifier = ref.watch(editableReceiptProvider.notifier);
     receiptNotifier.copyFrom(parser.receipt);
@@ -440,7 +439,7 @@ class ReceiptDetailPage extends ConsumerWidget {
     BuildContext context,
     WidgetRef ref,
     ReceiptParser parser,
-    AcceptPressedCallback? onAcceptPressed,
+    AcceptPressedCallback onAcceptPressed,
   ) async {
     final receiptNotifier = ref.watch(editableReceiptProvider.notifier);
     receiptNotifier.copyFrom(parser.receipt);

@@ -27,11 +27,11 @@ abstract class PostScanHandler {
 }
 
 class ShowReceiptDetailHandler extends PostScanHandler {
-  final AcceptPressedCallback? onAcceptPressed;
+  final AcceptPressedCallback onAcceptPressed;
 
   ShowReceiptDetailHandler({
     super.parser,
-    this.onAcceptPressed,
+    required this.onAcceptPressed,
   });
 
   @override
