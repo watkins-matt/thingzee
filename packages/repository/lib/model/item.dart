@@ -16,7 +16,6 @@ part 'item.merge.dart';
 @Mergeable()
 class Item extends Model<Item> implements Comparable<Item>, Nameable {
   final String upc; // generator:unique
-
   final String uid;
 
   @override
