@@ -42,7 +42,6 @@ class ShoppingCart extends StateNotifier<ShoppingCartState> {
 
       repo.inv.put(inventory);
       repo.hist.put(newHistory);
-      HistoryProvider().updateHistory(newHistory);
     }
 
     state = state.copyWith(
