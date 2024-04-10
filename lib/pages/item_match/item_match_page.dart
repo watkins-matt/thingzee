@@ -4,10 +4,10 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:log/log.dart';
 import 'package:receipt_parser/model/receipt_item.dart';
 import 'package:repository/model/item.dart';
-import 'package:thingzee/pages/detail/widget/material_card_widget.dart';
 import 'package:thingzee/pages/inventory/state/item_view.dart';
 import 'package:thingzee/pages/item_match/widget/add_item_browser_page.dart';
 import 'package:thingzee/pages/item_match/widget/draggable_bottom_sheet.dart';
+import 'package:thingzee/pages/item_match/widget/potenial_match_list_tile.dart';
 import 'package:thingzee/pages/item_match/widget/text_button_with_dropdown.dart';
 
 class ItemMatchPage extends ConsumerStatefulWidget {
@@ -118,18 +118,9 @@ class _ItemMatchPageState extends ConsumerState<ItemMatchPage> {
                 itemCount: items.length,
                 itemBuilder: (context, index) {
                   Item item = items[index];
-                  return MaterialCardWidget(
-                    children: [
-                      ListTile(
-                        title: Text(item.name, style: theme.textTheme.titleMedium),
-                        subtitle:
-                            item.unitCount != 1 ? Text('Unit Count: ${item.unitCount}') : null,
-                        onTap: () {
-                          Navigator.of(context).pop(item);
-                        },
-                      ),
-                    ],
-                  );
+
+                  return PotentialItemMatchTile(
+                      item: item, onTap: () => Navigator.of(context).pop(item));
                 },
               ),
             ),
