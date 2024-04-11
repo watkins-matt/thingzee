@@ -2,13 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:receipt_ocr/post_scan_handler.dart';
 import 'package:receipt_ocr/receipt_scanner.dart';
+import 'package:repository/model/shopping_item.dart';
 import 'package:thingzee/pages/bottom_nav_bar/state/bottom_nav_state.dart';
 import 'package:thingzee/pages/inventory/state/inventory_view.dart';
 import 'package:thingzee/pages/receipt_scanner/receipt_confirmation_page.dart';
 import 'package:thingzee/pages/shopping/confirmation_dialog.dart';
-import 'package:thingzee/pages/shopping/state/shopping_cart.dart';
 import 'package:thingzee/pages/shopping/state/shopping_list.dart';
-import 'package:thingzee/pages/shopping/widget/shopping_cart_list_tile.dart';
 import 'package:thingzee/pages/shopping/widget/shopping_list_tile.dart';
 
 class ShoppingListPage extends ConsumerWidget {
@@ -16,6 +15,8 @@ class ShoppingListPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final shoppingProvider = ref.watch(shoppingListProvider);
+
     return DefaultTabController(
       length: 2,
       child: Scaffold(
@@ -59,14 +60,15 @@ class ShoppingListPage extends ConsumerWidget {
     );
   }
 
-  Widget shoppingCartBuilder(BuildContext context, WidgetRef ref, int index, ShoppingCartState sc) {
-    final joinedItem = sc.items[index];
-    return ShoppingCartListTile(joinedItem: joinedItem, index: index);
+  Widget shoppingCartBuilder(BuildContext context, WidgetRef ref, ShoppingItem item) {
+    return ShoppingListTile(item: item);
   }
 
   Widget shoppingCartTab(BuildContext context, WidgetRef ref) {
-    final sc = ref.watch(shoppingCartProvider);
-    return sc.items.isEmpty
+    final shoppingProvider = ref.watch(shoppingListProvider);
+    final items = shoppingProvider.cartItems;
+
+    return items.isEmpty
         ? const Center(
             child: Text(
               'Your shopping cart is empty.',
@@ -74,28 +76,20 @@ class ShoppingListPage extends ConsumerWidget {
             ),
           )
         : ListView.builder(
-            itemBuilder: (context, index) => shoppingCartBuilder(context, ref, index, sc),
-            itemCount: sc.items.length,
+            itemBuilder: (context, index) => shoppingCartBuilder(context, ref, items[index]),
+            itemCount: items.length,
           );
   }
 
-  Widget shoppingListItemBuilder(
-      BuildContext context, WidgetRef ref, int index, ShoppingListState sl, ShoppingCartState sc) {
-    final joinedItem = sl.items[index];
-    return ShoppingListTile(
-      index: index,
-      joinedItem: joinedItem,
-      sl: sl,
-      sc: sc,
-      ref: ref,
-    );
+  Widget shoppingListItemBuilder(BuildContext context, WidgetRef ref, ShoppingItem item) {
+    return ShoppingListTile(item: item);
   }
 
   Widget shoppingListTab(BuildContext context, WidgetRef ref) {
     final sl = ref.watch(shoppingListProvider);
-    final sc = ref.watch(shoppingCartProvider);
+    final items = sl.shoppingItems;
 
-    return sl.items.isEmpty
+    return items.isEmpty
         ? const Center(
             child: Text(
               'You are not running out of anything yet.',
@@ -103,8 +97,8 @@ class ShoppingListPage extends ConsumerWidget {
             ),
           )
         : ListView.builder(
-            itemBuilder: (context, index) => shoppingListItemBuilder(context, ref, index, sl, sc),
-            itemCount: sl.items.length,
+            itemBuilder: (context, index) => shoppingListItemBuilder(context, ref, items[index]),
+            itemCount: items.length,
           );
   }
 
@@ -112,10 +106,10 @@ class ShoppingListPage extends ConsumerWidget {
     // Show confirmation dialog
     if (await TripCompletedConfirmationDialog.show(context)) {
       // Complete trip will update inventory information
-      ref.read(shoppingCartProvider.notifier).completeTrip();
+      ref.read(shoppingListProvider.notifier).completeTrip();
 
       // Refresh the list and inventory view
-      ref.read(shoppingListProvider.notifier).refresh();
+      await ref.read(shoppingListProvider.notifier).refreshAll();
       await ref.read(inventoryProvider.notifier).refresh();
 
       // Switch back to the inventory view tab

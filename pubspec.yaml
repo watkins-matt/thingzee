@@ -11,6 +11,7 @@ dependencies:
   appwrite: ^11.0.1
   archive: ^3.3.7
   camera: ^0.10.5+5
+  collection: ^1.18.0
   csv: ^5.1.1
   cupertino_icons: ^1.0.2
   dio: ^5.2.1+1

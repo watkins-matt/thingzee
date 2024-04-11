@@ -41,11 +41,10 @@ class ShoppingItem extends Model<ShoppingItem> {
             : (upc.isNotEmpty ? hashBarcode(upc) : const Uuid().v4());
   factory ShoppingItem.fromJson(Map<String, dynamic> json) => _$ShoppingItemFromJson(json);
 
-  Inventory get history => ModelProvider<Inventory>().get(upc, Inventory(upc: upc));
-
   @override
   String get id => uid;
 
+  Inventory get inventory => ModelProvider<Inventory>().get(upc, Inventory(upc: upc));
   Item get item => ModelProvider<Item>().get(upc, Item(upc: upc));
 
   @override

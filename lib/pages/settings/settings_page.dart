@@ -190,7 +190,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           .setInt(PreferenceKey.restockDayCount, int.parse(result));
 
       // Update the shopping list
-      ref.read(shoppingListProvider.notifier).refresh();
+      await ref.read(shoppingListProvider.notifier).refreshAll();
     }
   }
 

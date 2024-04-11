@@ -410,7 +410,7 @@ class ItemDetailPage extends HookConsumerWidget {
     await view.refresh();
 
     final shoppingList = ref.read(shoppingListProvider.notifier);
-    shoppingList.refresh();
+    await shoppingList.refreshAll();
 
     if (context.mounted) {
       // Return a JoinedItem to the previous page

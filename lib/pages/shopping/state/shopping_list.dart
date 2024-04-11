@@ -1,8 +1,9 @@
+import 'package:collection/collection.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:repository/database/joined_item_database.dart';
+import 'package:repository/database/shopping_list.dart';
+import 'package:repository/model/shopping_item.dart';
 import 'package:repository/repository.dart';
 import 'package:thingzee/main.dart';
-import 'package:thingzee/pages/settings/state/preference_keys.dart';
 
 final shoppingListProvider = StateNotifierProvider<ShoppingList, ShoppingListState>((ref) {
   final repo = ref.watch(repositoryProvider);
@@ -11,108 +12,121 @@ final shoppingListProvider = StateNotifierProvider<ShoppingList, ShoppingListSta
 
 class ShoppingList extends StateNotifier<ShoppingListState> {
   final Repository repo;
-  JoinedItemDatabase db;
 
   ShoppingList(this.repo)
-      : db = JoinedItemDatabase(repo.items, repo.inv),
-        super(ShoppingListState([], {})) {
-    refresh();
+      : super(ShoppingListState(
+          shoppingItems: [],
+          savedItems: [],
+          cartItems: [],
+        )) {
+    refreshAll();
   }
 
-  void check(int index, bool value) {
-    final items = state.items;
-    assert(index < items.length);
-
-    var checked = state.checked;
-    final item = items[index].item;
-
-    if (value) {
-      checked.add(item.upc);
-    } else {
-      checked.remove(item.upc);
-    }
-
-    sortItems(items);
-    state = state.copyWith(items: items, checked: checked);
+  Future<void> add(ShoppingItem item) async {
+    repo.shopping.put(item);
+    await refreshAll();
   }
 
-  bool isChecked(int index) {
-    final items = state.items;
-    assert(index < items.length);
+  Future<void> check(String itemId) async {
+    var item = state.shoppingItems.firstWhereOrNull((i) => i.uid == itemId);
+    if (item != null) {
+      final checkedItem = item.copyWith(checked: !item.checked);
+      repo.shopping.put(checkedItem);
 
-    final item = items[index].item;
-    return state.checked.contains(item.upc);
-  }
-
-  void refresh() {
-    int daysUntilOut = repo.prefs.getInt(PreferenceKey.restockDayCount) ?? 12;
-
-    List<JoinedItem> databaseOuts = db.outs();
-    List<JoinedItem> predictedOuts = db.predictedOuts(repo.hist, days: daysUntilOut);
-
-    Map<String, JoinedItem> combinedOuts = {for (final out in databaseOuts) out.item.upc: out};
-
-    for (final out in predictedOuts) {
-      if (!combinedOuts.containsKey(out.item.upc)) {
-        combinedOuts[out.item.upc] = out;
+      if (checkedItem.checked) {
+        var existingCartItem = state.cartItems.firstWhereOrNull((i) => i.uid == itemId);
+        if (existingCartItem == null) {
+          var newItem = checkedItem.copyWith(listName: ShoppingListName.cart);
+          repo.shopping.put(newItem);
+        }
       }
     }
 
-    List<JoinedItem> outs = combinedOuts.values.toList();
-    sortItems(outs);
+    await refreshAll();
+  }
+
+  void completeTrip() {
+    final now = DateTime.now();
+
+    for (final item in state.cartItems) {
+      // Pull the latest version from the database if possible
+      var inventory = repo.inv.get(item.inventory.upc) ?? item.inventory;
+
+      // User might not have updated the amount in a while.
+      // Update the amount to the predicted amount before we increment
+      // it. Still not totally accurate, but should be better
+      // than using a old likely inaccurate amount.
+      inventory = inventory.updateAmountToPrediction();
+
+      inventory = inventory.copyWith(
+        updated: now,
+        amount: inventory.amount + 1,
+      );
+
+      final newHistory = inventory.history.add(now.millisecondsSinceEpoch, inventory.amount, 2);
+
+      repo.inv.put(inventory);
+      repo.hist.put(newHistory);
+    }
+
+    // Delete all items from the cart in the database
+    for (final item in state.cartItems) {
+      repo.shopping.deleteById(item.uid);
+    }
 
     state = state.copyWith(
-      items: outs,
+      cartItems: [],
     );
   }
 
-  void removeAt(int index) {
-    var items = state.items;
-    assert(index < items.length);
-    final item = items[index].item;
-
-    // TODO: Turn off restock for this item here if removed from list
-
-    // Remove the item from the list
-    items.removeAt(index);
-
-    // Remove the check if present
-    var checked = state.checked;
-    checked.remove(item.upc);
-
+  Future<void> refreshAll() async {
+    final allItems = repo.shopping.all();
     state = state.copyWith(
-      items: items,
-      checked: checked,
+      shoppingItems: sortItems(allItems, ShoppingListName.shopping),
+      savedItems: sortItems(allItems, ShoppingListName.saved),
+      cartItems: sortItems(allItems, ShoppingListName.cart),
     );
   }
 
-  void sortItems(List<JoinedItem> items) {
-    items.sort((a, b) {
-      if (state.checked.contains(a.item.upc) == state.checked.contains(b.item.upc)) {
-        return a.item.name.compareTo(b.item.name);
+  Future<void> remove(String itemId) async {
+    repo.shopping.deleteById(itemId);
+    await refreshAll();
+  }
+
+  // Helper function to sort and filter items based on listName and checked status
+  List<ShoppingItem> sortItems(List<ShoppingItem> items, String listName) {
+    var filtered = items.where((item) => item.listName == listName).toList();
+    filtered.sort((a, b) {
+      // Move checked items to the end
+      if (a.checked == b.checked) {
+        return a.name.compareTo(b.name); // Then sort alphabetically by name
       }
-      if (state.checked.contains(a.item.upc)) {
-        return 1;
-      } else {
-        return -1;
-      }
+      return a.checked ? 1 : -1;
     });
+    return filtered;
   }
 }
 
 class ShoppingListState {
-  final List<JoinedItem> items;
-  final Set<String> checked;
+  final List<ShoppingItem> shoppingItems;
+  final List<ShoppingItem> savedItems;
+  final List<ShoppingItem> cartItems;
 
-  ShoppingListState(this.items, this.checked);
+  ShoppingListState({
+    required this.shoppingItems,
+    required this.savedItems,
+    required this.cartItems,
+  });
 
   ShoppingListState copyWith({
-    List<JoinedItem>? items,
-    Set<String>? checked,
+    List<ShoppingItem>? shoppingItems,
+    List<ShoppingItem>? savedItems,
+    List<ShoppingItem>? cartItems,
   }) {
     return ShoppingListState(
-      items ?? this.items,
-      checked ?? this.checked,
+      shoppingItems: shoppingItems ?? this.shoppingItems,
+      savedItems: savedItems ?? this.savedItems,
+      cartItems: cartItems ?? this.cartItems,
     );
   }
 }
