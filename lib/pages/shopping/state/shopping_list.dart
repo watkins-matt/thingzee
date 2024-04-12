@@ -1,9 +1,10 @@
-import 'package:collection/collection.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:repository/database/shopping_list.dart';
+import 'package:repository/model/inventory.dart';
 import 'package:repository/model/shopping_item.dart';
 import 'package:repository/repository.dart';
 import 'package:thingzee/main.dart';
+import 'package:thingzee/pages/settings/state/preference_keys.dart';
 
 final shoppingListProvider = StateNotifierProvider<ShoppingList, ShoppingListState>((ref) {
   final repo = ref.watch(repositoryProvider);
@@ -27,22 +28,15 @@ class ShoppingList extends StateNotifier<ShoppingListState> {
     await refreshAll();
   }
 
-  Future<void> check(String itemId) async {
-    var item = state.shoppingItems.firstWhereOrNull((i) => i.uid == itemId);
-    if (item != null) {
-      final checkedItem = item.copyWith(checked: !item.checked);
-      repo.shopping.put(checkedItem);
+  Future<void> check(String itemId, bool checked) async {
+    int itemIndex = state.shoppingItems.indexWhere((i) => i.uid == itemId);
 
-      if (checkedItem.checked) {
-        var existingCartItem = state.cartItems.firstWhereOrNull((i) => i.uid == itemId);
-        if (existingCartItem == null) {
-          var newItem = checkedItem.copyWith(listName: ShoppingListName.cart);
-          repo.shopping.put(newItem);
-        }
-      }
+    if (itemIndex != -1) {
+      var updatedItem = state.shoppingItems[itemIndex].copyWith(checked: checked);
+      state.shoppingItems[itemIndex] = updatedItem;
+      repo.shopping.put(updatedItem);
+      sortItems();
     }
-
-    await refreshAll();
   }
 
   void completeTrip() {
@@ -79,12 +73,50 @@ class ShoppingList extends StateNotifier<ShoppingListState> {
     );
   }
 
+  List<ShoppingItem> outs() {
+    int daysUntilOut = repo.prefs.getInt(PreferenceKey.restockDayCount) ?? 12;
+    final predictedOutUpcList = repo.hist.predictedOuts(days: daysUntilOut);
+    final predictedOuts = repo.inv.getAll(predictedOutUpcList.toList());
+    final outs = repo.inv.outs();
+
+    // Build a map of the outs
+    Map<String, Inventory> combinedOuts = {for (final out in outs) out.upc: out};
+
+    for (final out in predictedOuts) {
+      if (!combinedOuts.containsKey(out.item.upc)) {
+        combinedOuts[out.item.upc] = out;
+      }
+    }
+
+    return combinedOuts.values.map((out) {
+      return ShoppingItem(
+        upc: out.upc,
+        name: out.item.name,
+        category: out.item.category,
+      );
+    }).toList();
+  }
+
   Future<void> refreshAll() async {
-    final allItems = repo.shopping.all();
+    final allItems = repo.shopping.map();
+
+    // Get the list of outs, and add them to the shopping list
+    // List<ShoppingItem> outs = this.outs();
+    // for (final out in outs) {
+    //   // Only add the out if it's not already in the list
+    //   if (!allItems.containsKey(out.uid)) {
+    //     allItems[out.uid] = out;
+    //   }
+    // }
+
+    final itemList = allItems.values.toList();
+
     state = state.copyWith(
-      shoppingItems: sortItems(allItems, ShoppingListName.shopping),
-      savedItems: sortItems(allItems, ShoppingListName.saved),
-      cartItems: sortItems(allItems, ShoppingListName.cart),
+      shoppingItems: sortList(itemList),
+      savedItems: sortList(
+        itemList,
+      ),
+      cartItems: sortList(itemList),
     );
   }
 
@@ -93,17 +125,35 @@ class ShoppingList extends StateNotifier<ShoppingListState> {
     await refreshAll();
   }
 
-  // Helper function to sort and filter items based on listName and checked status
-  List<ShoppingItem> sortItems(List<ShoppingItem> items, String listName) {
-    var filtered = items.where((item) => item.listName == listName).toList();
-    filtered.sort((a, b) {
-      // Move checked items to the end
-      if (a.checked == b.checked) {
-        return a.name.compareTo(b.name); // Then sort alphabetically by name
-      }
-      return a.checked ? 1 : -1;
-    });
-    return filtered;
+  void sortItems() {
+    state = state.copyWith(
+        shoppingItems: sortList(state.shoppingItems),
+        savedItems: sortList(state.savedItems),
+        cartItems: sortList(state.cartItems));
+  }
+
+  List<ShoppingItem> sortList(List<ShoppingItem> items) {
+    return items
+      ..sort((a, b) {
+        if (a.checked == b.checked) return a.name.compareTo(b.name);
+        return a.checked ? 1 : -1;
+      });
+  }
+
+  void updateItem(ShoppingItem item) {
+    repo.shopping.put(item);
+    final list = item.listName;
+
+    if (list == ShoppingListName.shopping) {
+      state = state.copyWith(
+          shoppingItems: state.shoppingItems.map((i) => i.uid == item.uid ? item : i).toList());
+    } else if (list == ShoppingListName.saved) {
+      state = state.copyWith(
+          savedItems: state.savedItems.map((i) => i.uid == item.uid ? item : i).toList());
+    } else if (list == ShoppingListName.cart) {
+      state = state.copyWith(
+          cartItems: state.cartItems.map((i) => i.uid == item.uid ? item : i).toList());
+    }
   }
 }
 

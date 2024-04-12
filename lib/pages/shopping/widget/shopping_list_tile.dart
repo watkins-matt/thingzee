@@ -1,44 +1,50 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:repository/database/shopping_list.dart';
 import 'package:repository/model/shopping_item.dart';
 import 'package:thingzee/pages/detail/item_detail_page.dart';
 import 'package:thingzee/pages/shopping/price_entry_dialog.dart';
-import 'package:thingzee/pages/shopping/state/shopping_list.dart'; // Ensure correct imports for context usage
+import 'package:thingzee/pages/shopping/state/shopping_list.dart';
 
-class ShoppingListTile extends ConsumerWidget {
+class ShoppingListTile extends HookConsumerWidget {
   final ShoppingItem item;
+  final bool editable;
+  final bool checkbox;
 
-  const ShoppingListTile({
-    super.key,
+  ShoppingListTile({
     required this.item,
-  });
+    this.editable = true,
+    this.checkbox = true,
+  }) : super(key: ValueKey(item.uid));
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(shoppingListProvider);
     final isCart = item.listName == ShoppingListName.cart;
+    final TextEditingController controller = useTextEditingController(text: item.name);
+    final FocusNode focusNode = useFocusNode();
 
     return InkWell(
-      onLongPress: () => _onLongPress(context, ref),
+      onLongPress: () => onLongPress(context, ref, item),
       child: Dismissible(
         key: ValueKey(item.uid),
         background: buildDismissibleBackground(),
         dismissThresholds: buildDismissThresholds(),
-        onDismissed: (_) => _onDismissed(ref),
-        child: isCart ? buildCartTile(context) : buildShoppingListTile(ref),
+        onDismissed: (_) => onDismissed(ref),
+        child: ListTile(
+          leading: checkbox
+              ? Checkbox(
+                  value: item.checked,
+                  onChanged: (bool? value) => checkedStatusChanged(ref, value ?? !item.checked),
+                )
+              : null,
+          title: editable ? buildEditableTitle(ref, controller, focusNode) : buildTitle(),
+          trailing: isCart ? buildPriceButton(context) : null,
+        ),
       ),
     );
   }
-
-  Widget buildCartTile(BuildContext context) => ListTile(
-        title: Text(item.name),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            buildPriceButton(context),
-          ],
-        ),
-      );
 
   Widget buildDismissibleBackground() => Container(color: Colors.red);
 
@@ -46,6 +52,27 @@ class ShoppingListTile extends ConsumerWidget {
         DismissDirection.endToStart: 0.9,
         DismissDirection.startToEnd: 0.9,
       };
+
+  Widget buildEditableTitle(WidgetRef ref, TextEditingController controller, FocusNode focusNode) {
+    return TextFormField(
+      controller: controller,
+      focusNode: focusNode,
+      style: TextStyle(
+        decoration: item.checked ? TextDecoration.lineThrough : TextDecoration.none,
+      ),
+      decoration: const InputDecoration(
+        border: InputBorder.none,
+        hintText: 'Enter item name',
+        isDense: true,
+      ),
+      onFieldSubmitted: (value) {
+        final updatedItem = item.copyWith(name: value);
+        ref.read(shoppingListProvider.notifier).updateItem(updatedItem);
+        focusNode.unfocus();
+      },
+      maxLines: null,
+    );
+  }
 
   Widget buildPriceButton(BuildContext context) => ElevatedButton(
         style: ButtonStyle(
@@ -56,29 +83,25 @@ class ShoppingListTile extends ConsumerWidget {
         child: const Text('Price'),
       );
 
-  Widget buildShoppingListTile(WidgetRef ref) => CheckboxListTile(
-        value: item.checked,
-        controlAffinity: ListTileControlAffinity.leading,
-        onChanged: (value) => _onChanged(ref),
-        title: buildTitle(),
-      );
-
-  Widget buildTitle() => Text(
-        item.name,
-        style: TextStyle(
-          decoration: item.checked ? TextDecoration.lineThrough : TextDecoration.none,
+  Widget buildTitle() => Flexible(
+        child: Text(
+          item.name,
+          style: TextStyle(
+            decoration: item.checked ? TextDecoration.lineThrough : TextDecoration.none,
+          ),
+          maxLines: null,
         ),
       );
 
-  void _onChanged(WidgetRef ref) {
-    ref.read(shoppingListProvider.notifier).check(item.uid);
+  void checkedStatusChanged(WidgetRef ref, bool checked) {
+    ref.read(shoppingListProvider.notifier).check(item.uid, checked);
   }
 
-  void _onDismissed(WidgetRef ref) {
+  void onDismissed(WidgetRef ref) {
     ref.read(shoppingListProvider.notifier).remove(item.uid);
   }
 
-  Future<void> _onLongPress(BuildContext context, WidgetRef ref) async {
-    await ItemDetailPage.push(context, ref, item.item, item.inventory);
+  Future<void> onLongPress(BuildContext context, WidgetRef ref, ShoppingItem shoppingItem) async {
+    await ItemDetailPage.push(context, ref, shoppingItem.item, shoppingItem.inventory);
   }
 }

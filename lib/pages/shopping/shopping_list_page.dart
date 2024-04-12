@@ -13,9 +13,21 @@ import 'package:thingzee/pages/shopping/widget/shopping_list_tile.dart';
 class ShoppingListPage extends ConsumerWidget {
   const ShoppingListPage({super.key});
 
+  Future<void> addItem(BuildContext context, WidgetRef ref) async {
+    ShoppingItem? newItem = await showDialog<ShoppingItem>(
+        context: context,
+        builder: (BuildContext context) {
+          throw UnimplementedError();
+        });
+
+    if (newItem != null) {
+      await ref.read(shoppingListProvider.notifier).add(newItem);
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final shoppingProvider = ref.watch(shoppingListProvider);
+    ref.watch(shoppingListProvider);
 
     return DefaultTabController(
       length: 2,
@@ -60,8 +72,12 @@ class ShoppingListPage extends ConsumerWidget {
     );
   }
 
-  Widget shoppingCartBuilder(BuildContext context, WidgetRef ref, ShoppingItem item) {
-    return ShoppingListTile(item: item);
+  Widget shoppingCartItemBuilder(BuildContext context, WidgetRef ref, ShoppingItem item) {
+    return ShoppingListTile(
+      item: item,
+      editable: false,
+      checkbox: false,
+    );
   }
 
   Widget shoppingCartTab(BuildContext context, WidgetRef ref) {
@@ -76,18 +92,18 @@ class ShoppingListPage extends ConsumerWidget {
             ),
           )
         : ListView.builder(
-            itemBuilder: (context, index) => shoppingCartBuilder(context, ref, items[index]),
+            itemBuilder: (context, index) => shoppingCartItemBuilder(context, ref, items[index]),
             itemCount: items.length,
           );
   }
 
   Widget shoppingListItemBuilder(BuildContext context, WidgetRef ref, ShoppingItem item) {
-    return ShoppingListTile(item: item);
+    return ShoppingListTile(item: item, editable: true, checkbox: true);
   }
 
   Widget shoppingListTab(BuildContext context, WidgetRef ref) {
-    final sl = ref.watch(shoppingListProvider);
-    final items = sl.shoppingItems;
+    final shoppingList = ref.watch(shoppingListProvider);
+    final items = shoppingList.shoppingItems;
 
     return items.isEmpty
         ? const Center(
@@ -126,10 +142,6 @@ class ShoppingListPage extends ConsumerWidget {
                     await ReceiptConfirmationPage.push(context, receipt, parser);
                   },
                 ))));
-    // Navigator.push(
-    //     context,
-    //     MaterialPageRoute(
-    //         builder: (context) => LiveReceiptScannerPage(postScanHandler: DebugPostScanHandler())));
   }
 
   static Future<void> push(BuildContext context) async {
