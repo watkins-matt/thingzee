@@ -37,6 +37,7 @@ class ShoppingListTile extends HookConsumerWidget {
               ? Checkbox(
                   value: item.checked,
                   onChanged: (bool? value) => checkedStatusChanged(ref, value ?? !item.checked),
+                  visualDensity: VisualDensity.compact,
                 )
               : null,
           title: editable ? buildEditableTitle(ref, controller, focusNode) : buildTitle(),
@@ -61,10 +62,10 @@ class ShoppingListTile extends HookConsumerWidget {
         decoration: item.checked ? TextDecoration.lineThrough : TextDecoration.none,
       ),
       decoration: const InputDecoration(
-        border: InputBorder.none,
-        hintText: 'Enter item name',
-        isDense: true,
-      ),
+          border: InputBorder.none,
+          hintText: 'Enter item name',
+          isDense: true,
+          contentPadding: EdgeInsets.all(0)),
       onFieldSubmitted: (value) {
         final updatedItem = item.copyWith(name: value);
         ref.read(shoppingListProvider.notifier).updateItem(updatedItem);
