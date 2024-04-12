@@ -98,18 +98,20 @@ class ShoppingList extends StateNotifier<ShoppingListState> {
   }
 
   Future<void> refreshAll() async {
-    final allItems = repo.shopping.map();
+    final allItems = repo.shopping.all();
+    // Get a map of all items by upc
+    final allMap = {for (final item in allItems) item.upc: item};
 
     // Get the list of outs, and add them to the shopping list
-    // List<ShoppingItem> outs = this.outs();
-    // for (final out in outs) {
-    //   // Only add the out if it's not already in the list
-    //   if (!allItems.containsKey(out.uid)) {
-    //     allItems[out.uid] = out;
-    //   }
-    // }
+    List<ShoppingItem> outs = this.outs();
+    for (final out in outs) {
+      // Only add the out if it's not already in the list
+      if (!allMap.containsKey(out.upc)) {
+        allMap[out.upc] = out;
+      }
+    }
 
-    final itemList = allItems.values.toList();
+    final itemList = allMap.values.toList();
 
     state = state.copyWith(
       shoppingItems: sortList(itemList),
