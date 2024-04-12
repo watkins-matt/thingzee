@@ -7,7 +7,6 @@ import 'package:repository/model/inventory.dart';
 import 'package:repository/model/item.dart';
 import 'package:repository/model/serializer_datetime.dart';
 import 'package:repository/model_provider.dart';
-import 'package:repository/util/hash.dart';
 import 'package:util/extension/date_time.dart';
 import 'package:uuid/uuid.dart';
 
@@ -18,7 +17,7 @@ part 'shopping_item.merge.dart';
 @immutable
 @Mergeable()
 class ShoppingItem extends Model<ShoppingItem> {
-  final String uid; // Unique identifier for the item
+  final String uid; // generator:unique Unique identifier for the item
   final String upc; // The UPC of the item
   final String name; // The name of the item
   final String category; // The category of the item
@@ -36,9 +35,7 @@ class ShoppingItem extends Model<ShoppingItem> {
     this.price = 0.0,
     super.created,
     super.updated,
-  }) : uid = uid != null && uid.isNotEmpty
-            ? uid
-            : (upc.isNotEmpty ? hashBarcode(upc) : const Uuid().v4());
+  }) : uid = uid != null && uid.isNotEmpty ? uid : const Uuid().v4();
   factory ShoppingItem.fromJson(Map<String, dynamic> json) => _$ShoppingItemFromJson(json);
 
   @override
@@ -60,9 +57,7 @@ class ShoppingItem extends Model<ShoppingItem> {
     DateTime? updated,
   }) {
     return ShoppingItem(
-      uid: uid != null && uid.isNotEmpty
-          ? uid
-          : (upc != null && upc.isNotEmpty ? hashBarcode(upc) : this.uid),
+      uid: uid != null && uid.isNotEmpty ? uid : this.uid,
       upc: upc ?? this.upc,
       checked: checked ?? this.checked,
       listName: listName ?? this.listName,
