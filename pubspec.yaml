@@ -66,6 +66,7 @@ dev_dependencies:
     sdk: flutter
   integration_test:
     sdk: flutter
+  mocktail: ^1.0.3
   riverpod_lint: ^2.1.1
 
 flutter:

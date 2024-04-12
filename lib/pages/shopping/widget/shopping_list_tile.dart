@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:repository/database/shopping_list.dart';
+import 'package:repository/database/shopping_list_database.dart';
 import 'package:repository/model/shopping_item.dart';
 import 'package:thingzee/pages/detail/item_detail_page.dart';
 import 'package:thingzee/pages/shopping/price_entry_dialog.dart';

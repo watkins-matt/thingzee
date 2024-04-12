@@ -5,7 +5,7 @@ import 'package:repository/database/inventory_database.dart';
 import 'package:repository/database/item_database.dart';
 import 'package:repository/database/location_database.dart';
 import 'package:repository/database/preferences.dart';
-import 'package:repository/database/shopping_list.dart';
+import 'package:repository/database/shopping_list_database.dart';
 
 abstract class Repository {
   bool ready = false;

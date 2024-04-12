@@ -1,10 +1,11 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:repository/database/shopping_list.dart';
+import 'package:repository/database/shopping_list_database.dart';
 import 'package:repository/model/inventory.dart';
 import 'package:repository/model/shopping_item.dart';
 import 'package:repository/repository.dart';
 import 'package:thingzee/main.dart';
 import 'package:thingzee/pages/settings/state/preference_keys.dart';
+import 'package:util/extension/list.dart';
 
 final shoppingListProvider = StateNotifierProvider<ShoppingList, ShoppingListState>((ref) {
   final repo = ref.watch(repositoryProvider);
@@ -23,9 +24,60 @@ class ShoppingList extends StateNotifier<ShoppingListState> {
     refreshAll();
   }
 
+  Map<String, List<ShoppingItem>> get shoppingItemsByList {
+    final allItems = repo.shopping.all();
+    var itemsMap = <String, List<ShoppingItem>>{};
+
+    for (final item in allItems) {
+      final list = item.listName;
+
+      if (ShoppingListName.validIdentifierTypes.contains(list)) {
+        itemsMap.putIfAbsent(list, () => []).add(item);
+      }
+    }
+
+    return itemsMap;
+  }
+
   Future<void> add(ShoppingItem item) async {
     repo.shopping.put(item);
     await refreshAll();
+  }
+
+  List<ShoppingItem> buildCartList(List<ShoppingItem> shoppingItems, List<ShoppingItem> cartItems) {
+    final checkedItemsOnly = shoppingItems.where((item) => item.checked).toList();
+    final checkedShoppingItemsByUid = checkedItemsOnly.toMap((item) => item.uid);
+    final checkedShoppingItemsSet = checkedShoppingItemsByUid.keys.toSet();
+
+    final existingCartItemsByUid = cartItems.toMap((item) => item.uid);
+    final existingCartItemsSet = existingCartItemsByUid.keys.toSet();
+
+    final uidsToAdd = checkedShoppingItemsSet.difference(existingCartItemsSet);
+    final uidsToRemove = existingCartItemsSet.difference(checkedShoppingItemsSet);
+
+    for (final uid in uidsToAdd) {
+      final shoppingItem = checkedShoppingItemsByUid[uid];
+
+      if (shoppingItem != null) {
+        final newItem = shoppingItem.copyWith(listName: ShoppingListName.cart);
+
+        cartItems.add(newItem);
+        repo.shopping.put(newItem);
+      }
+    }
+
+    for (final uid in uidsToRemove) {
+      // Verify that the item has a valid upc before removing; items
+      // without a upc are manual items added by the user and shouldn't be
+      // removed from the cart
+      if (existingCartItemsByUid[uid]!.upc.isNotEmpty) {
+        repo.shopping.deleteById(uid);
+        cartItems.remove(existingCartItemsByUid[uid]);
+      }
+    }
+
+    // Return the sorted cart items
+    return sortList(cartItems);
   }
 
   Future<void> check(String itemId, bool checked) async {
@@ -75,6 +127,7 @@ class ShoppingList extends StateNotifier<ShoppingListState> {
 
   List<ShoppingItem> outs() {
     int daysUntilOut = repo.prefs.getInt(PreferenceKey.restockDayCount) ?? 12;
+
     final predictedOutUpcList = repo.hist.predictedOuts(days: daysUntilOut);
     final predictedOuts = repo.inv.getAll(predictedOutUpcList.toList());
     final outs = repo.inv.outs();
@@ -98,27 +151,18 @@ class ShoppingList extends StateNotifier<ShoppingListState> {
   }
 
   Future<void> refreshAll() async {
-    final allItems = repo.shopping.all();
-    // Get a map of all items by upc
-    final allMap = {for (final item in allItems) item.upc: item};
+    final itemsByList = shoppingItemsByList;
+    final shoppingList = itemsByList[ShoppingListName.shopping] ?? [];
+    final savedItems = itemsByList[ShoppingListName.saved] ?? [];
+    final cartItems = itemsByList[ShoppingListName.cart] ?? [];
 
-    // Get the list of outs, and add them to the shopping list
-    List<ShoppingItem> outs = this.outs();
-    for (final out in outs) {
-      // Only add the out if it's not already in the list
-      if (!allMap.containsKey(out.upc)) {
-        allMap[out.upc] = out;
-      }
-    }
-
-    final itemList = allMap.values.toList();
+    final updatedShoppingList = updateShoppingList(shoppingList);
+    final updatedCart = buildCartList(updatedShoppingList, cartItems);
 
     state = state.copyWith(
-      shoppingItems: sortList(itemList),
-      savedItems: sortList(
-        itemList,
-      ),
-      cartItems: sortList(itemList),
+      shoppingItems: updatedShoppingList,
+      savedItems: sortList(savedItems),
+      cartItems: updatedCart,
     );
   }
 
@@ -156,6 +200,32 @@ class ShoppingList extends StateNotifier<ShoppingListState> {
       state = state.copyWith(
           cartItems: state.cartItems.map((i) => i.uid == item.uid ? item : i).toList());
     }
+  }
+
+  List<ShoppingItem> updateShoppingList(List<ShoppingItem> items) {
+    final outs = this.outs();
+    final outsUPCs = outs.map((item) => item.upc).toSet();
+
+    // Remove items that are no longer considered outs and delete from the db
+    items.removeWhere((item) {
+      bool shouldRemove = item.upc.isNotEmpty && !outsUPCs.contains(item.upc);
+      if (shouldRemove) {
+        repo.shopping.deleteById(item.uid);
+      }
+      return shouldRemove;
+    });
+
+    // Create a set of all the upcs in the items
+    final itemUPCs = items.map((item) => item.upc).toSet();
+
+    // Add all the outs that are not already in the list
+    for (final out in outs) {
+      if (!itemUPCs.contains(out.upc)) {
+        items.add(out);
+      }
+    }
+
+    return sortList(items);
   }
 }
 

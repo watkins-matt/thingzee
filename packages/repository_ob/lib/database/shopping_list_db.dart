@@ -1,4 +1,4 @@
-import 'package:repository/database/shopping_list.dart';
+import 'package:repository/database/shopping_list_database.dart';
 import 'package:repository/model/shopping_item.dart';
 import 'package:repository_ob/database/database.dart';
 import 'package:repository_ob/model/shopping_item.ob.dart';
