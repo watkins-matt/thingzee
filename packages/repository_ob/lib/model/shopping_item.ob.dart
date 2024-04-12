@@ -13,6 +13,7 @@ class ObjectBoxShoppingItem extends ObjectBoxModel<ShoppingItem> {
   late DateTime? created;
   @Property(type: PropertyType.date)
   late DateTime? updated;
+  @Unique(onConflict: ConflictStrategy.replace)
   late String uid;
   late String upc;
   late String name;

@@ -101,7 +101,8 @@ final _entities = <obx_int.ModelEntity>[
             id: const obx_int.IdUid(6, 6975486646059346812),
             name: 'uid',
             type: 9,
-            flags: 0),
+            flags: 34848,
+            indexId: const obx_int.IdUid(13, 2029329091094395808)),
         obx_int.ModelProperty(
             id: const obx_int.IdUid(7, 2518258497503168622),
             name: 'name',
@@ -203,161 +204,6 @@ final _entities = <obx_int.ModelEntity>[
         obx_int.ModelProperty(
             id: const obx_int.IdUid(9, 1031915927988039123),
             name: 'updated',
-            type: 10,
-            flags: 0)
-      ],
-      relations: <obx_int.ModelRelation>[],
-      backlinks: <obx_int.ModelBacklink>[]),
-  obx_int.ModelEntity(
-      id: const obx_int.IdUid(25, 1511122922272980926),
-      name: 'ObjectBoxInventory',
-      lastPropertyId: const obx_int.IdUid(12, 4354940091097999311),
-      flags: 0,
-      properties: <obx_int.ModelProperty>[
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(1, 6596094317940506748),
-            name: 'amount',
-            type: 8,
-            flags: 0),
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(2, 4816689250536618732),
-            name: 'unitCount',
-            type: 6,
-            flags: 0),
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(4, 1978609951305768243),
-            name: 'locations',
-            type: 30,
-            flags: 0),
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(5, 1431437387687628276),
-            name: 'restock',
-            type: 1,
-            flags: 0),
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(6, 3241574036404653701),
-            name: 'uid',
-            type: 9,
-            flags: 0),
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(7, 990711167040717612),
-            name: 'objectBoxId',
-            type: 6,
-            flags: 1),
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(8, 886880915940834802),
-            name: 'dbExpirationDates',
-            type: 30,
-            flags: 0),
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(9, 4713759987857363154),
-            name: 'dbLastUpdate',
-            type: 6,
-            flags: 0),
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(10, 6814295420645616934),
-            name: 'upc',
-            type: 9,
-            flags: 34848,
-            indexId: const obx_int.IdUid(12, 8681464753538219313)),
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(11, 8110034338945550958),
-            name: 'updated',
-            type: 10,
-            flags: 0),
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(12, 4354940091097999311),
-            name: 'created',
-            type: 10,
-            flags: 0)
-      ],
-      relations: <obx_int.ModelRelation>[],
-      backlinks: <obx_int.ModelBacklink>[]),
-  obx_int.ModelEntity(
-      id: const obx_int.IdUid(26, 3164051957900951727),
-      name: 'ObjectBoxItem',
-      lastPropertyId: const obx_int.IdUid(18, 3554900412404725287),
-      flags: 0,
-      properties: <obx_int.ModelProperty>[
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(1, 7287175140036427301),
-            name: 'upc',
-            type: 9,
-            flags: 34848,
-            indexId: const obx_int.IdUid(10, 1425598012937126193)),
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(3, 211053890509625994),
-            name: 'name',
-            type: 9,
-            flags: 0),
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(4, 4494473553475034225),
-            name: 'variety',
-            type: 9,
-            flags: 0),
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(5, 6328966243408085845),
-            name: 'category',
-            type: 9,
-            flags: 0),
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(6, 4162491639111332433),
-            name: 'type',
-            type: 9,
-            flags: 0),
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(7, 6196793968835640231),
-            name: 'typeId',
-            type: 9,
-            flags: 0),
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(8, 2845428131231157014),
-            name: 'unitCount',
-            type: 6,
-            flags: 0),
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(9, 6563123697625444326),
-            name: 'unitName',
-            type: 9,
-            flags: 0),
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(10, 6725266228359140838),
-            name: 'unitPlural',
-            type: 9,
-            flags: 0),
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(11, 2260494015855780164),
-            name: 'imageUrl',
-            type: 9,
-            flags: 0),
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(12, 3497041783885935618),
-            name: 'consumable',
-            type: 1,
-            flags: 0),
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(13, 7470005932937188047),
-            name: 'languageCode',
-            type: 9,
-            flags: 0),
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(15, 7642552518931337978),
-            name: 'objectBoxId',
-            type: 6,
-            flags: 1),
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(16, 7855442706897693439),
-            name: 'uid',
-            type: 9,
-            flags: 0),
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(17, 8808233293747501380),
-            name: 'updated',
-            type: 10,
-            flags: 0),
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(18, 3554900412404725287),
-            name: 'created',
             type: 10,
             flags: 0)
       ],
@@ -652,6 +498,161 @@ final _entities = <obx_int.ModelEntity>[
             flags: 0)
       ],
       relations: <obx_int.ModelRelation>[],
+      backlinks: <obx_int.ModelBacklink>[]),
+  obx_int.ModelEntity(
+      id: const obx_int.IdUid(35, 5152461968206283516),
+      name: 'ObjectBoxInventory',
+      lastPropertyId: const obx_int.IdUid(11, 1190199954154274132),
+      flags: 0,
+      properties: <obx_int.ModelProperty>[
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(1, 8964229541773848282),
+            name: 'objectBoxId',
+            type: 6,
+            flags: 1),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(2, 3440533745405522456),
+            name: 'created',
+            type: 10,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(3, 7035360007770370889),
+            name: 'updated',
+            type: 10,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(4, 6270015848130356063),
+            name: 'amount',
+            type: 8,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(5, 5674885897791624616),
+            name: 'unitCount',
+            type: 6,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(6, 5882402607567144245),
+            name: 'locations',
+            type: 30,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(7, 3053833550218156698),
+            name: 'restock',
+            type: 1,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(8, 1789632838260684894),
+            name: 'uid',
+            type: 9,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(9, 406355796078745241),
+            name: 'upc',
+            type: 9,
+            flags: 34848,
+            indexId: const obx_int.IdUid(14, 5084249045812672256)),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(10, 2784720897502417262),
+            name: 'dbExpirationDates',
+            type: 30,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(11, 1190199954154274132),
+            name: 'dbLastUpdate',
+            type: 6,
+            flags: 0)
+      ],
+      relations: <obx_int.ModelRelation>[],
+      backlinks: <obx_int.ModelBacklink>[]),
+  obx_int.ModelEntity(
+      id: const obx_int.IdUid(36, 3273902510118498833),
+      name: 'ObjectBoxItem',
+      lastPropertyId: const obx_int.IdUid(16, 1027817466268410003),
+      flags: 0,
+      properties: <obx_int.ModelProperty>[
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(1, 4684593359481692798),
+            name: 'objectBoxId',
+            type: 6,
+            flags: 1),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(2, 5100801697835865734),
+            name: 'created',
+            type: 10,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(3, 2387724033038358019),
+            name: 'updated',
+            type: 10,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(4, 2993214405043338500),
+            name: 'upc',
+            type: 9,
+            flags: 34848,
+            indexId: const obx_int.IdUid(15, 5640924439430478188)),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(5, 2836486313281949926),
+            name: 'uid',
+            type: 9,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(6, 2795026740359050796),
+            name: 'name',
+            type: 9,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(7, 9162136845378160375),
+            name: 'variety',
+            type: 9,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(8, 6681774777843313916),
+            name: 'category',
+            type: 9,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(9, 2304468752005070714),
+            name: 'type',
+            type: 9,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(10, 5213760180506748170),
+            name: 'typeId',
+            type: 9,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(11, 27938287720804381),
+            name: 'unitCount',
+            type: 6,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(12, 2695033673185837137),
+            name: 'unitName',
+            type: 9,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(13, 3099774151825098265),
+            name: 'unitPlural',
+            type: 9,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(14, 8944616525533146781),
+            name: 'imageUrl',
+            type: 9,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(15, 7169118763766002325),
+            name: 'consumable',
+            type: 1,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(16, 1027817466268410003),
+            name: 'languageCode',
+            type: 9,
+            flags: 0)
+      ],
+      relations: <obx_int.ModelRelation>[],
       backlinks: <obx_int.ModelBacklink>[])
 ];
 
@@ -690,8 +691,8 @@ Future<obx.Store> openStore(
 obx_int.ModelDefinition getObjectBoxModel() {
   final model = obx_int.ModelInfo(
       entities: _entities,
-      lastEntityId: const obx_int.IdUid(34, 4842040687820616720),
-      lastIndexId: const obx_int.IdUid(12, 8681464753538219313),
+      lastEntityId: const obx_int.IdUid(36, 3273902510118498833),
+      lastIndexId: const obx_int.IdUid(15, 5640924439430478188),
       lastRelationId: const obx_int.IdUid(0, 0),
       lastSequenceId: const obx_int.IdUid(0, 0),
       retiredEntityUids: const [
@@ -716,7 +717,9 @@ obx_int.ModelDefinition getObjectBoxModel() {
         6997640042144843407,
         3255552557810191530,
         2424801468099308795,
-        4842040687820616720
+        4842040687820616720,
+        1511122922272980926,
+        3164051957900951727
       ],
       retiredIndexUids: const [8142794481267609707],
       retiredPropertyUids: const [
@@ -881,7 +884,34 @@ obx_int.ModelDefinition getObjectBoxModel() {
         1692820663667485931,
         6786393335707745360,
         8343660129430174024,
-        6275782331319882540
+        6275782331319882540,
+        6596094317940506748,
+        4816689250536618732,
+        1978609951305768243,
+        1431437387687628276,
+        3241574036404653701,
+        990711167040717612,
+        886880915940834802,
+        4713759987857363154,
+        6814295420645616934,
+        8110034338945550958,
+        4354940091097999311,
+        7287175140036427301,
+        211053890509625994,
+        4494473553475034225,
+        6328966243408085845,
+        4162491639111332433,
+        6196793968835640231,
+        2845428131231157014,
+        6563123697625444326,
+        6725266228359140838,
+        2260494015855780164,
+        3497041783885935618,
+        7470005932937188047,
+        7642552518931337978,
+        7855442706897693439,
+        8808233293747501380,
+        3554900412404725287
       ],
       retiredRelationUids: const [],
       modelVersion: 5,
@@ -1093,164 +1123,9 @@ obx_int.ModelDefinition getObjectBoxModel() {
 
           return object;
         }),
-    ObjectBoxInventory: obx_int.EntityDefinition<ObjectBoxInventory>(
-        model: _entities[4],
-        toOneRelations: (ObjectBoxInventory object) => [],
-        toManyRelations: (ObjectBoxInventory object) => {},
-        getId: (ObjectBoxInventory object) => object.objectBoxId,
-        setId: (ObjectBoxInventory object, int id) {
-          object.objectBoxId = id;
-        },
-        objectToFB: (ObjectBoxInventory object, fb.Builder fbb) {
-          final locationsOffset = fbb.writeList(
-              object.locations.map(fbb.writeString).toList(growable: false));
-          final uidOffset = fbb.writeString(object.uid);
-          final dbExpirationDatesOffset = fbb.writeList(object.dbExpirationDates
-              .map(fbb.writeString)
-              .toList(growable: false));
-          final upcOffset = fbb.writeString(object.upc);
-          fbb.startTable(13);
-          fbb.addFloat64(0, object.amount);
-          fbb.addInt64(1, object.unitCount);
-          fbb.addOffset(3, locationsOffset);
-          fbb.addBool(4, object.restock);
-          fbb.addOffset(5, uidOffset);
-          fbb.addInt64(6, object.objectBoxId);
-          fbb.addOffset(7, dbExpirationDatesOffset);
-          fbb.addInt64(8, object.dbLastUpdate);
-          fbb.addOffset(9, upcOffset);
-          fbb.addInt64(10, object.updated?.millisecondsSinceEpoch);
-          fbb.addInt64(11, object.created?.millisecondsSinceEpoch);
-          fbb.finish(fbb.endTable());
-          return object.objectBoxId;
-        },
-        objectFromFB: (obx.Store store, ByteData fbData) {
-          final buffer = fb.BufferContext(fbData);
-          final rootOffset = buffer.derefObject(0);
-          final updatedValue =
-              const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 24);
-          final createdValue =
-              const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 26);
-          final object = ObjectBoxInventory()
-            ..amount =
-                const fb.Float64Reader().vTableGet(buffer, rootOffset, 4, 0)
-            ..unitCount =
-                const fb.Int64Reader().vTableGet(buffer, rootOffset, 6, 0)
-            ..locations = const fb.ListReader<String>(
-                    fb.StringReader(asciiOptimization: true),
-                    lazy: false)
-                .vTableGet(buffer, rootOffset, 10, [])
-            ..restock =
-                const fb.BoolReader().vTableGet(buffer, rootOffset, 12, false)
-            ..uid = const fb.StringReader(asciiOptimization: true)
-                .vTableGet(buffer, rootOffset, 14, '')
-            ..objectBoxId =
-                const fb.Int64Reader().vTableGet(buffer, rootOffset, 16, 0)
-            ..dbExpirationDates = const fb.ListReader<String>(
-                    fb.StringReader(asciiOptimization: true),
-                    lazy: false)
-                .vTableGet(buffer, rootOffset, 18, [])
-            ..dbLastUpdate =
-                const fb.Int64Reader().vTableGet(buffer, rootOffset, 20, 0)
-            ..upc = const fb.StringReader(asciiOptimization: true)
-                .vTableGet(buffer, rootOffset, 22, '')
-            ..updated = updatedValue == null
-                ? null
-                : DateTime.fromMillisecondsSinceEpoch(updatedValue)
-            ..created = createdValue == null
-                ? null
-                : DateTime.fromMillisecondsSinceEpoch(createdValue);
-
-          return object;
-        }),
-    ObjectBoxItem: obx_int.EntityDefinition<ObjectBoxItem>(
-        model: _entities[5],
-        toOneRelations: (ObjectBoxItem object) => [],
-        toManyRelations: (ObjectBoxItem object) => {},
-        getId: (ObjectBoxItem object) => object.objectBoxId,
-        setId: (ObjectBoxItem object, int id) {
-          object.objectBoxId = id;
-        },
-        objectToFB: (ObjectBoxItem object, fb.Builder fbb) {
-          final upcOffset = fbb.writeString(object.upc);
-          final nameOffset = fbb.writeString(object.name);
-          final varietyOffset = fbb.writeString(object.variety);
-          final categoryOffset = fbb.writeString(object.category);
-          final typeOffset = fbb.writeString(object.type);
-          final typeIdOffset = fbb.writeString(object.typeId);
-          final unitNameOffset = fbb.writeString(object.unitName);
-          final unitPluralOffset = fbb.writeString(object.unitPlural);
-          final imageUrlOffset = fbb.writeString(object.imageUrl);
-          final languageCodeOffset = fbb.writeString(object.languageCode);
-          final uidOffset = fbb.writeString(object.uid);
-          fbb.startTable(19);
-          fbb.addOffset(0, upcOffset);
-          fbb.addOffset(2, nameOffset);
-          fbb.addOffset(3, varietyOffset);
-          fbb.addOffset(4, categoryOffset);
-          fbb.addOffset(5, typeOffset);
-          fbb.addOffset(6, typeIdOffset);
-          fbb.addInt64(7, object.unitCount);
-          fbb.addOffset(8, unitNameOffset);
-          fbb.addOffset(9, unitPluralOffset);
-          fbb.addOffset(10, imageUrlOffset);
-          fbb.addBool(11, object.consumable);
-          fbb.addOffset(12, languageCodeOffset);
-          fbb.addInt64(14, object.objectBoxId);
-          fbb.addOffset(15, uidOffset);
-          fbb.addInt64(16, object.updated?.millisecondsSinceEpoch);
-          fbb.addInt64(17, object.created?.millisecondsSinceEpoch);
-          fbb.finish(fbb.endTable());
-          return object.objectBoxId;
-        },
-        objectFromFB: (obx.Store store, ByteData fbData) {
-          final buffer = fb.BufferContext(fbData);
-          final rootOffset = buffer.derefObject(0);
-          final updatedValue =
-              const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 36);
-          final createdValue =
-              const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 38);
-          final object = ObjectBoxItem()
-            ..upc = const fb.StringReader(asciiOptimization: true)
-                .vTableGet(buffer, rootOffset, 4, '')
-            ..name = const fb.StringReader(asciiOptimization: true)
-                .vTableGet(buffer, rootOffset, 8, '')
-            ..variety = const fb.StringReader(asciiOptimization: true)
-                .vTableGet(buffer, rootOffset, 10, '')
-            ..category = const fb.StringReader(asciiOptimization: true)
-                .vTableGet(buffer, rootOffset, 12, '')
-            ..type = const fb.StringReader(asciiOptimization: true)
-                .vTableGet(buffer, rootOffset, 14, '')
-            ..typeId = const fb.StringReader(asciiOptimization: true)
-                .vTableGet(buffer, rootOffset, 16, '')
-            ..unitCount =
-                const fb.Int64Reader().vTableGet(buffer, rootOffset, 18, 0)
-            ..unitName = const fb.StringReader(asciiOptimization: true)
-                .vTableGet(buffer, rootOffset, 20, '')
-            ..unitPlural = const fb.StringReader(asciiOptimization: true)
-                .vTableGet(buffer, rootOffset, 22, '')
-            ..imageUrl = const fb.StringReader(asciiOptimization: true)
-                .vTableGet(buffer, rootOffset, 24, '')
-            ..consumable =
-                const fb.BoolReader().vTableGet(buffer, rootOffset, 26, false)
-            ..languageCode = const fb.StringReader(asciiOptimization: true)
-                .vTableGet(buffer, rootOffset, 28, '')
-            ..objectBoxId =
-                const fb.Int64Reader().vTableGet(buffer, rootOffset, 32, 0)
-            ..uid = const fb.StringReader(asciiOptimization: true)
-                .vTableGet(buffer, rootOffset, 34, '')
-            ..updated = updatedValue == null
-                ? null
-                : DateTime.fromMillisecondsSinceEpoch(updatedValue)
-            ..created = createdValue == null
-                ? null
-                : DateTime.fromMillisecondsSinceEpoch(createdValue);
-
-          return object;
-        }),
     ObjectBoxItemTranslation:
         obx_int.EntityDefinition<ObjectBoxItemTranslation>(
-            model: _entities[6],
+            model: _entities[4],
             toOneRelations: (ObjectBoxItemTranslation object) => [],
             toManyRelations: (ObjectBoxItemTranslation object) => {},
             getId: (ObjectBoxItemTranslation object) => object.objectBoxId,
@@ -1313,7 +1188,7 @@ obx_int.ModelDefinition getObjectBoxModel() {
               return object;
             }),
     ObjectBoxLocation: obx_int.EntityDefinition<ObjectBoxLocation>(
-        model: _entities[7],
+        model: _entities[5],
         toOneRelations: (ObjectBoxLocation object) => [],
         toManyRelations: (ObjectBoxLocation object) => {},
         getId: (ObjectBoxLocation object) => object.objectBoxId,
@@ -1359,7 +1234,7 @@ obx_int.ModelDefinition getObjectBoxModel() {
           return object;
         }),
     ObjectBoxManufacturer: obx_int.EntityDefinition<ObjectBoxManufacturer>(
-        model: _entities[8],
+        model: _entities[6],
         toOneRelations: (ObjectBoxManufacturer object) => [],
         toManyRelations: (ObjectBoxManufacturer object) => {},
         getId: (ObjectBoxManufacturer object) => object.objectBoxId,
@@ -1414,7 +1289,7 @@ obx_int.ModelDefinition getObjectBoxModel() {
           return object;
         }),
     ObjectBoxProduct: obx_int.EntityDefinition<ObjectBoxProduct>(
-        model: _entities[9],
+        model: _entities[7],
         toOneRelations: (ObjectBoxProduct object) => [],
         toManyRelations: (ObjectBoxProduct object) => {},
         getId: (ObjectBoxProduct object) => object.objectBoxId,
@@ -1476,7 +1351,7 @@ obx_int.ModelDefinition getObjectBoxModel() {
           return object;
         }),
     ObjectBoxIdentifier: obx_int.EntityDefinition<ObjectBoxIdentifier>(
-        model: _entities[10],
+        model: _entities[8],
         toOneRelations: (ObjectBoxIdentifier object) => [],
         toManyRelations: (ObjectBoxIdentifier object) => {},
         getId: (ObjectBoxIdentifier object) => object.objectBoxId,
@@ -1523,7 +1398,7 @@ obx_int.ModelDefinition getObjectBoxModel() {
           return object;
         }),
     ObjectBoxInvitation: obx_int.EntityDefinition<ObjectBoxInvitation>(
-        model: _entities[11],
+        model: _entities[9],
         toOneRelations: (ObjectBoxInvitation object) => [],
         toManyRelations: (ObjectBoxInvitation object) => {},
         getId: (ObjectBoxInvitation object) => object.objectBoxId,
@@ -1574,6 +1449,161 @@ obx_int.ModelDefinition getObjectBoxModel() {
                 .vTableGet(buffer, rootOffset, 16, '')
             ..recipientEmail = const fb.StringReader(asciiOptimization: true)
                 .vTableGet(buffer, rootOffset, 18, '');
+
+          return object;
+        }),
+    ObjectBoxInventory: obx_int.EntityDefinition<ObjectBoxInventory>(
+        model: _entities[10],
+        toOneRelations: (ObjectBoxInventory object) => [],
+        toManyRelations: (ObjectBoxInventory object) => {},
+        getId: (ObjectBoxInventory object) => object.objectBoxId,
+        setId: (ObjectBoxInventory object, int id) {
+          object.objectBoxId = id;
+        },
+        objectToFB: (ObjectBoxInventory object, fb.Builder fbb) {
+          final locationsOffset = fbb.writeList(
+              object.locations.map(fbb.writeString).toList(growable: false));
+          final uidOffset = fbb.writeString(object.uid);
+          final upcOffset = fbb.writeString(object.upc);
+          final dbExpirationDatesOffset = fbb.writeList(object.dbExpirationDates
+              .map(fbb.writeString)
+              .toList(growable: false));
+          fbb.startTable(12);
+          fbb.addInt64(0, object.objectBoxId);
+          fbb.addInt64(1, object.created?.millisecondsSinceEpoch);
+          fbb.addInt64(2, object.updated?.millisecondsSinceEpoch);
+          fbb.addFloat64(3, object.amount);
+          fbb.addInt64(4, object.unitCount);
+          fbb.addOffset(5, locationsOffset);
+          fbb.addBool(6, object.restock);
+          fbb.addOffset(7, uidOffset);
+          fbb.addOffset(8, upcOffset);
+          fbb.addOffset(9, dbExpirationDatesOffset);
+          fbb.addInt64(10, object.dbLastUpdate);
+          fbb.finish(fbb.endTable());
+          return object.objectBoxId;
+        },
+        objectFromFB: (obx.Store store, ByteData fbData) {
+          final buffer = fb.BufferContext(fbData);
+          final rootOffset = buffer.derefObject(0);
+          final createdValue =
+              const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 6);
+          final updatedValue =
+              const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 8);
+          final object = ObjectBoxInventory()
+            ..objectBoxId =
+                const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0)
+            ..created = createdValue == null
+                ? null
+                : DateTime.fromMillisecondsSinceEpoch(createdValue)
+            ..updated = updatedValue == null
+                ? null
+                : DateTime.fromMillisecondsSinceEpoch(updatedValue)
+            ..amount =
+                const fb.Float64Reader().vTableGet(buffer, rootOffset, 10, 0)
+            ..unitCount =
+                const fb.Int64Reader().vTableGet(buffer, rootOffset, 12, 0)
+            ..locations = const fb.ListReader<String>(
+                    fb.StringReader(asciiOptimization: true),
+                    lazy: false)
+                .vTableGet(buffer, rootOffset, 14, [])
+            ..restock =
+                const fb.BoolReader().vTableGet(buffer, rootOffset, 16, false)
+            ..uid = const fb.StringReader(asciiOptimization: true)
+                .vTableGet(buffer, rootOffset, 18, '')
+            ..upc = const fb.StringReader(asciiOptimization: true)
+                .vTableGet(buffer, rootOffset, 20, '')
+            ..dbExpirationDates = const fb.ListReader<String>(
+                    fb.StringReader(asciiOptimization: true),
+                    lazy: false)
+                .vTableGet(buffer, rootOffset, 22, [])
+            ..dbLastUpdate =
+                const fb.Int64Reader().vTableGet(buffer, rootOffset, 24, 0);
+
+          return object;
+        }),
+    ObjectBoxItem: obx_int.EntityDefinition<ObjectBoxItem>(
+        model: _entities[11],
+        toOneRelations: (ObjectBoxItem object) => [],
+        toManyRelations: (ObjectBoxItem object) => {},
+        getId: (ObjectBoxItem object) => object.objectBoxId,
+        setId: (ObjectBoxItem object, int id) {
+          object.objectBoxId = id;
+        },
+        objectToFB: (ObjectBoxItem object, fb.Builder fbb) {
+          final upcOffset = fbb.writeString(object.upc);
+          final uidOffset = fbb.writeString(object.uid);
+          final nameOffset = fbb.writeString(object.name);
+          final varietyOffset = fbb.writeString(object.variety);
+          final categoryOffset = fbb.writeString(object.category);
+          final typeOffset = fbb.writeString(object.type);
+          final typeIdOffset = fbb.writeString(object.typeId);
+          final unitNameOffset = fbb.writeString(object.unitName);
+          final unitPluralOffset = fbb.writeString(object.unitPlural);
+          final imageUrlOffset = fbb.writeString(object.imageUrl);
+          final languageCodeOffset = fbb.writeString(object.languageCode);
+          fbb.startTable(17);
+          fbb.addInt64(0, object.objectBoxId);
+          fbb.addInt64(1, object.created?.millisecondsSinceEpoch);
+          fbb.addInt64(2, object.updated?.millisecondsSinceEpoch);
+          fbb.addOffset(3, upcOffset);
+          fbb.addOffset(4, uidOffset);
+          fbb.addOffset(5, nameOffset);
+          fbb.addOffset(6, varietyOffset);
+          fbb.addOffset(7, categoryOffset);
+          fbb.addOffset(8, typeOffset);
+          fbb.addOffset(9, typeIdOffset);
+          fbb.addInt64(10, object.unitCount);
+          fbb.addOffset(11, unitNameOffset);
+          fbb.addOffset(12, unitPluralOffset);
+          fbb.addOffset(13, imageUrlOffset);
+          fbb.addBool(14, object.consumable);
+          fbb.addOffset(15, languageCodeOffset);
+          fbb.finish(fbb.endTable());
+          return object.objectBoxId;
+        },
+        objectFromFB: (obx.Store store, ByteData fbData) {
+          final buffer = fb.BufferContext(fbData);
+          final rootOffset = buffer.derefObject(0);
+          final createdValue =
+              const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 6);
+          final updatedValue =
+              const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 8);
+          final object = ObjectBoxItem()
+            ..objectBoxId =
+                const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0)
+            ..created = createdValue == null
+                ? null
+                : DateTime.fromMillisecondsSinceEpoch(createdValue)
+            ..updated = updatedValue == null
+                ? null
+                : DateTime.fromMillisecondsSinceEpoch(updatedValue)
+            ..upc = const fb.StringReader(asciiOptimization: true)
+                .vTableGet(buffer, rootOffset, 10, '')
+            ..uid = const fb.StringReader(asciiOptimization: true)
+                .vTableGet(buffer, rootOffset, 12, '')
+            ..name = const fb.StringReader(asciiOptimization: true)
+                .vTableGet(buffer, rootOffset, 14, '')
+            ..variety = const fb.StringReader(asciiOptimization: true)
+                .vTableGet(buffer, rootOffset, 16, '')
+            ..category = const fb.StringReader(asciiOptimization: true)
+                .vTableGet(buffer, rootOffset, 18, '')
+            ..type = const fb.StringReader(asciiOptimization: true)
+                .vTableGet(buffer, rootOffset, 20, '')
+            ..typeId = const fb.StringReader(asciiOptimization: true)
+                .vTableGet(buffer, rootOffset, 22, '')
+            ..unitCount =
+                const fb.Int64Reader().vTableGet(buffer, rootOffset, 24, 0)
+            ..unitName = const fb.StringReader(asciiOptimization: true)
+                .vTableGet(buffer, rootOffset, 26, '')
+            ..unitPlural = const fb.StringReader(asciiOptimization: true)
+                .vTableGet(buffer, rootOffset, 28, '')
+            ..imageUrl = const fb.StringReader(asciiOptimization: true)
+                .vTableGet(buffer, rootOffset, 30, '')
+            ..consumable =
+                const fb.BoolReader().vTableGet(buffer, rootOffset, 32, false)
+            ..languageCode = const fb.StringReader(asciiOptimization: true)
+                .vTableGet(buffer, rootOffset, 34, '');
 
           return object;
         })
@@ -1706,323 +1736,323 @@ class ObjectBoxHouseholdMember_ {
       _entities[3].properties[7]);
 }
 
-/// [ObjectBoxInventory] entity fields to define ObjectBox queries.
-class ObjectBoxInventory_ {
-  /// see [ObjectBoxInventory.amount]
-  static final amount =
-      obx.QueryDoubleProperty<ObjectBoxInventory>(_entities[4].properties[0]);
-
-  /// see [ObjectBoxInventory.unitCount]
-  static final unitCount =
-      obx.QueryIntegerProperty<ObjectBoxInventory>(_entities[4].properties[1]);
-
-  /// see [ObjectBoxInventory.locations]
-  static final locations = obx.QueryStringVectorProperty<ObjectBoxInventory>(
-      _entities[4].properties[2]);
-
-  /// see [ObjectBoxInventory.restock]
-  static final restock =
-      obx.QueryBooleanProperty<ObjectBoxInventory>(_entities[4].properties[3]);
-
-  /// see [ObjectBoxInventory.uid]
-  static final uid =
-      obx.QueryStringProperty<ObjectBoxInventory>(_entities[4].properties[4]);
-
-  /// see [ObjectBoxInventory.objectBoxId]
-  static final objectBoxId =
-      obx.QueryIntegerProperty<ObjectBoxInventory>(_entities[4].properties[5]);
-
-  /// see [ObjectBoxInventory.dbExpirationDates]
-  static final dbExpirationDates =
-      obx.QueryStringVectorProperty<ObjectBoxInventory>(
-          _entities[4].properties[6]);
-
-  /// see [ObjectBoxInventory.dbLastUpdate]
-  static final dbLastUpdate =
-      obx.QueryIntegerProperty<ObjectBoxInventory>(_entities[4].properties[7]);
-
-  /// see [ObjectBoxInventory.upc]
-  static final upc =
-      obx.QueryStringProperty<ObjectBoxInventory>(_entities[4].properties[8]);
-
-  /// see [ObjectBoxInventory.updated]
-  static final updated =
-      obx.QueryDateProperty<ObjectBoxInventory>(_entities[4].properties[9]);
-
-  /// see [ObjectBoxInventory.created]
-  static final created =
-      obx.QueryDateProperty<ObjectBoxInventory>(_entities[4].properties[10]);
-}
-
-/// [ObjectBoxItem] entity fields to define ObjectBox queries.
-class ObjectBoxItem_ {
-  /// see [ObjectBoxItem.upc]
-  static final upc =
-      obx.QueryStringProperty<ObjectBoxItem>(_entities[5].properties[0]);
-
-  /// see [ObjectBoxItem.name]
-  static final name =
-      obx.QueryStringProperty<ObjectBoxItem>(_entities[5].properties[1]);
-
-  /// see [ObjectBoxItem.variety]
-  static final variety =
-      obx.QueryStringProperty<ObjectBoxItem>(_entities[5].properties[2]);
-
-  /// see [ObjectBoxItem.category]
-  static final category =
-      obx.QueryStringProperty<ObjectBoxItem>(_entities[5].properties[3]);
-
-  /// see [ObjectBoxItem.type]
-  static final type =
-      obx.QueryStringProperty<ObjectBoxItem>(_entities[5].properties[4]);
-
-  /// see [ObjectBoxItem.typeId]
-  static final typeId =
-      obx.QueryStringProperty<ObjectBoxItem>(_entities[5].properties[5]);
-
-  /// see [ObjectBoxItem.unitCount]
-  static final unitCount =
-      obx.QueryIntegerProperty<ObjectBoxItem>(_entities[5].properties[6]);
-
-  /// see [ObjectBoxItem.unitName]
-  static final unitName =
-      obx.QueryStringProperty<ObjectBoxItem>(_entities[5].properties[7]);
-
-  /// see [ObjectBoxItem.unitPlural]
-  static final unitPlural =
-      obx.QueryStringProperty<ObjectBoxItem>(_entities[5].properties[8]);
-
-  /// see [ObjectBoxItem.imageUrl]
-  static final imageUrl =
-      obx.QueryStringProperty<ObjectBoxItem>(_entities[5].properties[9]);
-
-  /// see [ObjectBoxItem.consumable]
-  static final consumable =
-      obx.QueryBooleanProperty<ObjectBoxItem>(_entities[5].properties[10]);
-
-  /// see [ObjectBoxItem.languageCode]
-  static final languageCode =
-      obx.QueryStringProperty<ObjectBoxItem>(_entities[5].properties[11]);
-
-  /// see [ObjectBoxItem.objectBoxId]
-  static final objectBoxId =
-      obx.QueryIntegerProperty<ObjectBoxItem>(_entities[5].properties[12]);
-
-  /// see [ObjectBoxItem.uid]
-  static final uid =
-      obx.QueryStringProperty<ObjectBoxItem>(_entities[5].properties[13]);
-
-  /// see [ObjectBoxItem.updated]
-  static final updated =
-      obx.QueryDateProperty<ObjectBoxItem>(_entities[5].properties[14]);
-
-  /// see [ObjectBoxItem.created]
-  static final created =
-      obx.QueryDateProperty<ObjectBoxItem>(_entities[5].properties[15]);
-}
-
 /// [ObjectBoxItemTranslation] entity fields to define ObjectBox queries.
 class ObjectBoxItemTranslation_ {
   /// see [ObjectBoxItemTranslation.upc]
   static final upc = obx.QueryStringProperty<ObjectBoxItemTranslation>(
-      _entities[6].properties[0]);
+      _entities[4].properties[0]);
 
   /// see [ObjectBoxItemTranslation.languageCode]
   static final languageCode = obx.QueryStringProperty<ObjectBoxItemTranslation>(
-      _entities[6].properties[1]);
+      _entities[4].properties[1]);
 
   /// see [ObjectBoxItemTranslation.name]
   static final name = obx.QueryStringProperty<ObjectBoxItemTranslation>(
-      _entities[6].properties[2]);
+      _entities[4].properties[2]);
 
   /// see [ObjectBoxItemTranslation.variety]
   static final variety = obx.QueryStringProperty<ObjectBoxItemTranslation>(
-      _entities[6].properties[3]);
+      _entities[4].properties[3]);
 
   /// see [ObjectBoxItemTranslation.unitName]
   static final unitName = obx.QueryStringProperty<ObjectBoxItemTranslation>(
-      _entities[6].properties[4]);
+      _entities[4].properties[4]);
 
   /// see [ObjectBoxItemTranslation.unitPlural]
   static final unitPlural = obx.QueryStringProperty<ObjectBoxItemTranslation>(
-      _entities[6].properties[5]);
+      _entities[4].properties[5]);
 
   /// see [ObjectBoxItemTranslation.type]
   static final type = obx.QueryStringProperty<ObjectBoxItemTranslation>(
-      _entities[6].properties[6]);
+      _entities[4].properties[6]);
 
   /// see [ObjectBoxItemTranslation.objectBoxId]
   static final objectBoxId = obx.QueryIntegerProperty<ObjectBoxItemTranslation>(
-      _entities[6].properties[7]);
+      _entities[4].properties[7]);
 
   /// see [ObjectBoxItemTranslation.created]
   static final created = obx.QueryDateProperty<ObjectBoxItemTranslation>(
-      _entities[6].properties[8]);
+      _entities[4].properties[8]);
 
   /// see [ObjectBoxItemTranslation.updated]
   static final updated = obx.QueryDateProperty<ObjectBoxItemTranslation>(
-      _entities[6].properties[9]);
+      _entities[4].properties[9]);
 }
 
 /// [ObjectBoxLocation] entity fields to define ObjectBox queries.
 class ObjectBoxLocation_ {
   /// see [ObjectBoxLocation.upc]
   static final upc =
-      obx.QueryStringProperty<ObjectBoxLocation>(_entities[7].properties[0]);
+      obx.QueryStringProperty<ObjectBoxLocation>(_entities[5].properties[0]);
 
   /// see [ObjectBoxLocation.name]
   static final name =
-      obx.QueryStringProperty<ObjectBoxLocation>(_entities[7].properties[1]);
+      obx.QueryStringProperty<ObjectBoxLocation>(_entities[5].properties[1]);
 
   /// see [ObjectBoxLocation.quantity]
   static final quantity =
-      obx.QueryDoubleProperty<ObjectBoxLocation>(_entities[7].properties[2]);
+      obx.QueryDoubleProperty<ObjectBoxLocation>(_entities[5].properties[2]);
 
   /// see [ObjectBoxLocation.created]
   static final created =
-      obx.QueryDateProperty<ObjectBoxLocation>(_entities[7].properties[3]);
+      obx.QueryDateProperty<ObjectBoxLocation>(_entities[5].properties[3]);
 
   /// see [ObjectBoxLocation.updated]
   static final updated =
-      obx.QueryDateProperty<ObjectBoxLocation>(_entities[7].properties[4]);
+      obx.QueryDateProperty<ObjectBoxLocation>(_entities[5].properties[4]);
 
   /// see [ObjectBoxLocation.objectBoxId]
   static final objectBoxId =
-      obx.QueryIntegerProperty<ObjectBoxLocation>(_entities[7].properties[5]);
+      obx.QueryIntegerProperty<ObjectBoxLocation>(_entities[5].properties[5]);
 }
 
 /// [ObjectBoxManufacturer] entity fields to define ObjectBox queries.
 class ObjectBoxManufacturer_ {
   /// see [ObjectBoxManufacturer.name]
   static final name = obx.QueryStringProperty<ObjectBoxManufacturer>(
-      _entities[8].properties[0]);
+      _entities[6].properties[0]);
 
   /// see [ObjectBoxManufacturer.website]
   static final website = obx.QueryStringProperty<ObjectBoxManufacturer>(
-      _entities[8].properties[1]);
+      _entities[6].properties[1]);
 
   /// see [ObjectBoxManufacturer.uid]
   static final uid = obx.QueryStringProperty<ObjectBoxManufacturer>(
-      _entities[8].properties[2]);
+      _entities[6].properties[2]);
 
   /// see [ObjectBoxManufacturer.parentName]
   static final parentName = obx.QueryStringProperty<ObjectBoxManufacturer>(
-      _entities[8].properties[3]);
+      _entities[6].properties[3]);
 
   /// see [ObjectBoxManufacturer.parentUid]
   static final parentUid = obx.QueryStringProperty<ObjectBoxManufacturer>(
-      _entities[8].properties[4]);
+      _entities[6].properties[4]);
 
   /// see [ObjectBoxManufacturer.objectBoxId]
   static final objectBoxId = obx.QueryIntegerProperty<ObjectBoxManufacturer>(
-      _entities[8].properties[5]);
+      _entities[6].properties[5]);
 
   /// see [ObjectBoxManufacturer.created]
   static final created =
-      obx.QueryDateProperty<ObjectBoxManufacturer>(_entities[8].properties[6]);
+      obx.QueryDateProperty<ObjectBoxManufacturer>(_entities[6].properties[6]);
 
   /// see [ObjectBoxManufacturer.updated]
   static final updated =
-      obx.QueryDateProperty<ObjectBoxManufacturer>(_entities[8].properties[7]);
+      obx.QueryDateProperty<ObjectBoxManufacturer>(_entities[6].properties[7]);
 }
 
 /// [ObjectBoxProduct] entity fields to define ObjectBox queries.
 class ObjectBoxProduct_ {
   /// see [ObjectBoxProduct.name]
   static final name =
-      obx.QueryStringProperty<ObjectBoxProduct>(_entities[9].properties[0]);
+      obx.QueryStringProperty<ObjectBoxProduct>(_entities[7].properties[0]);
 
   /// see [ObjectBoxProduct.uid]
   static final uid =
-      obx.QueryStringProperty<ObjectBoxProduct>(_entities[9].properties[1]);
+      obx.QueryStringProperty<ObjectBoxProduct>(_entities[7].properties[1]);
 
   /// see [ObjectBoxProduct.manufacturer]
   static final manufacturer =
-      obx.QueryStringProperty<ObjectBoxProduct>(_entities[9].properties[2]);
+      obx.QueryStringProperty<ObjectBoxProduct>(_entities[7].properties[2]);
 
   /// see [ObjectBoxProduct.manufacturerUid]
   static final manufacturerUid =
-      obx.QueryStringProperty<ObjectBoxProduct>(_entities[9].properties[3]);
+      obx.QueryStringProperty<ObjectBoxProduct>(_entities[7].properties[3]);
 
   /// see [ObjectBoxProduct.category]
   static final category =
-      obx.QueryStringProperty<ObjectBoxProduct>(_entities[9].properties[4]);
+      obx.QueryStringProperty<ObjectBoxProduct>(_entities[7].properties[4]);
 
   /// see [ObjectBoxProduct.upcs]
   static final upcs = obx.QueryStringVectorProperty<ObjectBoxProduct>(
-      _entities[9].properties[5]);
+      _entities[7].properties[5]);
 
   /// see [ObjectBoxProduct.objectBoxId]
   static final objectBoxId =
-      obx.QueryIntegerProperty<ObjectBoxProduct>(_entities[9].properties[6]);
+      obx.QueryIntegerProperty<ObjectBoxProduct>(_entities[7].properties[6]);
 
   /// see [ObjectBoxProduct.created]
   static final created =
-      obx.QueryDateProperty<ObjectBoxProduct>(_entities[9].properties[7]);
+      obx.QueryDateProperty<ObjectBoxProduct>(_entities[7].properties[7]);
 
   /// see [ObjectBoxProduct.updated]
   static final updated =
-      obx.QueryDateProperty<ObjectBoxProduct>(_entities[9].properties[8]);
+      obx.QueryDateProperty<ObjectBoxProduct>(_entities[7].properties[8]);
 }
 
 /// [ObjectBoxIdentifier] entity fields to define ObjectBox queries.
 class ObjectBoxIdentifier_ {
   /// see [ObjectBoxIdentifier.type]
   static final type =
-      obx.QueryStringProperty<ObjectBoxIdentifier>(_entities[10].properties[0]);
+      obx.QueryStringProperty<ObjectBoxIdentifier>(_entities[8].properties[0]);
 
   /// see [ObjectBoxIdentifier.value]
   static final value =
-      obx.QueryStringProperty<ObjectBoxIdentifier>(_entities[10].properties[1]);
+      obx.QueryStringProperty<ObjectBoxIdentifier>(_entities[8].properties[1]);
 
   /// see [ObjectBoxIdentifier.uid]
   static final uid =
-      obx.QueryStringProperty<ObjectBoxIdentifier>(_entities[10].properties[2]);
+      obx.QueryStringProperty<ObjectBoxIdentifier>(_entities[8].properties[2]);
 
   /// see [ObjectBoxIdentifier.created]
   static final created =
-      obx.QueryDateProperty<ObjectBoxIdentifier>(_entities[10].properties[3]);
+      obx.QueryDateProperty<ObjectBoxIdentifier>(_entities[8].properties[3]);
 
   /// see [ObjectBoxIdentifier.updated]
   static final updated =
-      obx.QueryDateProperty<ObjectBoxIdentifier>(_entities[10].properties[4]);
+      obx.QueryDateProperty<ObjectBoxIdentifier>(_entities[8].properties[4]);
 
   /// see [ObjectBoxIdentifier.objectBoxId]
-  static final objectBoxId = obx.QueryIntegerProperty<ObjectBoxIdentifier>(
-      _entities[10].properties[5]);
+  static final objectBoxId =
+      obx.QueryIntegerProperty<ObjectBoxIdentifier>(_entities[8].properties[5]);
 }
 
 /// [ObjectBoxInvitation] entity fields to define ObjectBox queries.
 class ObjectBoxInvitation_ {
   /// see [ObjectBoxInvitation.objectBoxId]
-  static final objectBoxId = obx.QueryIntegerProperty<ObjectBoxInvitation>(
-      _entities[11].properties[0]);
+  static final objectBoxId =
+      obx.QueryIntegerProperty<ObjectBoxInvitation>(_entities[9].properties[0]);
 
   /// see [ObjectBoxInvitation.created]
   static final created =
-      obx.QueryDateProperty<ObjectBoxInvitation>(_entities[11].properties[1]);
+      obx.QueryDateProperty<ObjectBoxInvitation>(_entities[9].properties[1]);
 
   /// see [ObjectBoxInvitation.updated]
   static final updated =
-      obx.QueryDateProperty<ObjectBoxInvitation>(_entities[11].properties[2]);
+      obx.QueryDateProperty<ObjectBoxInvitation>(_entities[9].properties[2]);
 
   /// see [ObjectBoxInvitation.id]
   static final id =
-      obx.QueryStringProperty<ObjectBoxInvitation>(_entities[11].properties[3]);
+      obx.QueryStringProperty<ObjectBoxInvitation>(_entities[9].properties[3]);
 
   /// see [ObjectBoxInvitation.householdId]
   static final householdId =
-      obx.QueryStringProperty<ObjectBoxInvitation>(_entities[11].properties[4]);
+      obx.QueryStringProperty<ObjectBoxInvitation>(_entities[9].properties[4]);
 
   /// see [ObjectBoxInvitation.inviterEmail]
   static final inviterEmail =
-      obx.QueryStringProperty<ObjectBoxInvitation>(_entities[11].properties[5]);
+      obx.QueryStringProperty<ObjectBoxInvitation>(_entities[9].properties[5]);
 
   /// see [ObjectBoxInvitation.inviterUserId]
   static final inviterUserId =
-      obx.QueryStringProperty<ObjectBoxInvitation>(_entities[11].properties[6]);
+      obx.QueryStringProperty<ObjectBoxInvitation>(_entities[9].properties[6]);
 
   /// see [ObjectBoxInvitation.recipientEmail]
   static final recipientEmail =
-      obx.QueryStringProperty<ObjectBoxInvitation>(_entities[11].properties[7]);
+      obx.QueryStringProperty<ObjectBoxInvitation>(_entities[9].properties[7]);
+}
+
+/// [ObjectBoxInventory] entity fields to define ObjectBox queries.
+class ObjectBoxInventory_ {
+  /// see [ObjectBoxInventory.objectBoxId]
+  static final objectBoxId =
+      obx.QueryIntegerProperty<ObjectBoxInventory>(_entities[10].properties[0]);
+
+  /// see [ObjectBoxInventory.created]
+  static final created =
+      obx.QueryDateProperty<ObjectBoxInventory>(_entities[10].properties[1]);
+
+  /// see [ObjectBoxInventory.updated]
+  static final updated =
+      obx.QueryDateProperty<ObjectBoxInventory>(_entities[10].properties[2]);
+
+  /// see [ObjectBoxInventory.amount]
+  static final amount =
+      obx.QueryDoubleProperty<ObjectBoxInventory>(_entities[10].properties[3]);
+
+  /// see [ObjectBoxInventory.unitCount]
+  static final unitCount =
+      obx.QueryIntegerProperty<ObjectBoxInventory>(_entities[10].properties[4]);
+
+  /// see [ObjectBoxInventory.locations]
+  static final locations = obx.QueryStringVectorProperty<ObjectBoxInventory>(
+      _entities[10].properties[5]);
+
+  /// see [ObjectBoxInventory.restock]
+  static final restock =
+      obx.QueryBooleanProperty<ObjectBoxInventory>(_entities[10].properties[6]);
+
+  /// see [ObjectBoxInventory.uid]
+  static final uid =
+      obx.QueryStringProperty<ObjectBoxInventory>(_entities[10].properties[7]);
+
+  /// see [ObjectBoxInventory.upc]
+  static final upc =
+      obx.QueryStringProperty<ObjectBoxInventory>(_entities[10].properties[8]);
+
+  /// see [ObjectBoxInventory.dbExpirationDates]
+  static final dbExpirationDates =
+      obx.QueryStringVectorProperty<ObjectBoxInventory>(
+          _entities[10].properties[9]);
+
+  /// see [ObjectBoxInventory.dbLastUpdate]
+  static final dbLastUpdate = obx.QueryIntegerProperty<ObjectBoxInventory>(
+      _entities[10].properties[10]);
+}
+
+/// [ObjectBoxItem] entity fields to define ObjectBox queries.
+class ObjectBoxItem_ {
+  /// see [ObjectBoxItem.objectBoxId]
+  static final objectBoxId =
+      obx.QueryIntegerProperty<ObjectBoxItem>(_entities[11].properties[0]);
+
+  /// see [ObjectBoxItem.created]
+  static final created =
+      obx.QueryDateProperty<ObjectBoxItem>(_entities[11].properties[1]);
+
+  /// see [ObjectBoxItem.updated]
+  static final updated =
+      obx.QueryDateProperty<ObjectBoxItem>(_entities[11].properties[2]);
+
+  /// see [ObjectBoxItem.upc]
+  static final upc =
+      obx.QueryStringProperty<ObjectBoxItem>(_entities[11].properties[3]);
+
+  /// see [ObjectBoxItem.uid]
+  static final uid =
+      obx.QueryStringProperty<ObjectBoxItem>(_entities[11].properties[4]);
+
+  /// see [ObjectBoxItem.name]
+  static final name =
+      obx.QueryStringProperty<ObjectBoxItem>(_entities[11].properties[5]);
+
+  /// see [ObjectBoxItem.variety]
+  static final variety =
+      obx.QueryStringProperty<ObjectBoxItem>(_entities[11].properties[6]);
+
+  /// see [ObjectBoxItem.category]
+  static final category =
+      obx.QueryStringProperty<ObjectBoxItem>(_entities[11].properties[7]);
+
+  /// see [ObjectBoxItem.type]
+  static final type =
+      obx.QueryStringProperty<ObjectBoxItem>(_entities[11].properties[8]);
+
+  /// see [ObjectBoxItem.typeId]
+  static final typeId =
+      obx.QueryStringProperty<ObjectBoxItem>(_entities[11].properties[9]);
+
+  /// see [ObjectBoxItem.unitCount]
+  static final unitCount =
+      obx.QueryIntegerProperty<ObjectBoxItem>(_entities[11].properties[10]);
+
+  /// see [ObjectBoxItem.unitName]
+  static final unitName =
+      obx.QueryStringProperty<ObjectBoxItem>(_entities[11].properties[11]);
+
+  /// see [ObjectBoxItem.unitPlural]
+  static final unitPlural =
+      obx.QueryStringProperty<ObjectBoxItem>(_entities[11].properties[12]);
+
+  /// see [ObjectBoxItem.imageUrl]
+  static final imageUrl =
+      obx.QueryStringProperty<ObjectBoxItem>(_entities[11].properties[13]);
+
+  /// see [ObjectBoxItem.consumable]
+  static final consumable =
+      obx.QueryBooleanProperty<ObjectBoxItem>(_entities[11].properties[14]);
+
+  /// see [ObjectBoxItem.languageCode]
+  static final languageCode =
+      obx.QueryStringProperty<ObjectBoxItem>(_entities[11].properties[15]);
 }
