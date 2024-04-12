@@ -15,6 +15,14 @@ extension ListEquals<T> on List<T> {
   }
 }
 
+extension MapExtension<T> on List<T> {
+  /// Converts a List<T> into a Map<K, T> using a keySelector
+  /// function to determine the keys for each item.
+  Map<K, T> toMap<K>(K Function(T) keySelector) {
+    return {for (final item in this) keySelector(item): item};
+  }
+}
+
 extension MedianExtension on List<double> {
   double get median {
     if (isEmpty) {
