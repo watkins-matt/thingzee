@@ -39,10 +39,20 @@ class ShoppingItem extends Model<ShoppingItem> {
   factory ShoppingItem.fromJson(Map<String, dynamic> json) => _$ShoppingItemFromJson(json);
 
   @override
-  String get id => uid;
+  int get hashCode => upc.isNotEmpty ? upc.hashCode : uid.hashCode;
 
+  @override
+  String get id => uid;
   Inventory get inventory => ModelProvider<Inventory>().get(upc, Inventory(upc: upc));
+
   Item get item => ModelProvider<Item>().get(upc, Item(upc: upc));
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ShoppingItem &&
+          runtimeType == other.runtimeType &&
+          (upc.isNotEmpty ? upc == other.upc : uid == other.uid);
 
   @override
   ShoppingItem copyWith({

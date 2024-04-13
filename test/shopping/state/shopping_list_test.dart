@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:repository/database/mock/repository.dart';
+import 'package:repository/model/inventory.dart';
 import 'package:repository/model/shopping_item.dart';
 import 'package:thingzee/main.dart';
 import 'package:thingzee/pages/shopping/state/shopping_list.dart';
@@ -12,6 +13,8 @@ void main() {
 
     setUp(() {
       mockRepository = MockRepository();
+      mockRepository.installMockModelProvider();
+
       container = ProviderContainer(overrides: [
         repositoryProvider.overrideWithValue(mockRepository),
       ]);
@@ -33,45 +36,51 @@ void main() {
       expect(container.read(shoppingListProvider).shoppingItems, contains(testItem));
     });
 
-    // test('Items that are predicted outs are added and not predicted outs are removed', () async {
-    //   final testItemOut = ShoppingItem(upc: '1', name: 'Test Item', category: 'Test Category');
-    //   final testItemNotOut = ShoppingItem(upc: '2', name: 'Test Item', category: 'Test Category');
+    test('Items that are predicted outs are added and not predicted outs are removed', () async {
+      final testItemOut = ShoppingItem(upc: '1', name: 'Test Item 1', category: 'Test Category');
+      final testItemNotOut = ShoppingItem(upc: '2', name: 'Test Item 2', category: 'Test Category');
 
-    //   // Note that only '1' is an out
-    //   mockRepository.inv.put(Inventory(upc: '1', amount: 0));
-    //   expect(mockRepository.inv.outs().length, 1);
+      // Note that only '1' is an out
+      mockRepository.inv.put(Inventory(upc: '1', amount: 0));
+      expect(mockRepository.inv.outs().length, 1);
 
-    //   final shoppingList = container.read(shoppingListProvider.notifier);
+      final shoppingList = container.read(shoppingListProvider.notifier);
 
-    //   // Add item and check if list updates
-    //   await shoppingList.add(testItemNotOut);
+      // Add item and check if list updates
+      await shoppingList.add(testItemNotOut);
 
-    //   // We should only have testItemOut in the list
-    //   expect(container.read(shoppingListProvider).shoppingItems, contains(testItemOut));
-    //   expect(container.read(shoppingListProvider).shoppingItems, isNot(contains(testItemNotOut)));
-    //   expect(container.read(shoppingListProvider).shoppingItems.length, 1);
-    // });
+      // We should only have testItemOut in the list
+      expect(container.read(shoppingListProvider).shoppingItems, contains(testItemOut));
+      expect(container.read(shoppingListProvider).shoppingItems, isNot(contains(testItemNotOut)));
+      expect(container.read(shoppingListProvider).shoppingItems.length, 1);
+    });
 
-    // test('Checking an item should update its status and reflect in the cart', () async {
-    //   final testItem =
-    //       ShoppingItem(upc: '1', name: 'Test Item', category: 'Test Category', checked: false);
-    //   final shoppingList = container.read(shoppingListProvider.notifier);
+    test('Checking an item should update its status and reflect in the cart', () async {
+      // Note that items without a upc will not be autoremoved. If we added
+      // a upc here, it would be automatically removed unless it was an
+      // out or predicted out.
+      final testItem =
+          ShoppingItem(upc: '', name: 'Test Item', category: 'Test Category', checked: false);
+      final shoppingList = container.read(shoppingListProvider.notifier);
 
-    //   // Add the item
-    //   await shoppingList.add(testItem);
+      // Add the item
+      await shoppingList.add(testItem);
 
-    //   // Check the item
-    //   await shoppingList.check(testItem.upc, true);
+      expect(container.read(shoppingListProvider).shoppingItems, contains(testItem));
+      expect(container.read(shoppingListProvider).shoppingItems.length, 1);
 
-    //   final updatedItem = container
-    //       .read(shoppingListProvider)
-    //       .shoppingItems
-    //       .firstWhere((item) => item.upc == testItem.upc);
-    //   expect(updatedItem.checked, isTrue);
+      // Check the item
+      await shoppingList.check(testItem, true);
 
-    //   // Verify it's added to the cart
-    //   expect(container.read(shoppingListProvider).cartItems, contains(updatedItem));
-    // });
+      final updatedItem = container
+          .read(shoppingListProvider)
+          .shoppingItems
+          .firstWhere((item) => item.upc == testItem.upc);
+      expect(updatedItem.checked, isTrue);
+
+      // Verify it's added to the cart
+      expect(container.read(shoppingListProvider).cartItems, contains(updatedItem));
+    });
 
     test('Removing an item updates the shopping list', () async {
       final testItem = ShoppingItem(upc: '1', name: 'Test Item', category: 'Test Category');

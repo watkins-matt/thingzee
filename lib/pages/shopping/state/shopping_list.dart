@@ -80,14 +80,14 @@ class ShoppingList extends StateNotifier<ShoppingListState> {
     return sortList(cartItems);
   }
 
-  Future<void> check(String itemId, bool checked) async {
-    int itemIndex = state.shoppingItems.indexWhere((i) => i.uid == itemId);
+  Future<void> check(ShoppingItem item, bool checked) async {
+    int itemIndex = state.shoppingItems.indexWhere((i) => i.uid == item.uid);
 
     if (itemIndex != -1) {
       var updatedItem = state.shoppingItems[itemIndex].copyWith(checked: checked);
       state.shoppingItems[itemIndex] = updatedItem;
       repo.shopping.put(updatedItem);
-      sortItems();
+      await refreshAll();
     }
   }
 
