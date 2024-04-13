@@ -6,19 +6,23 @@ import 'package:repository/model/inventory.dart';
 import 'package:repository/repository.dart';
 import 'package:thingzee/main.dart';
 import 'package:thingzee/pages/inventory/state/item_thumbnail_cache.dart';
+import 'package:thingzee/pages/shopping/state/shopping_list.dart';
 
 final inventoryProvider = StateNotifierProvider<InventoryView, List<JoinedItem>>((ref) {
   final repo = ref.watch(repositoryProvider);
-  return InventoryView(repo);
+  final sl = ref.watch(shoppingListProvider.notifier);
+
+  return InventoryView(repo, sl);
 });
 
 class InventoryView extends StateNotifier<List<JoinedItem>> {
   final Repository r;
+  final ShoppingList sl;
   final JoinedItemDatabase joinedItemDb;
   Filter _filter = const Filter();
   String query = '';
 
-  InventoryView(this.r)
+  InventoryView(this.r, this.sl)
       : joinedItemDb = JoinedItemDatabase(r.items, r.inv),
         super(<JoinedItem>[]) {
     refresh();
@@ -38,6 +42,7 @@ class InventoryView extends StateNotifier<List<JoinedItem>> {
   void deleteInventory(Inventory inv) {
     joinedItemDb.inventoryDatabase.delete(inv);
     refresh();
+    sl.refreshAll();
   }
 
   Future<void> downloadImages(ItemThumbnailCache cache) async {
