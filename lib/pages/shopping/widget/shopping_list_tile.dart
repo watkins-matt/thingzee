@@ -59,7 +59,7 @@ class ShoppingListTile extends HookConsumerWidget {
       controller: controller,
       focusNode: focusNode,
       style: TextStyle(
-        decoration: item.checked ? TextDecoration.lineThrough : TextDecoration.none,
+        decoration: checkbox && item.checked ? TextDecoration.lineThrough : TextDecoration.none,
       ),
       decoration: const InputDecoration(
           border: InputBorder.none,
@@ -84,14 +84,12 @@ class ShoppingListTile extends HookConsumerWidget {
         child: const Text('Price'),
       );
 
-  Widget buildTitle() => Flexible(
-        child: Text(
-          item.name,
-          style: TextStyle(
-            decoration: item.checked ? TextDecoration.lineThrough : TextDecoration.none,
-          ),
-          maxLines: null,
+  Widget buildTitle() => Text(
+        item.name,
+        style: TextStyle(
+          decoration: checkbox && item.checked ? TextDecoration.lineThrough : TextDecoration.none,
         ),
+        maxLines: null,
       );
 
   void checkedStatusChanged(WidgetRef ref, bool checked) {
@@ -99,7 +97,7 @@ class ShoppingListTile extends HookConsumerWidget {
   }
 
   void onDismissed(WidgetRef ref) {
-    ref.read(shoppingListProvider.notifier).remove(item.uid);
+    ref.read(shoppingListProvider.notifier).remove(item);
   }
 
   Future<void> onLongPress(BuildContext context, WidgetRef ref, ShoppingItem shoppingItem) async {
