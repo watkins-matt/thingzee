@@ -59,7 +59,7 @@ class ShoppingList extends StateNotifier<ShoppingListState> {
       final shoppingItem = checkedShoppingItemsByUid[uid];
 
       if (shoppingItem != null) {
-        final newItem = shoppingItem.copyWith(listName: ShoppingListName.cart);
+        final newItem = shoppingItem.copyWith(listName: ShoppingListName.cart, checked: false);
 
         cartItems.add(newItem);
         repo.shopping.put(newItem);
@@ -86,8 +86,15 @@ class ShoppingList extends StateNotifier<ShoppingListState> {
     if (itemIndex != -1) {
       var updatedItem = state.shoppingItems[itemIndex].copyWith(checked: checked);
       state.shoppingItems[itemIndex] = updatedItem;
+
       repo.shopping.put(updatedItem);
-      await refreshAll();
+
+      // Rebuild the cart list
+      final updatedCart = buildCartList(state.shoppingItems, state.cartItems);
+      state = state.copyWith(
+        shoppingItems: sortList(state.shoppingItems),
+        cartItems: updatedCart,
+      );
     }
   }
 
@@ -166,8 +173,14 @@ class ShoppingList extends StateNotifier<ShoppingListState> {
     );
   }
 
-  Future<void> remove(String itemId) async {
-    repo.shopping.deleteById(itemId);
+  Future<void> remove(ShoppingItem item) async {
+    // If we have a upc, this was an automatically added item.
+    // We need to remove it from the inventory database so it isn't re-added
+    if (item.upc.isNotEmpty) {
+      repo.inv.deleteById(item.upc);
+    }
+
+    repo.shopping.deleteById(item.uid);
     await refreshAll();
   }
 
