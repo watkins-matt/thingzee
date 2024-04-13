@@ -90,7 +90,7 @@ void main() {
       await shoppingList.add(testItem);
 
       // Remove the item
-      await shoppingList.remove(testItem.uid);
+      await shoppingList.remove(testItem);
 
       // Verify it's removed from the shopping list
       expect(container.read(shoppingListProvider).shoppingItems, isNot(contains(testItem)));
