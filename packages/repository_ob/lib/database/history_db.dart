@@ -9,26 +9,8 @@ import 'package:repository_ob/objectbox.g.dart';
 class ObjectBoxHistoryDatabase extends HistoryDatabase
     with ObjectBoxDatabase<History, ObjectBoxHistory> {
   ObjectBoxHistoryDatabase(Store store) {
-    constructDb(store);
+    init(store, ObjectBoxHistory.from, ObjectBoxHistory_.upc, ObjectBoxHistory_.updated);
   }
-
-  @override
-  Condition<ObjectBoxHistory> buildIdCondition(String id) {
-    return ObjectBoxHistory_.upc.equals(id);
-  }
-
-  @override
-  Condition<ObjectBoxHistory> buildIdsCondition(List<String> ids) {
-    return ObjectBoxHistory_.upc.oneOf(ids);
-  }
-
-  @override
-  Condition<ObjectBoxHistory> buildSinceCondition(DateTime since) {
-    return ObjectBoxHistory_.updated.greaterThan(since.millisecondsSinceEpoch);
-  }
-
-  @override
-  ObjectBoxHistory fromModel(History model) => ObjectBoxHistory.from(model);
 
   @override
   void put(History history) {

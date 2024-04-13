@@ -13,7 +13,8 @@ class ObjectBoxHouseholdDatabase extends HouseholdDatabase
   DateTime? _created;
 
   ObjectBoxHouseholdDatabase(Store store, this.prefs) : super() {
-    constructDb(store);
+    init(store, ObjectBoxHouseholdMember.from, ObjectBoxHouseholdMember_.userId,
+        ObjectBoxHouseholdMember_.updated);
 
     if (!prefs.containsKey('household_id') || !prefs.containsKey('household_created')) {
       _createNewHousehold();
@@ -35,24 +36,6 @@ class ObjectBoxHouseholdDatabase extends HouseholdDatabase
 
   @override
   String get id => _householdId!;
-
-  @override
-  Condition<ObjectBoxHouseholdMember> buildIdCondition(String id) {
-    return ObjectBoxHouseholdMember_.userId.equals(id);
-  }
-
-  @override
-  Condition<ObjectBoxHouseholdMember> buildIdsCondition(List<String> ids) {
-    return ObjectBoxHouseholdMember_.userId.oneOf(ids);
-  }
-
-  @override
-  Condition<ObjectBoxHouseholdMember> buildSinceCondition(DateTime since) {
-    return ObjectBoxHouseholdMember_.updated.greaterThan(since.millisecondsSinceEpoch);
-  }
-
-  @override
-  ObjectBoxHouseholdMember fromModel(HouseholdMember model) => ObjectBoxHouseholdMember.from(model);
 
   @override
   void leave() {

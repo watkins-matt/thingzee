@@ -7,7 +7,7 @@ import 'package:repository_ob/objectbox.g.dart';
 class ObjectBoxLocationDatabase extends LocationDatabase
     with ObjectBoxDatabase<Location, ObjectBoxLocation> {
   ObjectBoxLocationDatabase(Store store) {
-    constructDb(store);
+    init(store, ObjectBoxLocation.from, null, ObjectBoxLocation_.updated);
   }
 
   @override
@@ -41,14 +41,6 @@ class ObjectBoxLocationDatabase extends LocationDatabase
   Condition<ObjectBoxLocation> buildIdsCondition(List<String> ids) {
     return ObjectBoxLocation_.name.oneOf(ids);
   }
-
-  @override
-  Condition<ObjectBoxLocation> buildSinceCondition(DateTime since) {
-    return ObjectBoxLocation_.updated.greaterThan(since.millisecondsSinceEpoch);
-  }
-
-  @override
-  ObjectBoxLocation fromModel(Location model) => ObjectBoxLocation.from(model);
 
   @override
   List<String> getSubPaths(String location) {

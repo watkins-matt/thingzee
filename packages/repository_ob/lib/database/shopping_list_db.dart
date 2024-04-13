@@ -7,24 +7,7 @@ import 'package:repository_ob/objectbox.g.dart';
 class ObjectBoxShoppingListDatabase extends ShoppingListDatabase
     with ObjectBoxDatabase<ShoppingItem, ObjectBoxShoppingItem> {
   ObjectBoxShoppingListDatabase(Store store) {
-    constructDb(store);
+    init(store, ObjectBoxShoppingItem.from, ObjectBoxShoppingItem_.uid,
+        ObjectBoxShoppingItem_.updated);
   }
-
-  @override
-  Condition<ObjectBoxShoppingItem> buildIdCondition(String id) {
-    return ObjectBoxShoppingItem_.uid.equals(id);
-  }
-
-  @override
-  Condition<ObjectBoxShoppingItem> buildIdsCondition(List<String> ids) {
-    return ObjectBoxShoppingItem_.uid.oneOf(ids);
-  }
-
-  @override
-  Condition<ObjectBoxShoppingItem> buildSinceCondition(DateTime since) {
-    return ObjectBoxShoppingItem_.updated.greaterThan(since.millisecondsSinceEpoch);
-  }
-
-  @override
-  ObjectBoxShoppingItem fromModel(ShoppingItem model) => ObjectBoxShoppingItem.from(model);
 }

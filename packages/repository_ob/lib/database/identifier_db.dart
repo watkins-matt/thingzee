@@ -7,7 +7,7 @@ import 'package:repository_ob/objectbox.g.dart';
 class ObjectBoxIdentifierDatabase extends IdentifierDatabase
     with ObjectBoxDatabase<Identifier, ObjectBoxIdentifier> {
   ObjectBoxIdentifierDatabase(Store store) {
-    constructDb(store);
+    init(store, ObjectBoxIdentifier.from, null, ObjectBoxIdentifier_.updated);
   }
 
   @override
@@ -28,14 +28,6 @@ class ObjectBoxIdentifierDatabase extends IdentifierDatabase
 
     return ObjectBoxIdentifier_.type.oneOf(types).and(ObjectBoxIdentifier_.value.oneOf(values));
   }
-
-  @override
-  Condition<ObjectBoxIdentifier> buildSinceCondition(DateTime since) {
-    return ObjectBoxIdentifier_.updated.greaterThan(since.millisecondsSinceEpoch);
-  }
-
-  @override
-  ObjectBoxIdentifier fromModel(Identifier model) => ObjectBoxIdentifier.from(model);
 
   @override
   List<Identifier> getAllForUid(String uid) {

@@ -7,26 +7,8 @@ import 'package:repository_ob/objectbox.g.dart';
 class ObjectBoxInventoryDatabase extends InventoryDatabase
     with ObjectBoxDatabase<Inventory, ObjectBoxInventory> {
   ObjectBoxInventoryDatabase(Store store) {
-    constructDb(store);
+    init(store, ObjectBoxInventory.from, ObjectBoxInventory_.upc, ObjectBoxInventory_.updated);
   }
-
-  @override
-  Condition<ObjectBoxInventory> buildIdCondition(String id) {
-    return ObjectBoxInventory_.upc.equals(id);
-  }
-
-  @override
-  Condition<ObjectBoxInventory> buildIdsCondition(List<String> ids) {
-    return ObjectBoxInventory_.upc.oneOf(ids);
-  }
-
-  @override
-  Condition<ObjectBoxInventory> buildSinceCondition(DateTime since) {
-    return ObjectBoxInventory_.updated.greaterThan(since.millisecondsSinceEpoch);
-  }
-
-  @override
-  ObjectBoxInventory fromModel(Inventory model) => ObjectBoxInventory.from(model);
 
   @override
   List<Inventory> outs() {

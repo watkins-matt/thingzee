@@ -9,22 +9,7 @@ import 'package:repository_ob/objectbox.g.dart';
 
 class ObjectBoxItemDatabase extends ItemDatabase with ObjectBoxDatabase<Item, ObjectBoxItem> {
   ObjectBoxItemDatabase(Store store) {
-    constructDb(store);
-  }
-
-  @override
-  Condition<ObjectBoxItem> buildIdCondition(String upc) {
-    return ObjectBoxItem_.upc.equals(upc);
-  }
-
-  @override
-  Condition<ObjectBoxItem> buildIdsCondition(List<String> ids) {
-    return ObjectBoxItem_.upc.oneOf(ids);
-  }
-
-  @override
-  Condition<ObjectBoxItem> buildSinceCondition(DateTime since) {
-    return ObjectBoxItem_.updated.greaterThan(since.millisecondsSinceEpoch);
+    init(store, ObjectBoxItem.from, ObjectBoxItem_.upc, ObjectBoxItem_.updated);
   }
 
   @override
@@ -33,9 +18,6 @@ class ObjectBoxItemDatabase extends ItemDatabase with ObjectBoxDatabase<Item, Ob
     final results = query.find();
     return results.map((objBoxItem) => objBoxItem.convert()).toList();
   }
-
-  @override
-  ObjectBoxItem fromModel(Item model) => ObjectBoxItem.from(model);
 
   @override
   List<Item> search(String string) {
