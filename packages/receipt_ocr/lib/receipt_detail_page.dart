@@ -78,25 +78,30 @@ class ReceiptDetailPage extends ConsumerWidget {
                     subtitle: Text('Barcode: ${item.barcode} $bottleDepositString'.trim(),
                         style: TextStyle(color: barcodeColor)),
                     trailing: GestureDetector(
-                      onTap: () {
-                        // Show the EditPriceDialog
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return EditItemPriceDialog(
-                              item: item,
-                              onItemEdited: (editedItem) {
-                                ref
-                                    .read(editableReceiptProvider.notifier)
-                                    .updateItem(index, editedItem);
-                              },
-                            );
-                          },
-                        );
-                      },
-                      child: Text('x ${item.quantity} - \$${item.price.toStringAsFixed(2)}',
-                          style: TextStyle(color: priceColor)),
-                    ),
+                        onTap: () {
+                          // Show the EditPriceDialog
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return EditItemPriceDialog(
+                                item: item,
+                                onItemEdited: (editedItem) {
+                                  ref
+                                      .read(editableReceiptProvider.notifier)
+                                      .updateItem(index, editedItem);
+                                },
+                              );
+                            },
+                          );
+                        },
+                        child: SizedBox(
+                            height: double.infinity,
+                            width: 50,
+                            child: Center(
+                                child: Text(
+                              '${item.quantity} x \$${item.price.toStringAsFixed(2)}',
+                              style: TextStyle(color: priceColor),
+                            )))),
                     onLongPress: () => _showLongPressMenu(context, ref, index),
                     onTap: () {
                       // Show the EditItemNameDialog
