@@ -57,8 +57,26 @@ class ShoppingListPage extends HookConsumerWidget {
                     controller: tabController,
                     labelColor: Theme.of(context).textTheme.bodyLarge?.color,
                     tabs: const [
-                      Tab(text: 'Shopping List', icon: Icon(Icons.list_alt_outlined)),
-                      Tab(text: 'Shopping Cart', icon: Icon(Icons.shopping_cart_outlined)),
+                      Tab(
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.list_alt_outlined),
+                            SizedBox(width: 8),
+                            Text('Shopping List'),
+                          ],
+                        ),
+                      ),
+                      Tab(
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.shopping_cart_outlined),
+                            SizedBox(width: 8),
+                            Text('Shopping Cart'),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),
