@@ -96,7 +96,7 @@ class ReceiptDetailPage extends ConsumerWidget {
                         },
                         child: SizedBox(
                             height: double.infinity,
-                            width: 50,
+                            width: 60,
                             child: Center(
                                 child: Text(
                               '${item.quantity} x \$${item.price.toStringAsFixed(2)}',
