@@ -19,6 +19,7 @@ class ObjectBoxShoppingItem extends ObjectBoxModel<ShoppingItem> {
   late String name;
   late String category;
   late double price;
+  late int quantity;
   late bool checked;
   late String listName;
   ObjectBoxShoppingItem();
@@ -30,6 +31,7 @@ class ObjectBoxShoppingItem extends ObjectBoxModel<ShoppingItem> {
     name = original.name;
     category = original.category;
     price = original.price;
+    quantity = original.quantity;
     checked = original.checked;
     listName = original.listName;
   }
@@ -42,6 +44,7 @@ class ObjectBoxShoppingItem extends ObjectBoxModel<ShoppingItem> {
         name: name,
         category: category,
         price: price,
+        quantity: quantity,
         checked: checked,
         listName: listName);
   }

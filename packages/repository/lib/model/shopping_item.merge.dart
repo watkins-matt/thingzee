@@ -10,6 +10,7 @@ ShoppingItem _$mergeShoppingItem(ShoppingItem first, ShoppingItem second) {
     name: newer.name.isNotEmpty ? newer.name : first.name,
     category: newer.category.isNotEmpty ? newer.category : first.category,
     price: newer.price,
+    quantity: newer.quantity,
     checked: newer.checked,
     listName: newer.listName.isNotEmpty ? newer.listName : first.listName,
     created: first.created.older(second.created),

@@ -39,6 +39,10 @@ class ShoppingList extends StateNotifier<ShoppingListState> {
     return itemsMap;
   }
 
+  double get totalCartPrice {
+    return state.cartItems.fold(0, (total, item) => total + (item.price * item.quantity));
+  }
+
   Future<void> add(ShoppingItem item) async {
     repo.shopping.put(item);
     await refreshAll();

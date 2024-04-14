@@ -22,6 +22,7 @@ class ShoppingItem extends Model<ShoppingItem> {
   final String name; // The name of the item
   final String category; // The category of the item
   final double price; // The price of the item
+  final int quantity; // The quantity of the item
   final bool checked; // Whether the item is checked or not
   final String listName; // The name of the list the item is in
 
@@ -33,6 +34,7 @@ class ShoppingItem extends Model<ShoppingItem> {
     this.name = '',
     this.category = '',
     this.price = 0.0,
+    this.quantity = 1,
     super.created,
     super.updated,
   }) : uid = uid != null && uid.isNotEmpty ? uid : const Uuid().v4();
@@ -63,6 +65,7 @@ class ShoppingItem extends Model<ShoppingItem> {
     String? name,
     String? category,
     double? price,
+    int? quantity,
     DateTime? created,
     DateTime? updated,
   }) {
@@ -74,6 +77,7 @@ class ShoppingItem extends Model<ShoppingItem> {
       name: name ?? this.name,
       category: category ?? this.category,
       price: price ?? this.price,
+      quantity: quantity ?? this.quantity,
       created: created ?? this.created,
       updated: updated ?? this.updated,
     );
@@ -87,7 +91,8 @@ class ShoppingItem extends Model<ShoppingItem> {
         listName == other.listName &&
         name == other.name &&
         category == other.category &&
-        price == other.price;
+        price == other.price &&
+        quantity == other.quantity;
   }
 
   @override

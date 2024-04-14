@@ -104,9 +104,9 @@ class ShoppingListTile extends HookConsumerWidget {
             builder: (BuildContext context) {
               return PriceEntryDialog(
                 initialPrice: item.price,
-                initialQuantity: 1,
+                initialQuantity: item.quantity,
                 onItemEdited: (double price, int quantity) {
-                  final updatedItem = item.copyWith(price: price);
+                  final updatedItem = item.copyWith(price: price, quantity: quantity);
                   ref.read(shoppingListProvider.notifier).updateItem(updatedItem);
                 },
               );
@@ -115,10 +115,10 @@ class ShoppingListTile extends HookConsumerWidget {
         },
         child: SizedBox(
           height: double.infinity,
-          width: 50,
+          width: 60, // Width needs to be at least 60 to avoid line break
           child: Center(
             child: Text(
-              '1 x \$${item.price.toStringAsFixed(2)}',
+              '${item.quantity} x \$${item.price.toStringAsFixed(2)}',
               style: TextStyle(color: priceColor),
               textAlign: TextAlign.center,
             ),

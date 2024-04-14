@@ -69,7 +69,7 @@ final _entities = <obx_int.ModelEntity>[
   obx_int.ModelEntity(
       id: const obx_int.IdUid(22, 4012899901862137920),
       name: 'ObjectBoxShoppingItem',
-      lastPropertyId: const obx_int.IdUid(10, 8215490897377098631),
+      lastPropertyId: const obx_int.IdUid(11, 910699241958100483),
       flags: 0,
       properties: <obx_int.ModelProperty>[
         obx_int.ModelProperty(
@@ -122,6 +122,11 @@ final _entities = <obx_int.ModelEntity>[
             id: const obx_int.IdUid(10, 8215490897377098631),
             name: 'listName',
             type: 9,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(11, 910699241958100483),
+            name: 'quantity',
+            type: 6,
             flags: 0)
       ],
       relations: <obx_int.ModelRelation>[],
@@ -976,7 +981,7 @@ obx_int.ModelDefinition getObjectBoxModel() {
           final nameOffset = fbb.writeString(object.name);
           final categoryOffset = fbb.writeString(object.category);
           final listNameOffset = fbb.writeString(object.listName);
-          fbb.startTable(11);
+          fbb.startTable(12);
           fbb.addOffset(0, upcOffset);
           fbb.addBool(1, object.checked);
           fbb.addInt64(2, object.objectBoxId);
@@ -987,6 +992,7 @@ obx_int.ModelDefinition getObjectBoxModel() {
           fbb.addOffset(7, categoryOffset);
           fbb.addFloat64(8, object.price);
           fbb.addOffset(9, listNameOffset);
+          fbb.addInt64(10, object.quantity);
           fbb.finish(fbb.endTable());
           return object.objectBoxId;
         },
@@ -1019,7 +1025,9 @@ obx_int.ModelDefinition getObjectBoxModel() {
             ..price =
                 const fb.Float64Reader().vTableGet(buffer, rootOffset, 20, 0)
             ..listName = const fb.StringReader(asciiOptimization: true)
-                .vTableGet(buffer, rootOffset, 22, '');
+                .vTableGet(buffer, rootOffset, 22, '')
+            ..quantity =
+                const fb.Int64Reader().vTableGet(buffer, rootOffset, 24, 0);
 
           return object;
         }),
@@ -1676,6 +1684,10 @@ class ObjectBoxShoppingItem_ {
   /// see [ObjectBoxShoppingItem.listName]
   static final listName = obx.QueryStringProperty<ObjectBoxShoppingItem>(
       _entities[1].properties[9]);
+
+  /// see [ObjectBoxShoppingItem.quantity]
+  static final quantity = obx.QueryIntegerProperty<ObjectBoxShoppingItem>(
+      _entities[1].properties[10]);
 }
 
 /// [ObjectBoxExpirationDate] entity fields to define ObjectBox queries.

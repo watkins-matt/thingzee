@@ -41,7 +41,7 @@
     },
     {
       "id": "22:4012899901862137920",
-      "lastPropertyId": "10:8215490897377098631",
+      "lastPropertyId": "11:910699241958100483",
       "name": "ObjectBoxShoppingItem",
       "properties": [
         {
@@ -96,6 +96,11 @@
           "id": "10:8215490897377098631",
           "name": "listName",
           "type": 9
+        },
+        {
+          "id": "11:910699241958100483",
+          "name": "quantity",
+          "type": 6
         }
       ],
       "relations": []

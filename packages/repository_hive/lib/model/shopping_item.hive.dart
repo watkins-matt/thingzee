@@ -23,8 +23,10 @@ class HiveShoppingItem extends HiveObject {
   @HiveField(6)
   late double price;
   @HiveField(7)
-  late bool checked;
+  late int quantity;
   @HiveField(8)
+  late bool checked;
+  @HiveField(9)
   late String listName;
   HiveShoppingItem();
   HiveShoppingItem.from(ShoppingItem original) {
@@ -35,6 +37,7 @@ class HiveShoppingItem extends HiveObject {
     name = original.name;
     category = original.category;
     price = original.price;
+    quantity = original.quantity;
     checked = original.checked;
     listName = original.listName;
   }
@@ -47,6 +50,7 @@ class HiveShoppingItem extends HiveObject {
         name: name,
         category: category,
         price: price,
+        quantity: quantity,
         checked: checked,
         listName: listName);
   }
