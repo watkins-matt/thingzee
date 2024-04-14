@@ -50,7 +50,7 @@ class ShoppingListTile extends HookConsumerWidget {
                 )
               : null,
           title: editable ? buildEditableTitle(ref, controller, focusNode) : buildTitle(),
-          trailing: isCart ? buildPriceButton(context) : null,
+          trailing: isCart ? buildPriceButton(context, ref) : null,
         ),
       ),
     );
@@ -93,14 +93,38 @@ class ShoppingListTile extends HookConsumerWidget {
     );
   }
 
-  Widget buildPriceButton(BuildContext context) => ElevatedButton(
-        style: ButtonStyle(
-          backgroundColor: MaterialStateProperty.all<Color>(Colors.green),
-          foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
-        ),
-        onPressed: () async => await PriceEntryDialog.show(context),
-        child: const Text('Price'),
-      );
+  Widget buildPriceButton(BuildContext context, WidgetRef ref) {
+    final color = Theme.of(context).textTheme.bodyLarge!.color!;
+    final priceColor = item.price != 0 ? color : Colors.red;
+
+    return GestureDetector(
+        onTap: () {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return PriceEntryDialog(
+                initialPrice: item.price,
+                initialQuantity: 1,
+                onItemEdited: (double price, int quantity) {
+                  final updatedItem = item.copyWith(price: price);
+                  ref.read(shoppingListProvider.notifier).updateItem(updatedItem);
+                },
+              );
+            },
+          );
+        },
+        child: SizedBox(
+          height: double.infinity,
+          width: 50,
+          child: Center(
+            child: Text(
+              '1 x \$${item.price.toStringAsFixed(2)}',
+              style: TextStyle(color: priceColor),
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ));
+  }
 
   Widget buildTitle() => Text(
         item.name,
