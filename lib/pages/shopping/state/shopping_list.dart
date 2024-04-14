@@ -194,8 +194,10 @@ class ShoppingList extends StateNotifier<ShoppingListState> {
   List<ShoppingItem> sortList(List<ShoppingItem> items) {
     return items
       ..sort((a, b) {
-        if (a.checked == b.checked) return a.name.compareTo(b.name);
-        return a.checked ? 1 : -1;
+        if (a.checked != b.checked) return a.checked ? 1 : -1;
+        if (a.name.isEmpty) return 1;
+        if (b.name.isEmpty) return -1;
+        return a.name.compareTo(b.name);
       });
   }
 
