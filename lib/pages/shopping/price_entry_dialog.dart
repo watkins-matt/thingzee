@@ -1,77 +1,75 @@
 import 'package:flutter/material.dart';
-import 'package:money2/money2.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 
-class PriceEntryDialog extends StatefulWidget {
-  const PriceEntryDialog({super.key});
+class PriceEntryDialog extends HookWidget {
+  final double initialPrice;
+  final int initialQuantity;
+  final Function(double, int) onItemEdited;
 
-  static Future<Money> show(BuildContext context) async {
-    return await showDialog(context: context, builder: (context) => const PriceEntryDialog());
-  }
-
-  @override
-  State<PriceEntryDialog> createState() => _PriceEntryDialogState();
-}
-
-class _PriceEntryDialogState extends State<PriceEntryDialog> {
-  Money price = Money.fromInt(0, code: 'USD');
-  final TextEditingController _controller = TextEditingController();
-  bool taxable = false;
-  bool crv = false;
-
-  @override
-  void initState() {
-    super.initState();
-  }
+  const PriceEntryDialog({
+    super.key,
+    required this.initialPrice,
+    required this.initialQuantity,
+    required this.onItemEdited,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final priceController = useTextEditingController(text: initialPrice.toStringAsFixed(2));
+    final priceFocusNode = useFocusNode();
+    final quantity = useState<int>(initialQuantity);
+
+    useEffect(() {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        priceFocusNode.requestFocus();
+        priceController.selection =
+            TextSelection(baseOffset: 0, extentOffset: priceController.text.length);
+      });
+      return null;
+    }, []);
+
     return AlertDialog(
-      title: const Text('Enter Price: '),
       content: Column(
         mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
+        children: [
           TextField(
-            autofocus: true,
+            focusNode: priceFocusNode,
+            controller: priceController,
+            decoration: const InputDecoration(labelText: 'Price'),
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            controller: _controller,
-            decoration: const InputDecoration(focusedBorder: UnderlineInputBorder()),
-            // decoration: InputDecoration(labelText: 'Price'),
+            autofocus: true,
           ),
-          CheckboxListTile(
-            title: const Text('Taxable'),
-            value: taxable,
-            controlAffinity: ListTileControlAffinity.leading,
-            onChanged: (value) {
-              setState(() {
-                taxable = value ?? taxable;
-              });
-            },
-          ),
-          CheckboxListTile(
-            title: const Text('+CRV'),
-            value: crv,
-            controlAffinity: ListTileControlAffinity.leading,
-            onChanged: (value) {
-              setState(() {
-                crv = value ?? crv;
-              });
-            },
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.remove),
+                onPressed: () {
+                  if (quantity.value > 0) quantity.value--;
+                },
+              ),
+              Text('${quantity.value}'),
+              IconButton(
+                icon: const Icon(Icons.add),
+                onPressed: () => quantity.value++,
+              ),
+            ],
           ),
         ],
       ),
       actions: <Widget>[
         TextButton(
-            onPressed: () {
-              Navigator.pop(context, price);
-            },
-            child: const Text('Cancel')),
+          child: const Text('Cancel'),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
         TextButton(
+          child: const Text('Save'),
           onPressed: () {
-            price = Money.parse(_controller.text, code: 'USD');
-            Navigator.pop(context, price);
+            final double price = double.tryParse(priceController.text) ?? initialPrice;
+            onItemEdited(price, quantity.value);
+            Navigator.of(context).pop();
           },
-          child: const Text('OK'),
-        )
+        ),
       ],
     );
   }
