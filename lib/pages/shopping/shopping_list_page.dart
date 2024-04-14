@@ -92,15 +92,35 @@ class ShoppingListPage extends HookConsumerWidget {
               ],
             ),
           ),
-          floatingActionButton: ref.watch(tabIndexProvider) == 1 &&
-                  ref.watch(shoppingListProvider).cartItems.isNotEmpty
-              ? FloatingActionButton(
-                  onPressed: () => _handleTripCompleted(context, ref),
-                  tooltip: 'Complete Shopping',
-                  child: const Icon(Icons.check),
-                )
-              : null,
+          floatingActionButton: buildFab(context, ref),
         ));
+  }
+
+  Widget? buildFab(BuildContext context, WidgetRef ref) {
+    final tabIndex = ref.watch(tabIndexProvider);
+    final cartItems = ref.watch(shoppingListProvider).cartItems;
+    final totalCartPrice = ref.watch(shoppingListProvider.notifier).totalCartPrice;
+
+    if (tabIndex == 1 && cartItems.isNotEmpty) {
+      if (totalCartPrice > 0) {
+        return FloatingActionButton.extended(
+          onPressed: () => _handleTripCompleted(context, ref),
+          tooltip: 'Complete Shopping',
+          icon: const Icon(Icons.check),
+          label:
+              totalCartPrice > 0 ? Text('\$${totalCartPrice.toStringAsFixed(2)}') : const Text(''),
+        );
+      } else {
+        return FloatingActionButton(
+          onPressed: () => _handleTripCompleted(context, ref),
+          tooltip: 'Complete Shopping',
+          child: const Icon(Icons.check),
+        );
+      }
+    }
+
+    // Don't show the FAB on the shopping list tab, or if the cart is empty
+    return null;
   }
 
   Widget shoppingCartItemBuilder(BuildContext context, WidgetRef ref, ShoppingItem item) {
