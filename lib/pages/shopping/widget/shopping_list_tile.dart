@@ -11,11 +11,13 @@ class ShoppingListTile extends HookConsumerWidget {
   final ShoppingItem item;
   final bool editable;
   final bool checkbox;
+  final bool autoFocus;
 
   ShoppingListTile({
     required this.item,
     this.editable = true,
     this.checkbox = true,
+    this.autoFocus = false,
   }) : super(key: ValueKey(item.uid));
 
   @override
@@ -35,6 +37,13 @@ class ShoppingListTile extends HookConsumerWidget {
         child: ListTile(
           leading: checkbox
               ? Checkbox(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  side: const BorderSide(
+                    color: Colors.grey,
+                    width: 2,
+                  ),
                   value: item.checked,
                   onChanged: (bool? value) => checkedStatusChanged(ref, value ?? !item.checked),
                   visualDensity: VisualDensity.compact,
@@ -54,10 +63,13 @@ class ShoppingListTile extends HookConsumerWidget {
         DismissDirection.startToEnd: 0.9,
       };
 
-  Widget buildEditableTitle(WidgetRef ref, TextEditingController controller, FocusNode focusNode) {
+  Widget buildEditableTitle(WidgetRef ref, TextEditingController controller, FocusNode focusNode,
+      {bool autoFocus = false}) {
     return TextFormField(
       controller: controller,
       focusNode: focusNode,
+      keyboardType: TextInputType.text,
+      textCapitalization: TextCapitalization.words,
       style: TextStyle(
         decoration: checkbox && item.checked ? TextDecoration.lineThrough : TextDecoration.none,
       ),
@@ -71,7 +83,13 @@ class ShoppingListTile extends HookConsumerWidget {
         ref.read(shoppingListProvider.notifier).updateItem(updatedItem);
         focusNode.unfocus();
       },
+      // Update the item name when the user stops typing
+      onChanged: (value) {
+        if (value.isEmpty) return;
+        ref.read(shoppingListProvider.notifier).updateItem(item.copyWith(name: value));
+      },
       maxLines: null,
+      autofocus: autoFocus,
     );
   }
 
