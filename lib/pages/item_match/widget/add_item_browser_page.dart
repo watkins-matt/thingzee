@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:repository/model/item.dart';
+import 'package:thingzee/icon_library.dart';
+import 'package:thingzee/pages/barcode/quick_barcode_scanner.dart';
 import 'package:thingzee/pages/inventory/state/item_view.dart';
 
 class AddItemBrowserPage extends ConsumerStatefulWidget {
@@ -58,21 +60,28 @@ class _AddItemBrowserPageState extends ConsumerState<AddItemBrowserPage> {
               ),
               IconButton(
                 icon: const Icon(Icons.content_paste),
-                onPressed: () {
-                  pasteSelectedText();
-                },
+                onPressed: pasteSelectedText,
               ),
             ],
           ),
         ),
         Padding(
           padding: const EdgeInsets.all(8),
-          child: TextField(
-            controller: itemUpcController,
-            decoration: const InputDecoration(
-              labelText: 'Item UPC',
-            ),
-            keyboardType: TextInputType.number,
+          child: Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: itemUpcController,
+                  decoration: const InputDecoration(
+                    labelText: 'Item UPC',
+                  ),
+                  keyboardType: TextInputType.number,
+                ),
+              ),
+              IconButton(
+                  icon: const Icon(IconLibrary.barcode),
+                  onPressed: () => pasteScannedBarcode(context)),
+            ],
           ),
         ),
         Expanded(
@@ -109,6 +118,16 @@ class _AddItemBrowserPageState extends ConsumerState<AddItemBrowserPage> {
       String matchedUpc = upcRegex.firstMatch(selectedText)!.group(0)!;
       setState(() {
         itemUpcController.text = matchedUpc;
+      });
+    }
+  }
+
+  Future<void> pasteScannedBarcode(BuildContext context) async {
+    String? barcode = await QuickBarcodeScanner.scanBarcode(context);
+
+    if (barcode != null && barcode.isNotEmpty) {
+      setState(() {
+        itemUpcController.text = barcode;
       });
     }
   }
