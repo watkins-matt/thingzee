@@ -9,4 +9,7 @@ class CostcoReceiptParser extends ReceiptParser with ParserFactory {
   @override
   List<LineElement> get primaryLineFormat =>
       [LineElement.barcode, LineElement.name, LineElement.price];
+
+  @override
+  String getSearchUrl(String barcode) => 'https://www.google.com/search?q=costco+item+$barcode';
 }

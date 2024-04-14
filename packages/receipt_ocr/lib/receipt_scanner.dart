@@ -7,10 +7,11 @@ import 'package:receipt_ocr/post_scan_handler.dart';
 import 'package:receipt_ocr/state/camera_state.dart';
 import 'package:receipt_ocr/text_merge_strategy.dart';
 import 'package:receipt_parser/generic_parser.dart';
+import 'package:receipt_parser/stores/costco.dart';
 import 'package:receipt_parser/stores/target.dart';
 import 'package:util/extension/string.dart';
 
-enum ParserType { generic, target }
+enum ParserType { generic, costco, target }
 
 class ReceiptScannerPage extends ConsumerStatefulWidget {
   final PostScanHandler postScanHandler;
@@ -82,6 +83,9 @@ class _ReceiptScannerPageState extends ConsumerState<ReceiptScannerPage> {
           switch (newValue) {
             case ParserType.generic:
               widget.postScanHandler.parser = GenericReceiptParser();
+              break;
+            case ParserType.costco:
+              widget.postScanHandler.parser = CostcoReceiptParser();
               break;
             case ParserType.target:
               widget.postScanHandler.parser = TargetReceiptParser();
