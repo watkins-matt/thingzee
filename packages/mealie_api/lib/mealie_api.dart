@@ -68,7 +68,7 @@ class MealieRecipe {
   List<MealieRecipeCategory>? recipeCategory;
   List<MealieRecipeTag>? tags;
   List<MealieRecipeTool>? tools;
-  int? rating;
+  num? rating;
   String? orgURL;
   List<MealieRecipeIngredient>? recipeIngredient;
   String? dateAdded;

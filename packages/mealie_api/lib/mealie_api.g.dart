@@ -28,7 +28,7 @@ MealieRecipe _$MealieRecipeFromJson(Map<String, dynamic> json) => MealieRecipe(
       tools: (json['tools'] as List<dynamic>?)
           ?.map((e) => MealieRecipeTool.fromJson(e as Map<String, dynamic>))
           .toList(),
-      rating: json['rating'] as int?,
+      rating: json['rating'] as num?,
       orgURL: json['orgURL'] as String?,
       recipeIngredient: (json['recipeIngredient'] as List<dynamic>?)
           ?.map(
@@ -203,7 +203,7 @@ class _MealieApiClient implements MealieApiClient {
     String? search,
     String? acceptLanguage,
   }) async {
-    const _extra = <String, dynamic>{};
+    final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{
       r'categories': categories,
       r'tags': tags,
@@ -226,7 +226,7 @@ class _MealieApiClient implements MealieApiClient {
     queryParameters.removeWhere((k, v) => v == null);
     final _headers = <String, dynamic>{r'accept-language': acceptLanguage};
     _headers.removeWhere((k, v) => v == null);
-    final Map<String, dynamic>? _data = null;
+    const Map<String, dynamic>? _data = null;
     final _result = await _dio.fetch<Map<String, dynamic>>(
         _setStreamType<MealieRecipeResponse>(Options(
       method: 'GET',
