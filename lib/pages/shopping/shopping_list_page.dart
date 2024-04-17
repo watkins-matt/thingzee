@@ -184,7 +184,6 @@ class ShoppingListPage extends HookConsumerWidget {
       itemCount: items.length + 1,
       itemBuilder: (context, index) {
         if (index == items.length) {
-          // This is the "Add new item" tile
           return ListTile(
             leading: const Icon(Icons.add),
             title: const Text('List Item'),

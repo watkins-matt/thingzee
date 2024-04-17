@@ -27,6 +27,12 @@ class ShoppingListTile extends HookConsumerWidget {
     final TextEditingController controller = useTextEditingController(text: item.name);
     final FocusNode focusNode = useFocusNode();
 
+    if (autoFocus) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        focusNode.requestFocus();
+      });
+    }
+
     return InkWell(
       onLongPress: () => onLongPress(context, ref, item),
       child: Dismissible(
@@ -82,6 +88,7 @@ class ShoppingListTile extends HookConsumerWidget {
         final updatedItem = item.copyWith(name: value);
         ref.read(shoppingListProvider.notifier).updateItem(updatedItem);
         focusNode.unfocus();
+        ref.read(shoppingListProvider.notifier).sortItems();
       },
       // Update the item name when the user stops typing
       onChanged: (value) {
