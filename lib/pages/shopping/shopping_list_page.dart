@@ -123,6 +123,21 @@ class ShoppingListPage extends HookConsumerWidget {
     return null;
   }
 
+  Widget checkedItemsTile(BuildContext context, WidgetRef ref, List<ShoppingItem> checkedItems) {
+    return ExpansionTile(
+      title: Text('${checkedItems.length} Checked Items'),
+      initiallyExpanded: false,
+      controlAffinity: ListTileControlAffinity.leading,
+      children: checkedItems.map((item) {
+        return ShoppingListTile(
+          item: item,
+          editable: false,
+          checkbox: true,
+        );
+      }).toList(),
+    );
+  }
+
   Widget shoppingCartItemBuilder(BuildContext context, WidgetRef ref, ShoppingItem item) {
     return ShoppingListTile(
       item: item,
@@ -168,6 +183,8 @@ class ShoppingListPage extends HookConsumerWidget {
   Widget shoppingListTab(BuildContext context, WidgetRef ref) {
     final shoppingList = ref.watch(shoppingListProvider);
     final items = shoppingList.shoppingItems;
+    final uncheckedItems = items.where((item) => !item.checked).toList();
+    final checkedItems = items.where((item) => item.checked).toList();
 
     return items.isEmpty
         ? const Center(
@@ -176,7 +193,14 @@ class ShoppingListPage extends HookConsumerWidget {
               style: TextStyle(fontSize: 18),
             ),
           )
-        : shoppingListViewBuilder(context, ref, items);
+        : Column(
+            children: [
+              Expanded(
+                child: shoppingListViewBuilder(context, ref, uncheckedItems),
+              ),
+              checkedItemsTile(context, ref, checkedItems),
+            ],
+          );
   }
 
   Widget shoppingListViewBuilder(BuildContext context, WidgetRef ref, List<ShoppingItem> items) {
