@@ -56,6 +56,7 @@ class _AddItemBrowserPageState extends ConsumerState<AddItemBrowserPage> {
                     labelText: 'Item Name',
                   ),
                   keyboardType: TextInputType.text,
+                  textCapitalization: TextCapitalization.words,
                 ),
               ),
               IconButton(
