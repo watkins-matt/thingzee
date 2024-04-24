@@ -53,8 +53,6 @@ dependencies:
   settings_ui: ^2.0.2
   share_plus: ^7.0.2
   stack_trace: ^1.11.0
-  stats:
-    path: packages/stats
   url_launcher: ^6.2.2
   util:
     path: packages/util

@@ -3,9 +3,6 @@ import 'dart:math' as m;
 extension Stats on List<num> {
   num get max {
     assert(length > 0);
-    // if (length == 0) {
-    //   return 0;
-    // }
 
     // If there is only one item, return that
     if (length == 1) {
@@ -15,11 +12,12 @@ extension Stats on List<num> {
     return fold(this[0], m.max);
   }
 
+  num get mean {
+    return length > 0 ? sum / length : 0;
+  }
+
   num get min {
     assert(length > 0);
-    // if (length == 0) {
-    //   return 0;
-    // }
 
     // There is only one item, return that
     if (length == 1) {
@@ -29,26 +27,14 @@ extension Stats on List<num> {
     return fold(this[0], m.min);
   }
 
-  num get mean {
-    return length > 0 ? sum / length : 0;
-  }
-
   num get sum {
     return fold(0, (a, b) => a + b);
   }
 }
 
 extension StatsXY on Map<int, double> {
-  List<int> get x => keys.toList();
-  List<double> get y => values.toList();
-
-  Map<String, String> toJson() {
-    Map<String, String> json = {};
-    for (final entry in entries) {
-      json[entry.key.toString()] = entry.value.toString();
-    }
-
-    return json;
+  double get last {
+    return x.max.toDouble();
   }
 
   double get regression {
@@ -95,16 +81,28 @@ extension StatsXY on Map<int, double> {
     return diffAvgMultiplied.sum / xDiffAvgSquared.sum;
   }
 
-  double get usageSpeedMinutes {
-    return regression == 0 ? 0 : (1 / regression.abs()) / 1000 / 60;
-  }
-
   double get usageSpeedDays {
     return regression == 0 ? 0 : (1 / regression.abs()) / 1000 / 60 / 60 / 24;
   }
 
+  double get usageSpeedMinutes {
+    return regression == 0 ? 0 : (1 / regression.abs()) / 1000 / 60;
+  }
+
+  List<int> get x => keys.toList();
+
+  double get xIntercept {
+    return (0 - yIntercept) / regression;
+  }
+
+  List<double> get y => values.toList();
+
   double get yIntercept {
     return y.mean - (regression * x.mean);
+  }
+
+  String getFormula() {
+    return 'y = ${regression}x + $yIntercept';
   }
 
   double predict(double xValue) {
@@ -118,19 +116,16 @@ extension StatsXY on Map<int, double> {
     return result;
   }
 
+  Map<String, String> toJson() {
+    Map<String, String> json = {};
+    for (final entry in entries) {
+      json[entry.key.toString()] = entry.value.toString();
+    }
+
+    return json;
+  }
+
   double yInterceptWithSlope(double slope) {
     return y.mean - (slope * x.mean);
-  }
-
-  double get xIntercept {
-    return (0 - yIntercept) / regression;
-  }
-
-  String getFormula() {
-    return 'y = ${regression}x + $yIntercept';
-  }
-
-  double get last {
-    return x.max.toDouble();
   }
 }

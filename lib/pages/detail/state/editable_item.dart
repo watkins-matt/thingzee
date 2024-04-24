@@ -6,7 +6,7 @@ import 'package:repository/model/identifier.dart';
 import 'package:repository/model/inventory.dart';
 import 'package:repository/model/item.dart';
 import 'package:repository/repository.dart';
-import 'package:stats/double.dart';
+import 'package:util/extension/double.dart';
 
 final editableItemProvider = StateNotifierProvider<EditableItem, EditableItemState>((ref) {
   return EditableItem();

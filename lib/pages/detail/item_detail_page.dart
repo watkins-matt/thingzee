@@ -6,7 +6,6 @@ import 'package:repository/database/joined_item_database.dart';
 import 'package:repository/model/inventory.dart';
 import 'package:repository/model/item.dart';
 import 'package:repository/model/location.dart';
-import 'package:stats/double.dart';
 import 'package:thingzee/main.dart';
 import 'package:thingzee/pages/detail/state/editable_item.dart';
 import 'package:thingzee/pages/detail/widget/item_header_widget.dart';
@@ -26,6 +25,7 @@ import 'package:thingzee/pages/inventory/state/inventory_view.dart';
 import 'package:thingzee/pages/inventory/state/item_thumbnail_cache.dart';
 import 'package:thingzee/pages/settings/state/settings_state.dart';
 import 'package:thingzee/pages/shopping/state/shopping_list.dart';
+import 'package:util/extension/double.dart';
 import 'package:util/extension/uuid.dart';
 
 class ItemDetailPage extends HookConsumerWidget {
