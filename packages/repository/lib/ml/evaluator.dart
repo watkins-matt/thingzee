@@ -158,6 +158,13 @@ class Evaluator {
           'Predicted: $result, Latest: $latestValue');
     }
 
+    if (result < 0) {
+      Log.w('Predicted value for upc ${history.upc} is negative: $result');
+
+      // If the result is negative, we should not predict a negative value
+      result = 0;
+    }
+
     // If the user put a value in the app, we should not predict
     // a value that is greater than the user's value.
     return min(result, latestValue);
