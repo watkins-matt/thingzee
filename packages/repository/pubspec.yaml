@@ -23,7 +23,7 @@ dependencies:
   meta: ^1.11.0
   ml_algo: ^16.17.7
   ml_dataframe: ^1.6.0
-  ml_linalg: ^13.11.31
+  ml_linalg: ^13.12.2
   receipt_parser:
     path: ../receipt_parser
   shared_preferences: ^2.2.0
