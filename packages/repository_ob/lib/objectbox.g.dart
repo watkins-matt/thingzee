@@ -458,7 +458,7 @@ final _entities = <obx_int.ModelEntity>[
   obx_int.ModelEntity(
       id: const obx_int.IdUid(33, 2540654278505596072),
       name: 'ObjectBoxInvitation',
-      lastPropertyId: const obx_int.IdUid(8, 3890612321366565942),
+      lastPropertyId: const obx_int.IdUid(9, 247722591767990178),
       flags: 0,
       properties: <obx_int.ModelProperty>[
         obx_int.ModelProperty(
@@ -475,11 +475,6 @@ final _entities = <obx_int.ModelEntity>[
             id: const obx_int.IdUid(3, 1689091036285741600),
             name: 'updated',
             type: 10,
-            flags: 0),
-        obx_int.ModelProperty(
-            id: const obx_int.IdUid(4, 7382151092441077988),
-            name: 'id',
-            type: 9,
             flags: 0),
         obx_int.ModelProperty(
             id: const obx_int.IdUid(5, 4020267371748305490),
@@ -499,6 +494,11 @@ final _entities = <obx_int.ModelEntity>[
         obx_int.ModelProperty(
             id: const obx_int.IdUid(8, 3890612321366565942),
             name: 'recipientEmail',
+            type: 9,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(9, 247722591767990178),
+            name: 'uniqueKey',
             type: 9,
             flags: 0)
       ],
@@ -916,7 +916,8 @@ obx_int.ModelDefinition getObjectBoxModel() {
         7642552518931337978,
         7855442706897693439,
         8808233293747501380,
-        3554900412404725287
+        3554900412404725287,
+        7382151092441077988
       ],
       retiredRelationUids: const [],
       modelVersion: 5,
@@ -1414,20 +1415,20 @@ obx_int.ModelDefinition getObjectBoxModel() {
           object.objectBoxId = id;
         },
         objectToFB: (ObjectBoxInvitation object, fb.Builder fbb) {
-          final idOffset = fbb.writeString(object.id);
           final householdIdOffset = fbb.writeString(object.householdId);
           final inviterEmailOffset = fbb.writeString(object.inviterEmail);
           final inviterUserIdOffset = fbb.writeString(object.inviterUserId);
           final recipientEmailOffset = fbb.writeString(object.recipientEmail);
-          fbb.startTable(9);
+          final uniqueKeyOffset = fbb.writeString(object.uniqueKey);
+          fbb.startTable(10);
           fbb.addInt64(0, object.objectBoxId);
           fbb.addInt64(1, object.created?.millisecondsSinceEpoch);
           fbb.addInt64(2, object.updated?.millisecondsSinceEpoch);
-          fbb.addOffset(3, idOffset);
           fbb.addOffset(4, householdIdOffset);
           fbb.addOffset(5, inviterEmailOffset);
           fbb.addOffset(6, inviterUserIdOffset);
           fbb.addOffset(7, recipientEmailOffset);
+          fbb.addOffset(8, uniqueKeyOffset);
           fbb.finish(fbb.endTable());
           return object.objectBoxId;
         },
@@ -1447,8 +1448,6 @@ obx_int.ModelDefinition getObjectBoxModel() {
             ..updated = updatedValue == null
                 ? null
                 : DateTime.fromMillisecondsSinceEpoch(updatedValue)
-            ..id = const fb.StringReader(asciiOptimization: true)
-                .vTableGet(buffer, rootOffset, 10, '')
             ..householdId = const fb.StringReader(asciiOptimization: true)
                 .vTableGet(buffer, rootOffset, 12, '')
             ..inviterEmail = const fb.StringReader(asciiOptimization: true)
@@ -1456,7 +1455,9 @@ obx_int.ModelDefinition getObjectBoxModel() {
             ..inviterUserId = const fb.StringReader(asciiOptimization: true)
                 .vTableGet(buffer, rootOffset, 16, '')
             ..recipientEmail = const fb.StringReader(asciiOptimization: true)
-                .vTableGet(buffer, rootOffset, 18, '');
+                .vTableGet(buffer, rootOffset, 18, '')
+            ..uniqueKey = const fb.StringReader(asciiOptimization: true)
+                .vTableGet(buffer, rootOffset, 20, '');
 
           return object;
         }),
@@ -1933,24 +1934,24 @@ class ObjectBoxInvitation_ {
   static final updated =
       obx.QueryDateProperty<ObjectBoxInvitation>(_entities[9].properties[2]);
 
-  /// see [ObjectBoxInvitation.id]
-  static final id =
-      obx.QueryStringProperty<ObjectBoxInvitation>(_entities[9].properties[3]);
-
   /// see [ObjectBoxInvitation.householdId]
   static final householdId =
-      obx.QueryStringProperty<ObjectBoxInvitation>(_entities[9].properties[4]);
+      obx.QueryStringProperty<ObjectBoxInvitation>(_entities[9].properties[3]);
 
   /// see [ObjectBoxInvitation.inviterEmail]
   static final inviterEmail =
-      obx.QueryStringProperty<ObjectBoxInvitation>(_entities[9].properties[5]);
+      obx.QueryStringProperty<ObjectBoxInvitation>(_entities[9].properties[4]);
 
   /// see [ObjectBoxInvitation.inviterUserId]
   static final inviterUserId =
-      obx.QueryStringProperty<ObjectBoxInvitation>(_entities[9].properties[6]);
+      obx.QueryStringProperty<ObjectBoxInvitation>(_entities[9].properties[5]);
 
   /// see [ObjectBoxInvitation.recipientEmail]
   static final recipientEmail =
+      obx.QueryStringProperty<ObjectBoxInvitation>(_entities[9].properties[6]);
+
+  /// see [ObjectBoxInvitation.uniqueKey]
+  static final uniqueKey =
       obx.QueryStringProperty<ObjectBoxInvitation>(_entities[9].properties[7]);
 }
 

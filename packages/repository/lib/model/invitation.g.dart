@@ -7,7 +7,7 @@ part of 'invitation.dart';
 // **************************************************************************
 
 Invitation _$InvitationFromJson(Map<String, dynamic> json) => Invitation(
-      id: json['id'] as String? ?? '',
+      uniqueKey: json['uniqueKey'] as String? ?? '',
       householdId: json['householdId'] as String? ?? '',
       inviterEmail: json['inviterEmail'] as String? ?? '',
       inviterUserId: json['inviterUserId'] as String? ?? '',
@@ -25,7 +25,7 @@ Map<String, dynamic> _$InvitationToJson(Invitation instance) =>
     <String, dynamic>{
       'created': const NullableDateTimeSerializer().toJson(instance.created),
       'updated': const NullableDateTimeSerializer().toJson(instance.updated),
-      'id': instance.id,
+      'uniqueKey': instance.uniqueKey,
       'householdId': instance.householdId,
       'inviterEmail': instance.inviterEmail,
       'inviterUserId': instance.inviterUserId,
