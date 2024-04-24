@@ -39,7 +39,7 @@ class ModelProvider<T extends Model<T>> {
   }
 
   void updateModel(T newModel) {
-    final id = newModel.id;
+    final id = newModel.uniqueKey;
     _models[id] = newModel;
   }
 }

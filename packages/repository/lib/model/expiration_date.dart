@@ -29,7 +29,7 @@ class ExpirationDate extends Model<ExpirationDate> {
   factory ExpirationDate.fromJson(Map<String, dynamic> json) => _$ExpirationDateFromJson(json);
 
   @override
-  String get id => "$upc-${expirationDate?.millisecondsSinceEpoch.toString() ?? ''}";
+  String get uniqueKey => "$upc-${expirationDate?.millisecondsSinceEpoch.toString() ?? ''}";
 
   @override
   ExpirationDate copyWith({

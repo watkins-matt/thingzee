@@ -33,7 +33,7 @@ mixin AppwriteDatabase<T extends Model> on Database<T> {
 
   @override
   void delete(T item) {
-    String id = item.id;
+    String id = item.uniqueKey;
     _items.remove(id);
     taskQueue.queueTask(() async {
       await _database.deleteDocument(
@@ -143,7 +143,7 @@ mixin AppwriteDatabase<T extends Model> on Database<T> {
   }
 
   bool isItemValid(T item) {
-    String key = item.id;
+    String key = item.uniqueKey;
     return key.isNotEmpty;
   }
 
@@ -152,7 +152,7 @@ mixin AppwriteDatabase<T extends Model> on Database<T> {
 
   void mergeState(List<T> newItems) {
     for (final newItem in newItems) {
-      String id = newItem.id;
+      String id = newItem.uniqueKey;
       final existingItem = _items[id];
       if (existingItem != null) {
         final mergedItem = existingItem.merge(newItem);
@@ -165,7 +165,7 @@ mixin AppwriteDatabase<T extends Model> on Database<T> {
 
   @override
   void put(T item, {List<String>? permissions}) {
-    String key = item.id;
+    String key = item.uniqueKey;
 
     // If the item is not valid, throw an exception
     if (!isItemValid(item)) {
@@ -217,7 +217,7 @@ mixin AppwriteDatabase<T extends Model> on Database<T> {
   void replaceState(List<T> allItems) {
     _items.clear();
     for (final item in allItems) {
-      String key = item.id;
+      String key = item.uniqueKey;
       _items[key] = item;
     }
   }

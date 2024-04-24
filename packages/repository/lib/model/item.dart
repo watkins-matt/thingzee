@@ -57,7 +57,7 @@ class Item extends Model<Item> implements Comparable<Item>, Nameable {
   factory Item.fromJson(Map<String, dynamic> json) => _$ItemFromJson(json);
 
   @override
-  String get id => upc;
+  String get uniqueKey => upc;
 
   Inventory get inventory => ModelProvider<Inventory>().get(upc, Inventory(upc: upc));
 

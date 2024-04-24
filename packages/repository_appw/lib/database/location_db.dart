@@ -84,7 +84,7 @@ class AppwriteLocationDatabase extends LocationDatabase
 
   @override
   void remove(String location, String upc) {
-    final key = Location(upc: upc, name: location).id;
+    final key = Location(upc: upc, name: location).uniqueKey;
     deleteById(key);
   }
 
@@ -101,7 +101,7 @@ class AppwriteLocationDatabase extends LocationDatabase
   void store(String location, String upc) {
     location = normalizeLocation(location);
     var data = Location(upc: upc, name: location);
-    final key = data.id;
+    final key = data.uniqueKey;
 
     final existingLocation = get(key);
 

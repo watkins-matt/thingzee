@@ -35,7 +35,7 @@ class ItemTranslation extends Model<ItemTranslation> {
   factory ItemTranslation.fromJson(Map<String, dynamic> json) => _$ItemTranslationFromJson(json);
 
   @override
-  String get id => upc;
+  String get uniqueKey => upc;
 
   @override
   ItemTranslation copyWith({

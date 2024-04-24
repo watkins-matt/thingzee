@@ -44,7 +44,7 @@ class ShoppingItem extends Model<ShoppingItem> {
   int get hashCode => upc.isNotEmpty ? upc.hashCode : uid.hashCode;
 
   @override
-  String get id => uid;
+  String get uniqueKey => uid;
   Inventory get inventory => ModelProvider<Inventory>().get(upc, Inventory(upc: upc));
 
   Item get item => ModelProvider<Item>().get(upc, Item(upc: upc));

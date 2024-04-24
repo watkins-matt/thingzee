@@ -5,7 +5,7 @@ part of 'invitation.dart';
 Invitation _$mergeInvitation(Invitation first, Invitation second) {
   final newer = first.updated.newer(second.updated) == first.updated ? first : second;
   var merged = Invitation(
-    id: newer.id.isNotEmpty ? newer.id : first.id,
+    uniqueKey: newer.uniqueKey.isNotEmpty ? newer.uniqueKey : first.uniqueKey,
     householdId: newer.householdId.isNotEmpty ? newer.householdId : first.householdId,
     inviterEmail: newer.inviterEmail.isNotEmpty ? newer.inviterEmail : first.inviterEmail,
     inviterUserId: newer.inviterUserId.isNotEmpty ? newer.inviterUserId : first.inviterUserId,

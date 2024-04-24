@@ -31,7 +31,7 @@ class Identifier extends Model<Identifier> {
   /// value can be (in theory) used for different types, so using both together
   /// gets us a unique id.
   @override
-  String get id => '$type-$value';
+  String get uniqueKey => '$type-$value';
 
   @override
   Identifier copyWith({

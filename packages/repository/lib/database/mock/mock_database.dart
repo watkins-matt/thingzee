@@ -8,7 +8,7 @@ mixin MockDatabase<T extends Model> on Database<T> {
   List<T> all() => db.values.toList();
 
   @override
-  void delete(T item) => db.remove(item.id);
+  void delete(T item) => db.remove(item.uniqueKey);
 
   @override
   void deleteAll() => db.clear();
@@ -30,5 +30,5 @@ mixin MockDatabase<T extends Model> on Database<T> {
   Map<String, T> map() => Map.from(db);
 
   @override
-  void put(T item) => db[item.id] = item;
+  void put(T item) => db[item.uniqueKey] = item;
 }

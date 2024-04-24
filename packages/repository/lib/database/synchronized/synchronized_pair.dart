@@ -28,13 +28,13 @@ class SynchronizedPair<T extends Model> {
 
     var remoteChanges = remote.getChanges(lastSync!);
     var localChanges = local.getChanges(lastSync!);
-    var remoteMap = {for (final r in remoteChanges) r.id: r};
-    var localMap = {for (final l in localChanges) l.id: l};
+    var remoteMap = {for (final r in remoteChanges) r.uniqueKey: r};
+    var localMap = {for (final l in localChanges) l.uniqueKey: l};
     int changes = 0;
 
     // Synchronize changes from remote database
     for (final remoteRecord in remoteChanges) {
-      var id = remoteRecord.id;
+      var id = remoteRecord.uniqueKey;
       // Add remote records not in the local database
       if (!localMap.containsKey(id)) {
         local.put(remoteRecord);
@@ -51,7 +51,7 @@ class SynchronizedPair<T extends Model> {
 
     // Synchronize changes from local database to remote
     for (final localRecord in localChanges) {
-      var id = localRecord.id;
+      var id = localRecord.uniqueKey;
       // Add local records not in the remote database
       if (!remoteMap.containsKey(id)) {
         remote.put(localRecord);
@@ -85,7 +85,7 @@ class SynchronizedPair<T extends Model> {
     // Go through all the remote records, add the missing ones
     // to the local database, and merge the ones that exist in both
     for (final remoteRecord in remoteRecords.values) {
-      var id = remoteRecord.id;
+      var id = remoteRecord.uniqueKey;
       if (!localRecords.containsKey(id)) {
         // If the local database does not contain the remote record, add it
         local.put(remoteRecord);
@@ -105,7 +105,7 @@ class SynchronizedPair<T extends Model> {
     // Now look for local records that are missing in the remote database,
     // and add them to the remote database
     for (final localRecord in localRecords.values) {
-      var id = localRecord.id;
+      var id = localRecord.uniqueKey;
       if (!remoteRecords.containsKey(id)) {
         // If the remote database does not contain the local record, add it
         remote.put(localRecord);

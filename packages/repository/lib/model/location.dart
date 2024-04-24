@@ -98,7 +98,7 @@ class Location extends Model<Location> {
   factory Location.fromJson(Map<String, dynamic> json) => _$LocationFromJson(json);
 
   @override
-  String get id {
+  String get uniqueKey {
     var path = normalizeLocation(name);
     if (path.endsWith('/')) {
       path = path.substring(0, path.length - 1);

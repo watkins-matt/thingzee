@@ -44,7 +44,7 @@ class HouseholdMember extends Model<HouseholdMember> {
   factory HouseholdMember.fromJson(Map<String, dynamic> json) => _$HouseholdMemberFromJson(json);
 
   @override
-  String get id => userId;
+  String get uniqueKey => userId;
 
   @override
   HouseholdMember copyWith({

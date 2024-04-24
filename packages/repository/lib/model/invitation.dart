@@ -16,7 +16,7 @@ class Invitation extends Model<Invitation> {
   // A unique identifier for the invitation
   @JsonKey(defaultValue: '')
   @override
-  final String id;
+  final String uniqueKey;
 
   // Id of the household the invitation is for
   @JsonKey(defaultValue: '')
@@ -39,7 +39,7 @@ class Invitation extends Model<Invitation> {
   final InvitationStatus status;
 
   Invitation({
-    required this.id,
+    required this.uniqueKey,
     required this.householdId,
     required this.inviterEmail,
     required this.inviterUserId,
@@ -62,7 +62,7 @@ class Invitation extends Model<Invitation> {
     DateTime? updated,
   }) {
     return Invitation(
-      id: id ?? this.id,
+      uniqueKey: id ?? this.uniqueKey,
       householdId: householdId ?? this.householdId,
       inviterEmail: inviterEmail ?? this.inviterEmail,
       inviterUserId: inviterUserId ?? this.inviterUserId,
@@ -75,7 +75,7 @@ class Invitation extends Model<Invitation> {
 
   @override
   bool equalTo(Invitation other) {
-    return id == other.id &&
+    return uniqueKey == other.uniqueKey &&
         householdId == other.householdId &&
         inviterEmail == other.inviterEmail &&
         inviterUserId == other.inviterUserId &&

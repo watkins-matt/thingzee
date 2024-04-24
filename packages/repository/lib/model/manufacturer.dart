@@ -31,7 +31,7 @@ class Manufacturer extends Model<Manufacturer> implements Comparable<Manufacture
   factory Manufacturer.fromJson(Map<String, dynamic> json) => _$ManufacturerFromJson(json);
 
   @override
-  String get id => uid; // Assuming 'uid' is the unique identifier for Manufacturer
+  String get uniqueKey => uid; // Assuming 'uid' is the unique identifier for Manufacturer
 
   @override
   int compareTo(Manufacturer other) {

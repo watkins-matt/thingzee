@@ -22,7 +22,7 @@ class HomeAssistantShoppingListDatabase extends ShoppingListDatabase
 
     // Put all the items into the in-memory database
     for (final item in items) {
-      db[item.id] = item;
+      db[item.uniqueKey] = item;
     }
 
     Log.i('Fetched ${items.length} items from Home Assistant.');

@@ -52,7 +52,7 @@ class Receipt extends Model<Receipt> {
   }
 
   @override
-  String get id => uid;
+  String get uniqueKey => uid;
 
   Receipt copyAndReplaceItem(int index, ReceiptItem newItem) {
     var newItems = List<ReceiptItem>.from(items);

@@ -34,7 +34,7 @@ class Product extends Model<Product> implements Comparable<Product> {
   factory Product.fromJson(Map<String, dynamic> json) => _$ProductFromJson(json);
 
   @override
-  String get id => uid;
+  String get uniqueKey => uid;
 
   @override
   int compareTo(Product other) {

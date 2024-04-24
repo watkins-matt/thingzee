@@ -53,7 +53,7 @@ class Inventory extends Model<Inventory> {
   History get history => ModelProvider<History>().get(upc, History(upc: upc));
 
   @override
-  String get id => upc;
+  String get uniqueKey => upc;
 
   bool get isPredictedOut {
     return predictedAmount <= 0;

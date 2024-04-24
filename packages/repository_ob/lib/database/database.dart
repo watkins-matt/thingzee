@@ -58,7 +58,7 @@ mixin ObjectBoxDatabase<T extends Model, O extends ObjectBoxModel> on Database<T
   void delete(T item) {
     assert(item.isValid);
 
-    final query = box.query(buildIdCondition(item.id)).build();
+    final query = box.query(buildIdCondition(item.uniqueKey)).build();
     final result = query.findFirst();
     query.close();
 
@@ -141,7 +141,7 @@ mixin ObjectBoxDatabase<T extends Model, O extends ObjectBoxModel> on Database<T
 
   @override
   Map<String, T> map() {
-    return {for (final item in all()) item.id: item};
+    return {for (final item in all()) item.uniqueKey: item};
   }
 
   @override
@@ -149,7 +149,7 @@ mixin ObjectBoxDatabase<T extends Model, O extends ObjectBoxModel> on Database<T
     assert(item.isValid);
     final itemOb = fromModel(item);
 
-    final query = box.query(buildIdCondition(item.id)).build();
+    final query = box.query(buildIdCondition(item.uniqueKey)).build();
     final exists = query.findFirst();
     query.close();
 

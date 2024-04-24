@@ -83,9 +83,6 @@ class History extends Model<History> {
     return EvaluatorProvider().getEvaluator(upc, this);
   }
 
-  @override
-  String get id => upc;
-
   Observation? get last {
     if (series.isEmpty) {
       return null;
@@ -129,6 +126,9 @@ class History extends Model<History> {
   int get totalPoints {
     return series.fold(0, (sum, s) => sum + s.observations.length);
   }
+
+  @override
+  String get uniqueKey => upc;
 
   @override
   @NullableDateTimeSerializer()

@@ -24,8 +24,8 @@ abstract class Model<T> implements JsonConvertible<T> {
       : created = _defaultDateTime(created, updated),
         updated = _defaultDateTime(updated, created);
 
-  String get id;
-  bool get isValid => id.isNotEmpty;
+  String get uniqueKey;
+  bool get isValid => uniqueKey.isNotEmpty;
 
   T copyWith({DateTime? created, DateTime? updated});
   bool equalTo(T other);

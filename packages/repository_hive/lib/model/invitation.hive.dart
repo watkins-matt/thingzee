@@ -1,6 +1,5 @@
 // ignore_for_file: annotate_overrides
 
-
 import 'package:hive/hive.dart';
 import 'package:repository/model/invitation.dart';
 
@@ -28,7 +27,7 @@ class HiveInvitation extends HiveObject {
   HiveInvitation.from(Invitation original) {
     created = original.created;
     updated = original.updated;
-    id = original.id;
+    id = original.uniqueKey;
     householdId = original.householdId;
     inviterEmail = original.inviterEmail;
     inviterUserId = original.inviterUserId;
@@ -39,7 +38,7 @@ class HiveInvitation extends HiveObject {
     return Invitation(
         created: created,
         updated: updated,
-        id: id,
+        uniqueKey: id,
         householdId: householdId,
         inviterEmail: inviterEmail,
         inviterUserId: inviterUserId,

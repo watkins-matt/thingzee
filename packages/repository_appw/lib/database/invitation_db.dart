@@ -68,7 +68,7 @@ class AppwriteInvitationDatabase extends InvitationDatabase
     String recipientUserId = hashEmail(recipientEmail);
 
     final invitation = Invitation(
-      id: Uuid().v4(),
+      uniqueKey: Uuid().v4(),
       householdId: householdId,
       inviterEmail: userEmail,
       inviterUserId: userId,

@@ -38,10 +38,10 @@ class ReceiptItem extends Model<ReceiptItem> {
 
   factory ReceiptItem.fromJson(Map<String, dynamic> json) => _$ReceiptItemFromJson(json);
 
-  @override
-  String get id => '$barcode-$price';
-
   double get totalPrice => price + bottleDeposit;
+
+  @override
+  String get uniqueKey => '$receiptUid-$barcode-$price';
 
   @override
   ReceiptItem copyWith({
