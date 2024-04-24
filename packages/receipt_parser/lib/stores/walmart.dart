@@ -40,8 +40,8 @@ class WalmartParser extends ReceiptParser {
   String get rawText => _rawText;
 
   @override
-  Receipt get receipt {
-    return Receipt(
+  ParsedReceipt get receipt {
+    return ParsedReceipt(
       items: _frequencySet.items,
       date: _dateTracker.getMostFrequent() ?? DateTime.now(),
       subtotal: _subtotalTracker.getMostFrequent() ?? 0.0,
@@ -138,7 +138,7 @@ class WalmartParser extends ReceiptParser {
   }
 
   // Parse a line to determine if it is an item line and extract details
-  ReceiptItem? _parseItemLine(String line) {
+  ParsedReceiptItem? _parseItemLine(String line) {
     final strictItemRegex = RegExp(r"(\d{9})\s+([A-Z\s'&]+)\s+\$(\d+\.\d{2})");
     final strictMatch = strictItemRegex.firstMatch(line);
 
@@ -148,7 +148,7 @@ class WalmartParser extends ReceiptParser {
       final priceString = strictMatch.group(3);
       final price = priceString != null ? double.tryParse(priceString) ?? 0.0 : 0.0;
 
-      return ReceiptItem(name: name, barcode: barcode, price: price);
+      return ParsedReceiptItem(name: name, barcode: barcode, price: price);
     }
     return null;
   }

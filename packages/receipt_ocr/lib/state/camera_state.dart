@@ -32,5 +32,5 @@ final cameraProvider = FutureProvider.autoDispose<CameraDescription>((ref) async
 });
 
 final receiptParserProvider = StateProvider<ReceiptParser?>((ref) => null);
-final receiptProvider = StateProvider<Receipt?>((ref) => null);
+final receiptProvider = StateProvider<ParsedReceipt?>((ref) => null);
 final textRecognizerProvider = Provider<TextRecognizer>((ref) => TextRecognizer());

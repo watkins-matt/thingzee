@@ -13,14 +13,15 @@ import 'package:thingzee/pages/item_match/state/matched_item_cache.dart';
 import 'package:thingzee/pages/receipt_scanner/state/matched_item.dart';
 
 class ReceiptConfirmationPage extends ConsumerStatefulWidget {
-  final Receipt receipt;
+  final ParsedReceipt receipt;
   final ReceiptParser parser;
   const ReceiptConfirmationPage({super.key, required this.receipt, required this.parser});
 
   @override
   ConsumerState<ReceiptConfirmationPage> createState() => _ReceiptConfirmationPageState();
 
-  static Future<void> push(BuildContext context, Receipt receipt, ReceiptParser parser) async {
+  static Future<void> push(
+      BuildContext context, ParsedReceipt receipt, ReceiptParser parser) async {
     await Navigator.push(
       context,
       MaterialPageRoute(
@@ -29,7 +30,7 @@ class ReceiptConfirmationPage extends ConsumerStatefulWidget {
   }
 
   static Future<void> pushReplacement(
-      BuildContext context, Receipt receipt, ReceiptParser parser) async {
+      BuildContext context, ParsedReceipt receipt, ReceiptParser parser) async {
     await Navigator.pushReplacement(
       context,
       MaterialPageRoute(
@@ -124,11 +125,11 @@ class _ReceiptConfirmationPageState extends ConsumerState<ReceiptConfirmationPag
     return true;
   }
 
-  Future<void> onItemLongPress(ReceiptItem item, int index) async {
+  Future<void> onItemLongPress(ParsedReceiptItem item, int index) async {
     ref.read(matchedItemsProvider(widget.receipt.items).notifier).clearStatus(index);
   }
 
-  Future<void> onItemTapped(ReceiptItem item, int index) async {
+  Future<void> onItemTapped(ParsedReceiptItem item, int index) async {
     final matchedItem = await ItemMatchPage.push(context, item,
         widget.parser.getSearchUrl(item.barcode.isNotEmpty ? item.barcode : item.name));
 
@@ -156,7 +157,7 @@ class _ReceiptConfirmationPageState extends ConsumerState<ReceiptConfirmationPag
         continue;
       }
 
-      ReceiptItem receiptItem = matchedItem.receiptItem;
+      ParsedReceiptItem receiptItem = matchedItem.receiptItem;
       final provider = ref.read(inventoryProvider.notifier);
       final itemDb = provider.r.items;
 
@@ -221,7 +222,7 @@ class _ReceiptConfirmationPageState extends ConsumerState<ReceiptConfirmationPag
     }
   }
 
-  String _getSearchQuery(ReceiptItem item) {
+  String _getSearchQuery(ParsedReceiptItem item) {
     String name = item.name;
     // Find the first word in the name, ignoring leading punctuation and considering only letters.
     RegExp regex = RegExp(r'\b[a-zA-Z]{3,}\b');

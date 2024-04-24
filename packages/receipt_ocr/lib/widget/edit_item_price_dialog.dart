@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:receipt_parser/model/receipt_item.dart';
 
 class EditItemPriceDialog extends StatefulWidget {
-  final ReceiptItem item;
-  final Function(ReceiptItem) onItemEdited;
+  final ParsedReceiptItem item;
+  final Function(ParsedReceiptItem) onItemEdited;
 
   const EditItemPriceDialog({super.key, required this.item, required this.onItemEdited});
 
@@ -58,7 +58,7 @@ class _EditItemPriceDialogState extends State<EditItemPriceDialog> {
           child: const Text('Save'),
           onPressed: () {
             widget.onItemEdited(
-              ReceiptItem(
+              ParsedReceiptItem(
                 name: widget.item.name,
                 barcode: widget.item.barcode,
                 quantity: quantity,

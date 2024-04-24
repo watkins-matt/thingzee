@@ -19,8 +19,8 @@ class ReceiptItemFrequencies {
     return DateTime.now().difference(firstAdded);
   }
 
-  ReceiptItem get item {
-    return ReceiptItem(
+  ParsedReceiptItem get item {
+    return ParsedReceiptItem(
       barcode: barcode,
       name: nameTracker.getMostFrequent() ?? '',
       price: priceTracker.getMostFrequent() ?? 0.0,
@@ -31,7 +31,7 @@ class ReceiptItemFrequencies {
     );
   }
 
-  void add(ReceiptItem item) {
+  void add(ParsedReceiptItem item) {
     if (barcode.isEmpty) {
       barcode = item.barcode;
     }
@@ -55,7 +55,7 @@ class ReceiptItemFrequencies {
 class ReceiptItemFrequencySet {
   Map<String, ReceiptItemFrequencies> itemMap = {};
 
-  List<ReceiptItem> get items {
+  List<ParsedReceiptItem> get items {
     if (itemMap.isEmpty) {
       return [];
     }
@@ -74,14 +74,14 @@ class ReceiptItemFrequencySet {
     return entries;
   }
 
-  void add(ReceiptItem item) {
+  void add(ParsedReceiptItem item) {
     if (item.barcode.isEmpty || item.price == 0.0) return;
 
     String itemKey = _getItemUniqueKey(item);
     itemMap.putIfAbsent(itemKey, () => ReceiptItemFrequencies()).add(item);
   }
 
-  ReceiptItem? get(String barcode) {
+  ParsedReceiptItem? get(String barcode) {
     return itemMap[barcode]?.item;
   }
 
@@ -117,7 +117,7 @@ class ReceiptItemFrequencySet {
     }
   }
 
-  String _getItemUniqueKey(ReceiptItem item) {
+  String _getItemUniqueKey(ParsedReceiptItem item) {
     return '${item.barcode}_${item.price.toStringAsFixed(2)}';
   }
 

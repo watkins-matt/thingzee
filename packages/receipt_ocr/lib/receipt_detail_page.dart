@@ -12,7 +12,7 @@ import 'package:receipt_parser/model/receipt.dart';
 import 'package:receipt_parser/model/receipt_item.dart';
 import 'package:receipt_parser/parser.dart';
 
-typedef AcceptPressedCallback = void Function(BuildContext, Receipt, ReceiptParser);
+typedef AcceptPressedCallback = void Function(BuildContext, ParsedReceipt, ReceiptParser);
 
 class ReceiptDetailPage extends ConsumerWidget {
   final ReceiptParser parser;
@@ -217,7 +217,7 @@ class ReceiptDetailPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildComparisonTable(BuildContext context, WidgetRef ref, Receipt receipt) {
+  Widget _buildComparisonTable(BuildContext context, WidgetRef ref, ParsedReceipt receipt) {
     return Table(
       border: TableBorder.all(color: Colors.grey),
       columnWidths: const {
@@ -252,7 +252,7 @@ class ReceiptDetailPage extends ConsumerWidget {
   }
 
   void _insertNewItem(BuildContext context, WidgetRef ref, int index, {required bool before}) {
-    ReceiptItem newItem = ReceiptItem(
+    ParsedReceiptItem newItem = ParsedReceiptItem(
       name: '',
       barcode: '',
       quantity: 1,
@@ -341,7 +341,7 @@ class ReceiptDetailPage extends ConsumerWidget {
     );
   }
 
-  void _showInfoDialog(BuildContext context, WidgetRef ref, Receipt receipt) {
+  void _showInfoDialog(BuildContext context, WidgetRef ref, ParsedReceipt receipt) {
     showDialog(
       context: context,
       builder: (BuildContext context) {

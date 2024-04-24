@@ -1,13 +1,23 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:meta/meta.dart';
-import 'package:receipt_parser/model/receipt_item.dart';
+import 'package:receipt_parser/model/receipt.dart';
+import 'package:repository/database/identifier_database.dart';
+import 'package:repository/merge_generator.dart';
+import 'package:repository/model/abstract/model.dart';
+import 'package:repository/model/receipt_item.dart';
+import 'package:util/extension/date_time.dart';
 import 'package:util/extension/list.dart';
 import 'package:uuid/uuid.dart';
 
+part 'receipt.g.dart';
+part 'receipt.merge.dart';
+
+@JsonSerializable()
 @immutable
-class ParsedReceipt {
+@Mergeable()
+class Receipt extends Model<Receipt> {
   @JsonKey(defaultValue: [])
-  final List<ParsedReceiptItem> items; // generator:transient
+  final List<ReceiptItem> items; // generator:transient
 
   @JsonKey(defaultValue: null)
   final DateTime? date;
@@ -22,31 +32,51 @@ class ParsedReceipt {
 
   final String barcodeType;
 
-  ParsedReceipt({
+  Receipt({
     required this.items,
     required this.date,
     this.subtotal = 0.0,
     this.discounts = const [],
     this.tax = 0.0,
     this.total = 0.0,
-    this.barcodeType = 'UPC',
+    this.barcodeType = IdentifierType.upc,
     String? uid,
+    super.created,
+    super.updated,
   }) : uid = uid ?? const Uuid().v4();
+
+  factory Receipt.fromJson(Map<String, dynamic> json) => _$ReceiptFromJson(json);
+
+  factory Receipt.fromParsed(ParsedReceipt receipt) {
+    return Receipt(
+      items: receipt.items.map((e) => ReceiptItem.fromParsed(e)).toList(),
+      date: receipt.date,
+      subtotal: receipt.subtotal,
+      discounts: receipt.discounts,
+      tax: receipt.tax,
+      total: receipt.total,
+      barcodeType: receipt.barcodeType,
+    );
+  }
 
   double get calculatedSubtotal {
     return items.fold(0, (previousValue, element) => previousValue + element.totalPrice);
   }
 
-  ParsedReceipt copyAndReplaceItem(int index, ParsedReceiptItem newItem) {
-    var newItems = List<ParsedReceiptItem>.from(items);
+  @override
+  String get uniqueKey => uid;
+
+  Receipt copyAndReplaceItem(int index, ReceiptItem newItem) {
+    var newItems = List<ReceiptItem>.from(items);
     if (index >= 0 && index < items.length) {
       newItems[index] = newItem;
     }
     return copyWith(items: newItems);
   }
 
-  ParsedReceipt copyWith({
-    List<ParsedReceiptItem>? items,
+  @override
+  Receipt copyWith({
+    List<ReceiptItem>? items,
     DateTime? date,
     double? subtotal,
     List<double>? discounts,
@@ -56,7 +86,7 @@ class ParsedReceipt {
     DateTime? created,
     DateTime? updated,
   }) {
-    return ParsedReceipt(
+    return Receipt(
       items: items ?? this.items,
       date: date ?? this.date,
       subtotal: subtotal ?? this.subtotal,
@@ -64,10 +94,13 @@ class ParsedReceipt {
       tax: tax ?? this.tax,
       total: total ?? this.total,
       barcodeType: barcodeType ?? this.barcodeType,
+      created: created ?? this.created,
+      updated: updated ?? this.updated,
     );
   }
 
-  bool equalTo(ParsedReceipt other) {
+  @override
+  bool equalTo(Receipt other) {
     return uid == other.uid &&
         date == other.date &&
         subtotal == other.subtotal &&
@@ -77,4 +110,10 @@ class ParsedReceipt {
         barcodeType == other.barcodeType &&
         items.equals(other.items);
   }
+
+  @override
+  Receipt merge(Receipt other) => _$mergeReceipt(this, other);
+
+  @override
+  Map<String, dynamic> toJson() => _$ReceiptToJson(this);
 }

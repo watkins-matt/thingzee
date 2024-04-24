@@ -83,7 +83,7 @@ class LiveTextScanner extends ConsumerStatefulWidget {
 class _LiveTextScannerState extends ConsumerState<LiveTextScanner> with WidgetsBindingObserver {
   bool _isProcessing = false;
   TargetReceiptParser parser = TargetReceiptParser();
-  Receipt currentReceipt = Receipt(items: const [], date: DateTime.now());
+  ParsedReceipt currentReceipt = ParsedReceipt(items: const [], date: DateTime.now());
   DateTime _lastProcessedTime = DateTime.now();
 
   @override
@@ -94,7 +94,7 @@ class _LiveTextScannerState extends ConsumerState<LiveTextScanner> with WidgetsB
         Positioned(
           bottom: 20,
           right: 20,
-          child: ValueListenableBuilder<Receipt>(
+          child: ValueListenableBuilder<ParsedReceipt>(
             valueListenable: ValueNotifier(currentReceipt),
             builder: (context, receipt, child) {
               return ElevatedButton(

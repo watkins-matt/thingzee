@@ -13,14 +13,14 @@ class GenericReceiptParser extends ReceiptParser {
   final List<String> _queueBarcode = [];
   final List<String> _queueItemText = [];
   final List<String> _queuePrice = [];
-  final List<ReceiptItem> _items = [];
+  final List<ParsedReceiptItem> _items = [];
 
   @override
   String get rawText => ocrText.text;
 
   @override
-  Receipt get receipt {
-    return Receipt(
+  ParsedReceipt get receipt {
+    return ParsedReceipt(
       items: _items,
       date: dateTracker.getMostFrequent() ?? DateTime.now(),
       subtotal: subtotalTracker.getMostFrequent() ?? 0.0,
@@ -109,7 +109,7 @@ class GenericReceiptParser extends ReceiptParser {
           continue;
         }
 
-        ReceiptItem item = ReceiptItem(
+        ParsedReceiptItem item = ParsedReceiptItem(
           barcode: barcode!,
           name: itemText!,
           price: price,
@@ -170,7 +170,7 @@ class GenericReceiptParser extends ReceiptParser {
           continue;
         }
 
-        ReceiptItem item = ReceiptItem(
+        ParsedReceiptItem item = ParsedReceiptItem(
           barcode: barcode,
           name: itemText,
           price: price,
@@ -203,7 +203,7 @@ class GenericReceiptParser extends ReceiptParser {
             continue;
           }
 
-          ReceiptItem item = ReceiptItem(
+          ParsedReceiptItem item = ParsedReceiptItem(
             name: itemText,
             price: price,
           );

@@ -7,17 +7,17 @@ import 'package:receipt_parser/model/receipt.dart';
 import 'package:receipt_parser/model/receipt_item.dart';
 import 'package:receipt_parser/ocr_text.dart';
 import 'package:receipt_parser/parser.dart';
-import 'package:repository/database/identifier_database.dart';
+import 'package:receipt_parser/receipt_identifier_type.dart';
 
 enum ItemState { empty, primaryLine, secondaryLine, extraInfo }
 
 enum LineElement { barcode, name, price, regularPrice, quantity }
 
 mixin ParserFactory on ReceiptParser {
-  ReceiptItem? currentItem;
+  ParsedReceiptItem? currentItem;
   ItemState currentState = ItemState.empty;
 
-  final List<ReceiptItem> _items = [];
+  final List<ParsedReceiptItem> _items = [];
 
   Map<LineElement, Parser<String>> elementToParser = {
     LineElement.barcode: barcodeParser(),
@@ -28,7 +28,7 @@ mixin ParserFactory on ReceiptParser {
   };
 
   // Default barcode type is UPC, can be overridden by subclasses
-  String get barcodeType => IdentifierType.upc;
+  String get barcodeType => ReceiptIdentifierType.upc;
 
   List<LineElement> get primaryLineFormat;
 
@@ -36,8 +36,8 @@ mixin ParserFactory on ReceiptParser {
   String get rawText => ocrText.text;
 
   @override
-  Receipt get receipt {
-    return Receipt(
+  ParsedReceipt get receipt {
+    return ParsedReceipt(
       items: _items,
       date: dateTracker.getMostFrequent() ?? DateTime.now(),
       subtotal: subtotalTracker.getMostFrequent() ?? 0.0,
@@ -49,11 +49,11 @@ mixin ParserFactory on ReceiptParser {
 
   List<LineElement>? get secondaryLineFormat => null;
 
-  ReceiptItem createNewItemFromPrimary(Map<LineElement, String> results) {
+  ParsedReceiptItem createNewItemFromPrimary(Map<LineElement, String> results) {
     var price = double.tryParse(results[LineElement.price] ?? '0') ?? 0.0;
     var regularPrice = double.tryParse(results[LineElement.regularPrice] ?? '0') ?? price;
 
-    return ReceiptItem(
+    return ParsedReceiptItem(
       barcode: results[LineElement.barcode] ?? '',
       name: results[LineElement.name] ?? '',
       price: price,
@@ -212,7 +212,7 @@ mixin ParserFactory on ReceiptParser {
   /// item returned becomes the new current item.
   /// The default implementation does not do anything, but subclasses
   /// can override this method to handle special cases.
-  ReceiptItem parseSpecialCases(ReceiptItem item, String line) {
+  ParsedReceiptItem parseSpecialCases(ParsedReceiptItem item, String line) {
     return item;
   }
 

@@ -1,10 +1,10 @@
 import 'package:receipt_parser/parser.dart';
+import 'package:receipt_parser/receipt_identifier_type.dart';
 import 'package:receipt_parser/receipt_parser_factory.dart';
-import 'package:repository/database/identifier_database.dart';
 
 class CostcoReceiptParser extends ReceiptParser with ParserFactory {
   @override
-  String get barcodeType => IdentifierType.costco;
+  String get barcodeType => ReceiptIdentifierType.costco;
 
   @override
   List<LineElement> get primaryLineFormat =>

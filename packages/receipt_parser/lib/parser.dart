@@ -16,17 +16,17 @@ abstract class ReceiptParser {
 
   RelativeOrderTracker orderTracker = RelativeOrderTracker();
   String get rawText;
-  Receipt get receipt;
+  ParsedReceipt get receipt;
   String getSearchUrl(String barcode) => 'https://www.google.com/search?q=$barcode';
 
   void parse(String text);
 
-  List<ReceiptItem> sortItems(List<ReceiptItem> items) {
+  List<ParsedReceiptItem> sortItems(List<ParsedReceiptItem> items) {
     // Create a map for quick access to items by their barcode
     final itemMap = {for (final item in items) item.barcode: item};
 
     // Use the order in canonicalOrder to sort items
-    List<ReceiptItem> sortedItems = [];
+    List<ParsedReceiptItem> sortedItems = [];
     for (final barcode in orderTracker.canonicalOrder.keys) {
       if (itemMap.containsKey(barcode)) {
         sortedItems.add(itemMap[barcode]!);

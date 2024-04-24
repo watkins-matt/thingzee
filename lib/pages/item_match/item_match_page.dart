@@ -11,7 +11,7 @@ import 'package:thingzee/pages/item_match/widget/potenial_match_list_tile.dart';
 import 'package:thingzee/pages/item_match/widget/text_button_with_dropdown.dart';
 
 class ItemMatchPage extends ConsumerStatefulWidget {
-  final ReceiptItem receiptItem;
+  final ParsedReceiptItem receiptItem;
   final String searchUrl;
 
   const ItemMatchPage({super.key, required this.receiptItem, required this.searchUrl});
@@ -19,7 +19,8 @@ class ItemMatchPage extends ConsumerStatefulWidget {
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _ItemMatchPageState();
 
-  static Future<Item?> push(BuildContext context, ReceiptItem receiptItem, String searchUrl) async {
+  static Future<Item?> push(
+      BuildContext context, ParsedReceiptItem receiptItem, String searchUrl) async {
     return await Navigator.of(context).push(
       MaterialPageRoute(
           builder: (context) => ItemMatchPage(receiptItem: receiptItem, searchUrl: searchUrl)),
@@ -27,7 +28,7 @@ class ItemMatchPage extends ConsumerStatefulWidget {
   }
 
   static Future<Item?> pushReplacement(
-      BuildContext context, ReceiptItem receiptItem, String searchUrl) async {
+      BuildContext context, ParsedReceiptItem receiptItem, String searchUrl) async {
     return await Navigator.of(context).pushReplacement(
       MaterialPageRoute(
           builder: (context) => ItemMatchPage(receiptItem: receiptItem, searchUrl: searchUrl)),

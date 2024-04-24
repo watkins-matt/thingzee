@@ -8,13 +8,13 @@ import 'package:repository/model/item.dart';
 import 'package:repository/repository.dart';
 
 final matchedItemsProvider =
-    StateNotifierProvider.family<MatchedItemsNotifier, List<MatchedItem>, List<ReceiptItem>>(
+    StateNotifierProvider.family<MatchedItemsNotifier, List<MatchedItem>, List<ParsedReceiptItem>>(
         (ref, items) {
   return MatchedItemsNotifier(items);
 });
 
 class MatchedItem {
-  final ReceiptItem receiptItem;
+  final ParsedReceiptItem receiptItem;
   String status;
   Item? match;
 
@@ -22,7 +22,7 @@ class MatchedItem {
 }
 
 class MatchedItemsNotifier extends StateNotifier<List<MatchedItem>> {
-  MatchedItemsNotifier(List<ReceiptItem> receiptItems)
+  MatchedItemsNotifier(List<ParsedReceiptItem> receiptItems)
       : super(receiptItems.map((item) => MatchedItem(receiptItem: item)).toList());
 
   List<MatchedItem> get confirmedItems =>
@@ -32,7 +32,7 @@ class MatchedItemsNotifier extends StateNotifier<List<MatchedItem>> {
   List<MatchedItem> get unmatchedItems =>
       state.where((item) => item.status.startsWith('No Match')).toList();
 
-  void addItemsToInventory(Repository repo, Receipt receipt) {
+  void addItemsToInventory(Repository repo, ParsedReceipt receipt) {
     final time = receipt.date ?? DateTime.now();
     bool addedAlready = false;
 

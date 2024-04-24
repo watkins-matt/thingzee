@@ -10,7 +10,7 @@ import 'package:receipt_parser/generic_parser.dart';
 import 'package:receipt_parser/model/receipt.dart';
 import 'package:receipt_parser/model/receipt_item.dart';
 import 'package:receipt_parser/ocr_text.dart';
-import 'package:repository/database/identifier_database.dart';
+import 'package:receipt_parser/receipt_identifier_type.dart';
 
 Parser<double> skipToTargetBottleDepositFeeParser() {
   final parser = targetBottleDepositFeeParser();
@@ -84,7 +84,7 @@ typedef TargetQuantityParseResult = ({int quantity, double price});
 
 class TargetReceiptParser extends GenericReceiptParser {
   String _phoneNumber = '';
-  final List<ReceiptItem> _items = [];
+  final List<ParsedReceiptItem> _items = [];
   final List<String> commonWords = [
     'Regular',
     'Price',
@@ -110,15 +110,15 @@ class TargetReceiptParser extends GenericReceiptParser {
   String get phoneNumber => _phoneNumber;
 
   @override
-  Receipt get receipt {
-    return Receipt(
+  ParsedReceipt get receipt {
+    return ParsedReceipt(
       items: _items,
       date: dateTracker.getMostFrequent() ?? DateTime.now(),
       subtotal: subtotalTracker.getMostFrequent() ?? 0.0,
       discounts: discountTracker.getMostFrequentList(),
       tax: taxTracker.getMostFrequent() ?? 0.0,
       total: totalTracker.getMostFrequent() ?? 0.0,
-      barcodeType: IdentifierType.target,
+      barcodeType: ReceiptIdentifierType.target,
     );
   }
 
@@ -314,7 +314,7 @@ class TargetReceiptParser extends GenericReceiptParser {
         // Remove all codes from the item text
         itemText = itemText.replaceAll(codes, '').trim();
 
-        ReceiptItem item = ReceiptItem(
+        ParsedReceiptItem item = ParsedReceiptItem(
           barcode: barcode!,
           name: itemText,
           price: price!,
@@ -334,7 +334,7 @@ class TargetReceiptParser extends GenericReceiptParser {
         // Remove all codes from the item text
         itemText = itemText.replaceAll(codes, '').trim();
 
-        ReceiptItem item = ReceiptItem(
+        ParsedReceiptItem item = ParsedReceiptItem(
           barcode: barcode!,
           name: itemText,
           price: 0,

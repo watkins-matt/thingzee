@@ -1,8 +1,17 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:meta/meta.dart';
+import 'package:receipt_parser/model/receipt_item.dart';
+import 'package:repository/merge_generator.dart';
+import 'package:repository/model/abstract/model.dart';
+import 'package:util/extension/date_time.dart';
 
+part 'receipt_item.g.dart';
+part 'receipt_item.merge.dart';
+
+@JsonSerializable()
 @immutable
-class ParsedReceiptItem {
+@Mergeable()
+class ReceiptItem extends Model<ReceiptItem> {
   @JsonKey(defaultValue: '')
   final String name;
 
@@ -14,7 +23,7 @@ class ParsedReceiptItem {
   final double bottleDeposit;
   final String receiptUid;
 
-  ParsedReceiptItem({
+  ReceiptItem({
     required this.name,
     this.price = 0.0,
     this.quantity = 1,
@@ -23,11 +32,31 @@ class ParsedReceiptItem {
     this.taxable = true,
     this.bottleDeposit = 0.0,
     this.receiptUid = '',
+    super.created,
+    super.updated,
   });
+
+  factory ReceiptItem.fromJson(Map<String, dynamic> json) => _$ReceiptItemFromJson(json);
+
+  factory ReceiptItem.fromParsed(ParsedReceiptItem item) {
+    return ReceiptItem(
+      name: item.name,
+      price: item.price,
+      regularPrice: item.regularPrice,
+      quantity: item.quantity,
+      barcode: item.barcode,
+      taxable: item.taxable,
+      bottleDeposit: item.bottleDeposit,
+    );
+  }
 
   double get totalPrice => price + bottleDeposit;
 
-  ParsedReceiptItem copyWith({
+  @override
+  String get uniqueKey => '$receiptUid-$barcode-$price';
+
+  @override
+  ReceiptItem copyWith({
     String? name,
     double? price,
     double? regularPrice,
@@ -39,7 +68,7 @@ class ParsedReceiptItem {
     DateTime? updated,
     String? receiptUid,
   }) {
-    return ParsedReceiptItem(
+    return ReceiptItem(
       name: name ?? this.name,
       price: price ?? this.price,
       regularPrice: regularPrice ?? this.regularPrice,
@@ -47,11 +76,14 @@ class ParsedReceiptItem {
       barcode: barcode ?? this.barcode,
       taxable: taxable ?? this.taxable,
       bottleDeposit: bottleDeposit ?? this.bottleDeposit,
+      created: created ?? this.created,
+      updated: updated ?? this.updated,
       receiptUid: receiptUid ?? this.receiptUid,
     );
   }
 
-  bool equalTo(ParsedReceiptItem other) {
+  @override
+  bool equalTo(ReceiptItem other) {
     return barcode == other.barcode &&
         name == other.name &&
         price == other.price &&
@@ -61,6 +93,12 @@ class ParsedReceiptItem {
         bottleDeposit == other.bottleDeposit &&
         receiptUid == other.receiptUid;
   }
+
+  @override
+  ReceiptItem merge(ReceiptItem other) => _$mergeReceiptItem(this, other);
+
+  @override
+  Map<String, dynamic> toJson() => _$ReceiptItemToJson(this);
 
   @override
   String toString() {
