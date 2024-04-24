@@ -11,6 +11,7 @@ import 'package:thingzee/pages/inventory/state/inventory_view.dart';
 import 'package:thingzee/pages/item_match/item_match_page.dart';
 import 'package:thingzee/pages/item_match/state/matched_item_cache.dart';
 import 'package:thingzee/pages/receipt_scanner/state/matched_item.dart';
+import 'package:thingzee/pages/shopping/state/shopping_list.dart';
 
 class ReceiptConfirmationPage extends ConsumerStatefulWidget {
   final ParsedReceipt receipt;
@@ -108,6 +109,9 @@ class _ReceiptConfirmationPageState extends ConsumerState<ReceiptConfirmationPag
       final repo = ref.watch(repositoryProvider);
       final receipt = widget.receipt;
       matchedItemsNotifier.addItemsToInventory(repo, receipt);
+
+      // Refresh the shopping list
+      await ref.read(shoppingListProvider.notifier).refreshAll();
 
       // Refresh the inventory provider
       await ref.read(inventoryProvider.notifier).refresh();
