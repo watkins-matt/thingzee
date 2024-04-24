@@ -52,7 +52,7 @@ class Invitation extends Model<Invitation> {
 
   @override
   Invitation copyWith({
-    String? id,
+    String? uniqueKey,
     String? householdId,
     String? inviterEmail,
     String? inviterUserId,
@@ -62,7 +62,7 @@ class Invitation extends Model<Invitation> {
     DateTime? updated,
   }) {
     return Invitation(
-      uniqueKey: id ?? this.uniqueKey,
+      uniqueKey: uniqueKey ?? this.uniqueKey,
       householdId: householdId ?? this.householdId,
       inviterEmail: inviterEmail ?? this.inviterEmail,
       inviterUserId: inviterUserId ?? this.inviterUserId,

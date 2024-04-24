@@ -1,5 +1,6 @@
 // ignore_for_file: annotate_overrides
 
+
 import 'package:objectbox/objectbox.dart';
 import 'package:repository/model/invitation.dart';
 import 'package:repository_ob/model_custom/object_box_model.dart';
@@ -12,7 +13,7 @@ class ObjectBoxInvitation extends ObjectBoxModel<Invitation> {
   late DateTime? created;
   @Property(type: PropertyType.date)
   late DateTime? updated;
-  late String id;
+  late String uniqueKey;
   late String householdId;
   late String inviterEmail;
   late String inviterUserId;
@@ -22,7 +23,7 @@ class ObjectBoxInvitation extends ObjectBoxModel<Invitation> {
   ObjectBoxInvitation.from(Invitation original) {
     created = original.created;
     updated = original.updated;
-    id = original.uniqueKey;
+    uniqueKey = original.uniqueKey;
     householdId = original.householdId;
     inviterEmail = original.inviterEmail;
     inviterUserId = original.inviterUserId;
@@ -33,7 +34,7 @@ class ObjectBoxInvitation extends ObjectBoxModel<Invitation> {
     return Invitation(
         created: created,
         updated: updated,
-        uniqueKey: id,
+        uniqueKey: uniqueKey,
         householdId: householdId,
         inviterEmail: inviterEmail,
         inviterUserId: inviterUserId,

@@ -43,7 +43,7 @@ class AppwriteInvitationDatabase extends InvitationDatabase
       throw Exception('$TAG: Cannot accept invitation for another user.');
     }
 
-    final response = invitation.copyWith(status: InvitationStatus.accepted, id: Uuid().v4());
+    final response = invitation.copyWith(status: InvitationStatus.accepted, uniqueKey: Uuid().v4());
 
     final permissions = [
       Permission.read(Role.user(userId, 'verified')),
