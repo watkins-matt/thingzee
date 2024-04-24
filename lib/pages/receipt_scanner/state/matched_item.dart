@@ -74,16 +74,25 @@ class MatchedItemsNotifier extends StateNotifier<List<MatchedItem>> {
 
         // If we have a confirmed item and the barcode type is not UPC,
         // add the identifier
-        if (matchedItem.status.startsWith('Confirmed') &&
-            receipt.barcodeType != IdentifierType.upc) {
-          final identifierType = receipt.barcodeType;
-          final identifier = Identifier(
-            type: identifierType,
-            value: matchedItem.receiptItem.barcode,
+        if (matchedItem.status.startsWith('Confirmed')) {
+          // First, add the UPC identifier
+          final upcIdentifier = Identifier(
+            type: IdentifierType.upc,
+            value: item.upc,
             uid: item.uid,
           );
+          repo.identifiers.put(upcIdentifier);
 
-          repo.identifiers.put(identifier);
+          // If the barcode type is not UPC, add the identifier
+          if (receipt.barcodeType != IdentifierType.upc) {
+            final identifierType = receipt.barcodeType;
+            final identifier = Identifier(
+              type: identifierType,
+              value: matchedItem.receiptItem.barcode,
+              uid: item.uid,
+            );
+            repo.identifiers.put(identifier);
+          }
         }
       }
     }
