@@ -271,6 +271,13 @@ class History extends Model<History> {
         if (originalCount > s.observations.length && warn) {
           Log.w('Removed observation with invalid timestamp from history series $upc.');
         }
+
+        // Remove all negative values
+        originalCount = s.observations.length;
+        s.observations.removeWhere((o) => o.amount < 0);
+        if (originalCount > s.observations.length && warn) {
+          Log.w('Removed invalid negative observation from history series $upc.');
+        }
       }
 
       // Ensure that every item is decreasing, and remove duplicates
