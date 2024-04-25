@@ -34,10 +34,10 @@ class MatchedItemsNotifier extends StateNotifier<List<MatchedItem>> {
 
   void addItemsToInventory(Repository repo, ParsedReceipt receipt) {
     final time = receipt.date ?? DateTime.now();
-    bool addedAlready = false;
 
     for (final matchedItem in state) {
       final item = matchedItem.match;
+      bool addedAlready = false;
 
       // Only process items that have been matched (and are not null)
       if (item != null) {
