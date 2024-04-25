@@ -46,7 +46,8 @@ class MatchedItemsNotifier extends StateNotifier<List<MatchedItem>> {
         if (inventory != null) {
           // Check to see if we already added this inventory item to the
           // history within the last 24 hours
-          addedAlready = wasInventoryAddedAlready(inventory, time);
+          addedAlready = wasInventoryAddedAlready(
+              inventory, time, matchedItem.receiptItem.quantity.toDouble());
 
           inventory = inventory.updateAmountToPredictionAtTimestamp(time.millisecondsSinceEpoch);
           inventory = inventory.copyWith(
@@ -123,7 +124,7 @@ class MatchedItemsNotifier extends StateNotifier<List<MatchedItem>> {
   }
 
   /// Check to see if the inventory level was increased within 24 hours
-  bool wasInventoryAddedAlready(Inventory inventory, DateTime time) {
+  bool wasInventoryAddedAlready(Inventory inventory, DateTime time, double expectedMinimumAmount) {
     const timeFrame = Duration(days: 1);
     final history = inventory.history;
     final currentSeries = history.current;
@@ -131,7 +132,8 @@ class MatchedItemsNotifier extends StateNotifier<List<MatchedItem>> {
     for (final observation in currentSeries.observations) {
       final observationTime = DateTime.fromMillisecondsSinceEpoch(observation.timestamp.round());
 
-      if (isWithinDuration(time, observationTime, timeFrame)) {
+      if (isWithinDuration(time, observationTime, timeFrame) &&
+          observation.amount >= expectedMinimumAmount) {
         return true;
       }
     }
