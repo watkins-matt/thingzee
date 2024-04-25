@@ -200,15 +200,24 @@ class History extends Model<History> {
     final minOffset = minOffsetHours * 60 * 60 * 1000;
 
     if (timeDifference < minOffset) {
-      if (observation.amount > lastObservation.amount && updatedSeries.length > 1) {
+      if (observation.amount >= lastObservation.amount) {
         // If this is an increase and this is not the only item in the
         // series, start a new series and add the new observation
         updatedSeries.add(HistorySeries());
         updatedSeries.last.observations.add(observation);
-      } else {
+      }
+
+      // Replace the last observation if the new observation is a decrease
+      else if (currentSeries.observations.length == 1 ||
+          observation.amount < lastObservation.amount) {
         // If it's a decrease or the current item is the only one in the
         // series, simply update the last observation's amount
         currentSeries.observations.removeLast();
+        currentSeries.observations.add(observation);
+      }
+
+      // Add the first observation
+      else {
         currentSeries.observations.add(observation);
       }
     }
