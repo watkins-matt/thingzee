@@ -63,7 +63,8 @@ class ProjectScanner:
         return projects
 
     def find_dart_files(self, directory, all_files):
-        """Identify and process .dart files based on associated generated files or part directive."""
+        """Identify and process .dart files based on associated
+        generated files or part directive."""
         dart_files = {}
         dart_file_paths = [file for file in all_files if file.endswith(".dart")]
 
