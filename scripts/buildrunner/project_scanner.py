@@ -54,33 +54,33 @@ class ProjectScanner:
         dart_files = {}
         dart_file_paths = [file for file in all_files if file.endswith(".dart")]
 
-        # Extract base and generated filenames
+        # Split into base and generated files
         base_files = {}
         generated_files = {}
 
         for file_path in dart_file_paths:
-            # Strip the directory and '.dart' suffix to simplify further processing
-            base_name = os.path.basename(file_path)[:-5]
-            # Identify if there's an additional suffix indicating it's a generated file
-            if "." in base_name:
-                # It's a generated file, remove the last part to get the original base filename
-                original_base = base_name.rsplit(".", 1)[0]
+            file_name = os.path.basename(file_path)
+            base_name = file_name[:-5]  # Strip the '.dart' extension
+
+            # Check for an additional suffix by checking for last dot before '.dart'
+            last_dot_index = base_name.rfind(".")
+            if last_dot_index != -1:
+                original_base = base_name[:last_dot_index]
                 generated_files[original_base] = file_path
             else:
-                # It's a base file
                 base_files[base_name] = file_path
 
-        # Check for base files that have a corresponding generated version
+        # Match base files with their generated counterparts
         for base_name, base_path in base_files.items():
             if base_name in generated_files:
-                # Add the base file since it has a generated counterpart
                 dart_files[base_path] = FileHasher.generate_hash(base_path)
 
-        # Check for orphan generated files
+        # Handle orphan generated files
         for gen_base_name, gen_path in generated_files.items():
-            if gen_base_name not in base_files and not gen_base_name.endswith(".g"):
-                # It's an orphan generated file
-                dart_files[gen_path] = FileHasher.generate_hash(gen_path)
+            if gen_base_name not in base_files:
+                # Exclude explicitly ignored patterns like '.g.dart'
+                if not gen_path.endswith(".g.dart"):
+                    dart_files[gen_path] = FileHasher.generate_hash(gen_path)
 
         return dart_files
 

@@ -19,6 +19,8 @@ def base_directory(tmp_path):
             "api.g.dart",
             "api.merge.dart",
             "helper.ob.dart",
+            "model.db.dart",
+            "model.db.g.dart",
         ],
     }
 
@@ -50,6 +52,7 @@ def test_find_dart_files(base_directory):
         os.path.normpath(os.path.join(base_directory, "project1/main.dart")),
         os.path.normpath(os.path.join(base_directory, "project2/api.dart")),
         os.path.normpath(os.path.join(base_directory, "project2/helper.ob.dart")),
+        os.path.normpath(os.path.join(base_directory, "project2/model.db.dart")),
     }
 
     # Assert
