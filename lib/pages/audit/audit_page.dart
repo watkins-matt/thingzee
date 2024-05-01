@@ -21,7 +21,7 @@ class AuditPage extends ConsumerWidget {
           const Expanded(child: AuditListView()),
           RoundedProgressBar(
             style: RoundedProgressBarStyle(colorBorder: Theme.of(context).cardColor),
-            percent: (tasks.where((t) => t.isComplete).length / tasks.length) * 100,
+            percent: ((tasks.where((t) => t.isComplete).length / tasks.length) * 100).clamp(0, 100),
           ),
           const SelectionWidget(),
         ],

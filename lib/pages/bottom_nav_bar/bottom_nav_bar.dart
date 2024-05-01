@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:thingzee/pages/audit/audit_page.dart';
 import 'package:thingzee/pages/bottom_nav_bar/state/bottom_nav_state.dart';
 import 'package:thingzee/pages/inventory/inventory_page.dart';
 import 'package:thingzee/pages/location/location_page.dart';
@@ -15,6 +16,7 @@ class BottomNavBar extends ConsumerWidget {
 
     List<Widget> pageList = [
       const InventoryPage(),
+      const AuditPage(),
       const LocationPage(),
       const RecipeBrowser(),
       const ShoppingListPage(),
@@ -32,6 +34,7 @@ class BottomNavBar extends ConsumerWidget {
         type: BottomNavigationBarType.fixed,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Inventory'),
+          BottomNavigationBarItem(icon: Icon(Icons.assignment), label: 'Audit'),
           BottomNavigationBarItem(icon: Icon(Icons.folder), label: 'Locations'),
           BottomNavigationBarItem(icon: Icon(Icons.restaurant_menu), label: 'Recipes'),
           BottomNavigationBarItem(icon: Icon(Icons.shopping_cart), label: 'Shopping'),
