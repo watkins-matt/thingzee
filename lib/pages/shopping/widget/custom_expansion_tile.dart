@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-// Assuming each tile can be uniquely identified by an `id`
-final expansionStateProvider = StateProvider.family<bool, String>((ref, id) => false);
+final expansionStateProvider = StateProvider<Map<String, bool>>((ref) => {});
 
 class CustomExpansionTile extends HookConsumerWidget {
   final String id; // Unique identifier for each tile
@@ -19,12 +18,35 @@ class CustomExpansionTile extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isExpanded = ref.watch(expansionStateProvider(id));
+    // Retrieve the expansion state for this specific tile
+    final expansionStateMap = ref.watch(expansionStateProvider);
+    final isExpanded = useState(expansionStateMap[id] ?? false);
+
     final controller = useAnimationController(
       duration: const Duration(milliseconds: 200),
     );
 
-    // Define animations
+    // Animation synchronization and controller setup
+    useEffect(() {
+      controller.value = isExpanded.value ? 1.0 : 0.0;
+      if (isExpanded.value) {
+        controller.forward();
+      } else {
+        controller.reverse();
+      }
+      return null;
+    }, [isExpanded.value]);
+
+    void handleTap() {
+      isExpanded.value = !isExpanded.value; // Toggle local state
+
+      // Update the global state map with the new expansion state
+      ref.read(expansionStateProvider.notifier).update((state) => {
+            ...state,
+            id: isExpanded.value,
+          });
+    }
+
     final heightAnimation = Tween<double>(begin: 0, end: 1).animate(
       CurvedAnimation(
         parent: controller,
@@ -32,20 +54,6 @@ class CustomExpansionTile extends HookConsumerWidget {
       ),
     );
     final iconAnimation = Tween<double>(begin: 0, end: 0.25).animate(controller);
-
-    // Effect to sync controller state with isExpanded
-    useEffect(() {
-      if (isExpanded) {
-        controller.forward();
-      } else {
-        controller.reverse();
-      }
-      return null;
-    }, [isExpanded]);
-
-    void handleTap() {
-      ref.read(expansionStateProvider(id).notifier).state = !isExpanded;
-    }
 
     return InkWell(
       onTap: handleTap,
