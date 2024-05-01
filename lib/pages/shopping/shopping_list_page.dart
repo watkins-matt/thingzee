@@ -10,6 +10,7 @@ import 'package:thingzee/pages/inventory/state/inventory_view.dart';
 import 'package:thingzee/pages/receipt_scanner/receipt_confirmation_page.dart';
 import 'package:thingzee/pages/shopping/confirmation_dialog.dart';
 import 'package:thingzee/pages/shopping/state/shopping_list.dart';
+import 'package:thingzee/pages/shopping/widget/custom_expansion_tile.dart';
 import 'package:thingzee/pages/shopping/widget/shopping_list_tile.dart';
 
 final tabIndexProvider = StateProvider<int>((ref) => 0);
@@ -124,10 +125,9 @@ class ShoppingListPage extends HookConsumerWidget {
   }
 
   Widget checkedItemsTile(BuildContext context, WidgetRef ref, List<ShoppingItem> checkedItems) {
-    return ExpansionTile(
+    return CustomExpansionTile(
+      id: 'ShoppingList.checkedItems',
       title: Text('${checkedItems.length} Checked Items'),
-      initiallyExpanded: false,
-      controlAffinity: ListTileControlAffinity.leading,
       children: checkedItems.map((item) {
         return ShoppingListTile(
           item: item,
@@ -193,28 +193,33 @@ class ShoppingListPage extends HookConsumerWidget {
               style: TextStyle(fontSize: 18),
             ),
           )
-        : Column(
-            children: [
-              Expanded(
-                child: shoppingListViewBuilder(context, ref, uncheckedItems),
-              ),
-              checkedItemsTile(context, ref, checkedItems),
-            ],
+        : SingleChildScrollView(
+            child: Column(
+              children: [
+                shoppingListViewBuilder(context, ref, uncheckedItems),
+                ListTile(
+                  leading: const Icon(Icons.add),
+                  title: const Text('List Item'),
+                  onTap: () => addNewItem(context, ref),
+                ),
+                checkedItemsTile(context, ref, checkedItems),
+              ],
+            ),
           );
   }
 
   Widget shoppingListViewBuilder(BuildContext context, WidgetRef ref, List<ShoppingItem> items) {
     return ListView.builder(
-      itemCount: items.length + 1,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: items.length,
       itemBuilder: (context, index) {
-        if (index == items.length) {
-          return ListTile(
-            leading: const Icon(Icons.add),
-            title: const Text('List Item'),
-            onTap: () => addNewItem(context, ref),
-          );
-        }
-        return shoppingListItemBuilder(context, ref, items[index], index == items.length - 1);
+        return shoppingListItemBuilder(
+          context,
+          ref,
+          items[index],
+          index == items.length - 1,
+        );
       },
     );
   }
