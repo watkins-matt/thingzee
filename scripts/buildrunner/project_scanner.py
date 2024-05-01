@@ -3,18 +3,19 @@ import os
 import yaml
 
 from file_hasher import FileHasher
-from yaml_project_file import ProjectData, ProjectFile
+from yaml_project_file import ProjectData
 
 
 class ProjectScanner:
     """Scans directories to find projects and their relevant files."""
 
-    def __init__(self, base_directory: str, yaml_project_file: ProjectFile):
+    def __init__(self, base_directory: str):
         self.base_directory = base_directory
-        self.yaml_project_file = yaml_project_file
 
-    def scan_projects(self):
+    def scan_projects(self) -> dict:
         """Walk through directories and collect file data, then save it using YamlProjectFile."""
+        projects = {}
+
         for root, _dirs, files in os.walk(self.base_directory):
             if "pubspec.yaml" in files:
                 pubspec_path = os.path.normpath(os.path.join(root, "pubspec.yaml"))
@@ -47,7 +48,10 @@ class ProjectScanner:
                     pubspec_hash=FileHasher.generate_hash(pubspec_path),
                     files=final_dart_files,
                 )
-                self.yaml_project_file.update_project_data(project_name, project_data)
+
+                projects[project_name] = project_data
+
+        return projects
 
     def find_dart_files(self, directory, all_files):
         """Identify and process .dart files based on associated generated files."""

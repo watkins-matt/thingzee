@@ -1,16 +1,12 @@
 import asyncio
 import os
 
-from project_scanner import ProjectScanner
-from yaml_project_file import ProjectFile
+from project_manager import ProjectManager
 
 
 async def main(base_directory: str):
-    yaml_project_file = ProjectFile("project.yaml")
-    scanner = ProjectScanner(base_directory, yaml_project_file)
-    scanner.scan_projects()
-
-    # Run commands depending on the project data
+    project_manager = ProjectManager(base_directory, "project.yaml")
+    await project_manager.run()
 
 
 if __name__ == "__main__":

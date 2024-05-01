@@ -1,30 +1,42 @@
 import asyncio
 import logging
 
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
+
 
 class CommandRunner:
-    """Handles execution of system commands using asynchronous code."""
+    """Handles execution of system commands using asynchronous code,
+    allowing tasks to be queued and executed concurrently."""
 
-    async def run_command(self, command: str):
-        """Run a system command asynchronously."""
+    def __init__(self):
+        self.tasks = []
+
+    async def run_command(self, command: str, tag: str):
+        logging.info(f"[{tag}] Starting command: {command}")
         process = await asyncio.create_subprocess_shell(
             command, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
         )
-        stdout, stderr = await process.communicate()
-        if stdout:
-            logging.info(f"[STDOUT]\n{stdout.decode()}")
-        if stderr:
-            logging.error(f"[STDERR]\n{stderr.decode()}")
 
-    async def run_commands(
-        self, project_path: str, needs_pub_get: bool, needs_build_runner: bool
-    ):
-        """Manage the execution of necessary commands asynchronously."""
-        tasks = []
-        if needs_pub_get:
-            tasks.append(self.run_command(f"cd {project_path} && flutter pub get"))
-        if needs_build_runner:
-            tasks.append(
-                self.run_command(f"cd {project_path} && flutter run build_runner build")
-            )
-        await asyncio.gather(*tasks)
+        # Handle stdout
+        async for line in process.stdout:
+            logging.info(f"[{tag} STDOUT] {line.decode().strip()}")
+
+        # Handle stderr
+        async for line in process.stderr:
+            logging.error(f"[{tag} STDERR] {line.decode().strip()}")
+
+        await process.wait()  # Ensure the process has completed
+        logging.info(f"[{tag}] Completed command: {command}")
+
+    def queue_command(self, command: str, tag: str):
+        """Add a command to the queue to be executed."""
+        task = asyncio.create_task(self.run_command(command, tag))
+        self.tasks.append(task)
+
+    async def execute_commands(self):
+        """Execute all queued commands concurrently."""
+        if self.tasks:
+            await asyncio.gather(*self.tasks)
+            self.tasks = []

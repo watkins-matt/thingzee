@@ -1,5 +1,6 @@
 import os
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Dict, Optional
 
 import yaml
@@ -19,8 +20,27 @@ class ProjectFile:
     data in YAML format using structured data."""
 
     def __init__(self, filename: str):
-        self.filename = filename
+        self.filename = self.find_file_path(filename)
         self.data: Dict[str, ProjectData] = self.load()
+
+    def find_file_path(self, filename: str) -> str:
+        """Find the path to the project file in the script or current working directory."""
+        current_path = Path(filename)
+        if current_path.is_absolute():
+            return str(current_path)
+
+        # Check script directory and current working directory
+        script_directory = Path(__file__).parent
+        script_dir_path = script_directory / filename
+        current_dir_path = Path.cwd() / filename
+
+        if script_dir_path.exists():
+            return str(script_dir_path)
+        elif current_dir_path.exists():
+            return str(current_dir_path)
+
+        # Default to using the path in the script directory if file does not exist
+        return str(script_dir_path)
 
     def load(self) -> Dict[str, ProjectData]:
         """Load YAML data from the file, converting it to structured data."""
@@ -41,9 +61,8 @@ class ProjectFile:
             return {}
 
     def update_project_data(self, project_name: str, project_data: ProjectData):
-        """Update project data in memory and write to file."""
+        """Update project data in memory."""
         self.data[project_name] = project_data
-        self.save()
 
     def save(self):
         """Save the current data to the YAML file."""
