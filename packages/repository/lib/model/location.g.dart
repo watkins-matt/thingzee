@@ -10,15 +10,15 @@ Location _$LocationFromJson(Map<String, dynamic> json) => Location(
       upc: json['upc'] as String? ?? '',
       name: json['name'] as String? ?? '',
       quantity: (json['quantity'] as num?)?.toDouble() ?? 0,
-      created: _$JsonConverterFromJson<int, DateTime?>(
-          json['created'], const NullableDateTimeSerializer().fromJson),
-      updated: _$JsonConverterFromJson<int, DateTime?>(
-          json['updated'], const NullableDateTimeSerializer().fromJson),
+      created: _$JsonConverterFromJson<int, DateTime>(
+          json['created'], const DateTimeSerializer().fromJson),
+      updated: _$JsonConverterFromJson<int, DateTime>(
+          json['updated'], const DateTimeSerializer().fromJson),
     );
 
 Map<String, dynamic> _$LocationToJson(Location instance) => <String, dynamic>{
-      'created': const NullableDateTimeSerializer().toJson(instance.created),
-      'updated': const NullableDateTimeSerializer().toJson(instance.updated),
+      'created': const DateTimeSerializer().toJson(instance.created),
+      'updated': const DateTimeSerializer().toJson(instance.updated),
       'upc': instance.upc,
       'name': instance.name,
       'quantity': instance.quantity,

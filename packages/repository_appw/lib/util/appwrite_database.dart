@@ -123,7 +123,7 @@ mixin AppwriteDatabase<T extends Model> on Database<T> {
 
   @override
   List<T> getChanges(DateTime since) {
-    return values.where((item) => item.updated != null && item.updated!.isAfter(since)).toList();
+    return values.where((item) => item.updated.isAfter(since)).toList();
   }
 
   Future<DocumentList> getDocuments(List<String> queries) async {

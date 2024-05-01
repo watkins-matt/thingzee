@@ -10,11 +10,11 @@ abstract class JsonConvertible<T> {
 
 @immutable
 abstract class Model<T> implements JsonConvertible<T> {
-  @NullableDateTimeSerializer()
-  final DateTime? created;
+  @DateTimeSerializer()
+  final DateTime created;
 
-  @NullableDateTimeSerializer()
-  final DateTime? updated;
+  @DateTimeSerializer()
+  final DateTime updated;
 
   Model({DateTime? created, DateTime? updated})
       // Initialize 'created' and 'updated' date-times.
@@ -24,8 +24,8 @@ abstract class Model<T> implements JsonConvertible<T> {
       : created = _defaultDateTime(created, updated),
         updated = _defaultDateTime(updated, created);
 
-  String get uniqueKey;
   bool get isValid => uniqueKey.isNotEmpty;
+  String get uniqueKey;
 
   T copyWith({DateTime? created, DateTime? updated});
   bool equalTo(T other);

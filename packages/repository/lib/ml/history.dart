@@ -131,8 +131,8 @@ class History extends Model<History> {
   String get uniqueKey => upc;
 
   @override
-  @NullableDateTimeSerializer()
-  DateTime? get updated {
+  @DateTimeSerializer()
+  DateTime get updated {
     return lastTimestamp ?? super.updated;
   }
 

@@ -15,16 +15,16 @@ ItemTranslation _$ItemTranslationFromJson(Map<String, dynamic> json) =>
       unitName: json['unitName'] as String? ?? '',
       unitPlural: json['unitPlural'] as String? ?? '',
       type: json['type'] as String? ?? '',
-      created: _$JsonConverterFromJson<int, DateTime?>(
-          json['created'], const NullableDateTimeSerializer().fromJson),
-      updated: _$JsonConverterFromJson<int, DateTime?>(
-          json['updated'], const NullableDateTimeSerializer().fromJson),
+      created: _$JsonConverterFromJson<int, DateTime>(
+          json['created'], const DateTimeSerializer().fromJson),
+      updated: _$JsonConverterFromJson<int, DateTime>(
+          json['updated'], const DateTimeSerializer().fromJson),
     );
 
 Map<String, dynamic> _$ItemTranslationToJson(ItemTranslation instance) =>
     <String, dynamic>{
-      'created': const NullableDateTimeSerializer().toJson(instance.created),
-      'updated': const NullableDateTimeSerializer().toJson(instance.updated),
+      'created': const DateTimeSerializer().toJson(instance.created),
+      'updated': const DateTimeSerializer().toJson(instance.updated),
       'upc': instance.upc,
       'languageCode': instance.languageCode,
       'name': instance.name,

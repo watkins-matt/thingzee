@@ -11,16 +11,16 @@ ExpirationDate _$ExpirationDateFromJson(Map<String, dynamic> json) =>
       upc: json['upc'] as String? ?? '',
       expirationDate: _$JsonConverterFromJson<int, DateTime?>(
           json['expirationDate'], const NullableDateTimeSerializer().fromJson),
-      created: _$JsonConverterFromJson<int, DateTime?>(
-          json['created'], const NullableDateTimeSerializer().fromJson),
-      updated: _$JsonConverterFromJson<int, DateTime?>(
-          json['updated'], const NullableDateTimeSerializer().fromJson),
+      created: _$JsonConverterFromJson<int, DateTime>(
+          json['created'], const DateTimeSerializer().fromJson),
+      updated: _$JsonConverterFromJson<int, DateTime>(
+          json['updated'], const DateTimeSerializer().fromJson),
     );
 
 Map<String, dynamic> _$ExpirationDateToJson(ExpirationDate instance) =>
     <String, dynamic>{
-      'created': const NullableDateTimeSerializer().toJson(instance.created),
-      'updated': const NullableDateTimeSerializer().toJson(instance.updated),
+      'created': const DateTimeSerializer().toJson(instance.created),
+      'updated': const DateTimeSerializer().toJson(instance.updated),
       'upc': instance.upc,
       'expirationDate':
           const NullableDateTimeSerializer().toJson(instance.expirationDate),

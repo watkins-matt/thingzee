@@ -15,16 +15,16 @@ ReceiptItem _$ReceiptItemFromJson(Map<String, dynamic> json) => ReceiptItem(
       taxable: json['taxable'] as bool? ?? true,
       bottleDeposit: (json['bottleDeposit'] as num?)?.toDouble() ?? 0.0,
       receiptUid: json['receiptUid'] as String? ?? '',
-      created: _$JsonConverterFromJson<int, DateTime?>(
-          json['created'], const NullableDateTimeSerializer().fromJson),
-      updated: _$JsonConverterFromJson<int, DateTime?>(
-          json['updated'], const NullableDateTimeSerializer().fromJson),
+      created: _$JsonConverterFromJson<int, DateTime>(
+          json['created'], const DateTimeSerializer().fromJson),
+      updated: _$JsonConverterFromJson<int, DateTime>(
+          json['updated'], const DateTimeSerializer().fromJson),
     );
 
 Map<String, dynamic> _$ReceiptItemToJson(ReceiptItem instance) =>
     <String, dynamic>{
-      'created': const NullableDateTimeSerializer().toJson(instance.created),
-      'updated': const NullableDateTimeSerializer().toJson(instance.updated),
+      'created': const DateTimeSerializer().toJson(instance.created),
+      'updated': const DateTimeSerializer().toJson(instance.updated),
       'name': instance.name,
       'price': instance.price,
       'regularPrice': instance.regularPrice,

@@ -23,8 +23,7 @@ mixin MockDatabase<T extends Model> on Database<T> {
   List<T> getAll(List<String> ids) => ids.map((id) => db[id]).whereType<T>().toList();
 
   @override
-  List<T> getChanges(DateTime since) =>
-      all().where((item) => item.updated != null && item.updated!.isAfter(since)).toList();
+  List<T> getChanges(DateTime since) => all().where((item) => item.updated.isAfter(since)).toList();
 
   @override
   Map<String, T> map() => Map.from(db);

@@ -15,16 +15,16 @@ Invitation _$InvitationFromJson(Map<String, dynamic> json) => Invitation(
       status: json['status'] == null
           ? InvitationStatus.pending
           : const InvitationStatusSerializer().fromJson(json['status'] as int),
-      created: _$JsonConverterFromJson<int, DateTime?>(
-          json['created'], const NullableDateTimeSerializer().fromJson),
-      updated: _$JsonConverterFromJson<int, DateTime?>(
-          json['updated'], const NullableDateTimeSerializer().fromJson),
+      created: _$JsonConverterFromJson<int, DateTime>(
+          json['created'], const DateTimeSerializer().fromJson),
+      updated: _$JsonConverterFromJson<int, DateTime>(
+          json['updated'], const DateTimeSerializer().fromJson),
     );
 
 Map<String, dynamic> _$InvitationToJson(Invitation instance) =>
     <String, dynamic>{
-      'created': const NullableDateTimeSerializer().toJson(instance.created),
-      'updated': const NullableDateTimeSerializer().toJson(instance.updated),
+      'created': const DateTimeSerializer().toJson(instance.created),
+      'updated': const DateTimeSerializer().toJson(instance.updated),
       'uniqueKey': instance.uniqueKey,
       'householdId': instance.householdId,
       'inviterEmail': instance.inviterEmail,

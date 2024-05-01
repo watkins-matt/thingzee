@@ -52,9 +52,6 @@ class Inventory extends Model<Inventory> {
 
   History get history => ModelProvider<History>().get(upc, History(upc: upc));
 
-  @override
-  String get uniqueKey => upc;
-
   bool get isPredictedOut {
     return predictedAmount <= 0;
   }
@@ -62,7 +59,7 @@ class Inventory extends Model<Inventory> {
   Item get item => ModelProvider<Item>().get(upc, Item(upc: upc));
 
   String get lastUpdatedString {
-    return updated != null ? DateFormat.yMMMd().format(updated!) : 'Never';
+    return DateFormat.yMMMd().format(updated);
   }
 
   String get minutesToReduceByOneString {
@@ -146,17 +143,20 @@ class Inventory extends Model<Inventory> {
   }
 
   Duration get timeSinceLastUpdate {
-    assert(updated != null && updated != DateTime.fromMillisecondsSinceEpoch(0));
-    return DateTime.now().difference(updated!);
+    assert(updated != DateTime.fromMillisecondsSinceEpoch(0));
+    return DateTime.now().difference(updated);
   }
 
   String get timeSinceLastUpdateString {
-    if (updated != null && updated != DateTime.fromMillisecondsSinceEpoch(0)) {
+    if (updated != DateTime.fromMillisecondsSinceEpoch(0)) {
       return 'Amount updated ${timeSinceLastUpdate.toHumanReadableString()} ago.';
     } else {
       return 'Amount not updated recently.';
     }
   }
+
+  @override
+  String get uniqueKey => upc;
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   double get units {

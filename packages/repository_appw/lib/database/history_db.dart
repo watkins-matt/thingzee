@@ -43,8 +43,8 @@ class AppwriteHistoryDatabase extends HistoryDatabase
     Map<String, dynamic> serialized = {
       'userId': userId,
       'upc': history.upc,
-      'created': history.created?.millisecondsSinceEpoch ?? DateTime.now().millisecondsSinceEpoch,
-      'updated': history.updated?.millisecondsSinceEpoch ?? DateTime.now().millisecondsSinceEpoch,
+      'created': history.created.millisecondsSinceEpoch,
+      'updated': history.updated.millisecondsSinceEpoch,
       'json': jsonEncode(history.toJson())
     };
 

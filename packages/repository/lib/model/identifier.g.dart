@@ -10,16 +10,16 @@ Identifier _$IdentifierFromJson(Map<String, dynamic> json) => Identifier(
       type: json['type'] as String? ?? '',
       value: json['value'] as String? ?? '',
       uid: json['uid'] as String? ?? '',
-      created: _$JsonConverterFromJson<int, DateTime?>(
-          json['created'], const NullableDateTimeSerializer().fromJson),
-      updated: _$JsonConverterFromJson<int, DateTime?>(
-          json['updated'], const NullableDateTimeSerializer().fromJson),
+      created: _$JsonConverterFromJson<int, DateTime>(
+          json['created'], const DateTimeSerializer().fromJson),
+      updated: _$JsonConverterFromJson<int, DateTime>(
+          json['updated'], const DateTimeSerializer().fromJson),
     );
 
 Map<String, dynamic> _$IdentifierToJson(Identifier instance) =>
     <String, dynamic>{
-      'created': const NullableDateTimeSerializer().toJson(instance.created),
-      'updated': const NullableDateTimeSerializer().toJson(instance.updated),
+      'created': const DateTimeSerializer().toJson(instance.created),
+      'updated': const DateTimeSerializer().toJson(instance.updated),
       'type': instance.type,
       'value': instance.value,
       'uid': instance.uid,

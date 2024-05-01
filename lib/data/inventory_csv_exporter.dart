@@ -60,7 +60,7 @@ extension on Inventory {
       'upc': upc.normalizeUPC(),
       'name': item.name,
       'quantity': amount,
-      'update_date': updated != null ? updated!.millisecondsSinceEpoch : '',
+      'update_date': updated.millisecondsSinceEpoch,
       'consumable': item.consumable ? 1 : 0,
       'unit_count': item.unitCount,
       'category': item.category,
@@ -68,7 +68,7 @@ extension on Inventory {
       'name_unit': item.unitName != 'Package' ? item.unitName : '',
       'name_unit_plural': item.unitPlural != 'Packages' ? item.unitPlural : '',
       'restock': restock ? 1 : 0,
-      'created_date': created != null ? created!.millisecondsSinceEpoch : '',
+      'created_date': created.millisecondsSinceEpoch,
     };
 
     return headers.map((header) => map[header]).toList();
