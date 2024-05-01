@@ -1,4 +1,6 @@
 import os
+import re
+from pathlib import Path
 
 import yaml
 
@@ -10,7 +12,7 @@ class ProjectScanner:
     """Scans directories to find projects and their relevant files."""
 
     def __init__(self, base_directory: str):
-        self.base_directory = base_directory
+        self.base_directory = Path(base_directory).resolve()
 
     def scan_projects(self) -> dict:
         """Walk through directories and collect file data, then save it using YamlProjectFile."""
@@ -61,7 +63,7 @@ class ProjectScanner:
         return projects
 
     def find_dart_files(self, directory, all_files):
-        """Identify and process .dart files based on associated generated files."""
+        """Identify and process .dart files based on associated generated files or part directive."""
         dart_files = {}
         dart_file_paths = [file for file in all_files if file.endswith(".dart")]
 
@@ -85,6 +87,12 @@ class ProjectScanner:
         for base_name, base_path in base_files.items():
             if base_name in generated_files:
                 dart_files[base_path] = FileHasher.generate_hash(base_path)
+            else:
+                # Check if the base file contains a part directive
+                with open(base_path, "r") as file:
+                    content = file.read()
+                if re.search(r"part\s+'[\w./]+\.\w+\.dart'", content):
+                    dart_files[base_path] = FileHasher.generate_hash(base_path)
 
         # Handle orphan generated files
         for gen_base_name, gen_path in generated_files.items():

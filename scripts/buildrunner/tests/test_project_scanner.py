@@ -37,7 +37,7 @@ def base_directory(tmp_path):
 
 def test_find_dart_files(base_directory):
     # Initialize ProjectScanner with None or a mock for yaml_project_file
-    scanner = project_scanner.ProjectScanner(str(base_directory), None)
+    scanner = project_scanner.ProjectScanner(str(base_directory))
     all_files = []
     for root, _dirs, files in os.walk(str(base_directory)):
         all_files.extend(
