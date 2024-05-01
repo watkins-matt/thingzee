@@ -6,19 +6,9 @@ part of 'identifier.hive.dart';
 // TypeAdapterGenerator
 // **************************************************************************
 
-class HiveItemIdentifierAdapter extends TypeAdapter<HiveIdentifier> {
+class HiveIdentifierAdapter extends TypeAdapter<HiveIdentifier> {
   @override
   final int typeId = 0;
-
-  @override
-  int get hashCode => typeId.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is HiveItemIdentifierAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
 
   @override
   HiveIdentifier read(BinaryReader reader) {
@@ -49,4 +39,14 @@ class HiveItemIdentifierAdapter extends TypeAdapter<HiveIdentifier> {
       ..writeByte(4)
       ..write(obj.uid);
   }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is HiveIdentifierAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
 }

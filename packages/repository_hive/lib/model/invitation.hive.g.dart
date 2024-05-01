@@ -19,7 +19,7 @@ class HiveInvitationAdapter extends TypeAdapter<HiveInvitation> {
     return HiveInvitation()
       ..created = fields[0] as DateTime?
       ..updated = fields[1] as DateTime?
-      ..id = fields[2] as String
+      ..uniqueKey = fields[2] as String
       ..householdId = fields[3] as String
       ..inviterEmail = fields[4] as String
       ..inviterUserId = fields[5] as String
@@ -36,7 +36,7 @@ class HiveInvitationAdapter extends TypeAdapter<HiveInvitation> {
       ..writeByte(1)
       ..write(obj.updated)
       ..writeByte(2)
-      ..write(obj.id)
+      ..write(obj.uniqueKey)
       ..writeByte(3)
       ..write(obj.householdId)
       ..writeByte(4)

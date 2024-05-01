@@ -22,15 +22,14 @@ class Store extends Model<Store> {
   final String zipcode;
 
   Store({
-    String? phoneNumber,
+    String phoneNumber = '',
     this.name = '',
     this.city = '',
     this.state = '',
     this.zipcode = '',
     super.created,
     super.updated,
-  }) : phoneNumber =
-            phoneNumber != null && phoneNumber.isNotEmpty ? normalizePhoneNumber(phoneNumber) : '';
+  }) : phoneNumber = phoneNumber.isNotEmpty ? normalizePhoneNumber(phoneNumber) : '';
 
   factory Store.fromJson(Map<String, dynamic> json) => _$StoreFromJson(json);
 

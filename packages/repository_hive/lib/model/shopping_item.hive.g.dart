@@ -19,25 +19,40 @@ class HiveShoppingItemAdapter extends TypeAdapter<HiveShoppingItem> {
     return HiveShoppingItem()
       ..created = fields[0] as DateTime?
       ..updated = fields[1] as DateTime?
-      ..upc = fields[2] as String
-      ..checked = fields[3] as bool
-      ..listType = fields[4] as ShoppingListType;
+      ..uid = fields[2] as String
+      ..upc = fields[3] as String
+      ..name = fields[4] as String
+      ..category = fields[5] as String
+      ..price = fields[6] as double
+      ..quantity = fields[7] as int
+      ..checked = fields[8] as bool
+      ..listName = fields[9] as String;
   }
 
   @override
   void write(BinaryWriter writer, HiveShoppingItem obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(10)
       ..writeByte(0)
       ..write(obj.created)
       ..writeByte(1)
       ..write(obj.updated)
       ..writeByte(2)
-      ..write(obj.upc)
+      ..write(obj.uid)
       ..writeByte(3)
-      ..write(obj.checked)
+      ..write(obj.upc)
       ..writeByte(4)
-      ..write(obj.listType);
+      ..write(obj.name)
+      ..writeByte(5)
+      ..write(obj.category)
+      ..writeByte(6)
+      ..write(obj.price)
+      ..writeByte(7)
+      ..write(obj.quantity)
+      ..writeByte(8)
+      ..write(obj.checked)
+      ..writeByte(9)
+      ..write(obj.listName);
   }
 
   @override
