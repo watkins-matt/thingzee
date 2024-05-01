@@ -5,6 +5,7 @@ import 'package:repository/database/identifier_database.dart';
 import 'package:repository/merge_generator.dart';
 import 'package:repository/model/abstract/model.dart';
 import 'package:repository/model/receipt_item.dart';
+import 'package:repository/model/serializer_datetime.dart';
 import 'package:util/extension/date_time.dart';
 import 'package:util/extension/list.dart';
 import 'package:uuid/uuid.dart';
@@ -19,6 +20,7 @@ class Receipt extends Model<Receipt> {
   @JsonKey(defaultValue: [])
   final List<ReceiptItem> items; // generator:transient
 
+  @NullableDateTimeSerializer()
   @JsonKey(defaultValue: null)
   final DateTime? date;
 

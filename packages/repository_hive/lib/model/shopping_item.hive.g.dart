@@ -17,8 +17,8 @@ class HiveShoppingItemAdapter extends TypeAdapter<HiveShoppingItem> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return HiveShoppingItem()
-      ..created = fields[0] as DateTime?
-      ..updated = fields[1] as DateTime?
+      ..created = fields[0] as DateTime
+      ..updated = fields[1] as DateTime
       ..uid = fields[2] as String
       ..upc = fields[3] as String
       ..name = fields[4] as String

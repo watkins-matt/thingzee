@@ -1,52 +1,49 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'product.hive.dart';
+part of 'place.hive.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator
 // **************************************************************************
 
-class HiveProductAdapter extends TypeAdapter<HiveProduct> {
+class HivePlaceAdapter extends TypeAdapter<HivePlace> {
   @override
   final int typeId = 0;
 
   @override
-  HiveProduct read(BinaryReader reader) {
+  HivePlace read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return HiveProduct()
+    return HivePlace()
       ..created = fields[0] as DateTime
       ..updated = fields[1] as DateTime
-      ..name = fields[2] as String
-      ..uid = fields[3] as String
-      ..manufacturer = fields[4] as String
-      ..manufacturerUid = fields[5] as String
-      ..category = fields[6] as String
-      ..upcs = (fields[7] as List).cast<String>();
+      ..phoneNumber = fields[2] as String
+      ..name = fields[3] as String
+      ..city = fields[4] as String
+      ..state = fields[5] as String
+      ..zipcode = fields[6] as String;
   }
 
   @override
-  void write(BinaryWriter writer, HiveProduct obj) {
+  void write(BinaryWriter writer, HivePlace obj) {
     writer
-      ..writeByte(8)
+      ..writeByte(7)
       ..writeByte(0)
       ..write(obj.created)
       ..writeByte(1)
       ..write(obj.updated)
       ..writeByte(2)
-      ..write(obj.name)
+      ..write(obj.phoneNumber)
       ..writeByte(3)
-      ..write(obj.uid)
+      ..write(obj.name)
       ..writeByte(4)
-      ..write(obj.manufacturer)
+      ..write(obj.city)
       ..writeByte(5)
-      ..write(obj.manufacturerUid)
+      ..write(obj.state)
       ..writeByte(6)
-      ..write(obj.category)
-      ..writeByte(7)
-      ..write(obj.upcs);
+      ..write(obj.zipcode);
   }
 
   @override
@@ -55,7 +52,7 @@ class HiveProductAdapter extends TypeAdapter<HiveProduct> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is HiveProductAdapter &&
+      other is HivePlaceAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

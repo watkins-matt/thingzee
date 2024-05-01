@@ -10,9 +10,9 @@ class ObjectBoxInventory extends ObjectBoxModel<Inventory> {
   @Id()
   int objectBoxId = 0;
   @Property(type: PropertyType.date)
-  late DateTime? created;
+  late DateTime created;
   @Property(type: PropertyType.date)
-  late DateTime? updated;
+  late DateTime updated;
   late double amount;
   late int unitCount;
   List<String> locations = [];
@@ -68,10 +68,10 @@ class ObjectBoxInventory extends ObjectBoxModel<Inventory> {
   }
 
   int get dbLastUpdate {
-    return updated != null ? updated!.millisecondsSinceEpoch : 0;
+    return updated.millisecondsSinceEpoch;
   }
 
   set dbLastUpdate(int value) {
-    updated = value != 0 ? DateTime.fromMillisecondsSinceEpoch(value) : null;
+    updated = DateTime.fromMillisecondsSinceEpoch(value);
   }
 }

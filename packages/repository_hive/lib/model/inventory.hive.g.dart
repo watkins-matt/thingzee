@@ -17,8 +17,8 @@ class HiveInventoryAdapter extends TypeAdapter<HiveInventory> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return HiveInventory()
-      ..created = fields[0] as DateTime?
-      ..updated = fields[1] as DateTime?
+      ..created = fields[0] as DateTime
+      ..updated = fields[1] as DateTime
       ..amount = fields[2] as double
       ..unitCount = fields[3] as int
       ..locations = (fields[4] as List).cast<String>()

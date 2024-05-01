@@ -9,9 +9,9 @@ part 'invitation.hive.g.dart';
 @HiveType(typeId: 0)
 class HiveInvitation extends HiveObject {
   @HiveField(0)
-  late DateTime? created;
+  late DateTime created;
   @HiveField(1)
-  late DateTime? updated;
+  late DateTime updated;
   @HiveField(2)
   late String uniqueKey;
   @HiveField(3)

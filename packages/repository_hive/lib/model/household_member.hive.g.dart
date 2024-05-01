@@ -17,8 +17,8 @@ class HiveHouseholdMemberAdapter extends TypeAdapter<HiveHouseholdMember> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return HiveHouseholdMember()
-      ..created = fields[0] as DateTime?
-      ..updated = fields[1] as DateTime?
+      ..created = fields[0] as DateTime
+      ..updated = fields[1] as DateTime
       ..isAdmin = fields[2] as bool
       ..email = fields[3] as String
       ..householdId = fields[4] as String

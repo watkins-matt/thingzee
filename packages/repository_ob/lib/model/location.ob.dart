@@ -10,9 +10,9 @@ class ObjectBoxLocation extends ObjectBoxModel<Location> {
   @Id()
   int objectBoxId = 0;
   @Property(type: PropertyType.date)
-  late DateTime? created;
+  late DateTime created;
   @Property(type: PropertyType.date)
-  late DateTime? updated;
+  late DateTime updated;
   late String upc;
   late String name;
   late double? quantity;

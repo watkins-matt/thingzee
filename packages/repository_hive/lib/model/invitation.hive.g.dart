@@ -17,8 +17,8 @@ class HiveInvitationAdapter extends TypeAdapter<HiveInvitation> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return HiveInvitation()
-      ..created = fields[0] as DateTime?
-      ..updated = fields[1] as DateTime?
+      ..created = fields[0] as DateTime
+      ..updated = fields[1] as DateTime
       ..uniqueKey = fields[2] as String
       ..householdId = fields[3] as String
       ..inviterEmail = fields[4] as String

@@ -10,9 +10,9 @@ class ObjectBoxHouseholdMember extends ObjectBoxModel<HouseholdMember> {
   @Id()
   int objectBoxId = 0;
   @Property(type: PropertyType.date)
-  late DateTime? created;
+  late DateTime created;
   @Property(type: PropertyType.date)
-  late DateTime? updated;
+  late DateTime updated;
   late bool isAdmin;
   late String email;
   late String householdId;

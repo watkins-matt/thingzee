@@ -21,9 +21,9 @@ set dbExpirationDates(List<String> dates) {
 }
 
 int get dbLastUpdate {
-  return updated != null ? updated!.millisecondsSinceEpoch : 0;
+  return updated.millisecondsSinceEpoch;
 }
 
 set dbLastUpdate(int value) {
-  updated = value != 0 ? DateTime.fromMillisecondsSinceEpoch(value) : null;
+  updated = DateTime.fromMillisecondsSinceEpoch(value);
 }

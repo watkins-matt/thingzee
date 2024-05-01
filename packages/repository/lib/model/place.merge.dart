@@ -1,10 +1,10 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'store.dart';
+part of 'place.dart';
 
-Store _$mergeStore(Store first, Store second) {
+Place _$mergePlace(Place first, Place second) {
   final newer = first.updated.newer(second.updated) == first.updated ? first : second;
-  var merged = Store(
+  var merged = Place(
     phoneNumber: newer.phoneNumber.isNotEmpty ? newer.phoneNumber : first.phoneNumber,
     name: newer.name.isNotEmpty ? newer.name : first.name,
     city: newer.city.isNotEmpty ? newer.city : first.city,

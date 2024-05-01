@@ -2,11 +2,11 @@
 
 
 import 'package:objectbox/objectbox.dart';
-import 'package:repository/model/expiration_date.dart';
+import 'package:repository/model/audit_task.dart';
 import 'package:repository_ob/model_custom/object_box_model.dart';
 
 @Entity()
-class ObjectBoxExpirationDate extends ObjectBoxModel<ExpirationDate> {
+class ObjectBoxAuditTask extends ObjectBoxModel<AuditTask> {
   @Id()
   int objectBoxId = 0;
   @Property(type: PropertyType.date)
@@ -14,20 +14,29 @@ class ObjectBoxExpirationDate extends ObjectBoxModel<ExpirationDate> {
   @Property(type: PropertyType.date)
   late DateTime updated;
   late String upc;
+  late String type;
+  late String data;
+  late String uid;
   @Property(type: PropertyType.date)
-  late DateTime? expirationDate;
-  ObjectBoxExpirationDate();
-  ObjectBoxExpirationDate.from(ExpirationDate original) {
+  late DateTime? completed;
+  ObjectBoxAuditTask();
+  ObjectBoxAuditTask.from(AuditTask original) {
     created = original.created;
     updated = original.updated;
     upc = original.upc;
-    expirationDate = original.expirationDate;
+    type = original.type;
+    data = original.data;
+    uid = original.uid;
+    completed = original.completed;
   }
-  ExpirationDate convert() {
-    return ExpirationDate(
+  AuditTask convert() {
+    return AuditTask(
         created: created,
         updated: updated,
         upc: upc,
-        expirationDate: expirationDate);
+        type: type,
+        data: data,
+        uid: uid,
+        completed: completed);
   }
 }

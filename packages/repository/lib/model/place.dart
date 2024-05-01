@@ -2,10 +2,11 @@ import 'package:json_annotation/json_annotation.dart';
 import 'package:meta/meta.dart';
 import 'package:repository/merge_generator.dart';
 import 'package:repository/model/abstract/model.dart';
+import 'package:repository/model/serializer_datetime.dart';
 import 'package:util/extension/date_time.dart';
 
-part 'store.g.dart';
-part 'store.merge.dart';
+part 'place.g.dart';
+part 'place.merge.dart';
 
 String normalizePhoneNumber(String phoneNumber) {
   return phoneNumber.replaceAll(RegExp(r'[^\d]'), '');
@@ -14,14 +15,14 @@ String normalizePhoneNumber(String phoneNumber) {
 @immutable
 @Mergeable()
 @JsonSerializable(explicitToJson: true)
-class Store extends Model<Store> {
+class Place extends Model<Place> {
   final String phoneNumber;
   final String name;
   final String city;
   final String state;
   final String zipcode;
 
-  Store({
+  Place({
     String phoneNumber = '',
     this.name = '',
     this.city = '',
@@ -31,13 +32,13 @@ class Store extends Model<Store> {
     super.updated,
   }) : phoneNumber = phoneNumber.isNotEmpty ? normalizePhoneNumber(phoneNumber) : '';
 
-  factory Store.fromJson(Map<String, dynamic> json) => _$StoreFromJson(json);
+  factory Place.fromJson(Map<String, dynamic> json) => _$PlaceFromJson(json);
 
   @override
   String get uniqueKey => phoneNumber;
 
   @override
-  Store copyWith(
+  Place copyWith(
       {String? phoneNumber,
       String? name,
       String? city,
@@ -45,7 +46,7 @@ class Store extends Model<Store> {
       String? zipcode,
       DateTime? created,
       DateTime? updated}) {
-    return Store(
+    return Place(
       phoneNumber: phoneNumber ?? this.phoneNumber,
       name: name ?? this.name,
       city: city ?? this.city,
@@ -57,7 +58,7 @@ class Store extends Model<Store> {
   }
 
   @override
-  bool equalTo(Store other) {
+  bool equalTo(Place other) {
     return phoneNumber == other.phoneNumber &&
         name == other.name &&
         city == other.city &&
@@ -66,8 +67,8 @@ class Store extends Model<Store> {
   }
 
   @override
-  Store merge(Store other) => _$mergeStore(this, other);
+  Place merge(Place other) => _$mergePlace(this, other);
 
   @override
-  Map<String, dynamic> toJson() => _$StoreToJson(this);
+  Map<String, dynamic> toJson() => _$PlaceToJson(this);
 }

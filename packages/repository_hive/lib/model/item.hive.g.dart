@@ -17,8 +17,8 @@ class HiveItemAdapter extends TypeAdapter<HiveItem> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return HiveItem()
-      ..created = fields[0] as DateTime?
-      ..updated = fields[1] as DateTime?
+      ..created = fields[0] as DateTime
+      ..updated = fields[1] as DateTime
       ..upc = fields[2] as String
       ..uid = fields[3] as String
       ..name = fields[4] as String

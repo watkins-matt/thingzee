@@ -17,8 +17,8 @@ class HiveLocationAdapter extends TypeAdapter<HiveLocation> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return HiveLocation()
-      ..created = fields[0] as DateTime?
-      ..updated = fields[1] as DateTime?
+      ..created = fields[0] as DateTime
+      ..updated = fields[1] as DateTime
       ..upc = fields[2] as String
       ..name = fields[3] as String
       ..quantity = fields[4] as double?;

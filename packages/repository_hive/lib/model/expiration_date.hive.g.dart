@@ -17,8 +17,8 @@ class HiveExpirationDateAdapter extends TypeAdapter<HiveExpirationDate> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return HiveExpirationDate()
-      ..created = fields[0] as DateTime?
-      ..updated = fields[1] as DateTime?
+      ..created = fields[0] as DateTime
+      ..updated = fields[1] as DateTime
       ..upc = fields[2] as String
       ..expirationDate = fields[3] as DateTime?;
   }

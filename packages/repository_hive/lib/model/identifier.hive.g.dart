@@ -17,8 +17,8 @@ class HiveIdentifierAdapter extends TypeAdapter<HiveIdentifier> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return HiveIdentifier()
-      ..created = fields[0] as DateTime?
-      ..updated = fields[1] as DateTime?
+      ..created = fields[0] as DateTime
+      ..updated = fields[1] as DateTime
       ..type = fields[2] as String
       ..value = fields[3] as String
       ..uid = fields[4] as String;

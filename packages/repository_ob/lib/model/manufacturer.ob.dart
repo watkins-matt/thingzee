@@ -10,9 +10,9 @@ class ObjectBoxManufacturer extends ObjectBoxModel<Manufacturer> {
   @Id()
   int objectBoxId = 0;
   @Property(type: PropertyType.date)
-  late DateTime? created;
+  late DateTime created;
   @Property(type: PropertyType.date)
-  late DateTime? updated;
+  late DateTime updated;
   late String name;
   late String website;
   late String uid;

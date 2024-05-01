@@ -10,9 +10,9 @@ class ObjectBoxItemTranslation extends ObjectBoxModel<ItemTranslation> {
   @Id()
   int objectBoxId = 0;
   @Property(type: PropertyType.date)
-  late DateTime? created;
+  late DateTime created;
   @Property(type: PropertyType.date)
-  late DateTime? updated;
+  late DateTime updated;
   @Unique(onConflict: ConflictStrategy.replace)
   late String upc;
   late String languageCode;

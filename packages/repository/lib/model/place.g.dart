@@ -1,12 +1,12 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'store.dart';
+part of 'place.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-Store _$StoreFromJson(Map<String, dynamic> json) => Store(
+Place _$PlaceFromJson(Map<String, dynamic> json) => Place(
       phoneNumber: json['phoneNumber'] as String? ?? '',
       name: json['name'] as String? ?? '',
       city: json['city'] as String? ?? '',
@@ -18,7 +18,7 @@ Store _$StoreFromJson(Map<String, dynamic> json) => Store(
           json['updated'], const DateTimeSerializer().fromJson),
     );
 
-Map<String, dynamic> _$StoreToJson(Store instance) => <String, dynamic>{
+Map<String, dynamic> _$PlaceToJson(Place instance) => <String, dynamic>{
       'created': const DateTimeSerializer().toJson(instance.created),
       'updated': const DateTimeSerializer().toJson(instance.updated),
       'phoneNumber': instance.phoneNumber,

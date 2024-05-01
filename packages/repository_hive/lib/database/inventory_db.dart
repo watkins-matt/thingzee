@@ -46,10 +46,8 @@ class HiveInventoryDatabase extends InventoryDatabase {
 
   @override
   List<Inventory> getChanges(DateTime since) {
-    final changedItems = box.values
-        .where((hiveInventory) =>
-            hiveInventory.updated != null && hiveInventory.updated!.isAfter(since))
-        .toList();
+    final changedItems =
+        box.values.where((hiveInventory) => hiveInventory.updated.isAfter(since)).toList();
     return changedItems.map((hiveInventory) => hiveInventory.convert()).toList();
   }
 

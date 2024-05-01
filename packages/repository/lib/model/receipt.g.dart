@@ -11,8 +11,8 @@ Receipt _$ReceiptFromJson(Map<String, dynamic> json) => Receipt(
               ?.map((e) => ReceiptItem.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
-      date:
-          json['date'] == null ? null : DateTime.parse(json['date'] as String),
+      date: _$JsonConverterFromJson<int, DateTime?>(
+          json['date'], const NullableDateTimeSerializer().fromJson),
       subtotal: (json['subtotal'] as num?)?.toDouble() ?? 0.0,
       discounts: (json['discounts'] as List<dynamic>?)
               ?.map((e) => (e as num).toDouble())
@@ -32,7 +32,7 @@ Map<String, dynamic> _$ReceiptToJson(Receipt instance) => <String, dynamic>{
       'created': const DateTimeSerializer().toJson(instance.created),
       'updated': const DateTimeSerializer().toJson(instance.updated),
       'items': instance.items,
-      'date': instance.date?.toIso8601String(),
+      'date': const NullableDateTimeSerializer().toJson(instance.date),
       'subtotal': instance.subtotal,
       'discounts': instance.discounts,
       'tax': instance.tax,

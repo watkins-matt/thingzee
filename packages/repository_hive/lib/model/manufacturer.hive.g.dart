@@ -17,8 +17,8 @@ class HiveManufacturerAdapter extends TypeAdapter<HiveManufacturer> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return HiveManufacturer()
-      ..created = fields[0] as DateTime?
-      ..updated = fields[1] as DateTime?
+      ..created = fields[0] as DateTime
+      ..updated = fields[1] as DateTime
       ..name = fields[2] as String
       ..website = fields[3] as String
       ..uid = fields[4] as String

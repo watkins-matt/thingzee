@@ -10,9 +10,9 @@ class ObjectBoxInvitation extends ObjectBoxModel<Invitation> {
   @Id()
   int objectBoxId = 0;
   @Property(type: PropertyType.date)
-  late DateTime? created;
+  late DateTime created;
   @Property(type: PropertyType.date)
-  late DateTime? updated;
+  late DateTime updated;
   late String uniqueKey;
   late String householdId;
   late String inviterEmail;
