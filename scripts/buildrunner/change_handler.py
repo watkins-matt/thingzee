@@ -2,6 +2,7 @@ import asyncio
 import logging
 import time
 from asyncio import AbstractEventLoop
+from pathlib import Path
 
 from watchdog.events import FileSystemEventHandler
 
@@ -36,6 +37,14 @@ class ChangeHandler(FileSystemEventHandler):
 
         # We don't want to re-run the project manager on generated files
         if event.src_path.endswith(".merge.dart") or event.src_path.endswith(".g.dart"):
+            return
+
+        # Calculate relative path from the base directory
+        relative_path = (Path(event.src_path).resolve().
+            relative_to(self.project_manager.base_directory))
+
+        # Ignore modifications in any hidden directories below the base directory
+        if any(part.startswith('.') for part in relative_path.parts):
             return
 
         current_time = time.time()
