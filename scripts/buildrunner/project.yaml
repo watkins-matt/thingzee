@@ -1,0 +1,98 @@
+thingzee:
+  pubspec_path: pubspec.yaml
+  pubspec_hash: 19d373c7bc0e82682df55a198bc7903ddd197fd508797eefafc8bb3506fa088d
+kmeans_cluster:
+  pubspec_path: packages\kmeans_cluster\pubspec.yaml
+  pubspec_hash: 8614399b821e1cb827893bca8cae0cf803f956a111224cb113cccd0b9ca73a38
+log:
+  pubspec_path: packages\log\pubspec.yaml
+  pubspec_hash: 8fddb23899247be5fafc7efa9437c58a314b1542be89e80f590f1294cd4ba866
+mealie_api:
+  pubspec_path: packages\mealie_api\pubspec.yaml
+  pubspec_hash: 679e6b83239159de3511306f141f3ec1f8e68456ec1a2239bd28c132c00d37ae
+  files:
+    packages\mealie_api\lib\mealie_api.dart: f38d2f3624410a7f8524ea505788f8a72779f6d975d53526884467fdf3fa8099
+receipt_ocr:
+  pubspec_path: packages\receipt_ocr\pubspec.yaml
+  pubspec_hash: 3c96e64df54364de24bdd1be053a455d2498bbde9f09b026ba2bd657efe96a1d
+receipt_parser:
+  pubspec_path: packages\receipt_parser\pubspec.yaml
+  pubspec_hash: 1eb5cef7249ee3de54a76e9715f3b6265c32d7b2c6de207487127b3e6487fb3e
+repository:
+  pubspec_path: packages\repository\pubspec.yaml
+  pubspec_hash: a4ab8441649c20dec8373423a9ddadd1158259107408335778f85726c182eef5
+  files:
+    packages\repository\lib\ml\history.dart: 799f87ea4b2171c9f1077ab077eb046f8e76454ef7cb2a1f67d0705856f4e9de
+    packages\repository\lib\ml\history_series.dart: 539093d2edbccaa8278b1d13bd868fd24bb88053ef6cc6b7929a980a68b30dbc
+    packages\repository\lib\ml\observation.dart: d0ef6087f62a53c0e987205d9c4fc00dc0a3aeb0bf981ff18859fd1eccd85be6
+    packages\repository\lib\model\expiration_date.dart: 947349c36ab7128ea3d679b47062534001ffa866478e9e90172f77b8f609211b
+    packages\repository\lib\model\household_member.dart: 083bc424735fb498f779aea3ff25c3384f1306225fcfe992d24ba52e072cdea5
+    packages\repository\lib\model\identifier.dart: e28dd49c223dc1575eca016dd4cf63a358611db7569ef55ed679e51687005f0d
+    packages\repository\lib\model\inventory.dart: 377dee93ba950db0906f4bd18031b697f4fb31fc57ac492a2314fca5614ba487
+    packages\repository\lib\model\invitation.dart: be1c808a428249b96ff64161597430b921d71504fa9e6c2bc03653ad7fb6c20f
+    packages\repository\lib\model\item.dart: e02ff35be2d55ee86f6aacc7deec95091a04fa6c7cd4de53925835b85a0d1394
+    packages\repository\lib\model\item_translation.dart: 1ace0049b1cec094cbb0237e9df434a128d940ea72b6080e4ff5bdcc51dd749f
+    packages\repository\lib\model\location.dart: 4d06d43c801edc1f44511ce001a2055f928794d87554c7b66da076fce52de33a
+    packages\repository\lib\model\manufacturer.dart: 55b5220739b9df658a66d445087516452b729cc55672b2575d192571b8ee5408
+    packages\repository\lib\model\product.dart: 86ab144a23758742d27ca60556292ee8c855ee81b17b203b7e71011b4cabd0bf
+    packages\repository\lib\model\receipt.dart: 8d3460bc206cd71b94d04015ddf9939961588a26d38be53fc6d61052fd86f750
+    packages\repository\lib\model\receipt_item.dart: 47bf218719fd9d3261066561e693e619e473a1ed66a8c3d8035069cc23f3bf3b
+    packages\repository\lib\model\shopping_item.dart: 9a0c0b97ee28eb3177ede1b81afba6e2e27d9d0aca9d5be06c8775e75033ef83
+    packages\repository\lib\model\store.dart: d2a66c91951acfa0fca49ee0534bc9f2b192f7789b70e256140cc0afe6d81235
+repository_appw:
+  pubspec_path: packages\repository_appw\pubspec.yaml
+  pubspec_hash: d0ca849ca6c39672854557b58c51906810e972b830dd95b85abc25c15a02da79
+repository_ha:
+  pubspec_path: packages\repository_ha\pubspec.yaml
+  pubspec_hash: f7fefbdec5fe7742ad1b15759152167dc142df55f145c9cb0df09239713de42f
+repository_hive:
+  pubspec_path: packages\repository_hive\pubspec.yaml
+  pubspec_hash: 9c9dc194ca8af28034319e6f678e5a9170902b2ed7314fcf8c2d739418ddc31d
+  files:
+    packages\repository_hive\lib\model\expiration_date.hive.dart: e90e5a497c90efc694f26cb5c5c70f3b77fd70b9eef06c5d798506f6bceffde6
+    packages\repository_hive\lib\model\expiration_date.hive.g.dart: 2d3a5a78e9c7fa417fc998b30d1ada4dfedc30ccc4d742fdaed4e06f067e1e61
+    packages\repository_hive\lib\model\household_member.hive.dart: e4eb387f8277cd32db9319eb39b99d7ac670336f5b8ce0da92894bfdc6768a4d
+    packages\repository_hive\lib\model\household_member.hive.g.dart: 6989c3d62319c1422a9710b7a9192a65a7fb954ac09695c84f818106131e49c5
+    packages\repository_hive\lib\model\identifier.hive.dart: 6d7ac00903510b698ad1ddf266047785c4891de098b20c9d250420b8d9c888d9
+    packages\repository_hive\lib\model\identifier.hive.g.dart: 18e131e4659f1c61b4b5043dbad084277958b8a8ef8565400e90ca6520be7063
+    packages\repository_hive\lib\model\inventory.hive.dart: 83385d2e2bc427d930b5c2e02a4fc06a2d17c1379bbcd894c00340efd1c4ac01
+    packages\repository_hive\lib\model\inventory.hive.g.dart: 619af7643e0c4eb1d876a306639beba23a5e5274caea7771a9a1f48b3d074f22
+    packages\repository_hive\lib\model\invitation.hive.dart: 6b3b22994b7db5c7af1ce045a4b33b4a36b8adb29d49a5330de5e61197b8ea99
+    packages\repository_hive\lib\model\invitation.hive.g.dart: 836bba4029f49e1390e112da7127ae7e946add91e2c6cc8ecc84681cf534b489
+    packages\repository_hive\lib\model\item.hive.dart: 5bbdfb257889a22a46bea298c498313dac946e1c6c4fbd6a7097c748718ee17f
+    packages\repository_hive\lib\model\item.hive.g.dart: 500893dbfe867c877829c39664067af95ea5e190852699da2a452cd6ec2de440
+    packages\repository_hive\lib\model\item_translation.hive.dart: 9276911452b895d2dc9c156bde270fec5bd5e8f5020bc74e0b047a563ae3ce28
+    packages\repository_hive\lib\model\item_translation.hive.g.dart: 6dd2eba140a9f417edc276da36c1453df28189940d68725f2d3e9f1ff78fc958
+    packages\repository_hive\lib\model\location.hive.dart: ab0a5b4410a761688893512ed54f8c8f9f6b1f98e0b7db3d1537aa3f6708aadf
+    packages\repository_hive\lib\model\location.hive.g.dart: 16837672d3cf81df29ad397b65b48411ace9f261b8dbdc3cfd1f32c3dc05fbae
+    packages\repository_hive\lib\model\manufacturer.hive.dart: 0b78a27a9783c8f7c250cfac4c809c769e79154b540d387a977bdeff8994e5b5
+    packages\repository_hive\lib\model\manufacturer.hive.g.dart: e1b5973639f1ec05d9eb2c01b339464505d0a3af8cf74d8e0b16975fd9102768
+    packages\repository_hive\lib\model\product.hive.dart: 879683ac39ad8cce59ea6fe280dde66bfbc88f622519136bd9c1434fda4a4eef
+    packages\repository_hive\lib\model\product.hive.g.dart: 2950875826dd4f76224e279d3a3e159b4e655ba7dbae737101cfa581213c25f4
+    packages\repository_hive\lib\model\shopping_item.hive.dart: 4108821af713b2d20e6027b6e942b00cbda5408fe9e7b1379e530586947409e3
+    packages\repository_hive\lib\model\shopping_item.hive.g.dart: 87e9e6fbca095f15fd402e4fb032452a7f6c01516fdf5c311bc29fe67255bcb8
+    packages\repository_hive\lib\model_custom\history.hive.dart: 112165e3169b7ff95c15b0a72db4edd537409ec3304707f2226cc30b64ebfa37
+    packages\repository_hive\lib\model_custom\history.hive.g.dart: 913045c6faf37d6c41b0e91c4d280c3f6975ac00a9a2f91c8f38cb47a2bef274
+repository_ob:
+  pubspec_path: packages\repository_ob\pubspec.yaml
+  pubspec_hash: 68e15b78c4f606013da9dd605c4b8234525e1cbce0551b488313012b1b49e87e
+  files:
+    packages\repository_ob\lib\objectbox.g.dart: 56a0794350a993a473bc2261683029222232f2570604a83ed36512118ef4cd1b
+    packages\repository_ob\lib\model\expiration_date.ob.dart: 7fe919e1572783e1b712a0312c67a09570dab487dc0c0657473657a4c85b6a59
+    packages\repository_ob\lib\model\household_member.ob.dart: d4c173fc0bfba45dfb578ee7496233dafc456093fc221d23f62999ebacbe28e5
+    packages\repository_ob\lib\model\identifier.ob.dart: d6c83063588881d2a9b5f15552cfff70f7dde6d2aada5aab58bb86cd6e735f6c
+    packages\repository_ob\lib\model\inventory.ob.dart: 3ba7a297c61bd42c54768db8b99103f58d292106bd6be2c4bff2f85ec0973254
+    packages\repository_ob\lib\model\inventory.ob.include.dart: f5683acfb0970285a472e5c70afb6acb5a028b714eb4fa8c6c6b5117e7640eae
+    packages\repository_ob\lib\model\invitation.ob.dart: 3ff79d0e89c154d4cc0bcfd9500e6a42698ffb480f187741fe97a23c025d8c97
+    packages\repository_ob\lib\model\item.ob.dart: 533fb8dfe1ac3df9425cb5d849cc78006017763f44c9391c9abc50c5fe694a81
+    packages\repository_ob\lib\model\item_translation.ob.dart: f46b7fb045917baa3bb5342c43c44acad186ba6654c67eb27821d6ab2392b531
+    packages\repository_ob\lib\model\location.ob.dart: 4a35504970e37cfd07d19480bcbafb3f1212bd93f39904b3d0bd31efa5329474
+    packages\repository_ob\lib\model\manufacturer.ob.dart: 2cc52b13031337f1cba3ceebc28aa183c9d3ac796b12c55e2330f73f7633a233
+    packages\repository_ob\lib\model\product.ob.dart: d3c2c4884436a43d32d914ba864d3d3a2e09f48ea7f255b5844b8aa1f6f79a56
+    packages\repository_ob\lib\model\shopping_item.ob.dart: 0623bb7885df4763093297cad22f6f57b9a298012a2b1a13e83ac624af607081
+util:
+  pubspec_path: packages\util\pubspec.yaml
+  pubspec_hash: 155d18203a79ad63461f984212d27c63e5232d95660d6c31ad60e741d20a2c30
+util_flutter:
+  pubspec_path: packages\util_flutter\pubspec.yaml
+  pubspec_hash: dac42ae1ab2cfd79178dfa5971c930a0b295553d8af40081c60891a7b78c89c3

@@ -1,0 +1,24 @@
+select = [
+    "E",   # pycodestyle
+    "F",   # Pyflakes
+    "W",   # pycodestyle
+    "B",   # bugbear
+    "PL",  # Pylint
+    "S",   # bandit
+    "C90", # mccabe
+    "N",   # pep8-naming
+    "I",   # isort
+]
+
+# Black defaults to a line length of 88 characters
+line-length = 100
+
+# W293: Blank line contains whitespace (too many false positives
+#       while typing, formatter will remove any whitespace as necessary)
+# PLR0913: Too many arguments
+ignore = ["W293", "PLR0913"]
+
+[per-file-ignores]
+# S101: Allow assert statements in test
+# S105: Hardcoded fake passwords are okay in test modules
+"test_*.py" = ["S101", "S105"]
