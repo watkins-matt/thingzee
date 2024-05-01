@@ -28,8 +28,10 @@ class ImportLookupTable:
             "Product": "import 'package:repository/model/product.dart';",
             "ShoppingItem": "import 'package:repository/model/shopping_item.dart';",
             "Identifier": "import 'package:repository/model/identifier.dart';",
-            "ReceiptItem": "import 'package:receipt_parser/model/receipt_item.dart';",
-            "Receipt": "import 'package:receipt_parser/model/receipt.dart';",
+            "ReceiptItem": "import 'package:repository/model/receipt_item.dart';",
+            "Receipt": "import 'package:repository/model/receipt.dart';",
+            "AuditTask": "import 'package:repository/model/audit_task.dart';",
+            "Place": "import 'package:repository/model/place.dart';",
         }
 
     def get_import(self, attribute_type: str) -> str:
