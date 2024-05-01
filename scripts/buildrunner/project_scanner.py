@@ -16,7 +16,10 @@ class ProjectScanner:
         """Walk through directories and collect file data, then save it using YamlProjectFile."""
         projects = {}
 
-        for root, _dirs, files in os.walk(self.base_directory):
+        for root, dirs, files in os.walk(self.base_directory, topdown=True):
+            # Edit the dirs list in-place to skip dot directories
+            dirs[:] = [d for d in dirs if not d.startswith('.')]
+
             if "pubspec.yaml" in files:
                 pubspec_path = os.path.normpath(os.path.join(root, "pubspec.yaml"))
                 project_name = self.extract_project_name(pubspec_path)
@@ -26,6 +29,10 @@ class ProjectScanner:
                 all_dart_files = []
                 if os.path.exists(lib_path):
                     for subdir, _, subfiles in os.walk(lib_path):
+                        # Avoid dot directories in the lib path
+                        if subdir.split(os.sep)[-1].startswith('.'):
+                            continue
+
                         all_dart_files.extend(
                             os.path.join(subdir, f)
                             for f in subfiles
