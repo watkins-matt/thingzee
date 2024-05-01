@@ -499,6 +499,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.5.1"
+  flutter_rounded_progress_bar:
+    dependency: "direct main"
+    description:
+      name: flutter_rounded_progress_bar
+      sha256: c35e3eb01467052c4ad441c227cb91d5a8f748fef5926ee572c548fec91e0aec
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.2"
   flutter_secure_storage:
     dependency: transitive
     description:

@@ -22,6 +22,7 @@ dependencies:
   flutter_hooks: ^0.20.3
   flutter_inappwebview: ^6.0.0
   flutter_native_splash: ^2.4.0
+  flutter_rounded_progress_bar: ^0.3.2
   fuzzy: ^0.5.1
   google_mlkit_text_recognition: ^0.11.0
   hooks_riverpod: ^2.3.6
