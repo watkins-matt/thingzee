@@ -77,9 +77,9 @@ class _ShoppingListTabState extends ConsumerState<ShoppingListTab>
         );
       }).toList(),
       onExpansionChanged: (isExpanded) {
-        if (isExpanded) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
           scrollToBottom();
-        }
+        });
       },
     );
   }
