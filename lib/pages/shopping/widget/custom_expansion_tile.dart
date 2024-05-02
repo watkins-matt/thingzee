@@ -4,16 +4,20 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 final expansionStateProvider = StateProvider<Map<String, bool>>((ref) => {});
 
+typedef ExpansionCallback = void Function(bool isExpanded);
+
 class CustomExpansionTile extends HookConsumerWidget {
   final String id; // Unique identifier for each tile
   final Widget title;
   final List<Widget> children;
+  final ExpansionCallback? onExpansionChanged;
 
   const CustomExpansionTile({
     super.key,
     required this.id,
     required this.title,
     required this.children,
+    this.onExpansionChanged,
   });
 
   @override
@@ -45,6 +49,10 @@ class CustomExpansionTile extends HookConsumerWidget {
             ...state,
             id: isExpanded.value,
           });
+
+      if (onExpansionChanged != null) {
+        onExpansionChanged!(isExpanded.value);
+      }
     }
 
     final heightAnimation = Tween<double>(begin: 0, end: 1).animate(

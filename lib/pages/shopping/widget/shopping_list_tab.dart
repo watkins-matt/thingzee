@@ -15,6 +15,8 @@ class ShoppingListTab extends ConsumerStatefulWidget {
 
 class _ShoppingListTabState extends ConsumerState<ShoppingListTab>
     with AutomaticKeepAliveClientMixin {
+  final ScrollController _scrollController = ScrollController();
+
   @override
   bool get wantKeepAlive => true;
 
@@ -48,6 +50,7 @@ class _ShoppingListTabState extends ConsumerState<ShoppingListTab>
             ),
           )
         : SingleChildScrollView(
+            controller: _scrollController,
             child: Column(
               children: [
                 shoppingListViewBuilder(context, ref, uncheckedItems),
@@ -73,7 +76,28 @@ class _ShoppingListTabState extends ConsumerState<ShoppingListTab>
           checkbox: true,
         );
       }).toList(),
+      onExpansionChanged: (isExpanded) {
+        if (isExpanded) {
+          scrollToBottom();
+        }
+      },
     );
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void scrollToBottom() {
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    }
   }
 
   Widget shoppingListItemBuilder(
