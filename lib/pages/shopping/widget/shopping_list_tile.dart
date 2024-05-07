@@ -12,12 +12,14 @@ class ShoppingListTile extends HookConsumerWidget {
   final bool editable;
   final bool checkbox;
   final bool autoFocus;
+  final void Function(String uid, bool checked)? onChecked;
 
   ShoppingListTile({
     required this.item,
     this.editable = true,
     this.checkbox = true,
     this.autoFocus = false,
+    this.onChecked,
   }) : super(key: ValueKey(item.uid));
 
   @override
@@ -143,6 +145,10 @@ class ShoppingListTile extends HookConsumerWidget {
 
   void checkedStatusChanged(WidgetRef ref, bool checked) {
     ref.read(shoppingListProvider.notifier).check(item, checked);
+
+    if (onChecked != null) {
+      onChecked!(item.uid, checked);
+    }
   }
 
   void onDismissed(WidgetRef ref) {

@@ -3,6 +3,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:repository/database/shopping_list_database.dart';
 import 'package:repository/model/shopping_item.dart';
 import 'package:thingzee/pages/shopping/state/shopping_list.dart';
+import 'package:thingzee/pages/shopping/widget/animated_shopping_list_view.dart';
 import 'package:thingzee/pages/shopping/widget/custom_expansion_tile.dart';
 import 'package:thingzee/pages/shopping/widget/shopping_list_tile.dart';
 
@@ -107,18 +108,19 @@ class _ShoppingListTabState extends ConsumerState<ShoppingListTab>
   }
 
   Widget shoppingListViewBuilder(BuildContext context, WidgetRef ref, List<ShoppingItem> items) {
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: items.length,
-      itemBuilder: (context, index) {
-        return shoppingListItemBuilder(
-          context,
-          ref,
-          items[index],
-          index == items.length - 1,
-        );
-      },
-    );
+    return AnimatedShoppingListView(items: items);
+    // return ListView.builder(
+    //   shrinkWrap: true,
+    //   physics: const NeverScrollableScrollPhysics(),
+    //   itemCount: items.length,
+    //   itemBuilder: (context, index) {
+    //     return shoppingListItemBuilder(
+    //       context,
+    //       ref,
+    //       items[index],
+    //       index == items.length - 1,
+    //     );
+    //   },
+    // );
   }
 }
