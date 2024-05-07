@@ -118,9 +118,9 @@ class DartClass:
         class_str = ""
 
         if self.annotations and len(self.annotations) > 0:
-            class_str = "\n".join(self.annotations)
+            class_str = "\n".join(self.annotations) + "\n"
 
-        class_str = f"class {self.name}"
+        class_str = f"{class_str}class {self.name}"
         if self.parent_class_name:
             class_str += f" extends {self.parent_class_name}"
         class_str += " {"
