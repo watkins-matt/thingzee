@@ -135,7 +135,7 @@ class DartNodeVisitor(NodeVisitor):
         """Returns the block content as a string."""
         return node.text.strip()
 
-    def visit_class_parent(self, node, visited_children):
+    def visit_class_extends(self, node, visited_children):
         _, _, class_type, _ = visited_children
         return class_type.strip()
 
@@ -206,10 +206,15 @@ class DartNodeVisitor(NodeVisitor):
 
     def visit_variable_declaration(self, node, visited_children):
         """Parses a variable declaration to create a Variable namedtuple."""
-        annotations, modifiers, var_type, _, name, semi = visited_children
+        annotations, modifiers, var_type, _, name, default_value, semi = (
+            visited_children
+        )
 
         if not isinstance(annotations, list):
             annotations = []
+
+        if not isinstance(modifiers, list):
+            modifiers = []
 
         full_type = " ".join(modifiers + [var_type]) if modifiers else var_type
 
