@@ -18,9 +18,8 @@ class ObjectBoxConverter:
     def _convert_class(self, dart_class: DartClass):
         original_class_name = dart_class.name
 
-        # Check to see if @Entity() is present, otherwise add it to the class
-        if "@Entity()" not in dart_class.annotations:
-            dart_class.annotations.append("@Entity()")
+        # Make sure we have @Entity added and other annotations removed
+        dart_class.annotations = ["@Entity()"]
 
         if not dart_class.name.startswith("ObjectBox"):
             dart_class.name = f"ObjectBox{original_class_name}"
@@ -41,6 +40,14 @@ class ObjectBoxConverter:
 
     def _convert_variable(self, variable: Variable):
         annotations = variable.annotations or []
+
+        # Remove final from the variable type if present
+        variable = Variable(
+            variable.type.replace("final ", ""),
+            variable.name,
+            annotations,
+            variable.default_value,
+        )
 
         if variable.type == "DateTime":
             if "@Property(type: PropertyType.date)" not in annotations:
