@@ -1,0 +1,59 @@
+%import common.LETTER
+%import common.DIGIT
+%import common.WS
+%import common.NUMBER
+%ignore WS
+%ignore /\/\/[^\n]*/
+
+STRING: /'([^'\\]*(?:\\.[^'\\]*)*)'/ | /"([^"\\]*(?:\\.[^'\\]*)*)"/
+NAME: ("_"|LETTER) ("_"|LETTER|DIGIT|"."|"$" )*
+
+// Entry point
+start: import_statement* part_statement* (class_declaration|function_declaration|enum_declaration)+
+
+// Imports
+import_statement: "import" STRING ";"
+part_statement: "part" "of"? STRING ";"
+
+// Enums
+enum_declaration: annotation* "enum" NAME "{" (enum_value)* "}"
+enum_value: NAME ("," enum_value)*
+
+// Class
+class_declaration: annotation* "class" NAME class_parent? class_implements? "{" (declaration | constructor)* "}"
+class_parent: "extends" type
+class_implements: "implements" type ("," type)*
+
+// Constructor
+constructor: "factory"? NAME argument_string constructor_initializer? (block_string | optional_equals? ";")
+constructor_initializer: ":" /[^;{]+/
+
+// Types
+type: NAME "?"? ("<" type_list ">")?
+type_list: type ("," type)*
+
+// Annotation
+annotation: "@" NAME argument_string?
+value: STRING | NAME | NUMBER | "true" | "false" | "null"
+
+// Properties
+property_get: annotation* type "get" NAME (block_string | (optional_equals)? ";")
+property_set: annotation* type "set" NAME argument_string block_string
+
+// Declaration
+declaration: variable_declaration | function_declaration | operator_declaration | property_get | property_set
+variable_declaration: annotation* (modifier* type NAME) ";" | annotation* (modifier+ NAME) ";"
+function_declaration: annotation* modifier? return_type? NAME argument_string (block_string | optional_equals? ";")
+operator_declaration: annotation* return_type? "operator" operator argument_string (block_string | optional_equals? ";")
+return_type: type | "void"
+
+operator: "==" | "!=" | "<" | ">" | "<=" | ">=" | "+" | "-" | "*" | "/" | "%" | "[]" | "[]=" | ">>" | "<<" | "&" | "|" | "^" | "~" | "&&" | "||" | "!" | "[]" | "[]=" | "++" | "--" | "+=" | "-=" | "*=" | "/=" | "%=" | "&=" | "|=" | "^=" | "<<=" | ">>=" | "??"
+
+optional_equals: "=>" ANY_EXCEPT_SEMICOLON
+ANY_EXCEPT_SEMICOLON: /[^;]+/
+
+method_call: NAME argument_string ("." method_call | "." NAME)*
+modifier: ("static" | "const" | "final" | "late")*
+
+argument_string: "(" (argument_string | /[^()]+/)* ")"
+block_string: "{" (block_string | /[^{}]+/)* "}"

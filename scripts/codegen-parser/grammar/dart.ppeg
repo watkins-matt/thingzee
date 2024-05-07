@@ -1,0 +1,67 @@
+start = import_statement* part_statement* (class_declaration / function_declaration / enum_declaration)+
+top_level_declaration = (class_declaration / function_declaration / enum_declaration) _
+
+import_statement = comment* _ "import" _ string semicolon
+part_statement = "part" _ "of"? _ string semicolon
+
+enum_declaration = _ annotation* "enum" _ name _ "{" _ enum_value* _ "}" _
+enum_value = name _ ("," _ name)*
+
+class_declaration = _ annotation* class_abstract? _ "class" _ type _ class_parent? class_implements? "{" _ (declaration / constructor)* _ "}" _
+class_abstract = "abstract" _
+
+class_parent = "extends" _ type _
+class_implements = "implements" _ type _ ("," _ type)* _
+
+constructor = "factory"? _ name _ argument_string? _ constructor_initializer? _ code_block
+constructor_initializer = comment* ":" _ ~r"[^;{]+"
+
+comment = (line_comment / block_comment) _
+line_comment = _ "//" _ ~r"[^\n]*" newline
+block_comment = _ "/*" _ ~r"[^*]*" _ "*/"
+newline = "\n"{1}
+
+type = name _ "?"? _ ("<" _ type_list _ ">")? _
+type_list = type _ ("," _ type)*
+annotation = "@" _ name _ argument_string? _
+value = string / name / number / "true" / "false" / "null"
+property_get = annotation* type _ "get" _ name _ code_block
+property_set = annotation* type _ "set" _ name _ argument_string _ block_string
+modifier = ("static" / "const" / "final" / "late") _
+declaration = comment / variable_declaration / function_declaration / operator_declaration / property_get / property_set
+
+variable_declaration = annotation* modifier* type _ name semicolon
+function_declaration = _ annotation* modifier? return_type? name _ argument_string _ code_block
+operator_declaration = annotation* return_type? "operator" _ operator _ argument_string _ code_block
+
+code_block = (block_string / single_statement_block / semicolon) _
+single_statement_block = _ optional_equals _ semicolon
+semicolon = _ ";" _
+
+return_type = type / "void"
+operator = "==" / "!=" / "<" / ">" / "<=" / ">=" / "+" / "-" / "*" / "/" / "%" / "[]" / "[]=" / ">>" / "<<" / "&" / "|" / "^" / "~" / "&&" / "||" / "!" / "[]" / "[]=" / "++" / "--" / "+=" / "-=" / "*=" / "/=" / "%=" / "&=" / "|=" / "^=" / "<<=" / ">>=" / "??"
+optional_equals = "=>" _ ~r"[^;]+"
+method_call = name _ argument_string? chained_call*
+chained_call = "." _ (method_call / name)
+
+argument_string = "(" _ arguments_content? _ ")"
+arguments_content = (nested_expression / non_paren_content)*
+nested_expression = "(" _ arguments_content _ ")"
+non_paren_content = ~r"[^()]*"
+
+expression = value / method_call / operator / nested_expression
+nested_expression = "(" _ expression _ ")"
+block_string = "{" _ block_content _ "}" _
+block_content = (block_string / ~r"[^{}]+")*
+
+string = single_quoted_string / double_quoted_string
+single_quoted_string = "'" (content_single / escaped_sequence)* "'"
+double_quoted_string = "\"" (content_double / escaped_sequence)* "\""
+content_single = ~r"[^'\\]*"
+content_double = ~r"[^\"\\]*"
+escaped_sequence = "\\\\" / "\\\"" / "\\'" / "\\n" / "\\t" / "\\r" / "\\b" / "\\f" / "\\\\[^]"
+name = ("_" / letter) ("_" / letter / digit / ".")*
+letter = ~r"[a-zA-Z]"
+digit = ~r"[0-9]"
+number = ~r"[0-9]+(\.[0-9]+)?"
+_ = ~r"\s*"
