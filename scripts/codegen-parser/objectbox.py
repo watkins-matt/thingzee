@@ -7,6 +7,8 @@ class ObjectBoxConverter:
 
     def convert(self) -> DartFile:
         # Add ObjectBox import
+        self.file.imports = set()
+
         if "package:objectbox/objectbox.dart" not in self.file.imports:
             self.file.imports.add("package:objectbox/objectbox.dart")
 
@@ -31,39 +33,40 @@ class ObjectBoxConverter:
         dart_class.functions.append(self._generate_from_method(dart_class))
         dart_class.functions.append(self._generate_to_method(dart_class))
 
-        object_box_id = Variable("int", "objectBoxId", ["@Id()"], 0)
-        dart_class.member_variables.insert(0, object_box_id)
-
+        # Convert all member variables
         dart_class.member_variables = [
             self._convert_variable(variable) for variable in dart_class.member_variables
         ]
 
+        # Add objectBoxId as the first member variable
+        object_box_id = Variable("int", "objectBoxId", ["@Id()"], "0")
+        dart_class.member_variables.insert(0, object_box_id)
+
     def _convert_variable(self, variable: Variable):
-        annotations = variable.annotations or []
+        annotations = []
+        default_value = variable.default_value
 
         # Remove final from the variable type if present
-        variable = Variable(
-            variable.type.replace("final ", ""),
-            variable.name,
-            annotations,
-            variable.default_value,
+        variable_type = variable.type.replace("final ", "")
+
+        if variable_type == "DateTime" or variable_type == "DateTime?":
+            variable_type = f"late {variable_type}"
+            annotations.append("@Property(type: PropertyType.date)")
+        elif variable_type.startswith("List<"):
+            variable_type = f"late {variable_type}"
+            default_value = "[]"
+        else:
+            variable_type = f"late {variable_type}"
+            default_value = variable.default_value
+
+        updated_variable = Variable(
+            type=variable_type,
+            name=variable.name,
+            annotations=annotations,
+            default_value=default_value,
         )
 
-        if variable.type == "DateTime":
-            if "@Property(type: PropertyType.date)" not in annotations:
-                annotations.append("@Property(type: PropertyType.date)")
-        elif variable.type.startswith("List<"):
-            variable = Variable(
-                f"late {variable.type}", variable.name, annotations, "[]"
-            )
-        else:
-            variable = Variable(
-                f"late {variable.type}",
-                variable.name,
-                annotations,
-                variable.default_value,
-            )
-        return variable
+        return updated_variable
 
     def _generate_to_method(self, dart_class: DartClass):
         original_name = dart_class.name.replace("ObjectBox", "")
