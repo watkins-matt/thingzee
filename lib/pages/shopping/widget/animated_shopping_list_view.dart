@@ -24,29 +24,25 @@ class _AnimatedShoppingListViewState extends ConsumerState<AnimatedShoppingListV
         for (final item in animationState.itemsToRemove.reversed) {
           // Find the index from uncheckedItems where the uid matches
           final index = ref.watch(shoppingListProvider.notifier).calculateIndexRemovedFrom(item);
-          listKey.currentState?.removeItem(
-            index,
-            (context, animation) {
-              return FadeTransition(
-                opacity: CurvedAnimation(parent: animation, curve: Curves.easeOut),
-                child: buildItem(context, ref, animation, index),
-              );
-            },
-            duration: const Duration(milliseconds: 200),
-          );
+          listKey.currentState?.removeItem(index, (context, animation) {
+            return FadeTransition(
+                opacity: Tween<double>(begin: 1, end: 0).animate(animation),
+                child: buildItem(
+                  context,
+                  ref,
+                  animation,
+                  index,
+                ));
+          }, duration: const Duration(milliseconds: 100));
 
-          Future.delayed(const Duration(milliseconds: 200), () {
-            ref.read(shoppingListProvider.notifier).check(item, true);
-          });
+          ref.read(shoppingListProvider.notifier).check(item, true);
         }
 
         for (final item in animationState.itemsToAdd) {
           final index = ref.watch(shoppingListProvider.notifier).calculateInsertionIndex(item);
-          listKey.currentState?.insertItem(index, duration: const Duration(milliseconds: 200));
+          listKey.currentState?.insertItem(index, duration: const Duration(milliseconds: 100));
 
-          Future.delayed(const Duration(milliseconds: 200), () {
-            ref.read(shoppingListProvider.notifier).check(item, false);
-          });
+          ref.read(shoppingListProvider.notifier).check(item, false);
         }
       } finally {
         ref.read(animationStateProvider.notifier).resetAnimationTriggers();
@@ -71,7 +67,7 @@ class _AnimatedShoppingListViewState extends ConsumerState<AnimatedShoppingListV
         sizeFactor: animation,
         child: AnimatedOpacity(
           opacity: animation.value,
-          duration: const Duration(milliseconds: 200),
+          duration: const Duration(milliseconds: 100),
           child: child,
         ),
       ),
