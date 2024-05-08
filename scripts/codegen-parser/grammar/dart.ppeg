@@ -7,7 +7,7 @@ part_statement = "part" _ "of"? _ string semicolon
 enum_declaration = _ annotation* "enum" _ name _ "{" _ enum_value* _ "}" _
 enum_value = name _ ("," _ name)*
 
-class_declaration = _ annotation* class_abstract? _ "class" _ type _ class_extends? class_implements? "{" _ (declaration / constructor)* _ "}" _
+class_declaration = comment* _ annotation* class_abstract? _ "class" _ type _ class_extends? class_implements? "{" _ (declaration / constructor)* _ "}" _
 class_abstract = "abstract" _
 
 class_extends = "extends" _ type _
@@ -20,14 +20,14 @@ type_list = type_with_extends _ ("," _ type_with_extends)*
 type_with_extends = type _ type_extends?
 type_extends = "extends" _ type
 
-constructor = "factory"? _ name _ argument_string? _ constructor_initializer? _ code_block
+constructor = constructor_leading _ name _ argument_string? _ constructor_initializer? _ code_block
+constructor_leading = comment* _ "factory"? _ "const"? _
 constructor_initializer = comment* ":" _ ~r"[^;{]+"
 
 comment = (line_comment / block_comment) _
 line_comment = _ "//" _ ~r"[^\n]*" newline
 block_comment = _ "/*" _ ~r"[^*]*" _ "*/"
 newline = "\n"{1}
-
 
 annotation = "@" _ name _ argument_string? _
 value = string / name / number / "true" / "false" / "null"
@@ -68,7 +68,7 @@ double_quoted_string = "\"" (content_double / escaped_sequence)* "\""
 content_single = ~r"[^'\\]*"
 content_double = ~r"[^\"\\]*"
 escaped_sequence = "\\\\" / "\\\"" / "\\'" / "\\n" / "\\t" / "\\r" / "\\b" / "\\f" / "\\\\[^]"
-name = ("_" / letter) ("_" / letter / digit / ".")*
+name = !"operator" ("_" / letter) ("_" / letter / digit / ".")*
 letter = ~r"[a-zA-Z]"
 digit = ~r"[0-9]"
 number = ~r"[0-9]+(\.[0-9]+)?"

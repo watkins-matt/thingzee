@@ -170,6 +170,7 @@ class DartNodeVisitor(NodeVisitor):
     def visit_class_declaration(self, node, visited_children):
         """Constructs a DartClass from its constituent parts parsed by child nodes."""
         (
+            comment,
             _,
             annotations,
             _,
