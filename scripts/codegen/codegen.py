@@ -421,9 +421,10 @@ class ObjectBoxGenerator(DartClassGenerator):
                 lines.append("  @Property(type: PropertyType.date)")
             if "transient" in attribute.annotations:
                 lines.append("  @Transient()")
-                lines.append(
-                    f"  {attribute.type} {attribute.name} = {attribute.type}();"
+                default_value = (
+                    "[]" if attribute.type.startswith("List<") else "{attribute.type}()"
                 )
+                lines.append(f"  {attribute.type} {attribute.name} = {default_value};")
                 continue
             if "unique" in attribute.annotations:
                 lines.append("  @Unique(onConflict: ConflictStrategy.replace)")
@@ -539,9 +540,7 @@ class DartOutputFileWriter:
             )
 
         if self.db_type == "objectbox":
-            combined_imports += (
-                "\nimport 'package:repository_ob/model_custom/object_box_model.dart';"
-            )
+            combined_imports += "\nimport 'package:repository_ob/objectbox_model.dart';"
 
         self.all_output_content.insert(0, combined_imports)
 
