@@ -12,20 +12,21 @@ class LarkParser(Parser):
         with open(grammar_file_path) as grammar:
             self.parser = Lark(grammar.read(), start="start")
 
-    def parse(self, text: str, filename: str = None):
-        filename = "" if filename is None else filename
+    def parse(self, text: str, file_path: str = None):
+        file_path = "" if file_path is None else file_path
 
         try:
             parse_tree = self.parser.parse(text)
         # Handle UnexpectedCharacters
         except UnexpectedCharacters as e:
-            filename = os.path.basename(filename)
-            print(f"Parse Error: {filename} {e.line}:{e.column}")
+            file_path = os.path.basename(file_path)
+            print(f"Parse Error: {file_path} {e.line}:{e.column}")
             print(f"Unexpected: {e.char}")
             print(f"Allowed: {e.allowed}")
             print(f"Context: {e.get_context(text)}")
             sys.exit(1)
         dart_file = DartTransformer().transform(parse_tree)
+        dart_file.file_path = file_path
         return dart_file
 
 

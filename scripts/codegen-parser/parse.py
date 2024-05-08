@@ -155,7 +155,7 @@ def generate_classes(
             os.path.basename(input_file).replace(".dart", f".{db_short_name}.dart"),
         )
 
-        converter = ObjectBoxConverter(dart_file)
+        converter = ObjectBoxConverter(dart_file, input_file)
 
         with open(output_file, "w") as f:
             result_file = converter.convert()
@@ -168,7 +168,7 @@ def find_parent_class_path(
     # First, try to find the import path based on the class name
     parent_class_import = dart_file.find_import_for_class(parent_class_name)
     if parent_class_import:
-        return dart_file.get_import_path(parent_class_import, file_path)
+        return dart_file.get_import_path(parent_class_import)
 
     # If not found, perform a quick regex search for the class declaration in the imported files
     for import_path in dart_file.imports:

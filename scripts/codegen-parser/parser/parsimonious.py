@@ -13,18 +13,19 @@ class ParsimoniousParser(Parser):
         with open(grammar_file_path) as grammar:
             self.parser = Grammar(grammar.read())
 
-    def parse(self, text: str, filename: str = None):
-        filename = "" if filename is None else filename
+    def parse(self, text: str, file_path: str = None):
+        file_path = "" if file_path is None else file_path
 
         try:
             parse_tree = self.parser.parse(text)
             visitor = DartNodeVisitor()
             dart_file = visitor.visit(parse_tree)
+            dart_file.file_path = file_path
             return dart_file
 
         except ParseError as e:
-            if filename:
-                print(f"Parse error in file: {filename}")
+            if file_path:
+                print(f"Parse error in file: {file_path}")
             else:
                 print("Parse error")
             raise e
