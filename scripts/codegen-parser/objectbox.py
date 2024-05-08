@@ -2,23 +2,34 @@ from dart import DartClass, DartFile, Function, Variable
 
 
 class ObjectBoxConverter:
-    def __init__(self, file: DartFile):
+    def __init__(self, file: DartFile, original_file_path: str):
         self.file = file
+        self.original_file_path = original_file_path
 
     def convert(self) -> DartFile:
-        # Add ObjectBox import
-        self.file.imports = set()
+        self.file.add_comment("// GENERATED FILE: DO NOT MODIFY")
+        self.file.add_comment("// ignore_for_file: annotate_overrides")
 
-        if "package:objectbox/objectbox.dart" not in self.file.imports:
-            self.file.imports.add("package:objectbox/objectbox.dart")
+        self._convert_imports()
 
         for dart_class in self.file.classes:
             self._convert_class(dart_class)
 
         return self.file
 
+    def _convert_imports(self):
+        new_imports = set()
+        new_imports.add("package:objectbox/objectbox.dart")
+        new_imports.add("package:repository_ob/objectbox_model.dart")
+        new_imports.add(self.file.import_string)
+
+        self.file.imports = new_imports
+
     def _convert_class(self, dart_class: DartClass):
         original_class_name = dart_class.name
+
+        if "@immutable" in dart_class.annotations:
+            dart_class.use_default_constructor = False
 
         # Make sure we have @Entity added and other annotations removed
         dart_class.annotations = ["@Entity()"]
@@ -30,8 +41,8 @@ class ObjectBoxConverter:
             dart_class.parent_class_name = f"ObjectBoxModel<{original_class_name}>"
 
         dart_class.functions = []
-        dart_class.functions.append(self._generate_from_method(dart_class))
-        dart_class.functions.append(self._generate_to_method(dart_class))
+        dart_class.functions.append(self._generate_from_constructor(dart_class))
+        dart_class.functions.append(self._generate_convert_method(dart_class))
 
         # Convert all member variables
         dart_class.member_variables = [
@@ -68,14 +79,17 @@ class ObjectBoxConverter:
 
         return updated_variable
 
-    def _generate_to_method(self, dart_class: DartClass):
+    def _generate_convert_method(self, dart_class: DartClass):
         original_name = dart_class.name.replace("ObjectBox", "")
+        sorted_member_variables = sorted(
+            dart_class.member_variables, key=lambda variable: variable.name
+        )
 
         # Generate method for default constructor
         if dart_class.use_default_constructor:
             variable_assignments = "\n".join(
                 f"      ..{variable.name} = {variable.name}"
-                for variable in dart_class.member_variables
+                for variable in sorted_member_variables
             ).rstrip()
 
             body = f"    return {dart_class.name}()\n{variable_assignments};\n"
@@ -90,13 +104,13 @@ class ObjectBoxConverter:
         # Generate method for custom constructor with parameters on new lines
         else:
             parameters = ",\n        ".join(
-                f"{attribute.name}: {attribute.name}"
-                for attribute in dart_class.attributes
+                f"{variable.name}: {variable.name}"
+                for variable in sorted_member_variables
             )
-            body = f"    return {dart_class.name}(\n" f"        {parameters});\n"
-            return Function("convert", f"{original_name}", parameters, body)
+            body = f"    return {original_name}(\n" f"        {parameters});\n"
+            return Function("convert", f"{original_name}", "", body)
 
-    def _generate_from_method(self, dart_class: DartClass) -> Function:
+    def _generate_from_constructor(self, dart_class: DartClass) -> Function:
         original_name = dart_class.name.replace("ObjectBox", "")
 
         function_body = "\n".join(
