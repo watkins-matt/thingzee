@@ -24,6 +24,25 @@ Constructor = namedtuple(
 )
 
 
+class DartPubspec:
+    def __init__(self, pubspec_path: str):
+        self.pubspec_path = pubspec_path
+        self.pubspec_data = self.load_pubspec()
+
+    def load_pubspec(self) -> dict:
+        with open(self.pubspec_path, "r") as file:
+            pubspec_data = yaml.safe_load(file)
+        return pubspec_data
+
+    @property
+    def package_name(self) -> str:
+        return self.pubspec_data.get("name", "")
+
+    @property
+    def pubspec_directory(self) -> str:
+        return os.path.dirname(self.pubspec_path)
+
+
 class DartClass:
     def __init__(
         self,
@@ -61,6 +80,18 @@ class DartClass:
             + "}"
         )
 
+    @property
+    def pubspec(self) -> DartPubspec:
+        project_root = self.find_project_root(self.original_file_path)
+        pubspec_path = os.path.join(project_root, "pubspec.yaml")
+        return DartPubspec(pubspec_path)
+
+    @staticmethod
+    def normalize_class_name(class_name: str) -> str:
+        if "<T>" in class_name:
+            class_name = class_name.replace("<T>", "")
+        return class_name
+
     def extend_variables(self, other: "DartClass") -> None:
         self.member_variables.extend(other.member_variables)
 
@@ -91,6 +122,12 @@ class DartClass:
 
     def _write_variables(self):
         variables = ""
+
+        # Sort the variables in two stages, first by type, then by name
+        self.member_variables = sorted(
+            self.member_variables, key=lambda var: (var.type.lower(), var.name.lower())
+        )
+
         for var in self.member_variables:
             if var.annotations:
                 variables += "\n".join(
@@ -128,61 +165,205 @@ class DartClass:
 
 
 class DartFile:
-    def __init__(self, classes: list[DartClass], imports: set[str]):
+    def __init__(
+        self, classes: list[DartClass], imports: set[str], file_path: str = ""
+    ):
+        """
+        Initialize a DartFile instance.
+
+        :param classes: A list of DartClass instances representing the classes in the file.
+        :param imports: A set of import paths used in the file.
+        :param file_path: The path to the Dart file.
+        """
         self.classes = classes
         self.imports = imports
+        self._file_path = file_path
+        self.comments = []
 
-    @staticmethod
-    def normalize_class_name(class_name: str) -> str:
-        if "<T>" in class_name:
-            class_name = class_name.replace("<T>", "")
-        return class_name
+    @property
+    def file_path(self):
+        return self._file_path
+
+    @file_path.setter
+    def file_path(self, value):
+        self._file_path = value
+
+    @property
+    def pubspec(self) -> DartPubspec | None:
+        """
+        Get the DartPubspec instance for the current DartFile.
+
+        :return: The DartPubspec instance for the current DartFile, or None if not found.
+        :raises ValueError: If the file path is not set.
+        """
+        if not self.file_path:
+            raise ValueError("Cannot find pubspec, file path is not set.")
+
+        project_root = self.find_project_root()
+        if project_root:
+            pubspec_path = os.path.join(project_root, "pubspec.yaml")
+            return DartPubspec(pubspec_path)
+
+        return None
+
+    @property
+    def relative_path(self) -> str:
+        """
+        Get the relative path of the current file to its project root, excluding "lib".
+
+        :return: The relative path of the current file to its project root, excluding "lib".
+        :raises ValueError: If the file path is not set.
+        """
+        if not self.file_path:
+            raise ValueError("File path is not set.")
+
+        project_root = self.find_project_root()
+        if not project_root:
+            raise FileNotFoundError("Project root not found.")
+
+        lib_dir = os.path.join(project_root, "lib")
+        relative_path = os.path.relpath(self.file_path, lib_dir)
+
+        return relative_path
+
+    @property
+    def import_string(self) -> str:
+        """
+        Get the import string for the current Dart file.
+
+        :return: The import string for the current Dart file.
+        :raises ValueError: If the file path is not set.
+        """
+        if not self.file_path:
+            raise ValueError("File path is not set")
+
+        package_name = self.pubspec.package_name
+        relative_path = self.relative_path
+
+        # Ensure relative path uses forward slash
+        relative_path = relative_path.replace("\\", "/")
+
+        return f"package:{package_name}/{relative_path}"
+
+    def add_comment(self, comment: str):
+        self.comments.append(comment)
 
     def get_class_by_name(self, name: str) -> DartClass | None:
-        name = self.normalize_class_name(name)
+        """
+        Get a DartClass instance contained within the DartFile by name.
+
+        :param name: The name of the class to retrieve.
+        :return: The DartClass instance with the specified name, or None if not found.
+        """
+        name = DartClass.normalize_class_name(name)
 
         for dart_class in self.classes:
-            dart_class_name = self.normalize_class_name(dart_class.name)
+            dart_class_name = DartClass.normalize_class_name(dart_class.name)
 
             if dart_class_name == name:
                 return dart_class
         return None
 
     def find_import_for_class(self, class_name: str) -> str | None:
+        """
+        Find the import string for a given class name.
+
+        :param class_name: The name of the class to find the import path for.
+        :return: The import string for the class, or None if not found.
+        """
+        class_name = DartClass.normalize_class_name(class_name)
+
         for import_path in self.imports:
             file_name = os.path.basename(import_path)
             if class_name.lower() in file_name.lower():
                 return import_path
         return None
 
-    def get_import_path(self, import_path: str, file_path: str) -> str:
+    def get_import_path(self, import_str: str) -> str:
+        """
+        Convert an import string to a full file path.
+
+        :param import_str: The import string to convert.
+        :return: The full file path corresponding to the import string.
+        :raises ValueError: If the file path is not set.
+        :raises FileNotFoundError: If the imported file is not found.
+        """
+        if not self.file_path:
+            raise ValueError("Cannot find import path, file path is not set.")
+
         # Extract the package name from the import path
-        package_name = self.extract_package_name(import_path)
+        package_name = self.get_package_name_from_import_path(import_str)
 
-        # Find the root directory of the imported project
-        project_root = self.find_project_root(package_name, file_path)
+        dart_pubspec = self.find_pubspec(package_name)
+        if not dart_pubspec:
+            raise FileNotFoundError(
+                f"Pubspec.yaml not found for package {package_name}."
+            )
 
-        relative_path = import_path.replace(f"package:{package_name}/", "")
+        project_root = os.path.dirname(dart_pubspec.pubspec_path)
+
+        relative_path = import_str.replace(f"package:{package_name}/", "")
 
         # Construct the full path to the imported file
         full_path = os.path.join(project_root, "lib", relative_path.strip("'"))
         full_path = os.path.normpath(full_path)
 
-        if os.path.exists(full_path):
-            return full_path
+        if not os.path.exists(full_path):
+            raise FileNotFoundError(f"Imported file '{import_str}' not found.")
 
-        raise FileNotFoundError(f"Imported file '{import_path}' not found")
+        return full_path
 
-    def extract_package_name(self, import_path: str) -> str:
-        # Extract the package name from the import path
+    def get_package_name_from_import_path(self, import_path: str) -> str:
+        """
+        Get the package name from an import path.
+
+        So for example, given the import path 'package:example_project/main.dart',
+        this method would return 'example_project'.
+
+        :param import_path: The import path to extract the package name from.
+        :return: The package name extracted from the import path.
+        """
         package_name = import_path.split("/")[0].strip("'")
         package_name = package_name.split(":")[-1]
 
         return package_name
 
-    def find_project_root(self, package_name: str, current_file_path: str) -> str:
-        # Find the root directory of the imported project
-        current_dir = os.path.dirname(current_file_path)
+    def find_project_root(self) -> str:
+        """
+        Find the root directory of the current project.
+
+        :return: The root directory of the current project.
+        :raises FileNotFoundError: If the project root is not found.
+        :raises ValueError: If the file path is not set.
+        """
+        if not self.file_path:
+            raise ValueError("Cannot find root directory, file path is not set.")
+
+        # Find the root directory of the current project
+        current_dir = os.path.dirname(self.file_path)
+
+        while current_dir != os.path.dirname(current_dir):
+            pubspec_path = os.path.join(current_dir, "pubspec.yaml")
+            if os.path.exists(pubspec_path):
+                return current_dir
+            current_dir = os.path.dirname(current_dir)
+
+        raise FileNotFoundError("Project root directory not found.")
+
+    def find_pubspec(self, package_name: str) -> DartPubspec:
+        """
+        Find the pubspec.yaml file of the specified package.
+
+        :param package_name: The name of the package to find the pubspec.yaml file for.
+        :return: The DartPubspec instance representing the pubspec.yaml file.
+        :raises FileNotFoundError: If the pubspec.yaml file is not found.
+        :raises ValueError: If the file path is not set.
+        """
+        if not self.file_path:
+            raise ValueError("Cannot find pubspec, file path is not set.")
+
+        # Find the pubspec.yaml file of the imported project
+        current_dir = os.path.dirname(self.file_path)
 
         while current_dir != os.path.dirname(current_dir):
             pubspec_path = os.path.join(current_dir, "pubspec.yaml")
@@ -190,22 +371,22 @@ class DartFile:
                 # Go one level above the current directory
                 parent_dir = os.path.dirname(current_dir)
 
-                # Search for the project root in the subdirectories
+                # Search for the pubspec.yaml file in the subdirectories
                 for subdir in os.listdir(parent_dir):
                     subdir_path = os.path.join(parent_dir, subdir)
                     if os.path.isdir(subdir_path):
                         pubspec_path = os.path.join(subdir_path, "pubspec.yaml")
                         if os.path.exists(pubspec_path):
                             dart_pubspec = DartPubspec(pubspec_path)
-                            if dart_pubspec.get_package_name() == package_name:
-                                return subdir_path
+                            if dart_pubspec.package_name == package_name:
+                                return dart_pubspec
 
-                # If the project root is not found in the subdirectories, continue searching
+                # If the pubspec.yaml file is not found in the subdirectories, continue searching
                 current_dir = os.path.dirname(parent_dir)
             else:
                 current_dir = os.path.dirname(current_dir)
 
-        raise FileNotFoundError(f"Project root for package '{package_name}' not found")
+        raise FileNotFoundError(f"Pubspec.yaml not found for package {package_name}.")
 
     def __repr__(self):
         return f"DartFile with {len(self.classes)} class(es)"
@@ -214,20 +395,14 @@ class DartFile:
         # Sort the imports first
         self.imports = sorted(self.imports)
 
+        comments = "\n".join(self.comments).strip()
+
+        # Add two newlines if comments are present
+        if comments:
+            comments += "\n\n"
+
         imports = "\n".join(f"import '{import_path}';" for import_path in self.imports)
         classes = "\n\n".join(str(dart_class) for dart_class in self.classes)
-        return f"{imports}\n\n{classes}"
 
-
-class DartPubspec:
-    def __init__(self, pubspec_path: str):
-        self.pubspec_path = pubspec_path
-        self.pubspec_data = self.load_pubspec()
-
-    def load_pubspec(self) -> dict:
-        with open(self.pubspec_path, "r") as file:
-            pubspec_data = yaml.safe_load(file)
-        return pubspec_data
-
-    def get_package_name(self) -> str:
-        return self.pubspec_data.get("name", "")
+        # Join everything together
+        return f"{comments}{imports}\n\n{classes}"
