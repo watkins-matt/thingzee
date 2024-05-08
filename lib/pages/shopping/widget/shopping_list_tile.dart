@@ -144,8 +144,6 @@ class ShoppingListTile extends HookConsumerWidget {
       );
 
   void checkedStatusChanged(WidgetRef ref, bool checked) {
-    ref.read(shoppingListProvider.notifier).check(item, checked);
-
     if (onChecked != null) {
       onChecked!(item.uid, checked);
     }

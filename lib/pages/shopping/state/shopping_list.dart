@@ -24,6 +24,8 @@ class ShoppingList extends StateNotifier<ShoppingListState> {
     refreshAll();
   }
 
+  List<ShoppingItem> get checkedItems => state.shoppingItems.where((item) => item.checked).toList();
+
   Map<String, List<ShoppingItem>> get shoppingItemsByList {
     final allItems = repo.shopping.all();
     var itemsMap = <String, List<ShoppingItem>>{};
@@ -42,6 +44,9 @@ class ShoppingList extends StateNotifier<ShoppingListState> {
   double get totalCartPrice {
     return state.cartItems.fold(0, (total, item) => total + (item.price * item.quantity));
   }
+
+  List<ShoppingItem> get uncheckedItems =>
+      state.shoppingItems.where((item) => !item.checked).toList();
 
   Future<void> add(ShoppingItem item) async {
     repo.shopping.put(item);
@@ -82,6 +87,36 @@ class ShoppingList extends StateNotifier<ShoppingListState> {
 
     // Return the sorted cart items
     return sortList(cartItems);
+  }
+
+  int calculateIndexRemovedFrom(ShoppingItem changedItem) {
+    List<ShoppingItem> list = List<ShoppingItem>.from(state.shoppingItems);
+
+    int existingIndex = list.indexWhere((item) => item.uid == changedItem.uid);
+    if (existingIndex != -1) {
+      list[existingIndex] = changedItem.copyWith(checked: false);
+    } else {
+      list.add(changedItem.copyWith(checked: false));
+    }
+
+    list.removeWhere((item) => item.checked && item.uid != changedItem.uid);
+    list = sortList(list);
+    return list.indexWhere((item) => item.uid == changedItem.uid);
+  }
+
+  int calculateInsertionIndex(ShoppingItem changedItem) {
+    List<ShoppingItem> list = List<ShoppingItem>.from(state.shoppingItems);
+
+    int existingIndex = list.indexWhere((item) => item.uid == changedItem.uid);
+    if (existingIndex != -1) {
+      list[existingIndex] = changedItem.copyWith(checked: false);
+    } else {
+      list.add(changedItem.copyWith(checked: false));
+    }
+
+    list.removeWhere((item) => item.checked && item.uid != changedItem.uid);
+    list = sortList(list);
+    return list.indexWhere((item) => item.uid == changedItem.uid);
   }
 
   Future<void> check(ShoppingItem item, bool checked) async {

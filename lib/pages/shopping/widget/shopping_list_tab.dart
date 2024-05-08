@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:repository/database/shopping_list_database.dart';
 import 'package:repository/model/shopping_item.dart';
+import 'package:thingzee/pages/shopping/state/animation.dart';
 import 'package:thingzee/pages/shopping/state/shopping_list.dart';
 import 'package:thingzee/pages/shopping/widget/animated_shopping_list_view.dart';
 import 'package:thingzee/pages/shopping/widget/custom_expansion_tile.dart';
@@ -75,6 +76,11 @@ class _ShoppingListTabState extends ConsumerState<ShoppingListTab>
           item: item,
           editable: false,
           checkbox: true,
+          onChecked: (uid, checked) {
+            if (!checked) {
+              ref.read(animationStateProvider.notifier).addItem(item);
+            }
+          },
         );
       }).toList(),
       onExpansionChanged: (isExpanded) {
@@ -108,7 +114,7 @@ class _ShoppingListTabState extends ConsumerState<ShoppingListTab>
   }
 
   Widget shoppingListViewBuilder(BuildContext context, WidgetRef ref, List<ShoppingItem> items) {
-    return AnimatedShoppingListView(items: items);
+    return const AnimatedShoppingListView();
     // return ListView.builder(
     //   shrinkWrap: true,
     //   physics: const NeverScrollableScrollPhysics(),
