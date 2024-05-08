@@ -40,6 +40,14 @@ class ObjectBoxConverter:
         if dart_class.parent_class_name != "ObjectBoxModel":
             dart_class.parent_class_name = f"ObjectBoxModel<{original_class_name}>"
 
+        # Remove all variables with the Transient annotation
+        dart_class.member_variables = [
+            variable
+            for variable in dart_class.member_variables
+            if "@Transient()" not in variable.annotations
+            and "@Transient" not in variable.annotations
+        ]
+
         dart_class.functions = []
         dart_class.functions.append(self._generate_from_constructor(dart_class))
         dart_class.functions.append(self._generate_convert_method(dart_class))
@@ -79,7 +87,7 @@ class ObjectBoxConverter:
 
         return updated_variable
 
-    def _generate_convert_method(self, dart_class: DartClass):
+    def _generate_convert_method(self, dart_class: DartClass) -> Function:
         original_name = dart_class.name.replace("ObjectBox", "")
         sorted_member_variables = sorted(
             dart_class.member_variables, key=lambda variable: variable.name
@@ -91,31 +99,36 @@ class ObjectBoxConverter:
                 f"      ..{variable.name} = {variable.name}"
                 for variable in sorted_member_variables
             ).rstrip()
-
-            body = f"    return {dart_class.name}()\n{variable_assignments};\n"
-
+            body = f"    return {dart_class.name}()\n{variable_assignments};"
             return Function(
-                "convert",
-                f"{original_name}",
-                "",
-                body.rstrip(),
+                name="convert",
+                return_type=original_name,
+                parameters="",
+                body=body.rstrip(),
             )
-
         # Generate method for custom constructor with parameters on new lines
         else:
-            parameters = ",\n        ".join(
-                f"{variable.name}: {variable.name}"
+            parameters = ",\n    ".join(
+                f"  {variable.name}: {variable.name}"
                 for variable in sorted_member_variables
             )
-            body = f"    return {original_name}(\n" f"        {parameters});\n"
-            return Function("convert", f"{original_name}", "", body)
+            body = f"    return {original_name}(\n    {parameters}\n    );"
+            return Function(
+                name="convert",
+                return_type=original_name,
+                parameters="",
+                body=body,
+            )
 
     def _generate_from_constructor(self, dart_class: DartClass) -> Function:
         original_name = dart_class.name.replace("ObjectBox", "")
+        sorted_member_variables = sorted(
+            dart_class.member_variables, key=lambda variable: variable.name
+        )
 
         function_body = "\n".join(
             f"    {variable.name} = original.{variable.name};"
-            for variable in dart_class.member_variables
+            for variable in sorted_member_variables
         )
         return Function(
             f"{dart_class.name}.from",
