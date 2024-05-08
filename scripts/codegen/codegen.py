@@ -377,11 +377,15 @@ class DartClassGenerator(ABC):
         pass
 
     def generate_to_method(self, dart_class: DartClass) -> str:
+        sorted_attributes = sorted(
+            dart_class.attributes, key=lambda variable: variable.name
+        )
+
         # Generate method for default constructor
         if dart_class.use_default_constructor:
             attribute_assignments = "\n".join(
                 f"      ..{attribute.name} = {attribute.name}"
-                for attribute in dart_class.attributes
+                for attribute in sorted_attributes
             ).rstrip()
 
             return (
@@ -394,8 +398,7 @@ class DartClassGenerator(ABC):
         # Generate method for custom constructor with parameters on new lines
         else:
             parameters = ",\n        ".join(
-                f"{attribute.name}: {attribute.name}"
-                for attribute in dart_class.attributes
+                f"{attribute.name}: {attribute.name}" for attribute in sorted_attributes
             )
             return (
                 f"  {dart_class.name} convert() {{\n"
@@ -415,6 +418,10 @@ class ObjectBoxGenerator(DartClassGenerator):
 
         lines.append("  @Id()")
         lines.append("  int objectBoxId = 0;")
+
+        dart_class.attributes = sorted(
+            dart_class.attributes, key=lambda var: (var.type.lower(), var.name.lower())
+        )
 
         for attribute in dart_class.attributes:
             if attribute.type.startswith("DateTime"):
@@ -441,6 +448,10 @@ class ObjectBoxGenerator(DartClassGenerator):
         lines.append(f"  ObjectBox{dart_class.name}();")
         lines.append(
             f"  ObjectBox{dart_class.name}.from({dart_class.name} original) {{",
+        )
+
+        dart_class.attributes = sorted(
+            dart_class.attributes, key=lambda var: (var.name.lower())
         )
 
         for attribute in dart_class.attributes:
