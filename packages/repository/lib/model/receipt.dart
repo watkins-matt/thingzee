@@ -18,6 +18,7 @@ part 'receipt.merge.dart';
 @Mergeable()
 class Receipt extends Model<Receipt> {
   @JsonKey(defaultValue: [])
+  @Transient()
   final List<ReceiptItem> items; // generator:transient
 
   @NullableDateTimeSerializer()
@@ -35,8 +36,8 @@ class Receipt extends Model<Receipt> {
   final String barcodeType;
 
   Receipt({
-    required this.items,
-    required this.date,
+    this.items = const [],
+    this.date,
     this.subtotal = 0.0,
     this.discounts = const [],
     this.tax = 0.0,

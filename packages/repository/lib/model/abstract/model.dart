@@ -38,3 +38,9 @@ abstract class Model<T> implements JsonConvertible<T> {
     return primary ?? secondary ?? DateTime.now();
   }
 }
+
+/// Annotation for fields that should not be persisted into
+/// generated classes.
+class Transient {
+  const Transient();
+}
