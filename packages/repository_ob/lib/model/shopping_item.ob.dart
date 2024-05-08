@@ -1,9 +1,8 @@
 // ignore_for_file: annotate_overrides
 
-
 import 'package:objectbox/objectbox.dart';
 import 'package:repository/model/shopping_item.dart';
-import 'package:repository_ob/model_custom/object_box_model.dart';
+import 'package:repository_ob/objectbox_model.dart';
 
 @Entity()
 class ObjectBoxShoppingItem extends ObjectBoxModel<ShoppingItem> {

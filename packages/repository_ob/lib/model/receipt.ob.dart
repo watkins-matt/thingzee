@@ -3,7 +3,7 @@
 import 'package:objectbox/objectbox.dart';
 import 'package:repository/model/receipt.dart';
 import 'package:repository/model/receipt_item.dart';
-import 'package:repository_ob/model_custom/object_box_model.dart';
+import 'package:repository_ob/objectbox_model.dart';
 
 @Entity()
 class ObjectBoxReceipt extends ObjectBoxModel<Receipt> {

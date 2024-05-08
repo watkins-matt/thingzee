@@ -1,9 +1,8 @@
 // ignore_for_file: annotate_overrides
 
-
 import 'package:objectbox/objectbox.dart';
 import 'package:repository/model/identifier.dart';
-import 'package:repository_ob/model_custom/object_box_model.dart';
+import 'package:repository_ob/objectbox_model.dart';
 
 @Entity()
 class ObjectBoxIdentifier extends ObjectBoxModel<Identifier> {
@@ -25,11 +24,6 @@ class ObjectBoxIdentifier extends ObjectBoxModel<Identifier> {
     uid = original.uid;
   }
   Identifier convert() {
-    return Identifier(
-        created: created,
-        updated: updated,
-        type: type,
-        value: value,
-        uid: uid);
+    return Identifier(created: created, updated: updated, type: type, value: value, uid: uid);
   }
 }

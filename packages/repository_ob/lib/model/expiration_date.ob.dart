@@ -1,9 +1,8 @@
 // ignore_for_file: annotate_overrides
 
-
 import 'package:objectbox/objectbox.dart';
 import 'package:repository/model/expiration_date.dart';
-import 'package:repository_ob/model_custom/object_box_model.dart';
+import 'package:repository_ob/objectbox_model.dart';
 
 @Entity()
 class ObjectBoxExpirationDate extends ObjectBoxModel<ExpirationDate> {
@@ -25,9 +24,6 @@ class ObjectBoxExpirationDate extends ObjectBoxModel<ExpirationDate> {
   }
   ExpirationDate convert() {
     return ExpirationDate(
-        created: created,
-        updated: updated,
-        upc: upc,
-        expirationDate: expirationDate);
+        created: created, updated: updated, upc: upc, expirationDate: expirationDate);
   }
 }

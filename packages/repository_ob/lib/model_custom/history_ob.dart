@@ -3,7 +3,7 @@ import 'dart:convert';
 
 import 'package:objectbox/objectbox.dart';
 import 'package:repository/ml/history.dart';
-import 'package:repository_ob/model_custom/object_box_model.dart';
+import 'package:repository_ob/objectbox_model.dart';
 
 @Entity()
 class ObjectBoxHistory extends ObjectBoxModel {

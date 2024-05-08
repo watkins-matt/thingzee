@@ -1,8 +1,8 @@
 import 'package:objectbox/objectbox.dart';
 import 'package:repository/database/database.dart';
 import 'package:repository/model/abstract/model.dart';
-import 'package:repository_ob/model_custom/object_box_model.dart';
 import 'package:repository_ob/objectbox.g.dart';
+import 'package:repository_ob/objectbox_model.dart';
 
 typedef FromModel<T extends Model, O extends ObjectBoxModel> = O Function(T model);
 

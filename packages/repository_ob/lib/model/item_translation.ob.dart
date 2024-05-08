@@ -1,9 +1,8 @@
 // ignore_for_file: annotate_overrides
 
-
 import 'package:objectbox/objectbox.dart';
 import 'package:repository/model/item_translation.dart';
-import 'package:repository_ob/model_custom/object_box_model.dart';
+import 'package:repository_ob/objectbox_model.dart';
 
 @Entity()
 class ObjectBoxItemTranslation extends ObjectBoxModel<ItemTranslation> {

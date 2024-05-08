@@ -1,9 +1,8 @@
 // ignore_for_file: annotate_overrides
 
-
 import 'package:objectbox/objectbox.dart';
 import 'package:repository/model/location.dart';
-import 'package:repository_ob/model_custom/object_box_model.dart';
+import 'package:repository_ob/objectbox_model.dart';
 
 @Entity()
 class ObjectBoxLocation extends ObjectBoxModel<Location> {
@@ -25,11 +24,6 @@ class ObjectBoxLocation extends ObjectBoxModel<Location> {
     quantity = original.quantity;
   }
   Location convert() {
-    return Location(
-        created: created,
-        updated: updated,
-        upc: upc,
-        name: name,
-        quantity: quantity);
+    return Location(created: created, updated: updated, upc: upc, name: name, quantity: quantity);
   }
 }
