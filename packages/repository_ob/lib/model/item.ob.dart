@@ -1,5 +1,6 @@
 // ignore_for_file: annotate_overrides
 
+
 import 'package:objectbox/objectbox.dart';
 import 'package:repository/model/item.dart';
 import 'package:repository_ob/objectbox_model.dart';
@@ -8,58 +9,58 @@ import 'package:repository_ob/objectbox_model.dart';
 class ObjectBoxItem extends ObjectBoxModel<Item> {
   @Id()
   int objectBoxId = 0;
+  late bool consumable;
   @Property(type: PropertyType.date)
   late DateTime created;
   @Property(type: PropertyType.date)
   late DateTime updated;
-  @Unique(onConflict: ConflictStrategy.replace)
-  late String upc;
-  late String uid;
-  late String name;
-  late String variety;
+  late int unitCount;
   late String category;
+  late String imageUrl;
+  late String languageCode;
+  late String name;
   late String type;
   late String typeId;
-  late int unitCount;
+  late String uid;
   late String unitName;
   late String unitPlural;
-  late String imageUrl;
-  late bool consumable;
-  late String languageCode;
+  @Unique(onConflict: ConflictStrategy.replace)
+  late String upc;
+  late String variety;
   ObjectBoxItem();
   ObjectBoxItem.from(Item original) {
-    created = original.created;
-    updated = original.updated;
-    upc = original.upc;
-    uid = original.uid;
-    name = original.name;
-    variety = original.variety;
     category = original.category;
+    consumable = original.consumable;
+    created = original.created;
+    imageUrl = original.imageUrl;
+    languageCode = original.languageCode;
+    name = original.name;
     type = original.type;
     typeId = original.typeId;
+    uid = original.uid;
     unitCount = original.unitCount;
     unitName = original.unitName;
     unitPlural = original.unitPlural;
-    imageUrl = original.imageUrl;
-    consumable = original.consumable;
-    languageCode = original.languageCode;
+    upc = original.upc;
+    updated = original.updated;
+    variety = original.variety;
   }
   Item convert() {
     return Item(
-        created: created,
-        updated: updated,
-        upc: upc,
-        uid: uid,
-        name: name,
-        variety: variety,
         category: category,
+        consumable: consumable,
+        created: created,
+        imageUrl: imageUrl,
+        languageCode: languageCode,
+        name: name,
         type: type,
         typeId: typeId,
+        uid: uid,
         unitCount: unitCount,
         unitName: unitName,
         unitPlural: unitPlural,
-        imageUrl: imageUrl,
-        consumable: consumable,
-        languageCode: languageCode);
+        upc: upc,
+        updated: updated,
+        variety: variety);
   }
 }

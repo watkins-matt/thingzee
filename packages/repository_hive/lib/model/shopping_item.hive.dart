@@ -43,15 +43,15 @@ class HiveShoppingItem extends HiveObject {
   }
   ShoppingItem convert() {
     return ShoppingItem(
-        created: created,
-        updated: updated,
-        uid: uid,
-        upc: upc,
-        name: name,
         category: category,
+        checked: checked,
+        created: created,
+        listName: listName,
+        name: name,
         price: price,
         quantity: quantity,
-        checked: checked,
-        listName: listName);
+        uid: uid,
+        upc: upc,
+        updated: updated);
   }
 }

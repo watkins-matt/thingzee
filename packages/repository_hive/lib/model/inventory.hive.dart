@@ -40,14 +40,14 @@ class HiveInventory extends HiveObject {
   }
   Inventory convert() {
     return Inventory(
-        created: created,
-        updated: updated,
         amount: amount,
-        unitCount: unitCount,
-        locations: locations,
+        created: created,
         expirationDates: expirationDates,
+        locations: locations,
         restock: restock,
         uid: uid,
-        upc: upc);
+        unitCount: unitCount,
+        upc: upc,
+        updated: updated);
   }
 }

@@ -29,9 +29,9 @@ class HiveLocation extends HiveObject {
   Location convert() {
     return Location(
         created: created,
-        updated: updated,
-        upc: upc,
         name: name,
-        quantity: quantity);
+        quantity: quantity,
+        upc: upc,
+        updated: updated);
   }
 }

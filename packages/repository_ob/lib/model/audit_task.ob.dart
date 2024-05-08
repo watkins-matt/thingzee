@@ -1,5 +1,6 @@
 // ignore_for_file: annotate_overrides
 
+
 import 'package:objectbox/objectbox.dart';
 import 'package:repository/model/audit_task.dart';
 import 'package:repository_ob/objectbox_model.dart';
@@ -12,30 +13,30 @@ class ObjectBoxAuditTask extends ObjectBoxModel<AuditTask> {
   late DateTime created;
   @Property(type: PropertyType.date)
   late DateTime updated;
-  late String upc;
-  late String type;
-  late String data;
-  late String uid;
   @Property(type: PropertyType.date)
   late DateTime? completed;
+  late String data;
+  late String type;
+  late String uid;
+  late String upc;
   ObjectBoxAuditTask();
   ObjectBoxAuditTask.from(AuditTask original) {
-    created = original.created;
-    updated = original.updated;
-    upc = original.upc;
-    type = original.type;
-    data = original.data;
-    uid = original.uid;
     completed = original.completed;
+    created = original.created;
+    data = original.data;
+    type = original.type;
+    uid = original.uid;
+    upc = original.upc;
+    updated = original.updated;
   }
   AuditTask convert() {
     return AuditTask(
+        completed: completed,
         created: created,
-        updated: updated,
-        upc: upc,
-        type: type,
         data: data,
+        type: type,
         uid: uid,
-        completed: completed);
+        upc: upc,
+        updated: updated);
   }
 }

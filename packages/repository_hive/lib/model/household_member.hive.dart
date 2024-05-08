@@ -35,11 +35,11 @@ class HiveHouseholdMember extends HiveObject {
   HouseholdMember convert() {
     return HouseholdMember(
         created: created,
-        updated: updated,
-        isAdmin: isAdmin,
         email: email,
         householdId: householdId,
+        isAdmin: isAdmin,
         name: name,
+        updated: updated,
         userId: userId);
   }
 }

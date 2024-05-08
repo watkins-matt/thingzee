@@ -43,15 +43,15 @@ class HiveReceiptItem extends HiveObject {
   }
   ReceiptItem convert() {
     return ReceiptItem(
+        barcode: barcode,
+        bottleDeposit: bottleDeposit,
         created: created,
-        updated: updated,
         name: name,
         price: price,
-        regularPrice: regularPrice,
         quantity: quantity,
-        barcode: barcode,
+        receiptUid: receiptUid,
+        regularPrice: regularPrice,
         taxable: taxable,
-        bottleDeposit: bottleDeposit,
-        receiptUid: receiptUid);
+        updated: updated);
   }
 }

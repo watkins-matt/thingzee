@@ -37,13 +37,13 @@ class HiveProduct extends HiveObject {
   }
   Product convert() {
     return Product(
+        category: category,
         created: created,
-        updated: updated,
-        name: name,
-        uid: uid,
         manufacturer: manufacturer,
         manufacturerUid: manufacturerUid,
-        category: category,
-        upcs: upcs);
+        name: name,
+        uid: uid,
+        upcs: upcs,
+        updated: updated);
   }
 }

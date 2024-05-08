@@ -1,5 +1,6 @@
 // ignore_for_file: annotate_overrides
 
+
 import 'package:objectbox/objectbox.dart';
 import 'package:repository/model/identifier.dart';
 import 'package:repository_ob/objectbox_model.dart';
@@ -13,17 +14,22 @@ class ObjectBoxIdentifier extends ObjectBoxModel<Identifier> {
   @Property(type: PropertyType.date)
   late DateTime updated;
   late String type;
-  late String value;
   late String uid;
+  late String value;
   ObjectBoxIdentifier();
   ObjectBoxIdentifier.from(Identifier original) {
     created = original.created;
-    updated = original.updated;
     type = original.type;
-    value = original.value;
     uid = original.uid;
+    updated = original.updated;
+    value = original.value;
   }
   Identifier convert() {
-    return Identifier(created: created, updated: updated, type: type, value: value, uid: uid);
+    return Identifier(
+        created: created,
+        type: type,
+        uid: uid,
+        updated: updated,
+        value: value);
   }
 }

@@ -29,9 +29,9 @@ class HiveIdentifier extends HiveObject {
   Identifier convert() {
     return Identifier(
         created: created,
-        updated: updated,
         type: type,
-        value: value,
-        uid: uid);
+        uid: uid,
+        updated: updated,
+        value: value);
   }
 }

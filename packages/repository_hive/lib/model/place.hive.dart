@@ -34,12 +34,12 @@ class HivePlace extends HiveObject {
   }
   Place convert() {
     return Place(
-        created: created,
-        updated: updated,
-        phoneNumber: phoneNumber,
-        name: name,
         city: city,
+        created: created,
+        name: name,
+        phoneNumber: phoneNumber,
         state: state,
+        updated: updated,
         zipcode: zipcode);
   }
 }

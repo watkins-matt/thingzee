@@ -34,12 +34,12 @@ class HiveAuditTask extends HiveObject {
   }
   AuditTask convert() {
     return AuditTask(
+        completed: completed,
         created: created,
-        updated: updated,
-        upc: upc,
-        type: type,
         data: data,
+        type: type,
         uid: uid,
-        completed: completed);
+        upc: upc,
+        updated: updated);
   }
 }

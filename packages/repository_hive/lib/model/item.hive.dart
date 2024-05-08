@@ -58,20 +58,20 @@ class HiveItem extends HiveObject {
   }
   Item convert() {
     return Item(
-        created: created,
-        updated: updated,
-        upc: upc,
-        uid: uid,
-        name: name,
-        variety: variety,
         category: category,
+        consumable: consumable,
+        created: created,
+        imageUrl: imageUrl,
+        languageCode: languageCode,
+        name: name,
         type: type,
         typeId: typeId,
+        uid: uid,
         unitCount: unitCount,
         unitName: unitName,
         unitPlural: unitPlural,
-        imageUrl: imageUrl,
-        consumable: consumable,
-        languageCode: languageCode);
+        upc: upc,
+        updated: updated,
+        variety: variety);
   }
 }

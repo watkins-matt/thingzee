@@ -1,5 +1,6 @@
 // ignore_for_file: annotate_overrides
 
+
 import 'package:objectbox/objectbox.dart';
 import 'package:repository/model/receipt_item.dart';
 import 'package:repository_ob/objectbox_model.dart';
@@ -8,42 +9,42 @@ import 'package:repository_ob/objectbox_model.dart';
 class ObjectBoxReceiptItem extends ObjectBoxModel<ReceiptItem> {
   @Id()
   int objectBoxId = 0;
+  late bool taxable;
   @Property(type: PropertyType.date)
   late DateTime created;
   @Property(type: PropertyType.date)
   late DateTime updated;
-  late String name;
+  late double bottleDeposit;
   late double price;
   late double regularPrice;
   late int quantity;
   late String barcode;
-  late bool taxable;
-  late double bottleDeposit;
+  late String name;
   late String receiptUid;
   ObjectBoxReceiptItem();
   ObjectBoxReceiptItem.from(ReceiptItem original) {
+    barcode = original.barcode;
+    bottleDeposit = original.bottleDeposit;
     created = original.created;
-    updated = original.updated;
     name = original.name;
     price = original.price;
-    regularPrice = original.regularPrice;
     quantity = original.quantity;
-    barcode = original.barcode;
-    taxable = original.taxable;
-    bottleDeposit = original.bottleDeposit;
     receiptUid = original.receiptUid;
+    regularPrice = original.regularPrice;
+    taxable = original.taxable;
+    updated = original.updated;
   }
   ReceiptItem convert() {
     return ReceiptItem(
+        barcode: barcode,
+        bottleDeposit: bottleDeposit,
         created: created,
-        updated: updated,
         name: name,
         price: price,
-        regularPrice: regularPrice,
         quantity: quantity,
-        barcode: barcode,
+        receiptUid: receiptUid,
+        regularPrice: regularPrice,
         taxable: taxable,
-        bottleDeposit: bottleDeposit,
-        receiptUid: receiptUid);
+        updated: updated);
   }
 }

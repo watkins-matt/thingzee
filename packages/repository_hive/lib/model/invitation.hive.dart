@@ -38,12 +38,12 @@ class HiveInvitation extends HiveObject {
   Invitation convert() {
     return Invitation(
         created: created,
-        updated: updated,
-        uniqueKey: uniqueKey,
         householdId: householdId,
         inviterEmail: inviterEmail,
         inviterUserId: inviterUserId,
         recipientEmail: recipientEmail,
-        status: status);
+        status: status,
+        uniqueKey: uniqueKey,
+        updated: updated);
   }
 }

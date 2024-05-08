@@ -1,5 +1,6 @@
 // ignore_for_file: annotate_overrides
 
+
 import 'package:objectbox/objectbox.dart';
 import 'package:repository/model/item_translation.dart';
 import 'package:repository_ob/objectbox_model.dart';
@@ -12,36 +13,36 @@ class ObjectBoxItemTranslation extends ObjectBoxModel<ItemTranslation> {
   late DateTime created;
   @Property(type: PropertyType.date)
   late DateTime updated;
-  @Unique(onConflict: ConflictStrategy.replace)
-  late String upc;
   late String languageCode;
   late String name;
-  late String variety;
+  late String type;
   late String unitName;
   late String unitPlural;
-  late String type;
+  @Unique(onConflict: ConflictStrategy.replace)
+  late String upc;
+  late String variety;
   ObjectBoxItemTranslation();
   ObjectBoxItemTranslation.from(ItemTranslation original) {
     created = original.created;
-    updated = original.updated;
-    upc = original.upc;
     languageCode = original.languageCode;
     name = original.name;
-    variety = original.variety;
+    type = original.type;
     unitName = original.unitName;
     unitPlural = original.unitPlural;
-    type = original.type;
+    upc = original.upc;
+    updated = original.updated;
+    variety = original.variety;
   }
   ItemTranslation convert() {
     return ItemTranslation(
         created: created,
-        updated: updated,
-        upc: upc,
         languageCode: languageCode,
         name: name,
-        variety: variety,
+        type: type,
         unitName: unitName,
         unitPlural: unitPlural,
-        type: type);
+        upc: upc,
+        updated: updated,
+        variety: variety);
   }
 }

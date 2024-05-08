@@ -1,5 +1,6 @@
 // ignore_for_file: annotate_overrides
 
+
 import 'package:objectbox/objectbox.dart';
 import 'package:repository/model/place.dart';
 import 'package:repository_ob/objectbox_model.dart';
@@ -12,29 +13,29 @@ class ObjectBoxPlace extends ObjectBoxModel<Place> {
   late DateTime created;
   @Property(type: PropertyType.date)
   late DateTime updated;
-  late String phoneNumber;
-  late String name;
   late String city;
+  late String name;
+  late String phoneNumber;
   late String state;
   late String zipcode;
   ObjectBoxPlace();
   ObjectBoxPlace.from(Place original) {
-    created = original.created;
-    updated = original.updated;
-    phoneNumber = original.phoneNumber;
-    name = original.name;
     city = original.city;
+    created = original.created;
+    name = original.name;
+    phoneNumber = original.phoneNumber;
     state = original.state;
+    updated = original.updated;
     zipcode = original.zipcode;
   }
   Place convert() {
     return Place(
-        created: created,
-        updated: updated,
-        phoneNumber: phoneNumber,
-        name: name,
         city: city,
+        created: created,
+        name: name,
+        phoneNumber: phoneNumber,
         state: state,
+        updated: updated,
         zipcode: zipcode);
   }
 }

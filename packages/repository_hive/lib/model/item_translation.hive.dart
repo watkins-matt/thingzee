@@ -41,13 +41,13 @@ class HiveItemTranslation extends HiveObject {
   ItemTranslation convert() {
     return ItemTranslation(
         created: created,
-        updated: updated,
-        upc: upc,
         languageCode: languageCode,
         name: name,
-        variety: variety,
+        type: type,
         unitName: unitName,
         unitPlural: unitPlural,
-        type: type);
+        upc: upc,
+        updated: updated,
+        variety: variety);
   }
 }

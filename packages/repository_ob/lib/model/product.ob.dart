@@ -1,5 +1,6 @@
 // ignore_for_file: annotate_overrides
 
+
 import 'package:objectbox/objectbox.dart';
 import 'package:repository/model/product.dart';
 import 'package:repository_ob/objectbox_model.dart';
@@ -12,32 +13,32 @@ class ObjectBoxProduct extends ObjectBoxModel<Product> {
   late DateTime created;
   @Property(type: PropertyType.date)
   late DateTime updated;
-  late String name;
-  late String uid;
+  List<String> upcs = [];
+  late String category;
   late String manufacturer;
   late String manufacturerUid;
-  late String category;
-  List<String> upcs = [];
+  late String name;
+  late String uid;
   ObjectBoxProduct();
   ObjectBoxProduct.from(Product original) {
+    category = original.category;
     created = original.created;
-    updated = original.updated;
-    name = original.name;
-    uid = original.uid;
     manufacturer = original.manufacturer;
     manufacturerUid = original.manufacturerUid;
-    category = original.category;
+    name = original.name;
+    uid = original.uid;
     upcs = original.upcs;
+    updated = original.updated;
   }
   Product convert() {
     return Product(
+        category: category,
         created: created,
-        updated: updated,
-        name: name,
-        uid: uid,
         manufacturer: manufacturer,
         manufacturerUid: manufacturerUid,
-        category: category,
-        upcs: upcs);
+        name: name,
+        uid: uid,
+        upcs: upcs,
+        updated: updated);
   }
 }

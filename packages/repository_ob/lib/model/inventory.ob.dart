@@ -1,5 +1,6 @@
 // ignore_for_file: annotate_overrides
 
+
 import 'package:objectbox/objectbox.dart';
 import 'package:repository/model/inventory.dart';
 import 'package:repository_ob/objectbox_model.dart';
@@ -8,41 +9,41 @@ import 'package:repository_ob/objectbox_model.dart';
 class ObjectBoxInventory extends ObjectBoxModel<Inventory> {
   @Id()
   int objectBoxId = 0;
+  late bool restock;
   @Property(type: PropertyType.date)
   late DateTime created;
   @Property(type: PropertyType.date)
   late DateTime updated;
   late double amount;
   late int unitCount;
-  List<String> locations = [];
   List<DateTime> expirationDates = [];
-  late bool restock;
+  List<String> locations = [];
   late String uid;
   @Unique(onConflict: ConflictStrategy.replace)
   late String upc;
   ObjectBoxInventory();
   ObjectBoxInventory.from(Inventory original) {
-    created = original.created;
-    updated = original.updated;
     amount = original.amount;
-    unitCount = original.unitCount;
-    locations = original.locations;
+    created = original.created;
     expirationDates = original.expirationDates;
+    locations = original.locations;
     restock = original.restock;
     uid = original.uid;
+    unitCount = original.unitCount;
     upc = original.upc;
+    updated = original.updated;
   }
   Inventory convert() {
     return Inventory(
-        created: created,
-        updated: updated,
         amount: amount,
-        unitCount: unitCount,
-        locations: locations,
+        created: created,
         expirationDates: expirationDates,
+        locations: locations,
         restock: restock,
         uid: uid,
-        upc: upc);
+        unitCount: unitCount,
+        upc: upc,
+        updated: updated);
   }
 
   List<String> get dbExpirationDates {

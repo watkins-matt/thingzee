@@ -35,11 +35,11 @@ class HiveManufacturer extends HiveObject {
   Manufacturer convert() {
     return Manufacturer(
         created: created,
-        updated: updated,
         name: name,
-        website: website,
-        uid: uid,
         parentName: parentName,
-        parentUid: parentUid);
+        parentUid: parentUid,
+        uid: uid,
+        updated: updated,
+        website: website);
   }
 }
