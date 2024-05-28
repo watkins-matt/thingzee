@@ -59,7 +59,8 @@ class _AnimatedShoppingListViewState extends ConsumerState<AnimatedShoppingListV
   }
 
   Widget buildItem(BuildContext context, WidgetRef ref, Animation<double> animation, int index) {
-    final item = ref.read(shoppingListProvider.select((value) => value.shoppingItems[index]));
+    final item =
+        ref.read(shoppingListProvider.select((value) => value.shoppingItems.elementAt(index)));
 
     return AnimatedBuilder(
       animation: animation,
