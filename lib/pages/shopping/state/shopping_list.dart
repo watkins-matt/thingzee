@@ -120,21 +120,20 @@ class ShoppingList extends StateNotifier<ShoppingListState> {
   }
 
   Future<void> check(ShoppingItem item, bool checked) async {
-    int itemIndex = state.shoppingItems.indexWhere((i) => i.uid == item.uid);
+    final updatedShoppingItems = state.shoppingItems.map((i) {
+      if (i.uid == item.uid) {
+        return i.copyWith(checked: checked);
+      }
+      return i;
+    }).toList();
 
-    if (itemIndex != -1) {
-      var updatedItem = state.shoppingItems[itemIndex].copyWith(checked: checked);
-      state.shoppingItems[itemIndex] = updatedItem;
+    repo.shopping.put(item.copyWith(checked: checked));
 
-      repo.shopping.put(updatedItem);
-
-      // Rebuild the cart list
-      final updatedCart = buildCartList(state.shoppingItems, state.cartItems);
-      state = state.copyWith(
-        shoppingItems: sortList(state.shoppingItems),
-        cartItems: updatedCart,
-      );
-    }
+    final updatedCart = buildCartList(updatedShoppingItems, state.cartItems);
+    state = state.copyWith(
+      shoppingItems: sortList(updatedShoppingItems),
+      cartItems: updatedCart,
+    );
   }
 
   void completeTrip() {
