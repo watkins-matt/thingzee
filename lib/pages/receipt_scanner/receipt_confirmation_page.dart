@@ -98,32 +98,33 @@ class _ReceiptConfirmationPageState extends ConsumerState<ReceiptConfirmationPag
     // Directly use unmatchedItems from MatchedItemsNotifier
     final unmatchedItems = matchedItemsNotifier.unmatchedItems;
 
+    // If there are unmatched items, show a confirmation dialog
     if (unmatchedItems.isNotEmpty) {
       // Call showConfirmationDialog with the count of unmatched items
       final proceedWithUnmatched = await showConfirmationDialog(context, unmatchedItems.length);
       if (!proceedWithUnmatched) {
         return false;
       }
+    }
 
-      // Add all items to the inventory
-      final repo = ref.watch(repositoryProvider);
-      final receipt = widget.receipt;
-      matchedItemsNotifier.addItemsToInventory(repo, receipt);
+    // Add all items to the inventory
+    final repo = ref.watch(repositoryProvider);
+    final receipt = widget.receipt;
+    matchedItemsNotifier.addItemsToInventory(repo, receipt);
 
-      // Refresh the shopping list
-      await ref.read(shoppingListProvider.notifier).refreshAll();
+    // Refresh the shopping list
+    await ref.read(shoppingListProvider.notifier).refreshAll();
 
-      // Refresh the inventory provider
-      await ref.read(inventoryProvider.notifier).refresh();
+    // Refresh the inventory provider
+    await ref.read(inventoryProvider.notifier).refresh();
 
-      // Switch back to the inventory view tab
-      ref.read(bottomNavBarIndexProvider.notifier).state = 0;
+    // Switch back to the inventory view tab
+    ref.read(bottomNavBarIndexProvider.notifier).state = 0;
 
-      // Pop the receipt confirmation page
-      if (context.mounted) {
-        Navigator.pop(context);
-        Navigator.pop(context);
-      }
+    // Pop the receipt confirmation page
+    if (context.mounted) {
+      Navigator.pop(context);
+      Navigator.pop(context);
     }
 
     return true;
