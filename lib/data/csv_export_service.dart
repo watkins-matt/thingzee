@@ -32,23 +32,6 @@ class CsvExportService {
     await _shareFile(zipPath);
   }
 
-  Future<String> _writeToFile(String csvData, String fileName) async {
-    Directory appDocDir = await getApplicationDocumentsDirectory();
-    String dirPath = path.join(appDocDir.path, _exportDirName);
-
-    // Create potentially missing directory, or do nothing if it exists
-    _createDirectory(dirPath);
-    String filePath = path.join(dirPath, fileName);
-    File file = File(filePath);
-    await file.writeAsString(csvData);
-
-    return filePath;
-  }
-
-  void _createDirectory(String path) {
-    Directory(path).createSync(recursive: true);
-  }
-
   Future<String> _createBackupZip() async {
     Directory appDocDir = await getApplicationDocumentsDirectory();
     String dirPath = path.join(appDocDir.path, _exportDirName);
@@ -67,11 +50,28 @@ class CsvExportService {
       encoder.addFile(File(element.path));
     });
 
-    encoder.close();
+    await encoder.close();
     return zipFilePath;
+  }
+
+  void _createDirectory(String path) {
+    Directory(path).createSync(recursive: true);
   }
 
   Future<void> _shareFile(String path) async {
     await Share.shareXFiles([XFile(path)], text: 'Backup Data');
+  }
+
+  Future<String> _writeToFile(String csvData, String fileName) async {
+    Directory appDocDir = await getApplicationDocumentsDirectory();
+    String dirPath = path.join(appDocDir.path, _exportDirName);
+
+    // Create potentially missing directory, or do nothing if it exists
+    _createDirectory(dirPath);
+    String filePath = path.join(dirPath, fileName);
+    File file = File(filePath);
+    await file.writeAsString(csvData);
+
+    return filePath;
   }
 }
