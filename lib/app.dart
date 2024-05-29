@@ -35,10 +35,7 @@ class App extends ConsumerWidget {
     final lightThemeData = ThemeData(
       useMaterial3: true,
       colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue).copyWith(
-        background: Colors.white,
-        surfaceTint: Colors.white,
-        surfaceVariant: Colors.white,
-      ),
+          surface: Colors.white, surfaceTint: Colors.white, surfaceContainerHighest: Colors.white),
       cardColor: Colors.white,
       scaffoldBackgroundColor: const Color.fromARGB(255, 225, 226, 236),
     );
@@ -47,17 +44,19 @@ class App extends ConsumerWidget {
       useMaterial3: true,
       colorScheme: const ColorScheme.dark().copyWith(
         surfaceTint: Colors.white,
-        surfaceVariant: Colors.white,
+        surfaceContainerHighest: Colors.white,
         primary: Colors.lightBlueAccent,
         secondary: Colors.blueAccent,
-        surface: const Color(0xFF202125),
-        background: const Color(0xFF2E2F33),
+        surface: const Color(0xFF2E2F33),
         onPrimary: Colors.black,
         onSecondary: Colors.black,
-        onBackground: Colors.grey[400],
         onSurface: Colors.grey[300],
       ),
       cardColor: Colors.grey[900],
+      cardTheme: const CardTheme(
+        color: Color(0xFF2E2F33),
+      ),
+      canvasColor: const Color(0xFF2E2F33),
       scaffoldBackgroundColor: const Color(0xFF202125),
       floatingActionButtonTheme: const FloatingActionButtonThemeData(
         backgroundColor: Colors.lightBlueAccent,

@@ -19,7 +19,7 @@ class LocationListView extends ConsumerWidget {
         if (index < subPaths.length) {
           final subPath = subPaths[index];
           return Padding(
-            padding: const EdgeInsets.only(bottom: 4),
+            padding: const EdgeInsets.only(top: 4),
             child: MaterialCardWidget(padding: 0, children: [
               ListTile(
                 onTap: () => ref.read(locationViewProvider.notifier).changeDirectory(subPath),

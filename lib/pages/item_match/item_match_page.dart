@@ -7,7 +7,7 @@ import 'package:repository/model/item.dart';
 import 'package:thingzee/pages/inventory/state/item_view.dart';
 import 'package:thingzee/pages/item_match/widget/add_item_browser_page.dart';
 import 'package:thingzee/pages/item_match/widget/draggable_bottom_sheet.dart';
-import 'package:thingzee/pages/item_match/widget/potenial_match_list_tile.dart';
+import 'package:thingzee/pages/item_match/widget/potential_match_list_tile.dart';
 import 'package:thingzee/pages/item_match/widget/text_button_with_dropdown.dart';
 
 class ItemMatchPage extends ConsumerStatefulWidget {
@@ -114,7 +114,7 @@ class _ItemMatchPageState extends ConsumerState<ItemMatchPage> {
           ),
           Expanded(
             child: Container(
-              color: theme.colorScheme.background,
+              color: theme.colorScheme.surface,
               child: ListView.builder(
                 itemCount: items.length,
                 itemBuilder: (context, index) {

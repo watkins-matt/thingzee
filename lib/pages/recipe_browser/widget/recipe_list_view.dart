@@ -22,7 +22,7 @@ class RecipeListView extends ConsumerWidget {
 
   Widget _buildListItem(BuildContext context, WidgetRef ref, Recipe recipe, bool isDarkMode) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
+      padding: const EdgeInsets.only(top: 4),
       child: Card(
         margin: EdgeInsets.zero,
         elevation: 1,
