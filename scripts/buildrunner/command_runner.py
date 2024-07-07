@@ -16,7 +16,7 @@ class CommandRunner:
     def __init__(self):
         self.tasks: list[asyncio.Task] = []
 
-    async def run_command(self, command: str, tag: str, cwd: str = None) -> bool:
+    async def run_command(self, command: str, tag: str, cwd: str | None = None) -> bool:
         """Run a system command with the specified tag and optional working directory."""
         logger.info(
             f"[{tag}] Starting command: {command} in {cwd if cwd else 'default directory'}"
@@ -45,7 +45,9 @@ class CommandRunner:
 
         return process.returncode == 0
 
-    def queue_command(self, command: str, tag: str, cwd: str = None) -> asyncio.Task:
+    def queue_command(
+        self, command: str, tag: str, cwd: str | None = None
+    ) -> asyncio.Task:
         """Add a command with a tag and optional working directory to the queue to be executed."""
         task = asyncio.create_task(self.run_command(command, tag, cwd))
         self.tasks.append(task)
