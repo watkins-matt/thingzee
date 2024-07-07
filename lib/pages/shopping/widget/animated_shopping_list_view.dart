@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:repository/model/shopping_item.dart';
 import 'package:thingzee/pages/shopping/state/animation.dart';
 import 'package:thingzee/pages/shopping/state/shopping_list.dart';
 import 'package:thingzee/pages/shopping/widget/shopping_list_tile.dart';
@@ -17,31 +18,26 @@ class _AnimatedShoppingListViewState extends ConsumerState<AnimatedShoppingListV
   @override
   Widget build(BuildContext context) {
     final animationState = ref.watch(animationStateProvider);
-    final uncheckedItems = ref.watch(shoppingListProvider.notifier).uncheckedItems;
+    final uncheckedItems = ref.watch(shoppingListProvider
+        .select((value) => value.shoppingItems.where((item) => !item.checked).toList()));
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       try {
         for (final item in animationState.itemsToRemove.reversed) {
-          // Find the index from uncheckedItems where the uid matches
-          final index = ref.watch(shoppingListProvider.notifier).calculateIndexRemovedFrom(item);
-          listKey.currentState?.removeItem(index, (context, animation) {
-            return FadeTransition(
-                opacity: Tween<double>(begin: 1, end: 0).animate(animation),
-                child: buildItem(
-                  context,
-                  ref,
-                  animation,
-                  index,
-                ));
-          }, duration: const Duration(milliseconds: 100));
-
+          final index = uncheckedItems.indexWhere((i) => i.uid == item.uid);
+          if (index != -1) {
+            listKey.currentState?.removeItem(
+              index,
+              (context, animation) => buildItem(context, ref, animation, item),
+              duration: const Duration(milliseconds: 100),
+            );
+          }
           ref.read(shoppingListProvider.notifier).check(item, true);
         }
 
         for (final item in animationState.itemsToAdd) {
-          final index = ref.watch(shoppingListProvider.notifier).calculateInsertionIndex(item);
+          final index = ref.read(shoppingListProvider.notifier).calculateInsertionIndex(item);
           listKey.currentState?.insertItem(index, duration: const Duration(milliseconds: 100));
-
           ref.read(shoppingListProvider.notifier).check(item, false);
         }
       } finally {
@@ -54,14 +50,17 @@ class _AnimatedShoppingListViewState extends ConsumerState<AnimatedShoppingListV
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       initialItemCount: uncheckedItems.length,
-      itemBuilder: (context, index, animation) => buildItem(context, ref, animation, index),
+      itemBuilder: (context, index, animation) {
+        if (index < 0 || index >= uncheckedItems.length) {
+          return const SizedBox.shrink(); // Return an empty widget if the index is out of range
+        }
+        return buildItem(context, ref, animation, uncheckedItems[index]);
+      },
     );
   }
 
-  Widget buildItem(BuildContext context, WidgetRef ref, Animation<double> animation, int index) {
-    final item =
-        ref.read(shoppingListProvider.select((value) => value.shoppingItems.elementAt(index)));
-
+  Widget buildItem(
+      BuildContext context, WidgetRef ref, Animation<double> animation, ShoppingItem item) {
     return AnimatedBuilder(
       animation: animation,
       builder: (context, child) => SizeTransition(
