@@ -120,16 +120,15 @@ class ShoppingList extends StateNotifier<ShoppingListState> {
   }
 
   Future<void> check(ShoppingItem item, bool checked) async {
+    final updatedItem = item.copyWith(checked: checked);
+    repo.shopping.put(updatedItem);
+
     final updatedShoppingItems = state.shoppingItems.map((i) {
-      if (i.uid == item.uid) {
-        return i.copyWith(checked: checked);
-      }
-      return i;
+      return i.uid == item.uid ? updatedItem : i;
     }).toList();
 
-    repo.shopping.put(item.copyWith(checked: checked));
-
     final updatedCart = buildCartList(updatedShoppingItems, state.cartItems);
+
     state = state.copyWith(
       shoppingItems: sortList(updatedShoppingItems),
       cartItems: updatedCart,
