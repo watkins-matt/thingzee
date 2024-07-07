@@ -34,7 +34,7 @@ class ImportLookupTable:
             "Place": "import 'package:repository/model/place.dart';",
         }
 
-    def get_import(self, attribute_type: str) -> str:
+    def get_import(self, attribute_type: str) -> str | None:
         normalized_type = attribute_type.strip().rstrip("?").strip()
         return self.lookup.get(normalized_type, None)
 
@@ -373,7 +373,7 @@ class DartClassParser:
 
 class DartClassGenerator(ABC):
     @abstractmethod
-    def generate(self, dart_class: DartClass, custom_code: str = None) -> str:
+    def generate(self, dart_class: DartClass, custom_code: str | None = None) -> str:
         pass
 
     def generate_to_method(self, dart_class: DartClass) -> str:
@@ -409,7 +409,7 @@ class DartClassGenerator(ABC):
 
 
 class ObjectBoxGenerator(DartClassGenerator):
-    def generate(self, dart_class: DartClass, custom_code: str = None) -> str:
+    def generate(self, dart_class: DartClass, custom_code: str | None = None) -> str:
         lines = []
         lines.append("@Entity()")
         lines.append(
@@ -483,7 +483,7 @@ class HiveGenerator(DartClassGenerator):
     def type_id(self, value: int):
         self._type_id = value
 
-    def generate(self, dart_class: DartClass, custom_code: str = None) -> str:
+    def generate(self, dart_class: DartClass, custom_code: str | None = None) -> str:
         lines = []
         lines.append(f"@HiveType(typeId: {self.type_id})")
         lines.append(f"class Hive{dart_class.name} extends HiveObject {{")
@@ -656,7 +656,7 @@ def main():
         generate_classes(input_files, output_dir, db_type)
 
 
-def read_custom_code(output_dir: str, class_name: str, output_ext: str) -> str:
+def read_custom_code(output_dir: str, class_name: str, output_ext: str) -> str | None:
     """Read custom code from a .include.dart file
     in the output directory and remove ignore_for_file comments."""
     include_file_path = Path(output_dir) / f"{class_name}.{output_ext}.include.dart"
