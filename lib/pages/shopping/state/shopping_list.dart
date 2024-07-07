@@ -50,6 +50,13 @@ class ShoppingList extends StateNotifier<ShoppingListState> {
 
   Future<void> add(ShoppingItem item) async {
     repo.shopping.put(item);
+
+    // Immediately update the state
+    state = state.copyWith(
+      shoppingItems: [...state.shoppingItems, item],
+    );
+
+    // Refresh the state
     await refreshAll();
   }
 
@@ -210,7 +217,7 @@ class ShoppingList extends StateNotifier<ShoppingListState> {
     );
   }
 
-  Future<void> remove(ShoppingItem item) async {
+  void remove(ShoppingItem item) {
     // If we have a upc, this was an automatically added item.
     // We need to remove it from the inventory database so it isn't re-added
     if (item.upc.isNotEmpty) {
@@ -218,7 +225,13 @@ class ShoppingList extends StateNotifier<ShoppingListState> {
     }
 
     repo.shopping.deleteById(item.uid);
-    await refreshAll();
+
+    // Immediately update the state
+    state = state.copyWith(
+      shoppingItems: state.shoppingItems.where((i) => i.uid != item.uid).toList(),
+      savedItems: state.savedItems.where((i) => i.uid != item.uid).toList(),
+      cartItems: state.cartItems.where((i) => i.uid != item.uid).toList(),
+    );
   }
 
   void sortItems() {
@@ -236,6 +249,34 @@ class ShoppingList extends StateNotifier<ShoppingListState> {
         if (b.name.isEmpty) return -1;
         return a.name.compareTo(b.name);
       });
+  }
+
+  void undoRemove(ShoppingItem item) {
+    // Add the item back to the appropriate list
+    if (item.listName == ShoppingListName.shopping) {
+      state = state.copyWith(
+        shoppingItems: [...state.shoppingItems, item],
+      );
+    } else if (item.listName == ShoppingListName.saved) {
+      state = state.copyWith(
+        savedItems: [...state.savedItems, item],
+      );
+    } else if (item.listName == ShoppingListName.cart) {
+      state = state.copyWith(
+        cartItems: [...state.cartItems, item],
+      );
+    }
+
+    // Add the item back to the database
+    repo.shopping.put(item);
+
+    // If it was an automatically added item, add it back to the inventory
+    if (item.upc.isNotEmpty) {
+      repo.inv.put(item.inventory);
+    }
+
+    // Sort the items
+    sortItems();
   }
 
   void updateItem(ShoppingItem item) {
