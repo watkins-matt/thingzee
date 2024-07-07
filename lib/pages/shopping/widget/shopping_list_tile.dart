@@ -38,10 +38,10 @@ class ShoppingListTile extends HookConsumerWidget {
     }
 
     return Dismissible(
-      key: ValueKey(item.uid),
+      key: UniqueKey(),
       background: buildDismissibleBackground(),
       dismissThresholds: buildDismissThresholds(),
-      onDismissed: (_) => onDismissed(ref),
+      onDismissed: (_) => onDismissed(context, ref),
       child: InkWell(
         onLongPress: () => onLongPress(context, ref, item),
         onTap: () {
@@ -160,8 +160,22 @@ class ShoppingListTile extends HookConsumerWidget {
     }
   }
 
-  void onDismissed(WidgetRef ref) {
-    ref.read(shoppingListProvider.notifier).remove(item);
+  void onDismissed(BuildContext context, WidgetRef ref) {
+    final shoppingListNotifier = ref.read(shoppingListProvider.notifier);
+    shoppingListNotifier.remove(item);
+
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('${item.name} removed'),
+        action: SnackBarAction(
+          label: 'Undo',
+          onPressed: () {
+            shoppingListNotifier.undoRemove(item);
+          },
+        ),
+      ),
+    );
   }
 
   Future<void> onLongPress(BuildContext context, WidgetRef ref, ShoppingItem shoppingItem) async {
