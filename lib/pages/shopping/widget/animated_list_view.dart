@@ -5,6 +5,8 @@ class AnimatedListView<T> extends StatefulWidget {
   final Widget Function(BuildContext, T) itemBuilder;
   final Duration duration;
   final GlobalKey<AnimatedListState>? listKey;
+  final bool shrinkWrap;
+  final ScrollPhysics? physics;
 
   const AnimatedListView({
     super.key,
@@ -12,6 +14,8 @@ class AnimatedListView<T> extends StatefulWidget {
     required this.itemBuilder,
     this.duration = const Duration(milliseconds: 300),
     this.listKey,
+    this.shrinkWrap = true,
+    this.physics = const NeverScrollableScrollPhysics(),
   });
 
   @override
@@ -26,6 +30,8 @@ class AnimatedListViewState<T> extends State<AnimatedListView<T>> {
   Widget build(BuildContext context) {
     return AnimatedList(
       key: _listKey,
+      shrinkWrap: widget.shrinkWrap,
+      physics: widget.physics,
       initialItemCount: _items.length,
       itemBuilder: (context, index, animation) {
         return SizeTransition(
@@ -79,14 +85,12 @@ class AnimatedListViewState<T> extends State<AnimatedListView<T>> {
     final newItems = widget.items;
     final oldItems = _items;
 
-    // Find removed items
     for (int i = oldItems.length - 1; i >= 0; i--) {
       if (!newItems.contains(oldItems[i])) {
         _removeItem(i);
       }
     }
 
-    // Find added items
     for (int i = 0; i < newItems.length; i++) {
       if (!oldItems.contains(newItems[i])) {
         _insertItem(i, newItems[i]);
