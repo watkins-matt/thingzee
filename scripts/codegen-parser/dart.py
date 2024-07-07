@@ -44,6 +44,7 @@ class DartPubspec:
 
 
 class DartClass:
+
     def __init__(
         self,
         name: str,
@@ -52,9 +53,9 @@ class DartClass:
         imports: set[str],
         class_body: str,
         use_default_constructor: bool = True,
-        annotations: list[str] = None,
-        member_functions: list[Function] = None,
-        constructors: list[Constructor] = None,
+        annotations: list[str] | None = None,
+        member_functions: list[Function] | None = None,
+        constructors: list[Constructor] | None = None,
     ):
         self.name = name
         self.parent_class_name = parent_class_name
@@ -62,9 +63,9 @@ class DartClass:
         self.imports = imports
         self.class_body = class_body
         self.use_default_constructor = use_default_constructor
-        self.annotations = annotations if annotations else []
-        self.functions = member_functions if member_functions else []
-        self.constructors = constructors if constructors else []
+        self.annotations: list[str] = annotations if annotations else []
+        self.functions: list[Function] = member_functions if member_functions else []
+        self.constructors: list[Constructor] = constructors if constructors else []
 
     def __repr__(self):
         return f"class {self.name}"
