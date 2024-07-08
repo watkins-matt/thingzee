@@ -31,7 +31,6 @@ class AnimatedListView<T> extends StatefulWidget {
 class AnimatedListViewState<T> extends State<AnimatedListView<T>> {
   late final GlobalKey<AnimatedListState> _listKey;
   late List<T> _items;
-  final Map<int, T> _removingItems = {};
 
   @override
   Widget build(BuildContext context) {
@@ -64,7 +63,7 @@ class AnimatedListViewState<T> extends State<AnimatedListView<T>> {
       return const SizedBox.shrink();
     }
 
-    final item = _removingItems[index] ?? _items[index];
+    final item = _items[index];
 
     return Dismissible(
       key: ValueKey(item),
@@ -93,10 +92,22 @@ class AnimatedListViewState<T> extends State<AnimatedListView<T>> {
     );
   }
 
+  Widget _buildRemovedItem(BuildContext context, T item, Animation<double> animation) {
+    return SizeTransition(
+      sizeFactor: animation,
+      child: FadeTransition(
+        opacity: animation,
+        child: widget.itemBuilder(context, item),
+      ),
+    );
+  }
+
   void _handleDismiss(T item) {
     final index = _items.indexOf(item);
     if (index != -1) {
-      _removeItem(index, animate: false);
+      setState(() {
+        _items.removeAt(index);
+      });
       widget.onDismiss(item);
     }
   }
@@ -104,38 +115,19 @@ class AnimatedListViewState<T> extends State<AnimatedListView<T>> {
   void _insertItem(int index, T item) {
     if (index < 0 || index > _items.length) return;
 
-    _items.insert(index, item);
+    setState(() {
+      _items.insert(index, item);
+    });
     _listKey.currentState?.insertItem(index, duration: widget.duration);
   }
 
-  void _removeItem(int index, {bool animate = true}) {
-    if (index < 0 || index >= _items.length) return;
-
+  void _removeItem(int index) {
     final removedItem = _items[index];
-
-    if (animate) {
-      _removingItems[index] = removedItem;
-      _listKey.currentState?.removeItem(
-        index,
-        (context, animation) => _buildAnimatedItem(context, index, animation),
-        duration: widget.duration,
-      );
-      Future.delayed(widget.duration, () {
-        if (mounted) {
-          setState(() {
-            _removingItems.remove(index);
-          });
-        }
-      });
-    } else {
-      _listKey.currentState?.removeItem(
-        index,
-        (_, __) => const SizedBox.shrink(),
-        duration: Duration.zero,
-      );
-    }
-
-    _items.removeAt(index);
+    _listKey.currentState?.removeItem(
+      index,
+      (context, animation) => _buildRemovedItem(context, removedItem, animation),
+      duration: widget.duration,
+    );
   }
 
   void _updateList() {
@@ -143,17 +135,19 @@ class AnimatedListViewState<T> extends State<AnimatedListView<T>> {
     final oldItems = _items;
 
     for (int i = oldItems.length - 1; i >= 0; i--) {
-      if (!newItems.contains(oldItems[i]) && !_removingItems.containsValue(oldItems[i])) {
+      if (!newItems.contains(oldItems[i])) {
         _removeItem(i);
       }
     }
 
     for (int i = 0; i < newItems.length; i++) {
-      if (i >= oldItems.length || newItems[i] != oldItems[i]) {
+      if (!oldItems.contains(newItems[i])) {
         _insertItem(i, newItems[i]);
       }
     }
 
-    _items = List.from(newItems);
+    setState(() {
+      _items = List.from(newItems);
+    });
   }
 }
