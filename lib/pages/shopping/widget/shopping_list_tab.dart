@@ -3,9 +3,8 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:repository/database/shopping_list_database.dart';
 import 'package:repository/model/shopping_item.dart';
 import 'package:thingzee/pages/shopping/state/shopping_list.dart';
-import 'package:thingzee/pages/shopping/widget/animated_list_view.dart';
+import 'package:thingzee/pages/shopping/widget/animated_shopping_list_view.dart';
 import 'package:thingzee/pages/shopping/widget/custom_expansion_tile.dart';
-import 'package:thingzee/pages/shopping/widget/shopping_list_tile.dart';
 
 class ShoppingListTab extends ConsumerStatefulWidget {
   const ShoppingListTab({super.key});
@@ -39,8 +38,6 @@ class _ShoppingListTabState extends ConsumerState<ShoppingListTab>
 
     final shoppingList = ref.watch(shoppingListProvider);
     final items = shoppingList.shoppingItems;
-    final uncheckedItems = items.where((item) => !item.checked).toList();
-    final checkedItems = items.where((item) => item.checked).toList();
 
     return items.isEmpty
         ? const Center(
@@ -53,44 +50,34 @@ class _ShoppingListTabState extends ConsumerState<ShoppingListTab>
             controller: _scrollController,
             child: Column(
               children: [
-                AnimatedListView<ShoppingItem>(
-                  items: uncheckedItems,
-                  itemBuilder: (context, item) => ShoppingListTile(
-                    item: item,
-                    editable: true,
-                    checkbox: true,
-                    autoFocus: item == uncheckedItems.last && item.name.isEmpty,
-                    onChecked: (uid, checked) {
-                      ref.read(shoppingListProvider.notifier).check(item, checked);
-                    },
-                  ),
+                AnimatedShoppingListView(
+                  filter: (item) => !item.checked,
+                  editable: true,
                 ),
                 ListTile(
                   leading: const Icon(Icons.add),
                   title: const Text('List Item'),
                   onTap: () => addNewItem(context, ref),
                 ),
-                checkedItemsTile(context, ref, checkedItems),
+                checkedItemsTile(context, ref),
               ],
             ),
           );
   }
 
-  Widget checkedItemsTile(BuildContext context, WidgetRef ref, List<ShoppingItem> checkedItems) {
+  Widget checkedItemsTile(BuildContext context, WidgetRef ref) {
+    final checkedItemsCount = ref.watch(
+      shoppingListProvider
+          .select((value) => value.shoppingItems.where((item) => item.checked).length),
+    );
+
     return CustomExpansionTile(
       id: 'ShoppingList.checkedItems',
-      title: Text('${checkedItems.length} Checked Items'),
+      title: Text('$checkedItemsCount Checked Items'),
       children: [
-        AnimatedListView<ShoppingItem>(
-          items: checkedItems,
-          itemBuilder: (context, item) => ShoppingListTile(
-            item: item,
-            editable: false,
-            checkbox: true,
-            onChecked: (uid, checked) {
-              ref.read(shoppingListProvider.notifier).check(item, checked);
-            },
-          ),
+        AnimatedShoppingListView(
+          filter: (item) => item.checked,
+          editable: false,
         ),
       ],
       onExpansionChanged: (isExpanded) {

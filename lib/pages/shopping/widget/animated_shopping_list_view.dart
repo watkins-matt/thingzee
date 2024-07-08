@@ -6,27 +6,47 @@ import 'package:thingzee/pages/shopping/widget/animated_list_view.dart';
 import 'package:thingzee/pages/shopping/widget/shopping_list_tile.dart';
 
 class AnimatedShoppingListView extends ConsumerWidget {
-  const AnimatedShoppingListView({super.key});
+  final bool Function(ShoppingItem) filter;
+  final bool editable;
+
+  const AnimatedShoppingListView({
+    super.key,
+    required this.filter,
+    this.editable = true,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final uncheckedItems = ref.watch(
-      shoppingListProvider
-          .select((value) => value.shoppingItems.where((item) => !item.checked).toList()),
+    final filteredItems = ref.watch(
+      shoppingListProvider.select((value) => value.shoppingItems.where(filter).toList()),
     );
 
     return AnimatedListView<ShoppingItem>(
-      items: uncheckedItems,
+      items: filteredItems,
       itemBuilder: (context, item) => ShoppingListTile(
+        key: UniqueKey(),
         item: item,
+        editable: editable,
         checkbox: true,
-        autoFocus: false,
+        autoFocus: editable && item == filteredItems.last && item.name.isEmpty,
         onChecked: (uid, checked) {
-          if (checked) {
-            ref.read(shoppingListProvider.notifier).check(item, true);
-          }
+          ref.read(shoppingListProvider.notifier).check(item, checked);
         },
       ),
+      onDismiss: (item) {
+        ref.read(shoppingListProvider.notifier).remove(item);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${item.name} removed'),
+            action: SnackBarAction(
+              label: 'Undo',
+              onPressed: () {
+                ref.read(shoppingListProvider.notifier).undoRemove(item);
+              },
+            ),
+          ),
+        );
+      },
     );
   }
 }

@@ -14,14 +14,14 @@ class ShoppingListTile extends HookConsumerWidget {
   final bool autoFocus;
   final void Function(String uid, bool checked)? onChecked;
 
-  ShoppingListTile({
-    Key? key,
+  const ShoppingListTile({
+    super.key,
     required this.item,
     this.editable = true,
     this.checkbox = true,
     this.autoFocus = false,
     this.onChecked,
-  }) : super(key: key ?? ValueKey(item.uid));
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -37,49 +37,36 @@ class ShoppingListTile extends HookConsumerWidget {
       });
     }
 
-    return Dismissible(
-      key: UniqueKey(),
-      background: buildDismissibleBackground(),
-      dismissThresholds: buildDismissThresholds(),
-      onDismissed: (_) => onDismissed(context, ref),
-      child: InkWell(
-        onLongPress: () => onLongPress(context, ref, item),
-        onTap: () {
-          if (editable && !isEditing.value) {
-            isEditing.value = true;
-            focusNode.requestFocus();
-          }
-        },
-        child: ListTile(
-          leading: checkbox
-              ? Checkbox(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  side: const BorderSide(
-                    color: Colors.grey,
-                    width: 2,
-                  ),
-                  value: item.checked,
-                  onChanged: (bool? value) => checkedStatusChanged(ref, value ?? !item.checked),
-                  visualDensity: VisualDensity.compact,
-                )
-              : null,
-          title: editable && isEditing.value
-              ? buildEditableTitle(ref, controller, focusNode, isEditing)
-              : buildTitle(),
-          trailing: isCart ? buildPriceButton(context, ref) : null,
-        ),
+    return InkWell(
+      onLongPress: () => onLongPress(context, ref, item),
+      onTap: () {
+        if (editable && !isEditing.value) {
+          isEditing.value = true;
+          focusNode.requestFocus();
+        }
+      },
+      child: ListTile(
+        leading: checkbox
+            ? Checkbox(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                side: const BorderSide(
+                  color: Colors.grey,
+                  width: 2,
+                ),
+                value: item.checked,
+                onChanged: (bool? value) => checkedStatusChanged(ref, value ?? !item.checked),
+                visualDensity: VisualDensity.compact,
+              )
+            : null,
+        title: editable && isEditing.value
+            ? buildEditableTitle(ref, controller, focusNode, isEditing)
+            : buildTitle(),
+        trailing: isCart ? buildPriceButton(context, ref) : null,
       ),
     );
   }
-
-  Widget buildDismissibleBackground() => Container(color: Colors.red);
-
-  Map<DismissDirection, double> buildDismissThresholds() => const {
-        DismissDirection.endToStart: 0.9,
-        DismissDirection.startToEnd: 0.9,
-      };
 
   Widget buildEditableTitle(WidgetRef ref, TextEditingController controller, FocusNode focusNode,
       ValueNotifier<bool> isEditing) {
@@ -158,24 +145,6 @@ class ShoppingListTile extends HookConsumerWidget {
     if (onChecked != null) {
       onChecked!(item.uid, checked);
     }
-  }
-
-  void onDismissed(BuildContext context, WidgetRef ref) {
-    final shoppingListNotifier = ref.read(shoppingListProvider.notifier);
-    shoppingListNotifier.remove(item);
-
-    ScaffoldMessenger.of(context).clearSnackBars();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('${item.name} removed'),
-        action: SnackBarAction(
-          label: 'Undo',
-          onPressed: () {
-            shoppingListNotifier.undoRemove(item);
-          },
-        ),
-      ),
-    );
   }
 
   Future<void> onLongPress(BuildContext context, WidgetRef ref, ShoppingItem shoppingItem) async {
