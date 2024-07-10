@@ -91,10 +91,6 @@ class ShoppingListTile extends HookConsumerWidget {
         ref.read(shoppingListProvider.notifier).sortItems();
         isEditing.value = false;
       },
-      onChanged: (value) {
-        if (value.isEmpty) return;
-        ref.read(shoppingListProvider.notifier).updateItem(item.copyWith(name: value));
-      },
       maxLines: null,
     );
   }
