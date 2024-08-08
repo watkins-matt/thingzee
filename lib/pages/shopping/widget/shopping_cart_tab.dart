@@ -51,10 +51,37 @@ class _ShoppingCartTabState extends ConsumerState<ShoppingCartTab>
   }
 
   Widget shoppingCartItemBuilder(BuildContext context, WidgetRef ref, ShoppingItem item) {
-    return ShoppingListTile(
-      item: item,
-      editable: false,
-      checkbox: false,
+    return Dismissible(
+      key: Key(item.uid),
+      direction: DismissDirection.endToStart,
+      background: Container(
+        color: Colors.red,
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 20),
+        child: const Icon(
+          Icons.delete,
+          color: Colors.white,
+        ),
+      ),
+      onDismissed: (direction) {
+        ref.read(shoppingListProvider.notifier).remove(item);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${item.name} removed from cart'),
+            action: SnackBarAction(
+              label: 'Undo',
+              onPressed: () {
+                ref.read(shoppingListProvider.notifier).undoRemove(item);
+              },
+            ),
+          ),
+        );
+      },
+      child: ShoppingListTile(
+        item: item,
+        editable: false,
+        checkbox: false,
+      ),
     );
   }
 
