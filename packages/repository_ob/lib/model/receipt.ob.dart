@@ -2,6 +2,7 @@
 
 import 'package:objectbox/objectbox.dart';
 import 'package:repository/model/receipt.dart';
+import 'package:repository/model/receipt_item.dart';
 import 'package:repository_ob/objectbox_model.dart';
 
 @Entity()
@@ -18,6 +19,8 @@ class ObjectBoxReceipt extends ObjectBoxModel<Receipt> {
   late double tax;
   late double total;
   List<double> discounts = [];
+  @Transient()
+  List<ReceiptItem> items = [];
   late String barcodeType;
   late String uid;
   ObjectBoxReceipt();
@@ -26,6 +29,7 @@ class ObjectBoxReceipt extends ObjectBoxModel<Receipt> {
     created = original.created;
     date = original.date;
     discounts = original.discounts;
+    items = original.items;
     subtotal = original.subtotal;
     tax = original.tax;
     total = original.total;
@@ -38,6 +42,7 @@ class ObjectBoxReceipt extends ObjectBoxModel<Receipt> {
         created: created,
         date: date,
         discounts: discounts,
+        items: items,
         subtotal: subtotal,
         tax: tax,
         total: total,

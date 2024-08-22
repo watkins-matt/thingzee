@@ -88,6 +88,7 @@ class Receipt extends Model<Receipt> {
     String? barcodeType,
     DateTime? created,
     DateTime? updated,
+    String? uid,
   }) {
     return Receipt(
       items: items ?? this.items,
@@ -99,6 +100,7 @@ class Receipt extends Model<Receipt> {
       barcodeType: barcodeType ?? this.barcodeType,
       created: created ?? this.created,
       updated: updated ?? this.updated,
+      uid: uid ?? this.uid,
     );
   }
 
