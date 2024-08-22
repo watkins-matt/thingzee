@@ -9,7 +9,7 @@ import 'package:repository_appw/util/synchronizable.dart';
 
 class AppwriteLocationDatabase extends LocationDatabase
     with AppwriteSynchronizable<Location>, AppwriteDatabase<Location> {
-  static const String TAG = 'AppwriteLocationDatabase';
+  static const String tag = 'AppwriteLocationDatabase';
 
   AppwriteLocationDatabase(
     Preferences prefs,
@@ -17,8 +17,8 @@ class AppwriteLocationDatabase extends LocationDatabase
     String databaseId,
     String collectionId,
   ) : super() {
-    constructDatabase(TAG, database, databaseId, collectionId);
-    constructSynchronizable(TAG, prefs, onConnectivityChange: (bool online) async {
+    constructDatabase(tag, database, databaseId, collectionId);
+    constructSynchronizable(tag, prefs, onConnectivityChange: (bool online) async {
       if (online) {
         await taskQueue.runUntilComplete();
       }

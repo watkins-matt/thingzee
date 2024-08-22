@@ -9,7 +9,7 @@ import 'package:repository_appw/util/synchronizable.dart';
 
 class AppwriteIdentifierDatabase extends IdentifierDatabase
     with AppwriteSynchronizable<Identifier>, AppwriteDatabase<Identifier> {
-  static const String TAG = 'AppwriteIdentifierDatabase';
+  static const String tag = 'AppwriteIdentifierDatabase';
 
   AppwriteIdentifierDatabase(
     Preferences prefs,
@@ -17,8 +17,8 @@ class AppwriteIdentifierDatabase extends IdentifierDatabase
     String databaseId,
     String collectionId,
   ) : super() {
-    constructDatabase(TAG, database, databaseId, collectionId);
-    constructSynchronizable(TAG, prefs, onConnectivityChange: (bool online) async {
+    constructDatabase(tag, database, databaseId, collectionId);
+    constructSynchronizable(tag, prefs, onConnectivityChange: (bool online) async {
       if (online) {
         await taskQueue.runUntilComplete();
       }

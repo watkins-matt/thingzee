@@ -45,7 +45,9 @@ class _ItemMatchPageState extends ConsumerState<ItemMatchPage> {
   void addNewItemFromWeb(BuildContext context) {
     AddItemBrowserPage.push(context, widget.searchUrl).then((item) {
       if (item != null) {
-        Navigator.of(context).pop(item);
+        if (context.mounted) {
+          Navigator.of(context).pop(item);
+        }
       }
     });
   }

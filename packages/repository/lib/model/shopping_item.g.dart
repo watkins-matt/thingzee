@@ -14,7 +14,7 @@ ShoppingItem _$ShoppingItemFromJson(Map<String, dynamic> json) => ShoppingItem(
       name: json['name'] as String? ?? '',
       category: json['category'] as String? ?? '',
       price: (json['price'] as num?)?.toDouble() ?? 0.0,
-      quantity: json['quantity'] as int? ?? 1,
+      quantity: (json['quantity'] as num?)?.toInt() ?? 1,
       created: _$JsonConverterFromJson<int, DateTime>(
           json['created'], const DateTimeSerializer().fromJson),
       updated: _$JsonConverterFromJson<int, DateTime>(

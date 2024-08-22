@@ -12,7 +12,7 @@ import 'package:repository_appw/util/synchronizable.dart';
 
 class AppwriteHistoryDatabase extends HistoryDatabase
     with AppwriteSynchronizable<History>, AppwriteDatabase<History> {
-  static const String TAG = 'AppwriteHistoryDatabase';
+  static const String tag = 'AppwriteHistoryDatabase';
 
   AppwriteHistoryDatabase(
     Preferences prefs,
@@ -20,8 +20,8 @@ class AppwriteHistoryDatabase extends HistoryDatabase
     String databaseId,
     String collectionId,
   ) : super() {
-    constructDatabase(TAG, database, databaseId, collectionId);
-    constructSynchronizable(TAG, prefs, onConnectivityChange: (bool online) async {
+    constructDatabase(tag, database, databaseId, collectionId);
+    constructSynchronizable(tag, prefs, onConnectivityChange: (bool online) async {
       if (online) {
         await taskQueue.runUntilComplete();
       }
@@ -33,7 +33,7 @@ class AppwriteHistoryDatabase extends HistoryDatabase
     try {
       return History.fromJson(jsonDecode(json['json']));
     } catch (e) {
-      Log.w('$TAG: Failed to deserialize History object for upc ${json["upc"]}. Error: $e');
+      Log.w('$tag: Failed to deserialize History object for upc ${json["upc"]}. Error: $e');
       return null;
     }
   }

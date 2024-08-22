@@ -6,5 +6,6 @@ Future<String?> getPlatformLogDirectoryPath() async {
 }
 
 void platformPrint(String message) {
+  // ignore: avoid_print
   print(message);
 }

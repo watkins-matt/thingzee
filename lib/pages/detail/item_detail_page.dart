@@ -77,7 +77,7 @@ class ItemDetailPage extends HookConsumerWidget {
 
     return PopScope(
       canPop: true,
-      onPopInvoked: (pop) async => onBackButtonPressed(context, ref),
+      onPopInvokedWithResult: (pop, result) async => onBackButtonPressed(context, ref),
       child: Scaffold(
         appBar: AppBar(
           leadingWidth: 120,

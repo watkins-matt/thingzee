@@ -14,7 +14,7 @@ Item _$ItemFromJson(Map<String, dynamic> json) => Item(
       category: json['category'] as String? ?? '',
       type: json['type'] as String? ?? '',
       typeId: json['typeId'] as String? ?? '',
-      unitCount: json['unitCount'] as int? ?? 1,
+      unitCount: (json['unitCount'] as num?)?.toInt() ?? 1,
       unitName: json['unitName'] as String? ?? '',
       unitPlural: json['unitPlural'] as String? ?? '',
       imageUrl: json['imageUrl'] as String? ?? '',

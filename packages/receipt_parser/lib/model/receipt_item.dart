@@ -14,7 +14,7 @@ class ParsedReceiptItem {
   final double bottleDeposit;
   final String receiptUid;
 
-  ParsedReceiptItem({
+  const ParsedReceiptItem({
     required this.name,
     this.price = 0.0,
     this.quantity = 1,

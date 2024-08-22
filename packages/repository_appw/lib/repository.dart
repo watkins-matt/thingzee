@@ -32,7 +32,7 @@ class AppwriteRepository extends CloudRepository {
   String _userId = '';
   String _userEmail = '';
 
-  AppwriteRepository._(ConnectivityService service) : super(service);
+  AppwriteRepository._(super.service);
 
   @override
   bool get isMultiUser => true;

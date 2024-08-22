@@ -65,7 +65,7 @@ class HomeAssistantApi {
     _channel!.sink.add(jsonEncode(data));
     Log.i('Fetching todo data for $entityId...');
 
-    return _responseCompleter.future.timeout(Duration(seconds: 10), onTimeout: () {
+    return _responseCompleter.future.timeout(const Duration(seconds: 10), onTimeout: () {
       Log.i('Fetching todo data timed out for $entityId.');
       return [];
     });

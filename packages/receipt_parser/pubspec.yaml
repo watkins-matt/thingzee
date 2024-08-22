@@ -9,9 +9,11 @@ environment:
 
 dependencies:
   fuzzy: ^0.5.1
+  intl: ^0.18.1
   json_annotation: ^4.0.1
   log:
     path: ../log
+  meta: ^1.15.0
   petitparser: ^6.0.2
   util:
     path: ../util

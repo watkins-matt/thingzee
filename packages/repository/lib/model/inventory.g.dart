@@ -8,7 +8,7 @@ part of 'inventory.dart';
 
 Inventory _$InventoryFromJson(Map<String, dynamic> json) => Inventory(
       amount: (json['amount'] as num?)?.toDouble() ?? 0,
-      unitCount: json['unitCount'] as int? ?? 1,
+      unitCount: (json['unitCount'] as num?)?.toInt() ?? 1,
       expirationDates: (json['expirationDates'] as List<dynamic>?)
               ?.map((e) => DateTime.parse(e as String))
               .toList() ??

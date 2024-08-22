@@ -58,7 +58,7 @@ class MergeGenerator implements Builder {
     // Merge each field individually.
     for (final field in originalClass.fields) {
       if (!field.isSynthetic) {
-        String fieldType = field.type.getDisplayString(withNullability: true);
+        String fieldType = field.type.getDisplayString();
         String fieldName = field.name.startsWith('_') ? field.name.substring(1) : field.name;
 
         if (fieldType == 'String') {

@@ -11,7 +11,7 @@ import 'package:uuid/uuid.dart';
 
 class AppwriteInvitationDatabase extends InvitationDatabase
     with AppwriteSynchronizable<Invitation>, AppwriteDatabase<Invitation> {
-  static const String TAG = 'AppwriteInvitationDatabase';
+  static const String tag = 'AppwriteInvitationDatabase';
   final String householdId;
 
   AppwriteInvitationDatabase(
@@ -21,8 +21,8 @@ class AppwriteInvitationDatabase extends InvitationDatabase
     String collectionId,
     this.householdId,
   ) : super() {
-    constructDatabase(TAG, database, databaseId, collectionId);
-    constructSynchronizable(TAG, prefs, onConnectivityChange: (bool online) async {
+    constructDatabase(tag, database, databaseId, collectionId);
+    constructSynchronizable(tag, prefs, onConnectivityChange: (bool online) async {
       if (online) {
         await taskQueue.runUntilComplete();
       }
@@ -40,10 +40,11 @@ class AppwriteInvitationDatabase extends InvitationDatabase
     final recipientUserId = hashEmail(invitation.recipientEmail);
 
     if (userId != recipientUserId) {
-      throw Exception('$TAG: Cannot accept invitation for another user.');
+      throw Exception('$tag: Cannot accept invitation for another user.');
     }
 
-    final response = invitation.copyWith(status: InvitationStatus.accepted, uniqueKey: Uuid().v4());
+    final response =
+        invitation.copyWith(status: InvitationStatus.accepted, uniqueKey: const Uuid().v4());
 
     final permissions = [
       Permission.read(Role.user(userId, 'verified')),
@@ -68,7 +69,7 @@ class AppwriteInvitationDatabase extends InvitationDatabase
     String recipientUserId = hashEmail(recipientEmail);
 
     final invitation = Invitation(
-      uniqueKey: Uuid().v4(),
+      uniqueKey: const Uuid().v4(),
       householdId: householdId,
       inviterEmail: userEmail,
       inviterUserId: userId,

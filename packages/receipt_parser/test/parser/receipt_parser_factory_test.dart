@@ -25,7 +25,7 @@ void main() {
 
     test('Test parsing secondary line', () {
       const line = 'Some extra info';
-      parserFactory.currentItem = ParsedReceiptItem(
+      parserFactory.currentItem = const ParsedReceiptItem(
         barcode: '1234567890',
         name: 'Item Name',
         price: 10.99,
@@ -45,7 +45,7 @@ void main() {
 
     test('Test parsing extra info', () {
       const line = 'Some extra info';
-      parserFactory.currentItem = ParsedReceiptItem(
+      parserFactory.currentItem = const ParsedReceiptItem(
         barcode: '1234567890',
         name: 'Item Name',
         price: 10.99,
@@ -65,7 +65,7 @@ void main() {
 
     test('Test parsing new primary line', () {
       const line = r'1234567890 Item Name $10.99 $9.99';
-      parserFactory.currentItem = ParsedReceiptItem(
+      parserFactory.currentItem = const ParsedReceiptItem(
         barcode: '1234567890',
         name: 'Item Name',
         price: 10.99,

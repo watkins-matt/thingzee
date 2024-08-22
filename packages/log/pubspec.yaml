@@ -10,7 +10,8 @@ environment:
 dependencies:
   intl: ^0.18.1
   logger: ^2.0.2+1
+  path: ^1.9.0
   path_provider: ^2.0.15
   stack_trace: ^1.11.0
 
-dev_dependencies:
+dev_dependencies: null

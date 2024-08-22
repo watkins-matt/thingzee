@@ -12,7 +12,7 @@ import 'package:uuid/uuid.dart';
 
 class AppwriteHouseholdDatabase extends HouseholdDatabase
     with AppwriteSynchronizable<HouseholdMember>, AppwriteDatabase<HouseholdMember> {
-  static const String TAG = 'AppwriteHouseholdDatabase';
+  static const String tag = 'AppwriteHouseholdDatabase';
   final Teams _teams;
   final Preferences prefs;
   String _householdId = '';
@@ -25,8 +25,8 @@ class AppwriteHouseholdDatabase extends HouseholdDatabase
     String databaseId,
     String collectionId,
   ) : super() {
-    constructDatabase(TAG, database, databaseId, collectionId);
-    constructSynchronizable(TAG, prefs, onConnectivityChange: connectivityChanged);
+    constructDatabase(tag, database, databaseId, collectionId);
+    constructSynchronizable(tag, prefs, onConnectivityChange: connectivityChanged);
   }
 
   @override

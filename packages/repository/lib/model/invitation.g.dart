@@ -14,7 +14,8 @@ Invitation _$InvitationFromJson(Map<String, dynamic> json) => Invitation(
       recipientEmail: json['recipientEmail'] as String? ?? '',
       status: json['status'] == null
           ? InvitationStatus.pending
-          : const InvitationStatusSerializer().fromJson(json['status'] as int),
+          : const InvitationStatusSerializer()
+              .fromJson((json['status'] as num).toInt()),
       created: _$JsonConverterFromJson<int, DateTime>(
           json['created'], const DateTimeSerializer().fromJson),
       updated: _$JsonConverterFromJson<int, DateTime>(

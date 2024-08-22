@@ -51,8 +51,8 @@ class AppwriteTaskQueue {
       while (!_paused && _taskQueue.isNotEmpty) {
         if (_lastRateLimitHit != null) {
           final difference = DateTime.now().difference(_lastRateLimitHit!);
-          if (difference < Duration(minutes: 1)) {
-            final timeToWait = Duration(minutes: 1) - difference;
+          if (difference < const Duration(minutes: 1)) {
+            final timeToWait = const Duration(minutes: 1) - difference;
             await Future.delayed(timeToWait);
             _lastRateLimitHit = null;
           }

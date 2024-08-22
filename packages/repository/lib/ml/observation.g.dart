@@ -9,7 +9,7 @@ part of 'observation.dart';
 Observation _$ObservationFromJson(Map<String, dynamic> json) => Observation(
       timestamp: (json['timestamp'] as num).toDouble(),
       amount: (json['amount'] as num).toDouble(),
-      householdCount: json['householdCount'] as int,
+      householdCount: (json['householdCount'] as num).toInt(),
     );
 
 Map<String, dynamic> _$ObservationToJson(Observation instance) =>

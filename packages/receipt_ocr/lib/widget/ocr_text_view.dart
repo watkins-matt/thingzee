@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class OCRTextView extends StatelessWidget {
   final String text;
 
-  const OCRTextView({Key? key, required this.text}) : super(key: key);
+  const OCRTextView({super.key, required this.text});
 
   @override
   Widget build(BuildContext context) {

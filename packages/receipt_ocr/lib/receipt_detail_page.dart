@@ -252,7 +252,7 @@ class ReceiptDetailPage extends ConsumerWidget {
   }
 
   void _insertNewItem(BuildContext context, WidgetRef ref, int index, {required bool before}) {
-    ParsedReceiptItem newItem = ParsedReceiptItem(
+    ParsedReceiptItem newItem = const ParsedReceiptItem(
       name: '',
       barcode: '',
       quantity: 1,

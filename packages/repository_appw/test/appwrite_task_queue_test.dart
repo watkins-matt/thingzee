@@ -17,9 +17,9 @@ void main() {
   group('queueTask', () {
     test('Should add a task to the task queue', () {
       bool taskExecuted = false;
-      final task = () async {
+      Future<void> task() async {
         taskExecuted = true;
-      };
+      }
 
       taskQueue.queueTask(task);
 
@@ -35,15 +35,15 @@ void main() {
       bool task1Executed = false;
       bool task2Executed = false;
 
-      final task1 = () async {
+      Future<void> task1() async {
         task1Executed = true;
         completer1.complete(); // Complete the first completer when task1 finishes
-      };
+      }
 
-      final task2 = () async {
+      Future<void> task2() async {
         task2Executed = true;
         completer2.complete(); // Complete the second completer when task2 finishes
-      };
+      }
 
       taskQueue.queueTask(task1);
       taskQueue.queueTask(task2);
@@ -61,7 +61,7 @@ void main() {
       int taskExecutions = 0;
       const maxRetries = 3; // Replace with your actual maxRetries value
 
-      final task = () async {
+      Future<void> task() async {
         taskExecutions++;
         if (taskExecutions >= maxRetries) {
           // The Completer should complete after the maxRetries + 1 attempt.
@@ -70,7 +70,7 @@ void main() {
           }
         }
         throw AppwriteException('', 500);
-      };
+      }
 
       taskQueue.queueTask(task);
       await completer.future; // Wait for the task to be retried maxRetries times
@@ -87,16 +87,16 @@ void main() {
       bool task2Executed = false;
       bool rateLimitHit = false;
 
-      final task1 = () async {
+      Future<void> task1() async {
         task1Executed = true;
         completer1.complete();
-      };
+      }
 
-      final task2 = () async {
+      Future<void> task2() async {
         try {
           task2Executed = true; // Task2 starts executing
           // Simulate work
-          await Future.delayed(Duration(milliseconds: 100));
+          await Future.delayed(const Duration(milliseconds: 100));
           // Throw a rate limit exception
           throw AppwriteException('', 429);
         } on AppwriteException catch (e) {
@@ -105,7 +105,7 @@ void main() {
             completer2.complete(); // Complete the completer on rate limit hit
           }
         }
-      };
+      }
 
       taskQueue.queueTask(task1);
       taskQueue.queueTask(task2);
@@ -122,9 +122,9 @@ void main() {
   group('pause', () {
     test('Should pause processing of the task queue', () async {
       bool taskExecuted = false;
-      final task = () async {
+      Future<void> task() async {
         taskExecuted = true;
-      };
+      }
 
       taskQueue.queueTask(task);
       taskQueue.pause();
@@ -139,13 +139,13 @@ void main() {
     test('Should resume processing of the task queue', () async {
       final completer = Completer<void>();
       bool taskExecuted = false;
-      final task = () async {
+      Future<void> task() async {
         // Perform the task
         taskExecuted = true;
 
         // Complete the completer once the task is done
         completer.complete();
-      };
+      }
 
       taskQueue.queueTask(task);
       taskQueue.pause();

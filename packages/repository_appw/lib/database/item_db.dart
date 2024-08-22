@@ -8,7 +8,7 @@ import 'package:repository_appw/util/synchronizable.dart';
 
 class AppwriteItemDatabase extends ItemDatabase
     with AppwriteSynchronizable<Item>, AppwriteDatabase<Item> {
-  static const String TAG = 'AppwriteItemDatabase';
+  static const String tag = 'AppwriteItemDatabase';
 
   AppwriteItemDatabase(
     Preferences prefs,
@@ -16,8 +16,8 @@ class AppwriteItemDatabase extends ItemDatabase
     String databaseId,
     String collectionId,
   ) : super() {
-    constructDatabase(TAG, database, databaseId, collectionId);
-    constructSynchronizable(TAG, prefs, onConnectivityChange: (bool online) async {
+    constructDatabase(tag, database, databaseId, collectionId);
+    constructSynchronizable(tag, prefs, onConnectivityChange: (bool online) async {
       if (online) {
         await taskQueue.runUntilComplete();
       }

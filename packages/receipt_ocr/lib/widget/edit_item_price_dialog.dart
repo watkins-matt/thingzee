@@ -8,7 +8,7 @@ class EditItemPriceDialog extends StatefulWidget {
   const EditItemPriceDialog({super.key, required this.item, required this.onItemEdited});
 
   @override
-  _EditItemPriceDialogState createState() => _EditItemPriceDialogState();
+  State<EditItemPriceDialog> createState() => _EditItemPriceDialogState();
 }
 
 class _EditItemPriceDialogState extends State<EditItemPriceDialog> {
@@ -26,7 +26,7 @@ class _EditItemPriceDialogState extends State<EditItemPriceDialog> {
             focusNode: priceFocusNode,
             controller: priceController,
             decoration: const InputDecoration(labelText: 'Price'),
-            keyboardType: TextInputType.numberWithOptions(decimal: true),
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
             autofocus: true,
           ),
           Row(

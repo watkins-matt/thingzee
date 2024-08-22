@@ -17,7 +17,7 @@ class LoginPage extends ConsumerWidget {
 
     return PopScope(
       canPop: true,
-      onPopInvoked: (pop) async {
+      onPopInvokedWithResult: (pop, result) async {
         // Clear any error messages when we leave the page
         ref.read(loginStateProvider.notifier).clearErrorMessage();
       },

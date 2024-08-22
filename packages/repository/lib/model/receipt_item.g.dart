@@ -9,7 +9,7 @@ part of 'receipt_item.dart';
 ReceiptItem _$ReceiptItemFromJson(Map<String, dynamic> json) => ReceiptItem(
       name: json['name'] as String? ?? '',
       price: (json['price'] as num?)?.toDouble() ?? 0.0,
-      quantity: json['quantity'] as int? ?? 1,
+      quantity: (json['quantity'] as num?)?.toInt() ?? 1,
       regularPrice: (json['regularPrice'] as num?)?.toDouble() ?? 0.0,
       barcode: json['barcode'] as String? ?? '',
       taxable: json['taxable'] as bool? ?? true,

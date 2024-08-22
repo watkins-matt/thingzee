@@ -8,7 +8,7 @@ class EditItemNameDialog extends StatefulWidget {
   const EditItemNameDialog({super.key, required this.item, required this.onItemEdited});
 
   @override
-  _EditItemNameDialogState createState() => _EditItemNameDialogState();
+  State<EditItemNameDialog> createState() => _EditItemNameDialogState();
 }
 
 class _EditItemNameDialogState extends State<EditItemNameDialog> {

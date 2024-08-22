@@ -251,7 +251,7 @@ class TimeDisplaySimplePrinter extends SimplePrinter {
     }
 
     if (message is Map || message is Iterable) {
-      return JsonEncoder.withIndent('  ').convert(message);
+      return const JsonEncoder.withIndent('  ').convert(message);
     } else {
       return message.toString();
     }
