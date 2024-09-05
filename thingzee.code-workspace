@@ -1,0 +1,42 @@
+{
+	"folders": [
+		{
+			"name": "thingzee",
+			"path": "."
+		},
+		{
+			"name": "buildrunner",
+			"path": "scripts/buildrunner"
+		},
+		{
+			"name": "codegen",
+			"path": "scripts/codegen"
+		},
+		{
+			"name": "codegen-parser",
+			"path": "scripts/codegen-parser"
+		}
+	],
+	"settings": {
+		"files.exclude": {
+			"**/.git": true,
+			"**/.svn": true,
+			"**/.hg": true,
+			"**/CVS": true,
+			"**/.DS_Store": true,
+			"**/Thumbs.db": true,
+			"*.exe": true,
+			"*.ilk": true,
+			"*.out": true,
+			"*.pdb": true,
+			"**/.classpath": true,
+			"**/.project": true,
+			"**/.settings": true,
+			"**/.factorypath": true,
+			"**/*.iml": true,
+			"**/.history": true,
+			"**/.metadata": true,
+			".metadata": true
+		},
+	},
+}
