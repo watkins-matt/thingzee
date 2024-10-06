@@ -132,9 +132,12 @@ class ProjectManager:
 
             if flags["build_run"]:
                 future = self.command_runner.queue_command(
-                    "dart run build_runner build",
+                    "dart run build_runner build --delete-conflicting-outputs",
                     f"BuildRun-{project_name}",
                     str(project_path),
+                    input_condition={
+                        r"Delete these files\?\s+1 - Delete\s+2 - Cancel build\s+3 - List conflicts": "1"
+                    },
                 )
                 command_futures[(project_name, "build_run")] = future
 
