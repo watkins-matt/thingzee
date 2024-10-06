@@ -113,10 +113,10 @@ Map<String, dynamic> _$MealieRecipeIngredientToJson(
 MealieRecipeResponse _$MealieRecipeResponseFromJson(
         Map<String, dynamic> json) =>
     MealieRecipeResponse(
-      page: json['page'] as int?,
-      perPage: json['perPage'] as int?,
-      total: json['total'] as int?,
-      totalPages: json['totalPages'] as int?,
+      page: (json['page'] as num?)?.toInt(),
+      perPage: (json['perPage'] as num?)?.toInt(),
+      total: (json['total'] as num?)?.toInt(),
+      totalPages: (json['totalPages'] as num?)?.toInt(),
       items: (json['items'] as List<dynamic>?)
           ?.map((e) => MealieRecipe.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -170,17 +170,20 @@ Map<String, dynamic> _$MealieRecipeToolToJson(MealieRecipeTool instance) =>
 // RetrofitGenerator
 // **************************************************************************
 
-// ignore_for_file: unnecessary_brace_in_string_interps,no_leading_underscores_for_local_identifiers
+// ignore_for_file: unnecessary_brace_in_string_interps,no_leading_underscores_for_local_identifiers,unused_element
 
 class _MealieApiClient implements MealieApiClient {
   _MealieApiClient(
     this._dio, {
     this.baseUrl,
+    this.errorLogger,
   });
 
   final Dio _dio;
 
   String? baseUrl;
+
+  final ParseErrorLogger? errorLogger;
 
   @override
   Future<MealieRecipeResponse> getRecipes({
@@ -227,25 +230,31 @@ class _MealieApiClient implements MealieApiClient {
     final _headers = <String, dynamic>{r'accept-language': acceptLanguage};
     _headers.removeWhere((k, v) => v == null);
     const Map<String, dynamic>? _data = null;
-    final _result = await _dio.fetch<Map<String, dynamic>>(
-        _setStreamType<MealieRecipeResponse>(Options(
+    final _options = _setStreamType<MealieRecipeResponse>(Options(
       method: 'GET',
       headers: _headers,
       extra: _extra,
     )
-            .compose(
-              _dio.options,
-              '/api/recipes',
-              queryParameters: queryParameters,
-              data: _data,
-            )
-            .copyWith(
-                baseUrl: _combineBaseUrls(
-              _dio.options.baseUrl,
-              baseUrl,
-            ))));
-    final value = MealieRecipeResponse.fromJson(_result.data!);
-    return value;
+        .compose(
+          _dio.options,
+          '/api/recipes',
+          queryParameters: queryParameters,
+          data: _data,
+        )
+        .copyWith(
+            baseUrl: _combineBaseUrls(
+          _dio.options.baseUrl,
+          baseUrl,
+        )));
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late MealieRecipeResponse _value;
+    try {
+      _value = MealieRecipeResponse.fromJson(_result.data!);
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options);
+      rethrow;
+    }
+    return _value;
   }
 
   RequestOptions _setStreamType<T>(RequestOptions requestOptions) {
