@@ -29,7 +29,7 @@ class MergeGenerator implements Builder {
     // Iterate over all the classes in the input library.
     for (final originalClass in library.definingCompilationUnit.classes) {
       if (originalClass.metadata
-          .any((metadata) => metadata.element?.enclosingElement?.name == 'Mergeable')) {
+          .any((metadata) => metadata.element?.enclosingElement3?.name == 'Mergeable')) {
         buffer.write(_generateMergeMethod(originalClass));
         hasMergeable = true;
       }

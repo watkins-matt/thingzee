@@ -58,7 +58,7 @@ class _DraggableBottomSheetState extends State<DraggableBottomSheet> {
                     width: 75,
                     height: 8,
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
