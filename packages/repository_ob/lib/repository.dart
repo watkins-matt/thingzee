@@ -48,6 +48,11 @@ class ObjectBoxRepository extends Repository {
     receipts = ObjectBoxReceiptDatabase(store, receiptItems as ObjectBoxReceiptItemDatabase);
     audits = ObjectBoxAuditTaskDatabase(store);
 
+    // Set up cross-references between databases for household changes
+    // This allows databases to update each other when household membership changes
+    (household as ObjectBoxHouseholdDatabase).setInventoryDatabase(inv);
+    (household as ObjectBoxHouseholdDatabase).setItemDatabase(items);
+
     Log.timerEnd(timer, 'Initialized ObjectBox repository (\$seconds seconds)');
     ready = true;
   }

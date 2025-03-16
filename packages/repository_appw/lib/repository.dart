@@ -280,14 +280,32 @@ class AppwriteRepository extends CloudRepository {
     prefs = await DefaultSharedPreferences.create();
     securePrefs = await SecurePreferences.create();
 
-    items = AppwriteItemDatabase(prefs, _databases, 'test', 'user_item');
-    hist = AppwriteHistoryDatabase(prefs, _databases, 'test', 'user_history');
-    inv = AppwriteInventoryDatabase(prefs, _databases, 'test', 'user_inventory');
+    // Initialize household first since we need its ID for other databases
+    household = AppwriteHouseholdDatabase(
+      _teams,
+      _databases,
+      prefs,
+      'test',
+      'user_household',
+      inventoryCollectionId: 'user_inventory',
+    );
 
-    household = AppwriteHouseholdDatabase(_teams, _databases, prefs, 'test', 'user_household');
-    invitation = AppwriteInvitationDatabase(prefs, _databases, 'test', 'invitation', household.id);
+    // Initialize databases with household ID for team permissions
+    items = AppwriteItemDatabase(prefs, _databases, 'test', 'user_item', household.id);
+    hist = AppwriteHistoryDatabase(prefs, _databases, 'test', 'user_history');
+    inv = AppwriteInventoryDatabase(prefs, _databases, 'test', 'user_inventory', household.id);
+
+    invitation =
+        AppwriteInvitationDatabase(prefs, _databases, 'test', 'invitation', household.id, _teams);
+
     location = AppwriteLocationDatabase(prefs, _databases, 'test', 'user_location');
     identifiers = AppwriteIdentifierDatabase(prefs, _databases, 'test', 'user_identifier');
+
+    // Set up cross-references between databases for household changes
+    // This allows databases to update each other when household membership changes
+    (household as AppwriteHouseholdDatabase).setInventoryDatabase(inv as AppwriteInventoryDatabase);
+    (household as AppwriteHouseholdDatabase).setItemDatabase(items as AppwriteItemDatabase);
+    (invitation as AppwriteInvitationDatabase).setHouseholdDatabase(household);
 
     Log.timerEnd(timer, 'AppwriteRepository: initialized in \$seconds seconds.');
     ready = true;
