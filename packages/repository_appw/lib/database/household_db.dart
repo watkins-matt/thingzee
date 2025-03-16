@@ -6,6 +6,8 @@ import 'package:repository/database/household_database.dart';
 import 'package:repository/database/preferences.dart';
 import 'package:repository/model/household_member.dart';
 import 'package:repository/util/hash.dart';
+import 'package:repository_appw/database/inventory_db.dart';
+import 'package:repository_appw/database/item_db.dart';
 import 'package:repository_appw/util/appwrite_database.dart';
 import 'package:repository_appw/util/synchronizable.dart';
 import 'package:uuid/uuid.dart';
@@ -14,17 +16,30 @@ class AppwriteHouseholdDatabase extends HouseholdDatabase
     with AppwriteSynchronizable<HouseholdMember>, AppwriteDatabase<HouseholdMember> {
   static const String tag = 'AppwriteHouseholdDatabase';
   final Teams _teams;
+  final Databases _databases;
   final Preferences prefs;
   String _householdId = '';
   DateTime _created = DateTime.now();
+
+  // Database IDs for inventory and item collections
+  final String _databaseId;
+  final String _inventoryCollectionId;
+
+  // References to other databases for updating when household changes
+  AppwriteInventoryDatabase? _inventoryDb;
+  AppwriteItemDatabase? _itemDb;
 
   AppwriteHouseholdDatabase(
     this._teams,
     Databases database,
     this.prefs,
     String databaseId,
-    String collectionId,
-  ) : super() {
+    String collectionId, {
+    String? inventoryCollectionId,
+  })  : _databases = database,
+        _databaseId = databaseId,
+        _inventoryCollectionId = inventoryCollectionId ?? 'user_inventory',
+        super() {
     constructDatabase(tag, database, databaseId, collectionId);
     constructSynchronizable(tag, prefs, onConnectivityChange: connectivityChanged);
   }
@@ -49,14 +64,87 @@ class AppwriteHouseholdDatabase extends HouseholdDatabase
   HouseholdMember? deserialize(Map<String, dynamic> json) => HouseholdMember.fromJson(json);
 
   @override
+  Future<void> join(String householdId) async {
+    if (!online) {
+      throw Exception('Cannot join household while offline.');
+    }
+
+    // Store the old household ID
+    final oldHouseholdId = _householdId;
+
+    try {
+      // 1. Verify the household exists
+      await _teams.get(teamId: householdId);
+
+      // 2. Update the household ID
+      _householdId = householdId;
+      _created = DateTime.now(); // This might need to be fetched from the team
+
+      // 3. Save to preferences
+      await prefs.setString('household_id', _householdId);
+      await prefs.setInt('household_created', _created.millisecondsSinceEpoch);
+
+      // 4. Update all inventory items to have the new household ID
+      await updateInventoryHouseholdIds();
+
+      Log.i('$tag: User successfully joined household $householdId');
+      return;
+    } on AppwriteException catch (e) {
+      // Revert to old household ID if there was an error
+      _householdId = oldHouseholdId;
+      Log.e('$tag: Failed to join household: [AppwriteException]', e.message);
+      throw Exception('Failed to join household: ${e.message}');
+    } catch (e) {
+      // Revert to old household ID if there was an error
+      _householdId = oldHouseholdId;
+      Log.e('$tag: Failed to join household: [Exception]', e.toString());
+      throw Exception('Failed to join household: $e');
+    }
+  }
+
+  @override
   void leave() {
+    // Store the old household ID before removing it
+    final oldHouseholdId = _householdId;
+
     taskQueue.queueTask(() async {
-      // Logic to leave the household:
-      // 1. Remove the user from the team.
-      // 2. Delete or update the household document in the database.
-      // 3. Update the preferences to remove householdId.
+      try {
+        // 1. Get the user's membership in the team
+        final memberships = await _teams.listMemberships(
+          teamId: oldHouseholdId,
+          queries: [Query.equal('userId', userId)],
+        );
+
+        if (memberships.total > 0) {
+          // 2. Remove the user from the team
+          final membershipId = memberships.memberships[0].$id;
+          await _teams.deleteMembership(
+            teamId: oldHouseholdId,
+            membershipId: membershipId,
+          );
+
+          Log.i('$tag: User successfully removed from household team.');
+        } else {
+          Log.w('$tag: User not found in household team.');
+        }
+
+        // 3. Create a new household for the user
+        await _createNewHousehold();
+
+        // 4. Copy all inventory items to the new household
+        await _copyInventoryToNewHousehold(oldHouseholdId, _householdId);
+
+        Log.i('$tag: User successfully left household and inventory copied to new household.');
+      } on AppwriteException catch (e) {
+        Log.e('$tag: Failed to leave household: [AppwriteException]', e.message);
+      } catch (e) {
+        Log.e('$tag: Failed to leave household: [Exception]', e.toString());
+      }
     });
-    prefs.remove('householdId');
+
+    // Immediately remove from preferences for UI responsiveness
+    prefs.remove('household_id');
+    prefs.remove('household_created');
   }
 
   @override
@@ -78,6 +166,122 @@ class AppwriteHouseholdDatabase extends HouseholdDatabase
     }
 
     super.put(member, permissions: permissions);
+  }
+
+  /// Sets the inventory database reference
+  void setInventoryDatabase(AppwriteInventoryDatabase db) {
+    _inventoryDb = db;
+  }
+
+  /// Sets the item database reference
+  void setItemDatabase(AppwriteItemDatabase db) {
+    _itemDb = db;
+  }
+
+  @override
+  Future<void> updateInventoryHouseholdIds() async {
+    if (!online) {
+      throw Exception('Cannot update inventory household IDs while offline.');
+    }
+
+    try {
+      // 1. Get all inventory items for the current user
+      final inventoryDocs = await _databases.listDocuments(
+        databaseId: _databaseId,
+        collectionId: _inventoryCollectionId,
+        queries: [Query.equal('userId', userId)],
+      );
+
+      // 2. Update each inventory item with the new household ID
+      for (final doc in inventoryDocs.documents) {
+        final Map<String, dynamic> data = doc.data;
+
+        // Skip if the household ID is already correct
+        if (data['householdId'] == _householdId) continue;
+
+        // Update the household ID
+        data['householdId'] = _householdId;
+
+        // Add household team permissions
+        final teamPermissions = [
+          Permission.read(Role.team(_householdId)),
+          Permission.update(Role.team(_householdId)),
+        ];
+
+        // Update the document
+        await _databases.updateDocument(
+          databaseId: _databaseId,
+          collectionId: _inventoryCollectionId,
+          documentId: doc.$id,
+          data: data,
+          permissions: teamPermissions,
+        );
+      }
+
+      // 3. Update the inventory database if available
+      if (_inventoryDb != null) {
+        await _inventoryDb!.updateHouseholdIds(_householdId);
+        Log.i('$tag: Updated inventory database with new household ID');
+      }
+
+      // 4. Update the item database permissions if available
+      if (_itemDb != null) {
+        await _itemDb!.updateHouseholdPermissions();
+        Log.i('$tag: Updated item database permissions for new household');
+      }
+
+      Log.i('$tag: Successfully updated inventory household IDs to $_householdId');
+    } catch (e) {
+      Log.e('$tag: Failed to update inventory household IDs: $e');
+      throw Exception('Failed to update inventory household IDs: $e');
+    }
+  }
+
+  /// Copies all inventory items from the old household to the new household
+  Future<void> _copyInventoryToNewHousehold(String oldHouseholdId, String newHouseholdId) async {
+    if (!online) {
+      throw Exception('Cannot copy inventory while offline.');
+    }
+
+    try {
+      // 1. Get all inventory items for the current user in the old household
+      final inventoryDocs = await _databases.listDocuments(
+        databaseId: _databaseId,
+        collectionId: _inventoryCollectionId,
+        queries: [
+          Query.equal('userId', userId),
+          Query.equal('householdId', oldHouseholdId),
+        ],
+      );
+
+      // 2. Copy each inventory item to the new household
+      for (final doc in inventoryDocs.documents) {
+        final Map<String, dynamic> data = doc.data;
+
+        // Update the household ID
+        data['householdId'] = newHouseholdId;
+
+        // Add household team permissions for the new household
+        final teamPermissions = [
+          Permission.read(Role.team(newHouseholdId)),
+          Permission.update(Role.team(newHouseholdId)),
+        ];
+
+        // Create a new document with the updated data
+        await _databases.createDocument(
+          databaseId: _databaseId,
+          collectionId: _inventoryCollectionId,
+          documentId: 'unique()',
+          data: data,
+          permissions: teamPermissions,
+        );
+      }
+
+      Log.i('$tag: Successfully copied inventory from $oldHouseholdId to $newHouseholdId');
+    } catch (e) {
+      Log.e('$tag: Failed to copy inventory to new household: $e');
+      throw Exception('Failed to copy inventory to new household: $e');
+    }
   }
 
   Future<void> _createNewHousehold() async {

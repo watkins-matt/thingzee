@@ -1,6 +1,5 @@
 // ignore_for_file: annotate_overrides
 
-
 import 'package:objectbox/objectbox.dart';
 import 'package:repository/model/inventory.dart';
 import 'package:repository_ob/objectbox_model.dart';
@@ -21,6 +20,7 @@ class ObjectBoxInventory extends ObjectBoxModel<Inventory> {
   late String uid;
   @Unique(onConflict: ConflictStrategy.replace)
   late String upc;
+  late String householdId;
   ObjectBoxInventory();
   ObjectBoxInventory.from(Inventory original) {
     amount = original.amount;
@@ -31,21 +31,9 @@ class ObjectBoxInventory extends ObjectBoxModel<Inventory> {
     uid = original.uid;
     unitCount = original.unitCount;
     upc = original.upc;
+    householdId = original.householdId;
     updated = original.updated;
   }
-  Inventory convert() {
-    return Inventory(
-        amount: amount,
-        created: created,
-        expirationDates: expirationDates,
-        locations: locations,
-        restock: restock,
-        uid: uid,
-        unitCount: unitCount,
-        upc: upc,
-        updated: updated);
-  }
-
   List<String> get dbExpirationDates {
     List<String> dates = [];
     for (final exp in expirationDates) {
@@ -73,5 +61,19 @@ class ObjectBoxInventory extends ObjectBoxModel<Inventory> {
 
   set dbLastUpdate(int value) {
     updated = DateTime.fromMillisecondsSinceEpoch(value);
+  }
+
+  Inventory convert() {
+    return Inventory(
+        amount: amount,
+        created: created,
+        expirationDates: expirationDates,
+        locations: locations,
+        restock: restock,
+        uid: uid,
+        unitCount: unitCount,
+        upc: upc,
+        householdId: householdId,
+        updated: updated);
   }
 }

@@ -29,6 +29,7 @@ class Inventory extends Model<Inventory> {
   final bool restock;
   final String uid;
   final String upc; // generator:unique
+  final String householdId;
 
   Inventory({
     this.amount = 0,
@@ -38,6 +39,7 @@ class Inventory extends Model<Inventory> {
     this.restock = true,
     this.upc = '',
     String? uid,
+    this.householdId = '',
     super.created,
     super.updated,
   }) : uid = uid != null && uid.isNotEmpty
@@ -180,6 +182,7 @@ class Inventory extends Model<Inventory> {
     bool? restock,
     String? upc,
     String? uid,
+    String? householdId,
     DateTime? created,
     DateTime? updated,
   }) {
@@ -193,6 +196,7 @@ class Inventory extends Model<Inventory> {
       uid: uid != null && uid.isNotEmpty
           ? uid
           : (upc != null && upc.isNotEmpty ? hashBarcode(upc) : this.uid),
+      householdId: householdId ?? this.householdId,
       created: created ?? this.created,
       updated: updated ?? this.updated,
     );
@@ -207,7 +211,8 @@ class Inventory extends Model<Inventory> {
           locations.equals(other.locations) &&
           restock == other.restock &&
           upc == other.upc &&
-          uid == other.uid;
+          uid == other.uid &&
+          householdId == other.householdId;
 
   @override
   Inventory merge(Inventory other) => _$mergeInventory(this, other);
