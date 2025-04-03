@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:thingzee/pages/login/state/user_profile.dart';
 import 'package:thingzee/pages/login/state/user_session.dart';
@@ -14,17 +15,56 @@ class LoginState {
   String password = '';
   String errorMessage = '';
   bool loading = false;
+  final FocusNode emailFocus;
+  final FocusNode passwordFocus;
 
-  LoginState({this.email = '', this.password = '', this.errorMessage = '', this.loading = false});
+  LoginState({
+    this.email = '', 
+    this.password = '', 
+    this.errorMessage = '', 
+    this.loading = false,
+    FocusNode? emailFocus,
+    FocusNode? passwordFocus,
+  }) : 
+    emailFocus = emailFocus ?? FocusNode(),
+    passwordFocus = passwordFocus ?? FocusNode();
+
+  // Create a copy with updated values
+  LoginState copyWith({
+    String? email,
+    String? password,
+    String? errorMessage,
+    bool? loading,
+  }) {
+    return LoginState(
+      email: email ?? this.email,
+      password: password ?? this.password,
+      errorMessage: errorMessage ?? this.errorMessage,
+      loading: loading ?? this.loading,
+      emailFocus: emailFocus,
+      passwordFocus: passwordFocus,
+    );
+  }
+
+  // Clean up resources
+  void dispose() {
+    emailFocus.dispose();
+    passwordFocus.dispose();
+  }
 }
 
 class LoginStateNotifier extends StateNotifier<LoginState> {
   LoginStateNotifier() : super(LoginState());
 
+  @override
+  void dispose() {
+    state.dispose();
+    super.dispose();
+  }
+
   void clearErrorMessage() {
     if (state.errorMessage.isNotEmpty) {
-      state = LoginState(
-          email: state.email, password: state.password, errorMessage: '', loading: state.loading);
+      state = state.copyWith(errorMessage: '');
     }
   }
 
@@ -33,46 +73,38 @@ class LoginStateNotifier extends StateNotifier<LoginState> {
     final sessionState = ref.read(userSessionProvider);
     bool loggedIn = false;
 
-    state =
-        LoginState(email: state.email, password: state.password, errorMessage: '', loading: true);
+    state = state.copyWith(errorMessage: '', loading: true);
 
     try {
       loggedIn = await userSession.login(state.email, state.password);
     } catch (e) {
-      state = LoginState(
-          email: state.email, password: state.password, errorMessage: e.toString(), loading: false);
+      state = state.copyWith(errorMessage: e.toString(), loading: false);
       return loggedIn;
     }
 
     if (sessionState.isAuthenticated) {
       final userProfile = ref.read(userProfileProvider.notifier);
       userProfile.email = state.email;
-      state = LoginState(
-          email: state.email, password: state.password, errorMessage: '', loading: false);
+      state = state.copyWith(loading: false);
       return loggedIn;
     }
 
-    state = LoginState(
-        email: state.email,
-        password: state.password,
-        errorMessage: 'Unable to login. Your email or password may be incorrect.',
-        loading: false);
+    state = state.copyWith(
+      errorMessage: 'Unable to login. Your email or password may be incorrect.',
+      loading: false
+    );
     return loggedIn;
   }
 
   void setEmail(String value) {
-    state = LoginState(
-        email: value,
-        password: state.password,
-        errorMessage: state.errorMessage,
-        loading: state.loading);
+    state = state.copyWith(email: value);
   }
 
   void setPassword(String value) {
-    state = LoginState(
-        email: state.email,
-        password: value,
-        errorMessage: state.errorMessage,
-        loading: state.loading);
+    state = state.copyWith(password: value);
+  }
+
+  void moveFocusToPassword(BuildContext context) {
+    FocusScope.of(context).requestFocus(state.passwordFocus);
   }
 }
