@@ -155,7 +155,8 @@ def generate_classes(
             os.path.basename(input_file).replace(".dart", f".{db_short_name}.dart"),
         )
 
-        converter = ObjectBoxConverter(dart_file, input_file)
+        # Pass the output directory to the converter so it can find include files
+        converter = ObjectBoxConverter(dart_file, input_file, output_dir)
 
         with open(output_file, "w") as f:
             result_file = converter.convert()

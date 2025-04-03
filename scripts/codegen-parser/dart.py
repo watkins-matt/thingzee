@@ -66,6 +66,7 @@ class DartClass:
         self.annotations: list[str] = annotations if annotations else []
         self.functions: list[Function] = member_functions if member_functions else []
         self.constructors: list[Constructor] = constructors if constructors else []
+        self.include_file_contents = ""
 
     def __repr__(self):
         return f"class {self.name}"
@@ -78,6 +79,7 @@ class DartClass:
             + self._write_constructor()
             + self._write_functions()
             + self.class_body
+            + ("\n" if self.class_body and not self.class_body.endswith("\n") else "")
             + "}"
         )
 
@@ -136,10 +138,15 @@ class DartClass:
                 )
                 variables += "\n"
 
+            variable_type = var.type
+            # Remove 'late' when there's a default value (for proper initialization)
+            if var.default_value and variable_type.startswith("late "):
+                variable_type = variable_type.replace("late ", "")
+
             if var.default_value:
-                variables += f"  {var.type} {var.name} = {var.default_value};\n"
+                variables += f"  {variable_type} {var.name} = {var.default_value};\n"
             else:
-                variables += f"  {var.type} {var.name};\n"
+                variables += f"  {variable_type} {var.name};\n"
         return variables
 
     def _write_functions(self):
@@ -180,6 +187,7 @@ class DartFile:
         self.imports = imports
         self._file_path = file_path
         self.comments = []
+        self.ensure_final_newline = True
 
     @property
     def file_path(self):
@@ -406,4 +414,10 @@ class DartFile:
         classes = "\n\n".join(str(dart_class) for dart_class in self.classes)
 
         # Join everything together
-        return f"{comments}{imports}\n\n{classes}"
+        result = f"{comments}{imports}\n\n{classes}"
+        
+        # Add a final newline if requested
+        if hasattr(self, 'ensure_final_newline') and self.ensure_final_newline:
+            result += "\n"
+            
+        return result
