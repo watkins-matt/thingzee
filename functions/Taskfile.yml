@@ -1,64 +1,34 @@
 version: '3'
 
-envs:
-  PROJECT_ID: thingzee
-
 vars:
   API_KEY: '{{.APPWRITE_KEY}}'
 
 tasks:
   default:
-    desc: Deploy all Appwrite functions
     cmds:
-      - task: check-api-key
-      - echo "==== Deploying Thingzee Appwrite Functions ===="
-      - task: deploy-process-invitation
-      - task: deploy-manage-invitations
-      - echo "All functions deployed successfully."
+      - task: process-invitation
+      - task: manage-invitations
 
-  check-api-key:
-    desc: Check if the Appwrite API key is set
-    cmds:
-      - cmd: |
-          if [ "{{.API_KEY}}" = "" ]; then
-            echo "APPWRITE_KEY environment variable is empty or does not exist. Please set it with your Appwrite API key with Teams permission."
-            exit 1
-          fi
-        platforms: [linux, darwin]
-      - cmd: |
-          if ("{{.API_KEY}}" -eq "") {
-            echo "APPWRITE_KEY environment variable is empty or does not exist. Please set it with your Appwrite API key with Teams permission."
-            exit 1
-          }
-        platforms: [windows]
-
-  deploy-process-invitation:
-    desc: Deploy the process_invitation function
+  process-invitation:
     dir: process_invitation
     cmds:
-      - echo "--- Deploying process_invitation function ---"
-      - echo "Installing dependencies..."
-      - npm i -g appwrite-cli
+      - echo "Deploying process_invitation function"
+      - python3 -c "import os; os.makedirs('build', exist_ok=True)"
+      - python3 -c "import tarfile, os; tar = tarfile.open('build/code.tar.gz', 'w:gz'); tar.add('lib'); tar.add('pubspec.yaml'); tar.add('pubspec.lock'); tar.close()"
       - dart pub get
-      - echo "Creating function..."
-      - appwrite functions create --functionId=process_invitation --name="Process Invitation" --runtime="dart-2.17" --execute=["users"] --events=["databases.*.collections.invitation.documents.update"] || echo "Function already exists"
-      - echo "Setting API key..."
-      - appwrite functions createVariable --functionId=process_invitation --key=APPWRITE_API_KEY --value="{{.API_KEY}}" || echo "Variable might already exist"
-      - echo "Deploying function..."
-      - appwrite functions createDeployment --functionId=process_invitation --entrypoint="lib/main.dart" --activate=true
-      - echo "✅ Deployment complete!"
+      - appwrite functions create --function-id=process_invitation --name="Process Invitation" --runtime="dart-2.17" --execute=["users"] --events=["databases.*.collections.invitation.documents.update"] || echo "Function exists"
+      - appwrite functions create-variable --function-id=process_invitation --key=APPWRITE_API_KEY --value="{{.API_KEY}}" || echo "Variable exists"
+      - appwrite functions create-deployment --function-id=process_invitation --code=build/code.tar.gz --entrypoint="lib/main.dart" --activate=true
+      - echo "[SUCCESS] Process_invitation deployment complete"
 
-  deploy-manage-invitations:
-    desc: Deploy the manage_invitations function
+  manage-invitations:
     dir: manage_invitations
     cmds:
-      - echo "--- Deploying manage_invitations function ---"
-      - echo "Installing dependencies..."
+      - echo "Deploying manage_invitations function"
       - dart pub get
-      - echo "Creating function..."
-      - appwrite functions create --functionId=manage_invitations --name="Manage Invitations" --runtime="dart-2.17" --execute=["users"] --schedule="*/30 * * * *" || echo "Function already exists"
-      - echo "Setting API key..."
-      - appwrite functions createVariable --functionId=manage_invitations --key=APPWRITE_API_KEY --value="{{.API_KEY}}" || echo "Variable might already exist"
-      - echo "Deploying function..."
-      - appwrite functions createDeployment --functionId=manage_invitations --entrypoint="lib/main.dart" --activate=true
-      - echo "✅ Deployment complete!"
+      - python3 -c "import os; os.makedirs('build', exist_ok=True)"
+      - python3 -c "import tarfile, os; tar = tarfile.open('build/code.tar.gz', 'w:gz'); tar.add('lib'); tar.add('pubspec.yaml'); tar.add('pubspec.lock'); tar.close()"
+      - appwrite functions create --function-id=manage_invitations --name="Manage Invitations" --runtime="dart-2.17" --execute=["users"] --schedule="*/30 * * * *" || echo "Function exists"
+      - appwrite functions create-variable --function-id=manage_invitations --key=APPWRITE_API_KEY --value="{{.API_KEY}}" || echo "Variable exists"
+      - appwrite functions create-deployment --function-id=manage_invitations --code=build/code.tar.gz --entrypoint="lib/main.dart" --activate=true
+      - echo "[SUCCESS] Manage_invitations deployment complete"
