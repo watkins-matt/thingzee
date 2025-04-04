@@ -114,18 +114,13 @@ class InvitationState extends AsyncNotifier<List<Invitation>> {
       
       final cloudRepo = await _getCloudRepo();
       
-      // Create updated invitation with 'rejected' status since there's no 'canceled' status
-      final updatedInvitation = invitation.copyWith(
-        status: InvitationStatus.rejected,
-      );
-      
-      // Update the invitation in the database
-      cloudRepo.invitation.put(updatedInvitation);
+      // Remove the invitation from the database using deleteById
+      cloudRepo.invitation.deleteById(invitation.uniqueKey);
       
       // Refresh local invitations list
       await refreshInvitations();
       
-      Log.i('InvitationState: Invitation canceled successfully');
+      Log.i('InvitationState: Invitation canceled and removed successfully');
     } catch (e, stack) {
       Log.e('InvitationState: Error canceling invitation', e, stack);
       state = AsyncValue.error(e, stack);

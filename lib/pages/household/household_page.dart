@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:repository/model/household_member.dart';
 import 'package:repository/model/invitation.dart';
+import 'package:thingzee/main.dart';
 import 'package:thingzee/pages/detail/widget/material_card_widget.dart';
 import 'package:thingzee/pages/detail/widget/title_header_widget.dart';
 import 'package:thingzee/pages/household/state/household_state.dart';
@@ -121,83 +122,103 @@ class _HouseholdPageState extends ConsumerState<HouseholdPage> {
     );
   }
 
-  List<Widget> _buildMembersList(List<HouseholdMember> members) {
-    if (members.isEmpty) {
-      return [
-        const Padding(
-          padding: EdgeInsets.all(16),
-          child: Text('No members in this household yet.'),
-        )
-      ];
-    }
-
-    // Try to detect the current user's email
-    // Use the first admin as a guess for the current user
-    final adminMembers = members.where((m) => m.isAdmin).toList();
-    String? currentUserEmail;
-
-    if (adminMembers.isNotEmpty) {
-      currentUserEmail = adminMembers.first.email;
-    }
-
-    // Debug log
-
-    return members.map((member) {
-      final bool isCurrentUser = member.email == currentUserEmail;
-
-      return ListTile(
-        leading: CircleAvatar(
-          backgroundColor:
-              member.isAdmin ? Colors.blue.shade100 : Colors.green.shade100,
-          child:
-              Text(member.name.isNotEmpty ? member.name[0].toUpperCase() : '?'),
-        ),
-        title: Text(member.name),
-        subtitle: Text(member.email),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (member.isAdmin)
-              const Chip(
-                label: Text('Admin'),
-                backgroundColor: Colors.blue,
-              )
-            else
-              const Chip(
-                label: Text('Member'),
-                backgroundColor: Colors.green,
-              ),
-            // Don't show remove button for the current user
-            if (!isCurrentUser)
-              IconButton(
-                icon:
-                    const Icon(Icons.remove_circle_outline, color: Colors.red),
-                tooltip: 'Remove from household',
-                onPressed: () => _confirmRemoveMember(member),
-              ),
-          ],
-        ),
-      );
-    }).toList();
-  }
-
   List<Widget> _buildInvitationsList(List<Invitation> invitations) {
     if (invitations.isEmpty) {
       return [];
     }
 
     return invitations.map((invitation) {
+      // Format the status to look nicer
+      String statusText;
+      Color statusColor;
+
+      switch (invitation.status) {
+        case InvitationStatus.pending:
+          statusText = 'Pending';
+          statusColor = Colors.orange;
+          break;
+        case InvitationStatus.accepted:
+          statusText = 'Accepted';
+          statusColor = Colors.green;
+          break;
+        case InvitationStatus.rejected:
+          statusText = 'Rejected';
+          statusColor = Colors.red;
+          break;
+      }
+
       return ListTile(
         leading: const CircleAvatar(
           child: Icon(Icons.email),
         ),
         title: Text(invitation.recipientEmail),
-        subtitle: Text('Status: ${invitation.status}'),
+        subtitle: Text(
+          'Status: $statusText',
+          style: TextStyle(color: statusColor, fontWeight: FontWeight.w500),
+        ),
         trailing: IconButton(
           icon: const Icon(Icons.delete_outline, color: Colors.red),
           tooltip: 'Cancel invitation',
           onPressed: () => _confirmCancelInvitation(invitation),
         ),
+      );
+    }).toList();
+  }
+
+  List<Widget> _buildMembersList(List<HouseholdMember> members) {
+    if (members.isEmpty) {
+      return [
+        const Padding(
+          padding: EdgeInsets.all(16.0),
+          child: Text('No members found.'),
+        ),
+      ];
+    }
+
+    // Get current user email
+    final currentUserEmail =
+        ref.watch(cloudRepoProvider).valueOrNull?.userEmail ?? '';
+
+    return members.map((member) {
+      bool isCurrentUser = member.email == currentUserEmail;
+
+      return ListTile(
+        leading: CircleAvatar(
+          backgroundColor:
+              member.isAdmin ? Colors.blue.shade100 : Colors.grey.shade200,
+          child: Icon(
+            Icons.person,
+            color: member.isAdmin ? Colors.blue : Colors.grey,
+          ),
+        ),
+        title: Text(
+          member.name,
+          style: TextStyle(
+            fontWeight: member.isAdmin ? FontWeight.bold : FontWeight.normal,
+          ),
+        ),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(member.email),
+            if (member.isAdmin)
+              const Text(
+                'Admin',
+                style: TextStyle(
+                  color: Colors.blue,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+          ],
+        ),
+        trailing: isCurrentUser
+            ? null // Don't show any button for the current user
+            : IconButton(
+                icon:
+                    const Icon(Icons.person_remove_outlined, color: Colors.red),
+                tooltip: 'Remove from household',
+                onPressed: () => _confirmRemoveMember(member),
+              ),
       );
     }).toList();
   }

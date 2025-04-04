@@ -144,15 +144,12 @@ class AppwriteInvitationDatabase extends InvitationDatabase
   Map<String, dynamic> serialize(Invitation item) {
     // Get the standard JSON serialization
     Map<String, dynamic> json = item.toJson();
-    
-    // Map fields to Appwrite's expected schema
-    json['id'] = item.uniqueKey;  // Appwrite requires 'id' field
-    
+
     // Validate required fields
     if (item.householdId.isEmpty) {
       Log.w('$tag: Attempted to save invitation with empty householdId');
     }
-    
+
     return json;
   }
 
@@ -190,7 +187,8 @@ class AppwriteInvitationDatabase extends InvitationDatabase
       // Use standard put method - our overridden serialize method will add the ID field
       put(invitation, permissions: permissions);
 
-      Log.i('$tag: Successfully queued invitation to $recipientEmail for household $householdId');
+      Log.i(
+          '$tag: Successfully queued invitation to $recipientEmail for household $householdId');
       return invitation;
     } catch (e) {
       Log.e('$tag: Error sending invitation', e);
