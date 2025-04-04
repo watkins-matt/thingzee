@@ -12,6 +12,7 @@ Inventory _$mergeInventory(Inventory first, Inventory second) {
     restock: newer.restock,
     uid: newer.uid.isNotEmpty ? newer.uid : first.uid,
     upc: newer.upc.isNotEmpty ? newer.upc : first.upc,
+    householdId: newer.householdId.isNotEmpty ? newer.householdId : first.householdId,
     created: first.created.older(second.created),
     updated: newer.updated,
   );

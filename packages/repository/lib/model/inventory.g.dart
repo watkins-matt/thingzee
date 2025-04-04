@@ -20,6 +20,7 @@ Inventory _$InventoryFromJson(Map<String, dynamic> json) => Inventory(
       restock: json['restock'] as bool? ?? true,
       upc: json['upc'] as String? ?? '',
       uid: json['uid'] as String?,
+      householdId: json['householdId'] as String? ?? '',
       created: _$JsonConverterFromJson<int, DateTime>(
           json['created'], const DateTimeSerializer().fromJson),
       updated: _$JsonConverterFromJson<int, DateTime>(
@@ -37,6 +38,7 @@ Map<String, dynamic> _$InventoryToJson(Inventory instance) => <String, dynamic>{
       'restock': instance.restock,
       'uid': instance.uid,
       'upc': instance.upc,
+      'householdId': instance.householdId,
     };
 
 Value? _$JsonConverterFromJson<Json, Value>(

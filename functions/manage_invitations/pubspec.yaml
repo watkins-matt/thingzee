@@ -1,0 +1,10 @@
+name: manage_invitations
+description: Cloud function to manage invitation permissions
+version: 1.0.0
+publish_to: none
+
+environment:
+  sdk: '>=2.17.0 <3.0.0'
+
+dependencies:
+  dart_appwrite: ^14.0.0  # Match version with process_invitation function

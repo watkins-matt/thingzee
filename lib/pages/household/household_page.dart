@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:repository/model/household_member.dart';
 import 'package:repository/model/invitation.dart';
-import 'package:thingzee/pages/detail/widget/labeled_text.dart';
 import 'package:thingzee/pages/detail/widget/material_card_widget.dart';
 import 'package:thingzee/pages/detail/widget/title_header_widget.dart';
 import 'package:thingzee/pages/household/state/household_state.dart';
@@ -27,110 +26,277 @@ class HouseholdPage extends ConsumerStatefulWidget {
 class _HouseholdPageState extends ConsumerState<HouseholdPage> {
   @override
   Widget build(BuildContext context) {
-    final householdMembers = ref.watch(householdProvider);
-    final householdCreatedDate = ref.watch(householdProvider.notifier).household.created;
-    final householdId = ref.watch(householdProvider.notifier).household.id;
-    final invitations = ref.watch(invitationsProvider);
+    final members = ref.watch(householdProvider);
+    final invitationsState = ref.watch(invitationsProvider);
 
-    List<Widget> content = [];
-
-    if (invitations.isNotEmpty) {
-      content.add(MaterialCardWidget(children: [
-        const TitleHeaderWidget(title: 'Invitations'),
-        ..._buildInvitationsList(invitations),
-      ]));
+    if (invitationsState is! AsyncData<List<Invitation>>) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Household')),
+        body: const Center(child: CircularProgressIndicator()),
+      );
     }
 
-    content.addAll([
-      MaterialCardWidget(children: [
-        const TitleHeaderWidget(title: 'Information'),
-        LabeledText(labelText: 'ID', value: householdId),
-        LabeledText(labelText: 'Created', value: householdCreatedDate.toIso8601String()),
-      ]),
-      const SizedBox(
-        height: 8,
-      ),
-      MaterialCardWidget(children: [
-        TitleHeaderWidget(
-          title: 'Members',
-          actionButton: IconButton(
-            onPressed: _showAddMemberDialog,
-            icon: const Icon(Icons.add),
-          ),
-        ),
-        ..._buildMembersList(householdMembers),
-      ])
-    ]);
+    final invitations = invitationsState.value;
+
+    // Determine if user can leave household (only if more than one member)
+    final bool canLeaveHousehold = members.length > 1;
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Household'),
-        actions: [
-          TextButton.icon(
-            onPressed: _handleExitHousehold,
-            icon: const Icon(Icons.exit_to_app),
-            label: const Text('Leave'),
-          ),
-        ],
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: content,
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Members section
+            const TitleHeaderWidget(title: 'Members'),
+            MaterialCardWidget(
+              children: [
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Text(
+                    'People who have access to this household.',
+                    style: TextStyle(fontStyle: FontStyle.italic),
+                  ),
+                ),
+                ..._buildMembersList(members),
+              ],
+            ),
+            const SizedBox(height: 16),
+
+            // Invitations section
+            const TitleHeaderWidget(title: 'Invitations'),
+            MaterialCardWidget(
+              children: [
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Text(
+                    'Invite new members to join your household.',
+                    style: TextStyle(fontStyle: FontStyle.italic),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: ElevatedButton.icon(
+                    icon: const Icon(Icons.person_add),
+                    label: const Text('Invite New Member'),
+                    onPressed: _showAddMemberDialog,
+                  ),
+                ),
+                if (invitations.isNotEmpty) ...[
+                  const Divider(),
+                  const Padding(
+                    padding: EdgeInsets.only(left: 16, top: 8),
+                    child: Text(
+                      'Pending Invitations',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  ..._buildInvitationsList(invitations),
+                ],
+              ],
+            ),
+
+            // Only show settings section if user can leave the household
+            if (canLeaveHousehold) ...[
+              const SizedBox(height: 16),
+              const TitleHeaderWidget(title: 'Settings'),
+              MaterialCardWidget(
+                children: [
+                  ListTile(
+                    leading: const Icon(Icons.exit_to_app, color: Colors.red),
+                    title: const Text('Leave Household'),
+                    subtitle: const Text(
+                        'Warning: You will lose access to all household data'),
+                    onTap: _handleExitHousehold,
+                  ),
+                ],
+              ),
+            ],
+          ],
+        ),
       ),
     );
   }
 
-  void _acceptInvitation(Invitation invitation) {
-    ref.read(invitationsProvider.notifier).acceptInvite(invitation);
-    ref.read(householdProvider.notifier).refreshMembers();
-  }
+  List<Widget> _buildMembersList(List<HouseholdMember> members) {
+    if (members.isEmpty) {
+      return [
+        const Padding(
+          padding: EdgeInsets.all(16),
+          child: Text('No members in this household yet.'),
+        )
+      ];
+    }
 
-  List<Widget> _buildInvitationsList(List<Invitation> invitations) {
-    return invitations.map((invitation) {
+    // Try to detect the current user's email
+    // Use the first admin as a guess for the current user
+    final adminMembers = members.where((m) => m.isAdmin).toList();
+    String? currentUserEmail;
+
+    if (adminMembers.isNotEmpty) {
+      currentUserEmail = adminMembers.first.email;
+    }
+
+    // Debug log
+
+    return members.map((member) {
+      final bool isCurrentUser = member.email == currentUserEmail;
+
       return ListTile(
-        title: Text(invitation.inviterEmail),
-        trailing: ElevatedButton(
-          onPressed: () => _acceptInvitation(invitation),
-          child: const Text('Accept'),
+        leading: CircleAvatar(
+          backgroundColor:
+              member.isAdmin ? Colors.blue.shade100 : Colors.green.shade100,
+          child:
+              Text(member.name.isNotEmpty ? member.name[0].toUpperCase() : '?'),
+        ),
+        title: Text(member.name),
+        subtitle: Text(member.email),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (member.isAdmin)
+              const Chip(
+                label: Text('Admin'),
+                backgroundColor: Colors.blue,
+              )
+            else
+              const Chip(
+                label: Text('Member'),
+                backgroundColor: Colors.green,
+              ),
+            // Don't show remove button for the current user
+            if (!isCurrentUser)
+              IconButton(
+                icon:
+                    const Icon(Icons.remove_circle_outline, color: Colors.red),
+                tooltip: 'Remove from household',
+                onPressed: () => _confirmRemoveMember(member),
+              ),
+          ],
         ),
       );
     }).toList();
   }
 
-  List<Widget> _buildMembersList(List<HouseholdMember> members) {
-    return members.map((member) {
-      bool userInvited = ref.watch(invitationsProvider.notifier).isUserInvited(member.email);
+  List<Widget> _buildInvitationsList(List<Invitation> invitations) {
+    if (invitations.isEmpty) {
+      return [];
+    }
 
-      Widget? trailingWidget = userInvited
-          ? ElevatedButton(
-              onPressed: null,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.grey,
-              ),
-              child: const Text('Invite Sent'),
-            )
-          : null;
-
+    return invitations.map((invitation) {
       return ListTile(
-        title: Text(member.name),
-        subtitle: Text(member.email),
-        trailing: trailingWidget,
+        leading: const CircleAvatar(
+          child: Icon(Icons.email),
+        ),
+        title: Text(invitation.recipientEmail),
+        subtitle: Text('Status: ${invitation.status}'),
+        trailing: IconButton(
+          icon: const Icon(Icons.delete_outline, color: Colors.red),
+          tooltip: 'Cancel invitation',
+          onPressed: () => _confirmCancelInvitation(invitation),
+        ),
       );
     }).toList();
   }
 
+  void _confirmCancelInvitation(Invitation invitation) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Cancel Invitation'),
+        content: Text(
+            'Are you sure you want to cancel the invitation to ${invitation.recipientEmail}?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('No'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              ref
+                  .read(invitationsProvider.notifier)
+                  .cancelInvitation(invitation);
+              Navigator.of(context).pop();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+            ),
+            child: const Text('Yes, Cancel'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _confirmRemoveMember(HouseholdMember member) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Remove Member'),
+        content: Text(
+            'Are you sure you want to remove ${member.name} from the household?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              ref.read(householdProvider.notifier).removeMember(member);
+              Navigator.of(context).pop();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+            ),
+            child: const Text('Remove'),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _handleExitHousehold() {
-    ref.read(householdProvider.notifier).leave();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Leave Household'),
+        content: const Text(
+            'Are you sure you want to leave this household? You will lose access to shared inventory items.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              ref.read(householdProvider.notifier).leave();
+              Navigator.of(context).pop();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+            ),
+            child: const Text('Leave'),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _showAddMemberDialog() async {
     final result = await AddMemberDialog.show(context);
-    if (result != null && result.containsKey('name') && result.containsKey('email')) {
-      final name = result['name']!;
+    if (result != null &&
+        result.containsKey('name') &&
+        result.containsKey('email')) {
+      // We only need the email for sending the invitation
+      // The name will be used when they accept the invitation
       final email = result['email']!;
-      ref.read(householdProvider.notifier).addMember(name, email);
-      ref.read(invitationsProvider.notifier).sendInvite(email);
+
+      // Only send the invitation - don't add the member to the household yet
+      // They will be added when they accept the invitation through the cloud function
+      await ref.read(invitationsProvider.notifier).sendInvite(email);
     }
   }
 }

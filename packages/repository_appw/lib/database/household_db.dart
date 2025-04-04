@@ -42,6 +42,66 @@ class AppwriteHouseholdDatabase extends HouseholdDatabase
         super() {
     constructDatabase(tag, database, databaseId, collectionId);
     constructSynchronizable(tag, prefs, onConnectivityChange: connectivityChanged);
+
+    // Initialize household ID synchronously from preferences, or create a new one if needed
+    final householdId = prefs.getString('household_id');
+    final householdCreated = prefs.getInt('household_created');
+
+    if (householdId != null && householdCreated != null) {
+      // Load existing household ID from preferences
+      _householdId = householdId;
+      _created = DateTime.fromMillisecondsSinceEpoch(householdCreated);
+      Log.i('$tag: Loaded household ID from preferences: $_householdId');
+    } else {
+      // Create a new household ID if none exists
+      _householdId = const Uuid().v4();
+      _created = DateTime.now();
+      prefs.setString('household_id', _householdId);
+      prefs.setInt('household_created', _created.millisecondsSinceEpoch);
+      Log.i('$tag: Created new household ID: $_householdId');
+
+      // Queue the team creation task for when we're online
+      taskQueue.queueTask(() async {
+        try {
+          await _teams.create(teamId: _householdId, name: _householdId);
+          Log.i('$tag: Created new team for household: $_householdId');
+        } catch (e) {
+          Log.e('$tag: Failed to create team for new household', e);
+        }
+      });
+    }
+  }
+
+  /// Initialize the household database fully. This should be called after construction
+  /// and before other databases that depend on the household ID are initialized.
+  Future<void> init() async {
+    if (!online) {
+      Log.w('$tag: Cannot fully initialize household while offline, using cached data');
+      return;
+    }
+
+    try {
+      // Verify the team (household) exists
+      await _teams.get(teamId: _householdId);
+      Log.i('$tag: Verified household team exists: $_householdId');
+    } on AppwriteException catch (e) {
+      // Team does not exist, create it
+      if (e.code == 404) {
+        try {
+          await _teams.create(teamId: _householdId, name: _householdId);
+          Log.i('$tag: Created team for existing household ID: $_householdId');
+        } catch (e) {
+          Log.e('$tag: Failed to create team for household', e);
+          throw Exception('Failed to create Appwrite team for household: $e');
+        }
+      } else {
+        Log.e('$tag: Failed to verify household team: [AppwriteException]', e.message);
+        throw Exception('Failed to verify household: ${e.message}');
+      }
+    } catch (e) {
+      Log.e('$tag: Unexpected error verifying household', e);
+      throw Exception('Unexpected error verifying household: $e');
+    }
   }
 
   @override
@@ -55,7 +115,7 @@ class AppwriteHouseholdDatabase extends HouseholdDatabase
 
   Future<void> connectivityChanged(bool online) async {
     if (online) {
-      await _initializeHousehold();
+      await init();
       await taskQueue.runUntilComplete();
     }
   }
@@ -314,48 +374,6 @@ class AppwriteHouseholdDatabase extends HouseholdDatabase
     } on Exception catch (e) {
       Log.e('Error while creating team: [Exception]', e.toString());
       return false;
-    }
-  }
-
-  Future<void> _initializeHousehold() async {
-    if (!online) {
-      throw Exception('Cannot initialize household while offline.');
-    }
-
-    final householdId = prefs.getString('household_id');
-    final householdCreated = prefs.getInt('household_created');
-
-    // Household is already initialized
-    if (_householdId == householdId && _created.millisecondsSinceEpoch == householdCreated) {
-      return;
-    }
-    // Missing household information, need to create a new household
-    else if (householdId == null || householdCreated == null) {
-      await _createNewHousehold();
-    }
-    // Household information exists, load the household
-    else {
-      _householdId = householdId;
-      _created = DateTime.fromMillisecondsSinceEpoch(householdCreated);
-
-      try {
-        await _teams.get(teamId: _householdId);
-      } on AppwriteException catch (e) {
-        // Team does not exist, create it
-        if (e.code == 404) {
-          final success = await _createTeam();
-          if (!success) {
-            throw Exception('Failed to create Appwrite team for existing household');
-          }
-        }
-        // Other errors
-        else {
-          Log.e('Failed to load team: [AppwriteException]', e.message);
-          rethrow;
-        }
-      } on TypeError catch (e) {
-        Log.e('[TypeError] Appwrite:', e.toString());
-      }
     }
   }
 }

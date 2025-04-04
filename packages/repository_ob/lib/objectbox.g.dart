@@ -510,7 +510,7 @@ final _entities = <obx_int.ModelEntity>[
   obx_int.ModelEntity(
       id: const obx_int.IdUid(35, 5152461968206283516),
       name: 'ObjectBoxInventory',
-      lastPropertyId: const obx_int.IdUid(11, 1190199954154274132),
+      lastPropertyId: const obx_int.IdUid(12, 3158645994133855520),
       flags: 0,
       properties: <obx_int.ModelProperty>[
         obx_int.ModelProperty(
@@ -568,6 +568,11 @@ final _entities = <obx_int.ModelEntity>[
             id: const obx_int.IdUid(11, 1190199954154274132),
             name: 'dbLastUpdate',
             type: 6,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(12, 3158645994133855520),
+            name: 'householdId',
+            type: 9,
             flags: 0)
       ],
       relations: <obx_int.ModelRelation>[],
@@ -1677,7 +1682,8 @@ obx_int.ModelDefinition getObjectBoxModel() {
           final dbExpirationDatesOffset = fbb.writeList(object.dbExpirationDates
               .map(fbb.writeString)
               .toList(growable: false));
-          fbb.startTable(12);
+          final householdIdOffset = fbb.writeString(object.householdId);
+          fbb.startTable(13);
           fbb.addInt64(0, object.objectBoxId);
           fbb.addInt64(1, object.created.millisecondsSinceEpoch);
           fbb.addInt64(2, object.updated.millisecondsSinceEpoch);
@@ -1689,6 +1695,7 @@ obx_int.ModelDefinition getObjectBoxModel() {
           fbb.addOffset(8, upcOffset);
           fbb.addOffset(9, dbExpirationDatesOffset);
           fbb.addInt64(10, object.dbLastUpdate);
+          fbb.addOffset(11, householdIdOffset);
           fbb.finish(fbb.endTable());
           return object.objectBoxId;
         },
@@ -1722,7 +1729,9 @@ obx_int.ModelDefinition getObjectBoxModel() {
                     lazy: false)
                 .vTableGet(buffer, rootOffset, 22, [])
             ..dbLastUpdate =
-                const fb.Int64Reader().vTableGet(buffer, rootOffset, 24, 0);
+                const fb.Int64Reader().vTableGet(buffer, rootOffset, 24, 0)
+            ..householdId = const fb.StringReader(asciiOptimization: true)
+                .vTableGet(buffer, rootOffset, 26, '');
 
           return object;
         }),
@@ -2406,6 +2415,10 @@ class ObjectBoxInventory_ {
   /// See [ObjectBoxInventory.dbLastUpdate].
   static final dbLastUpdate = obx.QueryIntegerProperty<ObjectBoxInventory>(
       _entities[10].properties[10]);
+
+  /// See [ObjectBoxInventory.householdId].
+  static final householdId =
+      obx.QueryStringProperty<ObjectBoxInventory>(_entities[10].properties[11]);
 }
 
 /// [ObjectBoxItem] entity fields to define ObjectBox queries.

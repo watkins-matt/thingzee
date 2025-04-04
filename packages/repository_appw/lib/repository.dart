@@ -42,7 +42,8 @@ class AppwriteRepository extends CloudRepository {
 
   @override
   bool get loggedIn =>
-      _session != null && DateTime.now().isBefore(DateTime.parse(_session!.expire));
+      _session != null &&
+      DateTime.now().isBefore(DateTime.parse(_session!.expire));
 
   @override
   String get userEmail => _userEmail;
@@ -59,7 +60,8 @@ class AppwriteRepository extends CloudRepository {
       final userInfo = await _account.get();
       _verified = userInfo.emailVerification;
     } on AppwriteException catch (e) {
-      Log.e('AppwriteRepository: Failed to check verification status: [AppwriteException]',
+      Log.e(
+          'AppwriteRepository: Failed to check verification status: [AppwriteException]',
           e.message);
       return false;
     } on TypeError catch (e) {
@@ -72,7 +74,9 @@ class AppwriteRepository extends CloudRepository {
 
   @override
   Future<bool> fetch({bool ignoreCooldown = false}) async {
-    if (!ready || !loggedIn || connectivity.status != ConnectivityStatus.online) {
+    if (!ready ||
+        !loggedIn ||
+        connectivity.status != ConnectivityStatus.online) {
       return false;
     }
 
@@ -112,7 +116,7 @@ class AppwriteRepository extends CloudRepository {
       // Execute all fetch operations simultaneously and wait for them to complete
       await Future.wait(fetchOperations);
 
-      Log.timerEnd(timer, 'AppwriteRepository: Fetch data completed in \$seconds seconds.');
+      Log.timerShow(timer, 'AppwriteRepository: Fetch data completed.');
       _lastFetch = DateTime.now();
 
       return true;
@@ -132,12 +136,14 @@ class AppwriteRepository extends CloudRepository {
     bool online = status == ConnectivityStatus.online;
 
     scheduleMicrotask(() async {
-      if (_lastFetch != null && DateTime.now().difference(_lastFetch!).inSeconds < syncCooldown) {
+      if (_lastFetch != null &&
+          DateTime.now().difference(_lastFetch!).inSeconds < syncCooldown) {
         Log.i('AppwriteRepository: Cooldown period, not fetching data.');
         return;
       }
 
-      Log.i('AppwriteRepository: Connectivity status change detected: online=$online');
+      Log.i(
+          'AppwriteRepository: Connectivity status change detected: online=$online');
       final items = this.items as AppwriteItemDatabase;
       final inv = this.inv as AppwriteInventoryDatabase;
       final hist = this.hist as AppwriteHistoryDatabase;
@@ -179,7 +185,8 @@ class AppwriteRepository extends CloudRepository {
 
       // If no valid session, then login
       if (_session == null) {
-        _session = await _account.createEmailPasswordSession(email: email, password: password);
+        _session = await _account.createEmailPasswordSession(
+            email: email, password: password);
 
         await prefs.setString('appwrite_session_id', _session!.$id);
         await prefs.setString('appwrite_session_expire', _session!.expire);
@@ -233,12 +240,14 @@ class AppwriteRepository extends CloudRepository {
   }
 
   @override
-  Future<bool> registerUser(String username, String email, String password) async {
+  Future<bool> registerUser(
+      String username, String email, String password) async {
     // Try to create the user
     try {
       await _account.create(userId: username, email: email, password: password);
     } on AppwriteException catch (e) {
-      Log.e('AppwriteRepository: Failed to register user: [AppwriteException]', e.message);
+      Log.e('AppwriteRepository: Failed to register user: [AppwriteException]',
+          e.message);
       rethrow; // Rethrow the exception so the UI can handle showing the error
     }
 
@@ -250,7 +259,8 @@ class AppwriteRepository extends CloudRepository {
       await _account.createVerification(url: verificationEndpoint);
     } on AppwriteException catch (e) {
       Log.e(
-          'AppwriteRepository: Failed to send verification email: [AppwriteException]', e.message);
+          'AppwriteRepository: Failed to send verification email: [AppwriteException]',
+          e.message);
       rethrow; // Rethrow the exception so the UI can handle showing the error
     }
 
@@ -263,25 +273,29 @@ class AppwriteRepository extends CloudRepository {
       await _account.createVerification(url: verificationEndpoint);
     } on AppwriteException catch (e) {
       Log.e(
-          'AppwriteRepository: Failed to send verification email: [AppwriteException]', e.message);
+          'AppwriteRepository: Failed to send verification email: [AppwriteException]',
+          e.message);
     }
   }
 
   Future<void> _init() async {
-    final timer = Log.timerStart();
+    final timer = Log.timerStart('AppwriteRepository: initializing...');
+    Log.i('AppwriteRepository: initializing...');
 
-    _client = Client();
-    _client.setEndpoint(appwriteEndpoint).setProject(projectId);
+    prefs = await DefaultSharedPreferences.create();
+    securePrefs = await SecurePreferences.create();
+
+    _client = Client()
+        .setEndpoint(appwriteEndpoint)
+        .setProject(projectId)
+        .setSelfSigned(status: true);
 
     _account = Account(_client);
     _databases = Databases(_client);
     _teams = Teams(_client);
 
-    prefs = await DefaultSharedPreferences.create();
-    securePrefs = await SecurePreferences.create();
-
     // Initialize household first since we need its ID for other databases
-    household = AppwriteHouseholdDatabase(
+    final household = AppwriteHouseholdDatabase(
       _teams,
       _databases,
       prefs,
@@ -291,23 +305,43 @@ class AppwriteRepository extends CloudRepository {
     );
 
     // Initialize databases with household ID for team permissions
-    items = AppwriteItemDatabase(prefs, _databases, 'test', 'user_item', household.id);
-    hist = AppwriteHistoryDatabase(prefs, _databases, 'test', 'user_history');
-    inv = AppwriteInventoryDatabase(prefs, _databases, 'test', 'user_inventory', household.id);
+    final itemsDb = AppwriteItemDatabase(
+        prefs, _databases, 'test', 'user_item', household.id);
+    final histDb =
+        AppwriteHistoryDatabase(prefs, _databases, 'test', 'user_history');
+    final invDb = AppwriteInventoryDatabase(
+        prefs, _databases, 'test', 'user_inventory', household.id);
+    final invitationDb = AppwriteInvitationDatabase(
+        prefs, _databases, 'test', 'invitation', household.id, _teams);
+    final locationDb =
+        AppwriteLocationDatabase(prefs, _databases, 'test', 'user_location');
+    final identifiersDb = AppwriteIdentifierDatabase(
+        prefs, _databases, 'test', 'user_identifier');
 
-    invitation =
-        AppwriteInvitationDatabase(prefs, _databases, 'test', 'invitation', household.id, _teams);
-
-    location = AppwriteLocationDatabase(prefs, _databases, 'test', 'user_location');
-    identifiers = AppwriteIdentifierDatabase(prefs, _databases, 'test', 'user_identifier');
+    // Assign to class properties
+    items = itemsDb;
+    hist = histDb;
+    inv = invDb;
+    this.household = household;
+    invitation = invitationDb;
+    location = locationDb;
+    identifiers = identifiersDb;
 
     // Set up cross-references between databases for household changes
     // This allows databases to update each other when household membership changes
-    (household as AppwriteHouseholdDatabase).setInventoryDatabase(inv as AppwriteInventoryDatabase);
-    (household as AppwriteHouseholdDatabase).setItemDatabase(items as AppwriteItemDatabase);
-    (invitation as AppwriteInvitationDatabase).setHouseholdDatabase(household);
+    Log.i('AppwriteRepository: Setting up cross-references between databases');
+    try {
+      household.setInventoryDatabase(invDb);
+      household.setItemDatabase(itemsDb);
+      invitationDb.setHouseholdDatabase(household);
+      Log.i('AppwriteRepository: Cross-references successfully established');
+    } catch (e) {
+      Log.e(
+          'AppwriteRepository: Failed to set up cross-references between databases',
+          e);
+    }
 
-    Log.timerEnd(timer, 'AppwriteRepository: initialized in \$seconds seconds.');
+    Log.timerShow(timer, 'AppwriteRepository: initialized.');
     ready = true;
   }
 
@@ -321,7 +355,8 @@ class AppwriteRepository extends CloudRepository {
 
     await _loadUserInfo();
 
-    if (prefs.containsKey('appwrite_session_id') && prefs.containsKey('appwrite_session_expire')) {
+    if (prefs.containsKey('appwrite_session_id') &&
+        prefs.containsKey('appwrite_session_expire')) {
       String sessionId = prefs.getString('appwrite_session_id')!;
       String expiration = prefs.getString('appwrite_session_expire')!;
       final expireDate = DateTime.parse(expiration);
@@ -332,7 +367,8 @@ class AppwriteRepository extends CloudRepository {
           _session = await _account.getSession(sessionId: sessionId);
           await fetch(ignoreCooldown: true);
         } on AppwriteException catch (e) {
-          Log.e('AppwriteRepository._loadSession: Failed to load session: [AppwriteException]',
+          Log.e(
+              'AppwriteRepository._loadSession: Failed to load session: [AppwriteException]',
               e.message);
           _session = null;
           Log.i('Appwrite: Removed invalid session. Log in required.');
@@ -367,7 +403,8 @@ class AppwriteRepository extends CloudRepository {
       return;
     }
 
-    if (prefs.containsKey('appwrite_session_user') && prefs.containsKey('appwrite_session_email')) {
+    if (prefs.containsKey('appwrite_session_user') &&
+        prefs.containsKey('appwrite_session_email')) {
       _userId = prefs.getString('appwrite_session_user')!;
       _userEmail = prefs.getString('appwrite_session_email')!;
     } else {
@@ -384,7 +421,8 @@ class AppwriteRepository extends CloudRepository {
           return;
         }
 
-        Log.e('AppwriteRepository._loadUserInfo: Failed to load user: [AppwriteException]',
+        Log.e(
+            'AppwriteRepository._loadUserInfo: Failed to load user: [AppwriteException]',
             e.message);
         _session = null;
         Log.i('Appwrite: Removed invalid session. Log in required.');

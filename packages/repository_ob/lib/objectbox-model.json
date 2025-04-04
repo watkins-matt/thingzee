@@ -481,7 +481,7 @@
     },
     {
       "id": "35:5152461968206283516",
-      "lastPropertyId": "11:1190199954154274132",
+      "lastPropertyId": "12:3158645994133855520",
       "name": "ObjectBoxInventory",
       "properties": [
         {
@@ -541,6 +541,11 @@
           "id": "11:1190199954154274132",
           "name": "dbLastUpdate",
           "type": 6
+        },
+        {
+          "id": "12:3158645994133855520",
+          "name": "householdId",
+          "type": 9
         }
       ],
       "relations": []

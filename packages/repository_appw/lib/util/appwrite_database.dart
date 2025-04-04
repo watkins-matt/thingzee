@@ -24,7 +24,8 @@ mixin AppwriteDatabase<T extends Model> on Database<T> {
   @override
   List<T> all() => _items.values.toList();
 
-  void constructDatabase(String tag, Databases database, String databaseId, String collectionId) {
+  void constructDatabase(
+      String tag, Databases database, String databaseId, String collectionId) {
     _database = database;
     _tag = tag;
     this.databaseId = databaseId;
@@ -99,7 +100,8 @@ mixin AppwriteDatabase<T extends Model> on Database<T> {
               // Note that we also use the oldest updated field because
               // one may have initialized to the default of DateTime.now()
               result = result.copyWith(
-                  created: result.created.older(created), updated: result.updated.older(updated));
+                  created: result.created.older(created),
+                  updated: result.updated.older(updated));
             }
 
             return result;
@@ -118,7 +120,11 @@ mixin AppwriteDatabase<T extends Model> on Database<T> {
 
   @override
   List<T> getAll(List<String> ids) {
-    return ids.map((id) => _items[id]).where((element) => element != null).cast<T>().toList();
+    return ids
+        .map((id) => _items[id])
+        .where((element) => element != null)
+        .cast<T>()
+        .toList();
   }
 
   @override
@@ -138,7 +144,9 @@ mixin AppwriteDatabase<T extends Model> on Database<T> {
     return await _database.listDocuments(
       databaseId: databaseId,
       collectionId: collectionId,
-      queries: [Query.greaterThan('updated', lastSyncTime?.millisecondsSinceEpoch ?? 0)],
+      queries: [
+        Query.greaterThan('updated', lastSyncTime?.millisecondsSinceEpoch ?? 0)
+      ],
     );
   }
 
@@ -184,25 +192,58 @@ mixin AppwriteDatabase<T extends Model> on Database<T> {
             permissions: permissions);
       } on AppwriteException catch (e) {
         if (e.code == 404) {
-          await _database.createDocument(
-              databaseId: databaseId,
-              collectionId: collectionId,
-              documentId: uniqueDocumentId(key),
-              data: serialize(item),
-              permissions: permissions);
+          try {
+            await _database.createDocument(
+                databaseId: databaseId,
+                collectionId: collectionId,
+                documentId: uniqueDocumentId(key),
+                data: serialize(item),
+                permissions: permissions);
+          } on AppwriteException catch (createError) {
+            // Handle schema mismatch errors with improved messages
+            if (_isSchemaError(createError)) {
+              final errorMessage =
+                  _getEnhancedSchemaErrorMessage(createError, item);
+              Log.e('$_tag: Schema mismatch for item $key: $errorMessage');
+              _items.remove(key);
+              throw Exception(errorMessage);
+            }
+            rethrow;
+          }
         } else if (e.code == 409) {
-          await _database.updateDocument(
-              databaseId: databaseId,
-              collectionId: collectionId,
-              documentId: uniqueDocumentId(key),
-              data: serialize(item),
-              permissions: permissions);
+          try {
+            await _database.updateDocument(
+                databaseId: databaseId,
+                collectionId: collectionId,
+                documentId: uniqueDocumentId(key),
+                data: serialize(item),
+                permissions: permissions);
+          } on AppwriteException catch (updateError) {
+            // Handle schema mismatch errors with improved messages
+            if (_isSchemaError(updateError)) {
+              final errorMessage =
+                  _getEnhancedSchemaErrorMessage(updateError, item);
+              Log.e('$_tag: Schema mismatch for item $key: $errorMessage');
+              _items.remove(key);
+              throw Exception(errorMessage);
+            }
+            rethrow;
+          }
         } else {
-          Log.e('$_tag: Failed to put item $key: [AppwriteException]', e.message);
-          // Removing the inventory from local cache since we
-          // failed to add it to the database
-          _items.remove(key);
-          rethrow;
+          // Handle schema mismatch errors with improved messages
+          if (_isSchemaError(e)) {
+            final errorMessage = _getEnhancedSchemaErrorMessage(e, item);
+            Log.e('$_tag: Schema mismatch for item $key: $errorMessage');
+            _items.remove(key);
+            throw Exception(errorMessage);
+          } else {
+            Log.e('$_tag: Failed to put item $key: [AppwriteException]',
+                e.message);
+            // Removing the item from local cache since we
+            // failed to add it to the database
+            _items.remove(key);
+            rethrow;
+          }
         }
       }
     });
@@ -212,6 +253,100 @@ mixin AppwriteDatabase<T extends Model> on Database<T> {
     });
 
     callHooks(item, DatabaseHookType.put);
+  }
+
+  // Helper method to check if an Appwrite exception is related to schema validation
+  bool _isSchemaError(AppwriteException e) {
+    final message = e.message ?? '';
+    return message.contains('Invalid document structure');
+  }
+
+  // Helper method to extract schema error information from the error message
+  Map<String, String> _extractSchemaErrorInfo(String errorMessage) {
+    final Map<String, String> result = {};
+    
+    // Check for missing required attribute
+    final missingRegex = RegExp(r'Missing required attribute "([^"]+)"');
+    final missingMatch = missingRegex.firstMatch(errorMessage);
+    if (missingMatch != null) {
+      result['type'] = 'missing';
+      result['attribute'] = missingMatch.group(1) ?? '';
+      return result;
+    }
+    
+    // Check for unknown attribute
+    final unknownRegex = RegExp(r'Unknown attribute: "([^"]+)"');
+    final unknownMatch = unknownRegex.firstMatch(errorMessage);
+    if (unknownMatch != null) {
+      result['type'] = 'unknown';
+      result['attribute'] = unknownMatch.group(1) ?? '';
+      return result;
+    }
+    
+    // Default
+    result['type'] = 'other';
+    result['attribute'] = '';
+    return result;
+  }
+
+  // Helper method to generate enhanced error message for schema mismatches
+  String _getEnhancedSchemaErrorMessage(AppwriteException e, T item) {
+    final errorInfo = _extractSchemaErrorInfo(e.message ?? '');
+    final modelType = item.runtimeType.toString();
+    
+    String errorTitle;
+    String problemDescription;
+    List<String> solutions = [];
+    
+    if (errorInfo['type'] == 'missing') {
+      // Missing required attribute
+      final missingAttribute = errorInfo['attribute'] ?? '';
+      errorTitle = 'MISSING FIELD ERROR';
+      problemDescription = 'The Appwrite database schema requires a field that doesn\'t exist in your Dart model.';
+      solutions = [
+        '1. Update the database schema in Appwrite to make "$missingAttribute" optional',
+        '2. Add the missing "$missingAttribute" field to your $modelType class',
+        '3. Map between your model and database schema in your serialize method for $modelType'
+      ];
+    } else if (errorInfo['type'] == 'unknown') {
+      // Unknown attribute
+      final unknownAttribute = errorInfo['attribute'] ?? '';
+      errorTitle = 'UNKNOWN FIELD ERROR';
+      problemDescription = 'Your Dart model contains a field that is not defined in the Appwrite database schema.';
+      solutions = [
+        '1. Update the Appwrite database schema to include the "$unknownAttribute" field',
+        '2. Remove the "$unknownAttribute" field from your serialize method for $modelType',
+        '3. Filter out unknown fields before sending to Appwrite in your serialize method'
+      ];
+    } else {
+      // Other schema error
+      errorTitle = 'SCHEMA MISMATCH ERROR';
+      problemDescription = 'There is a mismatch between your Dart model and the Appwrite database schema.';
+      solutions = [
+        '1. Check that all fields in your model match the database schema',
+        '2. Update either the database schema or your model to ensure compatibility',
+        '3. Modify your serialize/deserialize methods to handle the differences'
+      ];
+    }
+
+    final attribute = errorInfo['attribute'] ?? '';
+    return '''
+╭─────────────────────────────────────────────────────╮
+│ DATABASE $errorTitle                      │
+╰─────────────────────────────────────────────────────╯
+
+Model:         $modelType
+Collection:    $collectionId
+Database:      $databaseId
+Field:         "$attribute"
+
+Problem: $problemDescription
+
+Options to fix this issue:
+${solutions.join('\n')}
+
+Check database collection: $collectionId in database: $databaseId
+''';
   }
 
   void replaceState(List<T> allItems) {
@@ -226,7 +361,8 @@ mixin AppwriteDatabase<T extends Model> on Database<T> {
 
   String uniqueDocumentId(String id) {
     if (userId.isEmpty) {
-      throw Exception('$_tag: User ID is empty, cannot generate unique document ID.');
+      throw Exception(
+          '$_tag: User ID is empty, cannot generate unique document ID.');
     }
 
     return hashUsernameBarcode(userId, id);
