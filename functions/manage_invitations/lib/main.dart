@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:dart_appwrite/dart_appwrite.dart';
 
 /*
@@ -9,9 +10,9 @@ import 'package:dart_appwrite/dart_appwrite.dart';
 Future<dynamic> main(final context) async {
   try {
     // Get credentials from environment variables
-    final String? apiKey = context.env['APPWRITE_API_KEY'];
+    final String? apiKey = context.req.headers['x-appwrite-key'];
     if (apiKey == null) {
-      throw Exception('APPWRITE_API_KEY not set in environment variables');
+      throw Exception('API key not found in request headers');
     }
 
     context.log('Starting manage_invitations cloud function');
@@ -19,7 +20,7 @@ Future<dynamic> main(final context) async {
     // Initialize SDK with the updated structure for v14.0.0
     final client = Client()
       ..setEndpoint('https://cloud.appwrite.io/v1')
-      ..setProject(context.env['APPWRITE_FUNCTION_PROJECT_ID'] as String)
+      ..setProject(Platform.environment['APPWRITE_FUNCTION_PROJECT_ID'] as String)
       ..setKey(apiKey);
 
     // Initialize services
@@ -27,10 +28,12 @@ Future<dynamic> main(final context) async {
     final users = Users(client);
 
     // Get all pending invitations
+    // Status is integer type in the database, not a string
+    // Assuming: 0 = pending, 1 = accepted, 2 = declined
     final invitationsResponse = await databases.listDocuments(
-      databaseId: 'thingzee', // Your database ID
+      databaseId: 'test', // Your database ID
       collectionId: 'invitation', // Your collection ID
-      queries: [Query.equal('status', 'pending')],
+      queries: [Query.equal('status', 0)], // 0 represents pending
     );
 
     context.log('Found ${invitationsResponse.total} pending invitations');
@@ -74,7 +77,7 @@ Future<dynamic> main(final context) async {
 
             // Add read permission for recipient
             await databases.updateDocument(
-              databaseId: 'thingzee',
+              databaseId: 'test',
               collectionId: 'invitation',
               documentId: document.$id,
               permissions: [
@@ -105,7 +108,9 @@ Future<dynamic> main(final context) async {
     });
   } catch (e) {
     context.log('Error in manage_invitations function: $e');
-    return context.res
-        .json({'success': false, 'message': e.toString()}, statusCode: 500);
+    return context.res.json({
+      'success': false,
+      'message': e.toString()
+    }, 500);
   }
 }

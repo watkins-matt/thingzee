@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:dart_appwrite/dart_appwrite.dart';
 
 // This function is triggered by database events when an invitation status changes
@@ -30,9 +31,10 @@ Future<dynamic> main(final context) async {
       });
     }
     
-    // Only process if status changed to 'accepted'
-    if (invitation['status'] != 'accepted') {
-      context.log('Status is not "accepted", ignoring');
+    // Only process if status changed to 'accepted' (status=1)
+    // Status is integer type in the database: 0=pending, 1=accepted, 2=declined
+    if (invitation['status'] != 1) {
+      context.log('Status is not accepted (1), ignoring');
       return context.res.json({
         'success': true,
         'message': 'Event ignored: status is not accepted'
@@ -42,8 +44,8 @@ Future<dynamic> main(final context) async {
     // Initialize SDK
     final client = Client()
       ..setEndpoint('https://cloud.appwrite.io/v1')
-      ..setProject(context.env['APPWRITE_FUNCTION_PROJECT_ID'] as String)
-      ..setKey(context.env['APPWRITE_API_KEY'] as String);
+      ..setProject(Platform.environment['APPWRITE_FUNCTION_PROJECT_ID'] as String)
+      ..setKey(context.req.headers['x-appwrite-key'] as String);
 
     final teams = Teams(client);
     
@@ -83,6 +85,6 @@ Future<dynamic> main(final context) async {
     return context.res.json({
       'success': false, 
       'message': e.toString()
-    }, statusCode: 500);
+    }, 500);
   }
 }

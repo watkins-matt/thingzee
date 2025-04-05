@@ -14,8 +14,8 @@ tasks:
     cmds:
       - echo "Deploying process_invitation function"
       - dart pub get
-      - appwrite functions create --function-id=process_invitation --name="Process Invitation" --runtime="dart-3.5" --execute=users --events=databases.*.collections.invitation.documents.update || true
-      - appwrite functions update --function-id=process_invitation --name="Process Invitation" --runtime="dart-3.5" --execute=users --events=databases.*.collections.invitation.documents.update || true
+      - appwrite functions create --function-id=process_invitation --name="Process Invitation" --runtime="dart-3.5" --execute=users --events=databases.*.collections.invitation.documents.update --scopes teams.write || true
+      - appwrite functions update --function-id=process_invitation --name="Process Invitation" --runtime="dart-3.5" --execute=users --events=databases.*.collections.invitation.documents.update --scopes teams.write || true
       - appwrite functions create-variable --function-id=process_invitation --key=APPWRITE_API_KEY --value="{{.API_KEY}}" || echo "Variable exists"
       - echo "Deploying function with code"
       - appwrite functions create-deployment --function-id=process_invitation --code=. --entrypoint=lib/main.dart --activate=true || echo "Deployment failed"
@@ -26,8 +26,8 @@ tasks:
     cmds:
       - echo "Deploying manage_invitations function"
       - dart pub get
-      - appwrite functions create --function-id=manage_invitations --name="Manage Invitations" --runtime="dart-3.5" --execute=users --schedule="*/30 * * * *" || true
-      - appwrite functions update --function-id=manage_invitations --name="Manage Invitations" --runtime="dart-3.5" --execute=users --schedule="*/30 * * * *" || true
+      - appwrite functions create --function-id=manage_invitations --name="Manage Invitations" --runtime="dart-3.5" --execute=users --schedule="*/30 * * * *" --scopes databases.read databases.write documents.read documents.write users.read || true
+      - appwrite functions update --function-id=manage_invitations --name="Manage Invitations" --runtime="dart-3.5" --execute=users --schedule="*/30 * * * *" --scopes databases.read databases.write documents.read documents.write users.read || true
       - appwrite functions create-variable --function-id=manage_invitations --key=APPWRITE_API_KEY --value="{{.API_KEY}}" || echo "Variable exists"
       - echo "Deploying function with code"
       - appwrite functions create-deployment --function-id=manage_invitations --code=. --entrypoint=lib/main.dart --activate=true || echo "Deployment failed"
