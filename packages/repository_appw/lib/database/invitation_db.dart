@@ -159,7 +159,7 @@ class AppwriteInvitationDatabase extends InvitationDatabase
 
     // Validate householdId
     if (householdId.isEmpty) {
-      final errorMsg = '$tag: Cannot send invitation with empty householdId';
+      const errorMsg = '$tag: Cannot send invitation with empty householdId';
       Log.e(errorMsg);
       throw Exception(errorMsg);
     }

@@ -169,7 +169,7 @@ class _HouseholdPageState extends ConsumerState<HouseholdPage> {
     if (members.isEmpty) {
       return [
         const Padding(
-          padding: EdgeInsets.all(16.0),
+          padding: EdgeInsets.all(16),
           child: Text('No members found.'),
         ),
       ];

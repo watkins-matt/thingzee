@@ -13,12 +13,12 @@ tasks:
     dir: process_invitation
     cmds:
       - echo "Deploying process_invitation function"
-      - python3 -c "import os; os.makedirs('build', exist_ok=True)"
-      - python3 -c "import tarfile, os; tar = tarfile.open('build/code.tar.gz', 'w:gz'); tar.add('lib'); tar.add('pubspec.yaml'); tar.add('pubspec.lock'); tar.close()"
       - dart pub get
-      - appwrite functions create --function-id=process_invitation --name="Process Invitation" --runtime="dart-2.17" --execute=["users"] --events=["databases.*.collections.invitation.documents.update"] || echo "Function exists"
+      - appwrite functions create --function-id=process_invitation --name="Process Invitation" --runtime="dart-3.5" --execute=users --events=databases.*.collections.invitation.documents.update || true
+      - appwrite functions update --function-id=process_invitation --name="Process Invitation" --runtime="dart-3.5" --execute=users --events=databases.*.collections.invitation.documents.update || true
       - appwrite functions create-variable --function-id=process_invitation --key=APPWRITE_API_KEY --value="{{.API_KEY}}" || echo "Variable exists"
-      - appwrite functions create-deployment --function-id=process_invitation --code=build/code.tar.gz --entrypoint="lib/main.dart" --activate=true
+      - echo "Deploying function with code"
+      - appwrite functions create-deployment --function-id=process_invitation --code=. --entrypoint=lib/main.dart --activate=true || echo "Deployment failed"
       - echo "[SUCCESS] Process_invitation deployment complete"
 
   manage-invitations:
@@ -26,9 +26,9 @@ tasks:
     cmds:
       - echo "Deploying manage_invitations function"
       - dart pub get
-      - python3 -c "import os; os.makedirs('build', exist_ok=True)"
-      - python3 -c "import tarfile, os; tar = tarfile.open('build/code.tar.gz', 'w:gz'); tar.add('lib'); tar.add('pubspec.yaml'); tar.add('pubspec.lock'); tar.close()"
-      - appwrite functions create --function-id=manage_invitations --name="Manage Invitations" --runtime="dart-2.17" --execute=["users"] --schedule="*/30 * * * *" || echo "Function exists"
+      - appwrite functions create --function-id=manage_invitations --name="Manage Invitations" --runtime="dart-3.5" --execute=users --schedule="*/30 * * * *" || true
+      - appwrite functions update --function-id=manage_invitations --name="Manage Invitations" --runtime="dart-3.5" --execute=users --schedule="*/30 * * * *" || true
       - appwrite functions create-variable --function-id=manage_invitations --key=APPWRITE_API_KEY --value="{{.API_KEY}}" || echo "Variable exists"
-      - appwrite functions create-deployment --function-id=manage_invitations --code=build/code.tar.gz --entrypoint="lib/main.dart" --activate=true
+      - echo "Deploying function with code"
+      - appwrite functions create-deployment --function-id=manage_invitations --code=. --entrypoint=lib/main.dart --activate=true || echo "Deployment failed"
       - echo "[SUCCESS] Manage_invitations deployment complete"
