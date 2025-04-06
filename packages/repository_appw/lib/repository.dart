@@ -312,7 +312,7 @@ class AppwriteRepository extends CloudRepository {
     final invDb = AppwriteInventoryDatabase(
         prefs, _databases, 'test', 'user_inventory', household.id);
     final invitationDb = AppwriteInvitationDatabase(
-        prefs, _databases, 'test', 'invitation', household.id, _teams);
+        prefs, _databases, 'test', 'invitation', household.id);
     final locationDb =
         AppwriteLocationDatabase(prefs, _databases, 'test', 'user_location');
     final identifiersDb = AppwriteIdentifierDatabase(
@@ -333,7 +333,6 @@ class AppwriteRepository extends CloudRepository {
     try {
       household.setInventoryDatabase(invDb);
       household.setItemDatabase(itemsDb);
-      invitationDb.setHouseholdDatabase(household);
       Log.i('AppwriteRepository: Cross-references successfully established');
     } catch (e) {
       Log.e(

@@ -8,14 +8,15 @@ tasks:
     cmds:
       - task: process-invitation
       - task: manage-invitations
+      - task: sync-household-permissions
 
   process-invitation:
     dir: process_invitation
     cmds:
       - echo "Deploying process_invitation function"
       - dart pub get
-      - appwrite functions create --function-id=process_invitation --name="Process Invitation" --runtime="dart-3.5" --execute=users --events=databases.*.collections.invitation.documents.update --scopes teams.write || true
-      - appwrite functions update --function-id=process_invitation --name="Process Invitation" --runtime="dart-3.5" --execute=users --events=databases.*.collections.invitation.documents.update --scopes teams.write || true
+      - appwrite functions create --function-id=process_invitation --name="Process Invitation" --runtime="dart-3.5" --execute=users --events databases.*.collections.*.documents.*.create databases.*.collections.*.documents.*.update --scopes teams.write teams.read users.read databases.read databases.write collections.read collections.write documents.read documents.write || true
+      - appwrite functions update --function-id=process_invitation --name="Process Invitation" --runtime="dart-3.5" --execute=users --events databases.*.collections.*.documents.*.create databases.*.collections.*.documents.*.update --scopes teams.write teams.read users.read databases.read databases.write collections.read collections.write documents.read documents.write || true
       - appwrite functions create-variable --function-id=process_invitation --key=APPWRITE_API_KEY --value="{{.API_KEY}}" || echo "Variable exists"
       - echo "Deploying function with code"
       - appwrite functions create-deployment --function-id=process_invitation --code=. --entrypoint=lib/main.dart --activate=true || echo "Deployment failed"
@@ -32,3 +33,15 @@ tasks:
       - echo "Deploying function with code"
       - appwrite functions create-deployment --function-id=manage_invitations --code=. --entrypoint=lib/main.dart --activate=true || echo "Deployment failed"
       - echo "[SUCCESS] Manage_invitations deployment complete"
+
+  sync-household-permissions:
+    dir: sync_household_permissions
+    cmds:
+      - echo "Deploying sync_household_permissions function"
+      - dart pub get
+      - appwrite functions create --function-id=sync_household_permissions --name="Sync Household Permissions" --runtime="dart-3.5" --execute=users --scopes teams.read users.read databases.read databases.write collections.read collections.write documents.read documents.write || true
+      - appwrite functions update --function-id=sync_household_permissions --name="Sync Household Permissions" --runtime="dart-3.5" --execute=users --scopes teams.read users.read databases.read databases.write collections.read collections.write documents.read documents.write || true
+      - appwrite functions create-variable --function-id=sync_household_permissions --key=APPWRITE_API_KEY --value="{{.API_KEY}}" || echo "Variable exists"
+      - echo "Deploying function with code"
+      - appwrite functions create-deployment --function-id=sync_household_permissions --code=. --entrypoint=lib/main.dart --activate=true || echo "Deployment failed"
+      - echo "[SUCCESS] Sync_household_permissions deployment complete"

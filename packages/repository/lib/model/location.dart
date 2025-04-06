@@ -87,10 +87,14 @@ class Location extends Model<Location> {
 
   final double? quantity;
 
+  @JsonKey(defaultValue: '')
+  final String householdId;
+
   Location({
     required this.upc,
     required this.name,
     this.quantity = 0,
+    this.householdId = '',
     super.created,
     super.updated,
   });
@@ -111,6 +115,7 @@ class Location extends Model<Location> {
     String? upc,
     String? name,
     double? quantity,
+    String? householdId,
     DateTime? created,
     DateTime? updated,
   }) {
@@ -118,6 +123,7 @@ class Location extends Model<Location> {
       upc: upc ?? this.upc,
       name: name ?? this.name,
       quantity: quantity ?? this.quantity,
+      householdId: householdId ?? this.householdId,
       created: created ?? this.created,
       updated: updated ?? this.updated,
     );
@@ -125,7 +131,10 @@ class Location extends Model<Location> {
 
   @override
   bool equalTo(Location other) {
-    return upc == other.upc && name == other.name && quantity == other.quantity;
+    return upc == other.upc &&
+           name == other.name &&
+           quantity == other.quantity &&
+           householdId == other.householdId;
   }
 
   @override

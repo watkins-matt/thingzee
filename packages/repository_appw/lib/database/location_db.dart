@@ -1,6 +1,7 @@
 // ignore_for_file: avoid_renaming_method_parameters
 
 import 'package:appwrite/appwrite.dart';
+import 'package:appwrite/models.dart' as appwrite_models;
 import 'package:repository/database/location_database.dart';
 import 'package:repository/database/preferences.dart';
 import 'package:repository/model/location.dart';
@@ -10,6 +11,9 @@ import 'package:repository_appw/util/synchronizable.dart';
 class AppwriteLocationDatabase extends LocationDatabase
     with AppwriteSynchronizable<Location>, AppwriteDatabase<Location> {
   static const String tag = 'AppwriteLocationDatabase';
+
+  // Current household ID, defaults to user ID if not in a household
+  String _householdId = '';
 
   AppwriteLocationDatabase(
     Preferences prefs,
@@ -23,6 +27,14 @@ class AppwriteLocationDatabase extends LocationDatabase
         await taskQueue.runUntilComplete();
       }
     });
+
+    // Initialize the household ID with the user ID
+    _householdId = userId;
+  }
+
+  /// Updates the household ID when a user joins a new household
+  void updateHouseholdId(String householdId) {
+    _householdId = householdId;
   }
 
   @override
@@ -94,6 +106,7 @@ class AppwriteLocationDatabase extends LocationDatabase
 
     var json = location.toJson();
     json['userId'] = userId;
+    json['householdId'] = _householdId;
     return json;
   }
 
@@ -110,5 +123,37 @@ class AppwriteLocationDatabase extends LocationDatabase
     }
 
     put(data);
+  }
+
+  /// Overrides the default getDocuments method to include household filtering
+  @override
+  Future<appwrite_models.DocumentList> getDocuments(List<String> queries) async {
+    // Ensure we fetch all documents for the current household, not just user's
+    final householdQueries = [
+      ...queries,
+      Query.equal('householdId', _householdId),
+    ];
+
+    // Call the parent method to handle the actual database access
+    return await super.getDocuments(householdQueries);
+  }
+
+  /// Overrides the default getModifiedDocuments to include household data
+  @override
+  Future<appwrite_models.DocumentList> getModifiedDocuments(DateTime? lastSyncTime) async {
+    // Get documents that have been updated since the last sync
+    final timeQuery = Query.greaterThan(
+        'updated', lastSyncTime?.millisecondsSinceEpoch ?? 0);
+
+    // Use multiple queries to get documents that:
+    // 1. Have been updated since last sync AND
+    // 2. Belong to the current household
+    final queries = [
+      timeQuery,
+      Query.equal('householdId', _householdId),
+    ];
+
+    // Use the general getDocuments method to avoid direct database access
+    return await getDocuments(queries);
   }
 }

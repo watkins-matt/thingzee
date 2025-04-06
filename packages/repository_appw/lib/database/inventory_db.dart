@@ -1,6 +1,7 @@
 // ignore_for_file: avoid_renaming_method_parameters
 
 import 'package:appwrite/appwrite.dart';
+import 'package:appwrite/models.dart' as appwrite_models;
 import 'package:repository/database/inventory_database.dart';
 import 'package:repository/database/preferences.dart';
 import 'package:repository/model/inventory.dart';
@@ -89,5 +90,38 @@ class AppwriteInventoryDatabase extends InventoryDatabase
     for (final item in updatedItems) {
       put(item);
     }
+  }
+
+  /// Overrides the default getDocuments method to include household filtering
+  @override
+  Future<appwrite_models.DocumentList> getDocuments(List<String> queries) async {
+    // Ensure we fetch all documents for the current household, not just user's
+    final householdQueries = [
+      ...queries,
+      Query.equal('householdId', _householdId),
+    ];
+    
+    // Call the parent method to handle the actual database access
+    // This avoids direct access to the private _database field
+    return await super.getDocuments(householdQueries);
+  }
+
+  /// Overrides the default getModifiedDocuments to include household data
+  @override
+  Future<appwrite_models.DocumentList> getModifiedDocuments(DateTime? lastSyncTime) async {
+    // Get documents that have been updated since the last sync
+    final timeQuery = Query.greaterThan(
+        'updated', lastSyncTime?.millisecondsSinceEpoch ?? 0);
+    
+    // Use multiple queries to get documents that:
+    // 1. Have been updated since last sync AND
+    // 2. Belong to the current household
+    final queries = [
+      timeQuery,
+      Query.equal('householdId', _householdId),
+    ];
+    
+    // Use the general getDocuments method to avoid direct database access
+    return await getDocuments(queries);
   }
 }

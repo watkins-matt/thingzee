@@ -8,6 +8,7 @@ Location _$mergeLocation(Location first, Location second) {
     upc: newer.upc.isNotEmpty ? newer.upc : first.upc,
     name: newer.name.isNotEmpty ? newer.name : first.name,
     quantity: newer.quantity,
+    householdId: newer.householdId.isNotEmpty ? newer.householdId : first.householdId,
     created: first.created.older(second.created),
     updated: newer.updated,
   );

@@ -2,7 +2,6 @@
 
 import 'package:appwrite/appwrite.dart';
 import 'package:log/log.dart';
-import 'package:repository/database/household_database.dart';
 import 'package:repository/database/invitation_database.dart';
 import 'package:repository/database/preferences.dart';
 import 'package:repository/model/invitation.dart';
@@ -16,18 +15,12 @@ class AppwriteInvitationDatabase extends InvitationDatabase
   static const String tag = 'AppwriteInvitationDatabase';
   final String householdId;
 
-  final Teams _teams;
-
-  // Reference to the household database
-  HouseholdDatabase? _householdDb;
-
   AppwriteInvitationDatabase(
     Preferences prefs,
     Databases database,
     String databaseId,
     String collectionId,
     this.householdId,
-    this._teams,
   ) : super() {
     constructDatabase(tag, database, databaseId, collectionId);
     constructSynchronizable(tag, prefs,
@@ -53,8 +46,8 @@ class AppwriteInvitationDatabase extends InvitationDatabase
     }
 
     // Update the invitation status
-    final response = invitation.copyWith(
-        status: InvitationStatus.accepted, uniqueKey: const Uuid().v4());
+    final updatedInvitation = invitation.copyWith(
+        status: InvitationStatus.accepted);
 
     final permissions = [
       Permission.read(Role.user(userId, 'verified')),
@@ -62,78 +55,20 @@ class AppwriteInvitationDatabase extends InvitationDatabase
       Permission.write(Role.user(userId, 'verified')),
     ];
 
-    // Add the user to the household team and update inventory
-    taskQueue.queueTask(() async {
-      try {
-        Log.i(
-            '$tag: Starting to process invitation acceptance for household: ${invitation.householdId}');
-
-        // Create membership in the team (household)
-        await _teams.createMembership(
-          teamId: invitation.householdId,
-          email: invitation.recipientEmail,
-          roles: ['member'],
-          url:
-              'https://thingzee.net', // Redirect URL after accepting membership
-        );
-        Log.i(
-            '$tag: Created team membership for ${invitation.recipientEmail} in household ${invitation.householdId}');
-
-        // Join the new household if we have a reference to the household database
-        if (_householdDb != null) {
-          try {
-            // Join the new household - this will handle updating inventory items
-            Log.i(
-                '$tag: Attempting to join household ${invitation.householdId}');
-            await _householdDb!.join(invitation.householdId);
-            Log.i(
-                '$tag: Successfully joined household ${invitation.householdId}');
-          } catch (e) {
-            Log.e('$tag: Failed to join household: $e');
-            throw Exception('$tag: Failed to join household: $e');
-          }
-        } else {
-          Log.w('$tag: Household database not set, cannot update household ID');
-          throw Exception(
-              '$tag: Household database not set, cannot join household');
-        }
-      } on AppwriteException catch (e) {
-        if (e.code == 409) {
-          // User is already a member, which is fine
-          Log.i(
-              '$tag: User is already a member of household ${invitation.householdId}');
-
-          // Still need to update the household ID
-          if (_householdDb != null) {
-            try {
-              Log.i('$tag: Updating household ID to ${invitation.householdId}');
-              await _householdDb!.join(invitation.householdId);
-              Log.i('$tag: Successfully updated household ID');
-            } catch (e) {
-              Log.e('$tag: Failed to join household: $e');
-              throw Exception('$tag: Failed to join household: $e');
-            }
-          } else {
-            Log.w(
-                '$tag: Household database not set, cannot update household ID');
-            throw Exception(
-                '$tag: Household database not set, cannot update household ID');
-          }
-        } else {
-          Log.e('$tag: AppwriteException: ${e.message}, code: ${e.code}');
-          throw Exception(
-              '$tag: Failed to add user to household: ${e.message}');
-        }
-      } catch (e) {
-        Log.e('$tag: Unexpected error while processing invitation: $e');
-        throw Exception(
-            '$tag: Unexpected error while processing invitation: $e');
-      }
-    });
-
-    // Update the invitation document
-    Log.i('$tag: Updating invitation status to accepted');
-    put(response, permissions: permissions);
+    try {
+      // Update the invitation document in the database
+      // This will trigger the process_invitation cloud function
+      Log.i('$tag: Updating invitation status to accepted');
+      Log.i('$tag: Cloud function will handle team membership for household: ${invitation.householdId}');
+      
+      // Put the updated invitation in the database
+      put(updatedInvitation, permissions: permissions);
+      
+      Log.i('$tag: Invitation status updated to accepted, waiting for cloud function to process team membership');
+    } catch (e) {
+      Log.e('$tag: Error updating invitation status: $e');
+      throw Exception('$tag: Failed to update invitation status: $e');
+    }
   }
 
   @override
@@ -241,10 +176,5 @@ class AppwriteInvitationDatabase extends InvitationDatabase
       Log.e('$tag: Error in _fetchInvitationsForCurrentUserEmail', e);
       return [];
     }
-  }
-
-  // Setter for the household database
-  void setHouseholdDatabase(HouseholdDatabase db) {
-    _householdDb = db;
   }
 }

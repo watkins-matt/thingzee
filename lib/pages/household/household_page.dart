@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:repository/model/household_member.dart';
@@ -25,10 +26,36 @@ class HouseholdPage extends ConsumerStatefulWidget {
 }
 
 class _HouseholdPageState extends ConsumerState<HouseholdPage> {
+  // Timer for refreshing invitations periodically
+  Timer? _refreshTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    // Set up a timer to refresh invitations every 3 seconds
+    _refreshTimer = Timer.periodic(
+      const Duration(seconds: 3),
+      (_) => _refreshInvitations(),
+    );
+  }
+
+  @override
+  void dispose() {
+    // Cancel the timer when the widget is disposed
+    _refreshTimer?.cancel();
+    super.dispose();
+  }
+
+  // Method to refresh invitations data
+  void _refreshInvitations() {
+    ref.read(invitationsProvider.notifier).refreshInvitations();
+  }
+
   @override
   Widget build(BuildContext context) {
     final members = ref.watch(householdProvider);
     final invitationsState = ref.watch(invitationsProvider);
+    final cloudRepoState = ref.watch(cloudRepoProvider);
 
     if (invitationsState is! AsyncData<List<Invitation>>) {
       return Scaffold(
@@ -38,6 +65,18 @@ class _HouseholdPageState extends ConsumerState<HouseholdPage> {
     }
 
     final invitations = invitationsState.value;
+
+    // Determine current user email from cloudRepo
+    String? currentUserEmail;
+    if (cloudRepoState is AsyncData) {
+      currentUserEmail = cloudRepoState.value?.userEmail;
+    }
+
+    // Split invitations into sent and received
+    final sentInvitations = invitations.where((inv) =>
+        inv.inviterEmail == currentUserEmail).toList();
+    final receivedInvitations = invitations.where((inv) =>
+        inv.recipientEmail == currentUserEmail).toList();
 
     // Determine if user can leave household (only if more than one member)
     final bool canLeaveHousehold = members.length > 1;
@@ -86,16 +125,31 @@ class _HouseholdPageState extends ConsumerState<HouseholdPage> {
                     onPressed: _showAddMemberDialog,
                   ),
                 ),
-                if (invitations.isNotEmpty) ...[
+
+                // Received invitations section
+                if (receivedInvitations.isNotEmpty) ...[
                   const Divider(),
                   const Padding(
-                    padding: EdgeInsets.only(left: 16, top: 8),
+                    padding: EdgeInsets.only(left: 16, top: 8, bottom: 8),
                     child: Text(
-                      'Pending Invitations',
+                      'Invitations Received',
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ),
-                  ..._buildInvitationsList(invitations),
+                  ..._buildReceivedInvitationsList(receivedInvitations),
+                ],
+
+                // Sent invitations section
+                if (sentInvitations.isNotEmpty) ...[
+                  const Divider(),
+                  const Padding(
+                    padding: EdgeInsets.only(left: 16, top: 8, bottom: 8),
+                    child: Text(
+                      'Invitations Sent',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  ..._buildSentInvitationsList(sentInvitations),
                 ],
               ],
             ),
@@ -122,7 +176,7 @@ class _HouseholdPageState extends ConsumerState<HouseholdPage> {
     );
   }
 
-  List<Widget> _buildInvitationsList(List<Invitation> invitations) {
+  List<Widget> _buildSentInvitationsList(List<Invitation> invitations) {
     if (invitations.isEmpty) {
       return [];
     }
@@ -149,7 +203,7 @@ class _HouseholdPageState extends ConsumerState<HouseholdPage> {
 
       return ListTile(
         leading: const CircleAvatar(
-          child: Icon(Icons.email),
+          child: Icon(Icons.email_outlined),
         ),
         title: Text(invitation.recipientEmail),
         subtitle: Text(
@@ -157,7 +211,7 @@ class _HouseholdPageState extends ConsumerState<HouseholdPage> {
           style: TextStyle(color: statusColor, fontWeight: FontWeight.w500),
         ),
         trailing: IconButton(
-          icon: const Icon(Icons.delete_outline, color: Colors.red),
+          icon: const Icon(Icons.cancel_outlined, color: Colors.red),
           tooltip: 'Cancel invitation',
           onPressed: () => _confirmCancelInvitation(invitation),
         ),
@@ -165,30 +219,82 @@ class _HouseholdPageState extends ConsumerState<HouseholdPage> {
     }).toList();
   }
 
-  List<Widget> _buildMembersList(List<HouseholdMember> members) {
-    if (members.isEmpty) {
-      return [
-        const Padding(
-          padding: EdgeInsets.all(16),
-          child: Text('No members found.'),
-        ),
-      ];
+  List<Widget> _buildReceivedInvitationsList(List<Invitation> invitations) {
+    if (invitations.isEmpty) {
+      return [];
     }
 
-    // Get current user email
-    final currentUserEmail =
-        ref.watch(cloudRepoProvider).valueOrNull?.userEmail ?? '';
-
-    return members.map((member) {
-      bool isCurrentUser = member.email == currentUserEmail;
+    return invitations.map((invitation) {
+      // Check if invitation is in 'accepted' state but team membership still processing
+      final bool isAccepted = invitation.status == InvitationStatus.accepted;
 
       return ListTile(
         leading: CircleAvatar(
-          backgroundColor:
-              member.isAdmin ? Colors.blue.shade100 : Colors.grey.shade200,
+          backgroundColor: isAccepted ? Colors.green.shade100 : null,
+          child: Icon(
+            isAccepted ? Icons.check : Icons.email,
+            color: isAccepted ? Colors.green : null,
+          ),
+        ),
+        title: Text(invitation.inviterEmail), // Show the inviter's email
+        subtitle: isAccepted
+            ? const Text(
+                'Accepted - Processing membership',
+                style: TextStyle(color: Colors.green, fontStyle: FontStyle.italic),
+              )
+            : const Text(
+                'Wants to add you to their household',
+                style: TextStyle(fontStyle: FontStyle.italic),
+              ),
+        trailing: isAccepted
+            ? const SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            : Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.check_circle_outline, color: Colors.green),
+                    tooltip: 'Accept invitation',
+                    onPressed: () => _confirmAcceptInvitation(invitation),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.cancel_outlined, color: Colors.red),
+                    tooltip: 'Decline invitation',
+                    onPressed: () => _confirmDeclineInvitation(invitation),
+                  ),
+                ],
+              ),
+      );
+    }).toList();
+  }
+
+  List<Widget> _buildMembersList(List<HouseholdMember> members) {
+    // Get the current user's email
+    final currentUserEmail = ref.read(cloudRepoProvider).value?.userEmail;
+
+    // Sort members: current user first, then alphabetically
+    final sortedMembers = List<HouseholdMember>.from(members);
+    sortedMembers.sort((a, b) {
+      // Current user should always be first
+      if (a.email == currentUserEmail) return -1;
+      if (b.email == currentUserEmail) return 1;
+
+      // Then alphabetically by name
+      return a.name.compareTo(b.name);
+    });
+
+    return sortedMembers.map((member) {
+      final isCurrentUser = member.email == currentUserEmail;
+
+      return ListTile(
+        leading: CircleAvatar(
+          backgroundColor: isCurrentUser ? Colors.blue.shade100 : null,
           child: Icon(
             Icons.person,
-            color: member.isAdmin ? Colors.blue : Colors.grey,
+            color: isCurrentUser ? Colors.blue : null,
           ),
         ),
         title: Text(
@@ -246,6 +352,96 @@ class _HouseholdPageState extends ConsumerState<HouseholdPage> {
               backgroundColor: Colors.red,
             ),
             child: const Text('Yes, Cancel'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _confirmAcceptInvitation(Invitation invitation) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Accept Invitation'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+                'Are you sure you want to join the household from ${invitation.inviterEmail}?'),
+            const SizedBox(height: 16),
+            const Text(
+              'Note: This will update your household membership. It may take a moment for the changes to take effect.',
+              style: TextStyle(fontSize: 14, fontStyle: FontStyle.italic),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              // Close dialog first
+              Navigator.of(context).pop();
+
+              // Show a snackbar to indicate processing
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Processing invitation acceptance...'),
+                  duration: Duration(seconds: 2),
+                ),
+              );
+
+              // Process the invitation
+              ref
+                  .read(invitationsProvider.notifier)
+                  .acceptInvite(invitation)
+                  .catchError((error) {
+                    // Show error if it occurs
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Error: ${error.toString()}'),
+                        backgroundColor: Colors.red,
+                        duration: const Duration(seconds: 5),
+                      ),
+                    );
+                  });
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.green,
+            ),
+            child: const Text('Accept'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _confirmDeclineInvitation(Invitation invitation) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Decline Invitation'),
+        content: Text(
+            'Are you sure you want to decline the invitation from ${invitation.inviterEmail}?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              ref
+                  .read(invitationsProvider.notifier)
+                  .declineInvite(invitation);
+              Navigator.of(context).pop();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+            ),
+            child: const Text('Decline'),
           ),
         ],
       ),

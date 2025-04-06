@@ -35,25 +35,47 @@ class InvitationState extends AsyncNotifier<List<Invitation>> {
     try {
       Log.i('InvitationState: Accepting invitation ${invitation.uniqueKey}');
 
-      // Use the existing accept method, which will trigger database events
-      // that the cloud function will react to
-      cloudRepo.invitation.accept(invitation);
+      // Create an updated invitation with 'accepted' status
+      final updatedInvitation = invitation.copyWith(
+        status: InvitationStatus.accepted,
+      );
+
+      // Update the invitation status in the database
+      // This will trigger the cloud function to process team/household membership
+      cloudRepo.invitation.put(updatedInvitation);
+
+      // Update local state immediately to show acceptance
+      // We'll replace the pending invitation with the accepted one
+      if (state.value != null) {
+        final currentInvitations = state.value!.toList();
+        final index = currentInvitations.indexWhere(
+            (inv) => inv.uniqueKey == invitation.uniqueKey);
+        
+        if (index >= 0) {
+          currentInvitations[index] = updatedInvitation;
+          state = AsyncValue.data(currentInvitations);
+        }
+      }
 
       // Wait a moment to allow the cloud function to process
       await Future.delayed(const Duration(seconds: 1));
 
-      // Update the household members after joining a new household
-      // We need to reload all data since the household ID changed
-      await cloudRepo.fetch();
-
-      // Refresh the invitations list
+      // Refresh the invitations list to get the latest state
       await refreshInvitations();
 
       Log.i('InvitationState: Invitation accepted successfully');
     } catch (e, stack) {
       Log.e('InvitationState: Exception accepting invitation', e, stack);
-      state = AsyncValue.error(e, stack);
-      rethrow;
+      
+      // Don't rethrow here - instead just show the error but still display existing invitations
+      Log.e('InvitationState: Exception accepting invitation', e, stack);
+      
+      // Just refresh invitations to show current state without throwing
+      try {
+        await refreshInvitations();
+      } catch (refreshError) {
+        Log.w('InvitationState: Could not refresh after error: $refreshError');
+      }
     }
   }
 

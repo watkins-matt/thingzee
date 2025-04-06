@@ -10,6 +10,7 @@ Location _$LocationFromJson(Map<String, dynamic> json) => Location(
       upc: json['upc'] as String? ?? '',
       name: json['name'] as String? ?? '',
       quantity: (json['quantity'] as num?)?.toDouble() ?? 0,
+      householdId: json['householdId'] as String? ?? '',
       created: _$JsonConverterFromJson<int, DateTime>(
           json['created'], const DateTimeSerializer().fromJson),
       updated: _$JsonConverterFromJson<int, DateTime>(
@@ -22,6 +23,7 @@ Map<String, dynamic> _$LocationToJson(Location instance) => <String, dynamic>{
       'upc': instance.upc,
       'name': instance.name,
       'quantity': instance.quantity,
+      'householdId': instance.householdId,
     };
 
 Value? _$JsonConverterFromJson<Json, Value>(
