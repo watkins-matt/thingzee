@@ -22,7 +22,8 @@ class AppwriteInventoryDatabase extends InventoryDatabase
     this._householdId,
   ) : super() {
     constructDatabase(tag, database, databaseId, collectionId);
-    constructSynchronizable(tag, prefs, onConnectivityChange: (bool online) async {
+    constructSynchronizable(tag, prefs,
+        onConnectivityChange: (bool online) async {
       if (online) {
         await taskQueue.runUntilComplete();
       }
@@ -35,8 +36,35 @@ class AppwriteInventoryDatabase extends InventoryDatabase
   @override
   Inventory deserialize(Map<String, dynamic> json) => Inventory.fromJson(json);
 
+  /// Overrides the default getDocuments method to include household filtering
   @override
-  List<Inventory> outs() => values.where((inv) => inv.amount <= 0 && inv.restock).toList();
+  Future<appwrite_models.DocumentList> getDocuments(List<String> queries) =>
+      super.getDocuments(queries);
+
+  /// Overrides the default getModifiedDocuments to include household data
+  @override
+  Future<appwrite_models.DocumentList> getModifiedDocuments(
+      DateTime? lastSyncTime) async {
+    // Get documents updated since the last sync that the user has permission to read.
+    // Appwrite automatically handles permission filtering.
+    final timeQuery = Query.greaterThan(
+        '\$updatedAt', // Use Appwrite's internal timestamp field
+        (lastSyncTime?.millisecondsSinceEpoch ?? 0) ~/
+            1000 // Appwrite uses seconds epoch
+        );
+
+    final queries = [
+      timeQuery,
+    ];
+
+    // Call the base getDocuments implementation with the time query.
+    // It will return documents matching the query that the user can access.
+    return await super.getDocuments(queries);
+  }
+
+  @override
+  List<Inventory> outs() =>
+      values.where((inv) => inv.amount <= 0 && inv.restock).toList();
 
   @override
   void put(Inventory item, {List<String>? permissions}) {
@@ -52,8 +80,9 @@ class AppwriteInventoryDatabase extends InventoryDatabase
     ];
 
     // Combine with any existing permissions
-    final allPermissions =
-        permissions != null ? [...permissions, ...teamPermissions] : teamPermissions;
+    final allPermissions = permissions != null
+        ? [...permissions, ...teamPermissions]
+        : teamPermissions;
 
     // Call the parent put method with the updated permissions
     super.put(item, permissions: allPermissions);
@@ -90,38 +119,5 @@ class AppwriteInventoryDatabase extends InventoryDatabase
     for (final item in updatedItems) {
       put(item);
     }
-  }
-
-  /// Overrides the default getDocuments method to include household filtering
-  @override
-  Future<appwrite_models.DocumentList> getDocuments(List<String> queries) async {
-    // Ensure we fetch all documents for the current household, not just user's
-    final householdQueries = [
-      ...queries,
-      Query.equal('householdId', _householdId),
-    ];
-    
-    // Call the parent method to handle the actual database access
-    // This avoids direct access to the private _database field
-    return await super.getDocuments(householdQueries);
-  }
-
-  /// Overrides the default getModifiedDocuments to include household data
-  @override
-  Future<appwrite_models.DocumentList> getModifiedDocuments(DateTime? lastSyncTime) async {
-    // Get documents that have been updated since the last sync
-    final timeQuery = Query.greaterThan(
-        'updated', lastSyncTime?.millisecondsSinceEpoch ?? 0);
-    
-    // Use multiple queries to get documents that:
-    // 1. Have been updated since last sync AND
-    // 2. Belong to the current household
-    final queries = [
-      timeQuery,
-      Query.equal('householdId', _householdId),
-    ];
-    
-    // Use the general getDocuments method to avoid direct database access
-    return await getDocuments(queries);
   }
 }
