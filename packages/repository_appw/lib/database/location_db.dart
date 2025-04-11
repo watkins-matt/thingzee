@@ -22,7 +22,8 @@ class AppwriteLocationDatabase extends LocationDatabase
     String collectionId,
   ) : super() {
     constructDatabase(tag, database, databaseId, collectionId);
-    constructSynchronizable(tag, prefs, onConnectivityChange: (bool online) async {
+    constructSynchronizable(tag, prefs,
+        onConnectivityChange: (bool online) async {
       if (online) {
         await taskQueue.runUntilComplete();
       }
@@ -54,7 +55,8 @@ class AppwriteLocationDatabase extends LocationDatabase
     for (final loc in values) {
       var normalizedLocName = normalizeLocation(loc.name);
 
-      if (normalizedLocName.startsWith(location) && normalizedLocName != location) {
+      if (normalizedLocName.startsWith(location) &&
+          normalizedLocName != location) {
         var remainingPath = normalizedLocName.substring(location.length);
         var nextSlashIndex = remainingPath.indexOf('/');
 
@@ -92,7 +94,8 @@ class AppwriteLocationDatabase extends LocationDatabase
   }
 
   @override
-  int itemCount(String location) => values.where((loc) => loc.name == location).length;
+  int itemCount(String location) =>
+      values.where((loc) => loc.name == location).length;
 
   @override
   void remove(String location, String upc) {
@@ -127,20 +130,19 @@ class AppwriteLocationDatabase extends LocationDatabase
 
   /// Overrides the default getDocuments method to include household filtering
   @override
-  Future<appwrite_models.DocumentList> getDocuments(List<String> queries) async {
-    // Let Appwrite permissions handle access restrictions automatically
-    // without explicitly filtering by householdId
-
+  Future<appwrite_models.DocumentList> getDocuments(
+      List<String> queries) async {
     // Call the parent method to handle the actual database access
     return await super.getDocuments(queries);
   }
 
   /// Overrides the default getModifiedDocuments to include household data
   @override
-  Future<appwrite_models.DocumentList> getModifiedDocuments(DateTime? lastSyncTime) async {
+  Future<appwrite_models.DocumentList> getModifiedDocuments(
+      DateTime? lastSyncTime) async {
     // Get documents that have been updated since the last sync
-    final timeQuery = Query.greaterThan(
-        'updated', lastSyncTime?.millisecondsSinceEpoch ?? 0);
+    final timeQuery =
+        Query.greaterThan('updated', lastSyncTime?.millisecondsSinceEpoch ?? 0);
 
     // Only filter by time - permissions will handle access control
     final queries = [
