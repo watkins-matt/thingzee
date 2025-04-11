@@ -3,6 +3,7 @@ import 'package:log/log.dart';
 import 'package:repository/cloud_repository.dart';
 import 'package:repository/database/invitation_database.dart';
 import 'package:repository/model/invitation.dart';
+import 'package:repository_appw/database/invitation_db.dart';
 import 'package:thingzee/main.dart';
 
 final invitationsProvider =
@@ -125,12 +126,39 @@ class InvitationState extends AsyncNotifier<List<Invitation>> {
   }
 
   Future<void> refreshInvitations() async {
-    state = const AsyncValue.loading();
+    // Keep the current state, don't set to loading
+    // This prevents the UI from disappearing during refresh
     try {
       final cloudRepo = await _getCloudRepo();
-      state = AsyncValue.data(cloudRepo.invitation.pendingInvites());
+      
+      // First, force a sync with the remote database if we're online
+      if (cloudRepo.invitation is AppwriteInvitationDatabase) {
+        Log.i('InvitationState: Forcing sync with remote database');
+        final appwriteDb = cloudRepo.invitation as AppwriteInvitationDatabase;
+        
+        // The AppwriteInvitationDatabase mixes in AppwriteSynchronizable
+        if (appwriteDb.online) {
+          // Force a full refresh from the server
+          await appwriteDb.fetch();
+          Log.i('InvitationState: Completed full sync with remote database');
+        } else {
+          Log.w('InvitationState: Cannot sync - device is offline');
+        }
+      }
+      
+      // Now get the updated list of pending invitations
+      final invitations = cloudRepo.invitation.pendingInvites();
+      Log.i('InvitationState: Retrieved ${invitations.length} pending invitations');
+      
+      // Only update the state once we have the new data
+      state = AsyncValue.data(invitations);
     } catch (e, stack) {
-      state = AsyncValue.error(e, stack);
+      Log.e('InvitationState: Error refreshing invitations', e, stack);
+      // Don't update state to error if we already have data
+      // This keeps existing UI visible even if refresh fails
+      if (state is! AsyncData) {
+        state = AsyncValue.error(e, stack);
+      }
     }
   }
 
