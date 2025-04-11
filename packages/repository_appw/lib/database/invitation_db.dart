@@ -91,13 +91,6 @@ class AppwriteInvitationDatabase extends InvitationDatabase
       Log.w('$tag: Attempted to save invitation with empty householdId');
     }
 
-    // IMPORTANT: Need to set $id for Appwrite document ID, using uniqueKey
-    // This is likely why documents weren't being created
-    if (item.uniqueKey.isNotEmpty) {
-      json['\$id'] = item.uniqueKey;
-      Log.i('$tag: Using document ID: ${item.uniqueKey}');
-    }
-
     Log.i('$tag: Serialized invitation: ${item.uniqueKey}');
     return json;
   }
@@ -179,17 +172,9 @@ class AppwriteInvitationDatabase extends InvitationDatabase
         return [];
       }
 
-      final String userEmail = _getUserEmail();
-      if (userEmail.isEmpty) {
-        Log.w('$tag: Cannot fetch invitations: unable to determine user email');
-        return [];
-      }
-
-      Log.i('$tag: Fetching invitations for user email: $userEmail');
-
       final recipientInvitations = values
           .where((invitation) =>
-              invitation.recipientEmail == userEmail &&
+              hashEmail(invitation.recipientEmail) == userId &&
               invitation.status == InvitationStatus.pending)
           .toList();
 
@@ -199,46 +184,6 @@ class AppwriteInvitationDatabase extends InvitationDatabase
     } catch (e) {
       Log.e('$tag: Error in _fetchInvitationsForCurrentUserEmail', e);
       return [];
-    }
-  }
-
-  // Get the current user's email - this is a helper method that uses
-  // the CloudRepository's userEmail property if available
-  String _getUserEmail() {
-    try {
-      // First, check if we have the CloudRepository available in any invitation
-      // that has the current userId
-      for (final invitation in values) {
-        if (invitation.inviterUserId == userId &&
-            invitation.inviterEmail.isNotEmpty) {
-          return invitation.inviterEmail;
-        }
-      }
-
-      // If we can't determine from local data, try to get from parent class
-      try {
-        // Access the userEmail property using dynamic to bypass static type checking
-        // This assumes the parent class or a mixin provides this property
-        final email = (this as dynamic).userEmail;
-        if (email != null && email is String && email.isNotEmpty) {
-          return email;
-        }
-      } catch (e) {
-        // Ignore errors from dynamic property access
-      }
-
-      // If all else fails, generate a fake email from the userId
-      // This is just a fallback and won't actually work for sending invitations
-      if (userId.isNotEmpty) {
-        // Generate a predictable email from userId for testing purposes
-        final shortId = userId.length > 8 ? userId.substring(0, 8) : userId;
-        return '$shortId@example.com';
-      }
-
-      return '';
-    } catch (e) {
-      Log.e('$tag: Error getting user email', e);
-      return '';
     }
   }
 

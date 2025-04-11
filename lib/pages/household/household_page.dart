@@ -63,17 +63,8 @@ class _HouseholdPageState extends ConsumerState<HouseholdPage> {
   @override
   Widget build(BuildContext context) {
     final members = ref.watch(householdProvider);
-    final invitationsState = ref.watch(invitationsProvider);
+    final invitations = ref.watch(invitationsProvider);
     final cloudRepoState = ref.watch(cloudRepoProvider);
-
-    if (invitationsState is! AsyncData<List<Invitation>>) {
-      return Scaffold(
-        appBar: AppBar(title: const Text('Household')),
-        body: const Center(child: CircularProgressIndicator()),
-      );
-    }
-
-    final invitations = invitationsState.value;
 
     // Determine current user email from cloudRepo
     String? currentUserEmail;
@@ -384,9 +375,7 @@ class _HouseholdPageState extends ConsumerState<HouseholdPage> {
           ),
           ElevatedButton(
             onPressed: () {
-              ref
-                  .read(invitationsProvider.notifier)
-                  .cancelInvitation(invitation);
+              ref.read(invitationsProvider.notifier).cancelInvite(invitation);
               Navigator.of(context).pop();
             },
             style: ElevatedButton.styleFrom(
@@ -424,34 +413,9 @@ class _HouseholdPageState extends ConsumerState<HouseholdPage> {
           ),
           ElevatedButton(
             onPressed: () {
-              // Close dialog first
               Navigator.of(context).pop();
-
-              // Show a snackbar to indicate processing
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Processing invitation acceptance...'),
-                  duration: Duration(seconds: 2),
-                ),
-              );
-
-              // Process the invitation
-              ref
-                  .read(invitationsProvider.notifier)
-                  .acceptInvite(invitation)
-                  .catchError((error) {
-                // Only show error if the widget is still mounted
-                if (!mounted) return;
-
-                // Show error if it occurs
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Error: ${error.toString()}'),
-                    backgroundColor: Colors.red,
-                    duration: const Duration(seconds: 5),
-                  ),
-                );
-              });
+              ref.read(invitationsProvider.notifier).acceptInvite(invitation);
+              ref.read(householdProvider.notifier).refreshMembers();
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.green,
@@ -555,7 +519,7 @@ class _HouseholdPageState extends ConsumerState<HouseholdPage> {
 
       // Only send the invitation - don't add the member to the household yet
       // They will be added when they accept the invitation through the cloud function
-      await ref.read(invitationsProvider.notifier).sendInvite(email);
+      ref.read(invitationsProvider.notifier).sendInvite(email);
     }
   }
 
