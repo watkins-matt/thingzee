@@ -11,6 +11,7 @@ import 'package:repository_appw/util/appwrite_task_queue.dart';
 import 'package:util/extension/date_time.dart';
 
 mixin AppwriteDatabase<T extends Model> on Database<T> {
+  static final Set<String> _invalidTeamIds = {};
   AppwriteTaskQueue taskQueue = AppwriteTaskQueue();
   late final Databases _database;
   late final String collectionId;
@@ -183,69 +184,46 @@ mixin AppwriteDatabase<T extends Model> on Database<T> {
     _items[key] = item;
 
     taskQueue.queueTask(() async {
-      try {
-        await _database.updateDocument(
-            databaseId: databaseId,
-            collectionId: collectionId,
-            documentId: uniqueDocumentId(key),
-            data: serialize(item),
-            permissions: permissions);
-      } on AppwriteException catch (e) {
-        if (e.code == 404) {
-          try {
-            await _database.createDocument(
-                databaseId: databaseId,
-                collectionId: collectionId,
-                documentId: uniqueDocumentId(key),
-                data: serialize(item),
-                permissions: permissions);
-          } on AppwriteException catch (createError) {
-            // Handle schema mismatch errors with improved messages
-            if (_isSchemaError(createError)) {
-              final errorMessage =
-                  _getEnhancedSchemaErrorMessage(createError, item);
-              Log.e('$_tag: Schema mismatch for item $key: $errorMessage');
-              _items.remove(key);
-              throw Exception(errorMessage);
-            }
-            rethrow;
-          }
-        } else if (e.code == 409) {
-          try {
-            await _database.updateDocument(
-                databaseId: databaseId,
-                collectionId: collectionId,
-                documentId: uniqueDocumentId(key),
-                data: serialize(item),
-                permissions: permissions);
-          } on AppwriteException catch (updateError) {
-            // Handle schema mismatch errors with improved messages
-            if (_isSchemaError(updateError)) {
-              final errorMessage =
-                  _getEnhancedSchemaErrorMessage(updateError, item);
-              Log.e('$_tag: Schema mismatch for item $key: $errorMessage');
-              _items.remove(key);
-              throw Exception(errorMessage);
-            }
-            rethrow;
-          }
-        } else {
-          // Handle schema mismatch errors with improved messages
-          if (_isSchemaError(e)) {
-            final errorMessage = _getEnhancedSchemaErrorMessage(e, item);
-            Log.e('$_tag: Schema mismatch for item $key: $errorMessage');
-            _items.remove(key);
-            throw Exception(errorMessage);
-          } else {
-            Log.e('$_tag: Failed to put item $key: [AppwriteException]',
-                e.message);
-            // Removing the item from local cache since we
-            // failed to add it to the database
-            _items.remove(key);
-            rethrow;
-          }
-        }
+      // Check if permissions contain team permissions for an invalid team ID
+      // If so, strip them out and replace with user permissions
+      List<String>? effectivePermissions = permissions;
+      
+      if (permissions != null && hasInvalidTeamPermissions(permissions)) {
+        // Create user-only permissions as replacement
+        effectivePermissions = [
+          Permission.read(Role.user(userId)),
+          Permission.update(Role.user(userId)),
+          Permission.delete(Role.user(userId)),
+        ];
+        Log.i('$_tag: Proactively using user-only permissions for item $key (team is invalid).');
       }
+
+      // Try to update or create the document with the effective permissions
+      await _putDocumentWithPermissions(key, item, effectivePermissions)
+          .catchError((error) async {
+        if (error is AppwriteException &&
+            error.message?.contains('Permissions must be one of') == true) {
+          // Team likely doesn't exist anymore - extract team ID from permissions
+          extractAndMarkInvalidTeams(permissions);
+          
+          // Log warning about team permissions error
+          Log.w('$_tag: Team permissions error. Falling back to user-only permissions.');
+          
+          // Create user-only permissions as fallback
+          final fallbackPermissions = [
+            Permission.read(Role.user(userId)),
+            Permission.update(Role.user(userId)),
+            Permission.delete(Role.user(userId)),
+          ];
+          
+          // Try again with user-only permissions
+          await _putDocumentWithPermissions(key, item, fallbackPermissions);
+          Log.i('$_tag: Successfully saved item $key with fallback permissions.');
+        } else {
+          // For other errors, rethrow
+          throw error;
+        }
+      });
     });
 
     replicateOperation((replica) async {
@@ -253,6 +231,73 @@ mixin AppwriteDatabase<T extends Model> on Database<T> {
     });
 
     callHooks(item, DatabaseHookType.put);
+  }
+
+  // Helper method to put a document with specified permissions
+  Future<void> _putDocumentWithPermissions(String key, T item, List<String>? permissions) async {
+    try {
+      await _database.updateDocument(
+          databaseId: databaseId,
+          collectionId: collectionId,
+          documentId: uniqueDocumentId(key),
+          data: serialize(item),
+          permissions: permissions);
+    } on AppwriteException catch (e) {
+      if (e.code == 404) {
+        try {
+          await _database.createDocument(
+              databaseId: databaseId,
+              collectionId: collectionId,
+              documentId: uniqueDocumentId(key),
+              data: serialize(item),
+              permissions: permissions);
+        } on AppwriteException catch (createError) {
+          // Handle schema mismatch errors with improved messages
+          if (_isSchemaError(createError)) {
+            final errorMessage =
+                _getEnhancedSchemaErrorMessage(createError, item);
+            Log.e('$_tag: Schema mismatch for item $key: $errorMessage');
+            _items.remove(key);
+            throw Exception(errorMessage);
+          }
+          rethrow;
+        }
+      } else if (e.code == 409) {
+        try {
+          await _database.updateDocument(
+              databaseId: databaseId,
+              collectionId: collectionId,
+              documentId: uniqueDocumentId(key),
+              data: serialize(item),
+              permissions: permissions);
+        } on AppwriteException catch (updateError) {
+          // Handle schema mismatch errors with improved messages
+          if (_isSchemaError(updateError)) {
+            final errorMessage =
+                _getEnhancedSchemaErrorMessage(updateError, item);
+            Log.e('$_tag: Schema mismatch for item $key: $errorMessage');
+            _items.remove(key);
+            throw Exception(errorMessage);
+          }
+          rethrow;
+        }
+      } else {
+        // Handle schema mismatch errors with improved messages
+        if (_isSchemaError(e)) {
+          final errorMessage = _getEnhancedSchemaErrorMessage(e, item);
+          Log.e('$_tag: Schema mismatch for item $key: $errorMessage');
+          _items.remove(key);
+          throw Exception(errorMessage);
+        } else {
+          Log.e('$_tag: Failed to put item $key: [AppwriteException]',
+              e.message);
+          // Removing the item from local cache since we
+          // failed to add it to the database
+          _items.remove(key);
+          rethrow;
+        }
+      }
+    }
   }
 
   // Helper method to check if an Appwrite exception is related to schema validation
@@ -330,22 +375,19 @@ mixin AppwriteDatabase<T extends Model> on Database<T> {
     }
 
     final attribute = errorInfo['attribute'] ?? '';
-    return '''
-╭─────────────────────────────────────────────────────╮
-│ DATABASE $errorTitle                      │
-╰─────────────────────────────────────────────────────╯
+    return '''DATABASE $errorTitle
 
-Model:         $modelType
-Collection:    $collectionId
-Database:      $databaseId
-Field:         "$attribute"
+Model: $modelType
+Collection: $collectionId
+Database: $databaseId
+Field: "$attribute"
 
 Problem: $problemDescription
 
-Options to fix this issue:
+Options to fix:
 ${solutions.join('\n')}
 
-Check database collection: $collectionId in database: $databaseId
+Check collection: $collectionId in database: $databaseId
 ''';
   }
 
@@ -366,5 +408,41 @@ Check database collection: $collectionId in database: $databaseId
     }
 
     return hashUsernameBarcode(userId, id);
+  }
+
+  // Check if permissions contain references to invalid team IDs
+  bool hasInvalidTeamPermissions(List<String> permissions) {
+    for (final permission in permissions) {
+      if (permission.contains('team:')) {
+        // Extract team ID from the permission string
+        final teamIdMatch = RegExp(r'team:([^/]+)').firstMatch(permission);
+        if (teamIdMatch != null) {
+          final teamId = teamIdMatch.group(1);
+          if (teamId != null && _invalidTeamIds.contains(teamId)) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  }
+
+  // Extract team IDs from permissions and mark them as invalid
+  void extractAndMarkInvalidTeams(List<String>? permissions) {
+    if (permissions == null) return;
+    
+    for (final permission in permissions) {
+      if (permission.contains('team:')) {
+        // Extract team ID from the permission string
+        final teamIdMatch = RegExp(r'team:([^/]+)').firstMatch(permission);
+        if (teamIdMatch != null) {
+          final teamId = teamIdMatch.group(1);
+          if (teamId != null && !_invalidTeamIds.contains(teamId)) {
+            _invalidTeamIds.add(teamId);
+            Log.w('$_tag: Marked team ID "$teamId" as invalid');
+          }
+        }
+      }
+    }
   }
 }
