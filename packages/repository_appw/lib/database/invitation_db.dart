@@ -46,8 +46,12 @@ class AppwriteInvitationDatabase extends InvitationDatabase
     }
 
     // Update the invitation status
-    final updatedInvitation =
-        invitation.copyWith(status: InvitationStatus.accepted);
+    final newUniqueKey = const Uuid().v4();
+
+    final updatedInvitation = invitation.copyWith(
+        status: InvitationStatus.accepted,
+        uniqueKey: newUniqueKey,
+        created: DateTime.now());
 
     final permissions = [
       Permission.read(Role.user(userId, 'verified')),
@@ -153,8 +157,24 @@ class AppwriteInvitationDatabase extends InvitationDatabase
       // These are invitations for which the current user might not have explicit permissions
       final recipientInvitations = _fetchInvitationsForCurrentUserEmail();
 
-      // Combine the lists (we might have duplicates, but that's handled by the UI)
-      return [...senderInvites, ...recipientInvitations];
+      // Create a set of unique keys to track which invitations we've already added
+      final uniqueKeys = <String>{};
+      final result = <Invitation>[];
+
+      // Add all sender invites first
+      for (final invitation in senderInvites) {
+        uniqueKeys.add(invitation.uniqueKey);
+        result.add(invitation);
+      }
+
+      // Then only add recipient invites if they're not already in the result
+      for (final invitation in recipientInvitations) {
+        if (!uniqueKeys.contains(invitation.uniqueKey)) {
+          result.add(invitation);
+        }
+      }
+
+      return result;
     } catch (e) {
       Log.e('$tag: Error fetching invitations for current user', e);
       // Return just sender invites if recipient fetch fails
