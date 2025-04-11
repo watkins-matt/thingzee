@@ -2,6 +2,12 @@ import 'dart:convert';
 import 'dart:io' show Platform;
 import 'package:dart_appwrite/dart_appwrite.dart';
 
+// Type definitions for records
+typedef InvitationParseResult = ({bool success, Map<String, dynamic>? data, String message, int statusCode, bool isInvitationDoc});
+typedef AppwriteServices = ({bool success, String message, Client? client, Teams? teams, Users? users, Functions? functions, Databases? databases});
+typedef UserInfo = ({bool success, String message, String userId, String displayName, int statusCode});
+typedef InvitationData = ({String recipientEmail, String teamId, String action, String inviterEmail, String documentId});
+
 // Main entry point for Appwrite function
 Future<dynamic> main(final context) async {
   try {
@@ -71,23 +77,6 @@ Future<dynamic> main(final context) async {
   }
 }
 
-// Result class for invitation parsing
-class InvitationParseResult {
-  final bool success;
-  final Map<String, dynamic>? data;
-  final String message;
-  final int statusCode;
-  final bool isInvitationDoc;
-  
-  InvitationParseResult({
-    required this.success,
-    this.data,
-    required this.message,
-    this.statusCode = 200,
-    this.isInvitationDoc = false,
-  });
-}
-
 // Parse the invitation from the request
 Future<InvitationParseResult> parseInvitationFromRequest(context) async {
   // Parse the event data from the payload
@@ -100,10 +89,12 @@ Future<InvitationParseResult> parseInvitationFromRequest(context) async {
     } catch (e) {
       context.log('Error parsing payload as string: $e');
       context.log('Raw payload: ${context.req.body}');
-      return InvitationParseResult(
+      return (
         success: false,
+        data: null,
         message: 'Error parsing payload: $e',
         statusCode: 400,
+        isInvitationDoc: false
       );
     }
   } else if (context.req.body is Map<String, dynamic>) {
@@ -111,10 +102,12 @@ Future<InvitationParseResult> parseInvitationFromRequest(context) async {
     invitation = context.req.body as Map<String, dynamic>;
   } else {
     context.log('Invalid payload type: ${context.req.body.runtimeType}');
-    return InvitationParseResult(
+    return (
       success: false,
+      data: null,
       message: 'Invalid payload type: ${context.req.body.runtimeType}',
       statusCode: 400,
+      isInvitationDoc: false
     );
   }
   
@@ -141,11 +134,12 @@ Future<InvitationParseResult> parseInvitationFromRequest(context) async {
     }
   }
   
-  return InvitationParseResult(
+  return (
     success: true,
     data: invitation,
     message: 'Successfully parsed invitation',
     isInvitationDoc: isInvitationDoc,
+    statusCode: 200
   );
 }
 
@@ -162,29 +156,8 @@ int determineInvitationStatus(Map<String, dynamic> invitation, context) {
   return status;
 }
 
-// Services result class
-class AppwriteServicesResult {
-  final bool success;
-  final String message;
-  final Client? client;
-  final Teams? teams;
-  final Users? users;
-  final Functions? functions;
-  final Databases? databases;
-  
-  AppwriteServicesResult({
-    required this.success,
-    required this.message,
-    this.client,
-    this.teams,
-    this.users,
-    this.functions,
-    this.databases,
-  });
-}
-
 // Initialize Appwrite services
-Future<AppwriteServicesResult> initializeAppwriteServices(context) async {
+Future<AppwriteServices> initializeAppwriteServices(context) async {
   try {
     // Initialize SDK
     final client = Client()..setEndpoint('https://cloud.appwrite.io/v1');
@@ -194,16 +167,26 @@ Future<AppwriteServicesResult> initializeAppwriteServices(context) async {
     final apiKey = context.req.headers['x-appwrite-key'];
     
     if (projectId == null) {
-      return AppwriteServicesResult(
+      return (
         success: false,
         message: 'Project ID not found in environment variables',
+        client: null,
+        teams: null,
+        users: null,
+        functions: null,
+        databases: null
       );
     }
     
     if (apiKey == null) {
-      return AppwriteServicesResult(
+      return (
         success: false,
         message: 'API key not found in headers',
+        client: null,
+        teams: null,
+        users: null,
+        functions: null,
+        databases: null
       );
     }
 
@@ -219,43 +202,31 @@ Future<AppwriteServicesResult> initializeAppwriteServices(context) async {
     final functions = Functions(client);
     final databases = Databases(client);
     
-    return AppwriteServicesResult(
+    return (
       success: true,
       message: 'Services initialized successfully',
       client: client,
       teams: teams,
       users: users,
       functions: functions,
-      databases: databases,
+      databases: databases
     );
   } catch (e) {
     context.log('Error initializing Appwrite services: $e');
-    return AppwriteServicesResult(
+    return (
       success: false,
       message: 'Error initializing Appwrite services: $e',
+      client: null,
+      teams: null,
+      users: null,
+      functions: null,
+      databases: null
     );
   }
 }
 
-// Invitation fields class
-class InvitationFields {
-  final String recipientEmail;
-  final String teamId;
-  final String action;
-  final String inviterEmail;
-  final String documentId;
-  
-  InvitationFields({
-    required this.recipientEmail,
-    required this.teamId,
-    required this.action,
-    required this.inviterEmail,
-    required this.documentId,
-  });
-}
-
 // Extract fields from invitation
-InvitationFields extractInvitationFields(Map<String, dynamic> invitation, context) {
+InvitationData extractInvitationFields(Map<String, dynamic> invitation, context) {
   final recipientEmail = invitation['recipientEmail']?.toString() ?? '';
   final teamId = invitation['teamId']?.toString() ?? '';
   final action = invitation['action']?.toString() ?? '';
@@ -264,21 +235,21 @@ InvitationFields extractInvitationFields(Map<String, dynamic> invitation, contex
   
   context.log('Extracted fields - Recipient: $recipientEmail, Team: $teamId, Action: $action');
   
-  return InvitationFields(
+  return (
     recipientEmail: recipientEmail,
     teamId: teamId,
     action: action,
     inviterEmail: inviterEmail,
-    documentId: documentId,
+    documentId: documentId
   );
 }
 
 // Handle pending invitation
 Future<dynamic> handlePendingInvitation(
   context,
-  AppwriteServicesResult services,
+  AppwriteServices services,
   Map<String, dynamic> invitation,
-  InvitationFields fields
+  InvitationData fields
 ) async {
   // Add permission for the recipient to view this invitation
   try {
@@ -319,9 +290,9 @@ Future<dynamic> handlePendingInvitation(
 // Handle accepted invitation
 Future<dynamic> handleAcceptedInvitation(
   context,
-  AppwriteServicesResult services,
+  AppwriteServices services,
   Map<String, dynamic> invitation,
-  InvitationFields fields
+  InvitationData fields
 ) async {
   // Validation
   if (fields.teamId.isEmpty) {
@@ -342,6 +313,21 @@ Future<dynamic> handleAcceptedInvitation(
   
   // Add the user to the team
   try {
+    // First check if the team exists and create it if needed
+    try {
+      await services.teams!.get(teamId: fields.teamId);
+      context.log('Team exists: ${fields.teamId}');
+    } catch (e) {
+      // Team doesn't exist, create it
+      context.log('Team doesn\'t exist, creating team: ${fields.teamId}');
+      await services.teams!.create(
+        teamId: fields.teamId,
+        name: 'Household ${fields.teamId.substring(0, 8)}',
+      );
+      context.log('Created team: ${fields.teamId}');
+    }
+    
+    // Now add the user to the team
     await services.teams!.createMembership(
       teamId: fields.teamId,
       roles: ['member'],
@@ -389,51 +375,39 @@ Future<dynamic> handleAcceptedInvitation(
   });
 }
 
-// User result class
-class UserResult {
-  final bool success;
-  final String message;
-  final String userId;
-  final String displayName;
-  final int statusCode;
-  
-  UserResult({
-    required this.success,
-    required this.message,
-    this.userId = '',
-    this.displayName = '',
-    this.statusCode = 200,
-  });
-}
-
 // Find a user by email
-Future<UserResult> findUserByEmail(context, Users users, String email) async {
+Future<UserInfo> findUserByEmail(context, Users users, String email) async {
   try {
     final userList = await users.list(
       queries: [Query.equal('email', email)]
     );
     
     if (userList.total > 0) {
-      return UserResult(
+      return (
         success: true,
         message: 'User found',
         userId: userList.users[0].$id,
         displayName: userList.users[0].name,
+        statusCode: 200
       );
     } else {
       context.log('User not found: $email');
-      return UserResult(
+      return (
         success: false,
         message: 'User not found',
-        statusCode: 404,
+        userId: '',
+        displayName: '',
+        statusCode: 404
       );
     }
   } catch (e) {
     context.log('Error finding user: $e');
-    return UserResult(
+    return (
       success: false,
       message: 'Error finding user: ${e.toString()}',
-      statusCode: 500,
+      userId: '',
+      displayName: '',
+      statusCode: 500
     );
   }
 }
@@ -494,7 +468,7 @@ Future<void> updateUserHouseholdRecord(
 }
 
 // Handle declined invitation
-Future<dynamic> handleDeclinedInvitation(context, InvitationFields fields) async {
+Future<dynamic> handleDeclinedInvitation(context, InvitationData fields) async {
   context.log('Invitation declined by: ${fields.recipientEmail}');
   
   return context.res.json({
@@ -506,9 +480,9 @@ Future<dynamic> handleDeclinedInvitation(context, InvitationFields fields) async
 // Handle leave household request
 Future<dynamic> handleLeaveHousehold(
   context,
-  AppwriteServicesResult services,
+  AppwriteServices services,
   Map<String, dynamic> invitation,
-  InvitationFields fields
+  InvitationData fields
 ) async {
   if (fields.teamId.isEmpty) {
     return context.res.json({

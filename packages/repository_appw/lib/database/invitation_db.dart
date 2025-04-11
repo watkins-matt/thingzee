@@ -17,12 +17,12 @@ class AppwriteInvitationDatabase extends InvitationDatabase
 
   AppwriteInvitationDatabase(
     Preferences prefs,
-    Databases _database,
+    Databases database,
     String databaseId,
     String collectionId,
     this.householdId,
   ) : super() {
-    constructDatabase(tag, _database, databaseId, collectionId);
+    constructDatabase(tag, database, databaseId, collectionId);
     constructSynchronizable(tag, prefs,
         onConnectivityChange: (bool online) async {
       if (online) {
