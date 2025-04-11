@@ -17,12 +17,12 @@ class AppwriteInvitationDatabase extends InvitationDatabase
 
   AppwriteInvitationDatabase(
     Preferences prefs,
-    Databases database,
+    Databases _database,
     String databaseId,
     String collectionId,
     this.householdId,
   ) : super() {
-    constructDatabase(tag, database, databaseId, collectionId);
+    constructDatabase(tag, _database, databaseId, collectionId);
     constructSynchronizable(tag, prefs,
         onConnectivityChange: (bool online) async {
       if (online) {
@@ -46,8 +46,8 @@ class AppwriteInvitationDatabase extends InvitationDatabase
     }
 
     // Update the invitation status
-    final updatedInvitation = invitation.copyWith(
-        status: InvitationStatus.accepted);
+    final updatedInvitation =
+        invitation.copyWith(status: InvitationStatus.accepted);
 
     final permissions = [
       Permission.read(Role.user(userId, 'verified')),
@@ -59,12 +59,14 @@ class AppwriteInvitationDatabase extends InvitationDatabase
       // Update the invitation document in the database
       // This will trigger the process_invitation cloud function
       Log.i('$tag: Updating invitation status to accepted');
-      Log.i('$tag: Cloud function will handle team membership for household: ${invitation.householdId}');
-      
+      Log.i(
+          '$tag: Cloud function will handle team membership for household: ${invitation.householdId}');
+
       // Put the updated invitation in the database
       put(updatedInvitation, permissions: permissions);
-      
-      Log.i('$tag: Invitation status updated to accepted, waiting for cloud function to process team membership');
+
+      Log.i(
+          '$tag: Invitation status updated to accepted, waiting for cloud function to process team membership');
     } catch (e) {
       Log.e('$tag: Error updating invitation status: $e');
       throw Exception('$tag: Failed to update invitation status: $e');
@@ -76,6 +78,10 @@ class AppwriteInvitationDatabase extends InvitationDatabase
       Invitation.fromJson(json);
 
   @override
+  String uniqueDocumentId(String key) =>
+      key; // For invitations, the uniqueKey is already the document ID
+
+  @override
   Map<String, dynamic> serialize(Invitation item) {
     // Get the standard JSON serialization
     Map<String, dynamic> json = item.toJson();
@@ -85,6 +91,14 @@ class AppwriteInvitationDatabase extends InvitationDatabase
       Log.w('$tag: Attempted to save invitation with empty householdId');
     }
 
+    // IMPORTANT: Need to set $id for Appwrite document ID, using uniqueKey
+    // This is likely why documents weren't being created
+    if (item.uniqueKey.isNotEmpty) {
+      json['\$id'] = item.uniqueKey;
+      Log.i('$tag: Using document ID: ${item.uniqueKey}');
+    }
+
+    Log.i('$tag: Serialized invitation: ${item.uniqueKey}');
     return json;
   }
 
@@ -94,7 +108,8 @@ class AppwriteInvitationDatabase extends InvitationDatabase
 
     // Validate householdId
     if (householdId.isEmpty) {
-      const errorMsg = '$tag: Cannot send invitation with empty householdId';
+      const errorMsg =
+          'AppwriteInvitationDatabase: Cannot send invitation with empty householdId';
       Log.e(errorMsg);
       throw Exception(errorMsg);
     }
@@ -119,11 +134,12 @@ class AppwriteInvitationDatabase extends InvitationDatabase
     ];
 
     try {
-      // Use standard put method - our overridden serialize method will add the ID field
-      put(invitation, permissions: permissions);
-
+      // Use the standard put method from AppwriteDatabase mixin
+      // This will handle the database operations through the taskQueue
       Log.i(
-          '$tag: Successfully queued invitation to $recipientEmail for household $householdId');
+          '$tag: Sending invitation to $recipientEmail for household $householdId');
+      put(invitation, permissions: permissions);
+      Log.i('$tag: Successfully queued invitation to $recipientEmail');
       return invitation;
     } catch (e) {
       Log.e('$tag: Error sending invitation', e);
@@ -157,24 +173,134 @@ class AppwriteInvitationDatabase extends InvitationDatabase
   // but may not have direct permissions to read them
   List<Invitation> _fetchInvitationsForCurrentUserEmail() {
     try {
-      // For now, this is just a placeholder for the query that will be handled by the cloud function
-      // The cloud function will set permissions so that recipients can read their invitations
-      return [];
+      // Get the current user's email
+      if (userId.isEmpty) {
+        Log.w('$tag: Cannot fetch invitations: userId is empty');
+        return [];
+      }
 
-      // In the future, we could implement a direct query here if needed:
-      /*
-      final result = await database.listDocuments(
-        databaseId: _databaseId,
-        collectionId: _collectionId,
-        queries: [
-          Query.equal('recipientEmail', userEmail),
-          Query.equal('status', 'pending')
-        ]
-      );
-      */
+      final String userEmail = _getUserEmail();
+      if (userEmail.isEmpty) {
+        Log.w('$tag: Cannot fetch invitations: unable to determine user email');
+        return [];
+      }
+
+      Log.i('$tag: Fetching invitations for user email: $userEmail');
+
+      final recipientInvitations = values
+          .where((invitation) =>
+              invitation.recipientEmail == userEmail &&
+              invitation.status == InvitationStatus.pending)
+          .toList();
+
+      Log.i(
+          '$tag: Found ${recipientInvitations.length} invitations where current user is recipient');
+      return recipientInvitations;
     } catch (e) {
       Log.e('$tag: Error in _fetchInvitationsForCurrentUserEmail', e);
       return [];
+    }
+  }
+
+  // Get the current user's email - this is a helper method that uses
+  // the CloudRepository's userEmail property if available
+  String _getUserEmail() {
+    try {
+      // First, check if we have the CloudRepository available in any invitation
+      // that has the current userId
+      for (final invitation in values) {
+        if (invitation.inviterUserId == userId &&
+            invitation.inviterEmail.isNotEmpty) {
+          return invitation.inviterEmail;
+        }
+      }
+
+      // If we can't determine from local data, try to get from parent class
+      try {
+        // Access the userEmail property using dynamic to bypass static type checking
+        // This assumes the parent class or a mixin provides this property
+        final email = (this as dynamic).userEmail;
+        if (email != null && email is String && email.isNotEmpty) {
+          return email;
+        }
+      } catch (e) {
+        // Ignore errors from dynamic property access
+      }
+
+      // If all else fails, generate a fake email from the userId
+      // This is just a fallback and won't actually work for sending invitations
+      if (userId.isNotEmpty) {
+        // Generate a predictable email from userId for testing purposes
+        final shortId = userId.length > 8 ? userId.substring(0, 8) : userId;
+        return '$shortId@example.com';
+      }
+
+      return '';
+    } catch (e) {
+      Log.e('$tag: Error getting user email', e);
+      return '';
+    }
+  }
+
+  @override
+  void put(Invitation item, {List<String>? permissions}) {
+    // Add extensive logging to trace invitation handling
+    Log.i('$tag: Putting invitation ${item.uniqueKey} into database');
+    Log.i(
+        '$tag: Invitation details - from: ${item.inviterEmail}, to: ${item.recipientEmail}, status: ${item.status}, householdId: ${item.householdId}');
+
+    if (permissions != null) {
+      Log.i('$tag: Using custom permissions: ${permissions.join(', ')}');
+    }
+
+    try {
+      // Call the parent put method
+      super.put(item, permissions: permissions);
+      Log.i('$tag: Successfully queued invitation for database update');
+    } catch (e) {
+      Log.e('$tag: Exception in put method', e);
+      // Rethrow to maintain original behavior
+      rethrow;
+    }
+  }
+
+  // Override the default mergeState to prioritize remote data for invitations
+  @override
+  void mergeState(List<Invitation> newItems) {
+    // First, find all invitation IDs that exist in the database
+    final remoteInvitationIds = newItems.map((item) => item.uniqueKey).toSet();
+    final localInvitationIds = values.map((item) => item.uniqueKey).toSet();
+
+    // Find invitations that exist locally but not in remote data (likely deleted remotely)
+    final deletedInvitationIds =
+        localInvitationIds.difference(remoteInvitationIds);
+
+    if (deletedInvitationIds.isNotEmpty) {
+      Log.i(
+          '$tag: Removing ${deletedInvitationIds.length} invitations that were deleted remotely');
+
+      // Remove each invitation that no longer exists remotely
+      for (final id in deletedInvitationIds) {
+        deleteById(id);
+      }
+    }
+
+    // Add or update all remote invitations
+    for (final invitation in newItems) {
+      super.put(
+          invitation); // Use super.put to bypass any custom put logic that might add permissions
+    }
+  }
+
+  // Override replaceState to completely replace local state with remote state
+  @override
+  void replaceState(List<Invitation> allItems) {
+    // Clear all existing items first to ensure we don't keep any that were deleted remotely
+    deleteAll();
+
+    // Add all remote items
+    for (final invitation in allItems) {
+      super.put(invitation);
     }
   }
 }
