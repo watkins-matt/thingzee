@@ -294,85 +294,158 @@ Future<dynamic> handleAcceptedInvitation(
   Map<String, dynamic> invitation,
   InvitationData fields
 ) async {
-  // Validation
-  if (fields.teamId.isEmpty) {
+  context.log('Processing accepted invitation from ${fields.recipientEmail} for inviter ${fields.inviterEmail}');
+  
+  // First, find the recipient and inviter users
+  final recipientResult = await findUserByEmail(context, services.users!, fields.recipientEmail);
+  if (!recipientResult.success) {
     return context.res.json({
       'success': false,
-      'message': 'Team ID is required for accepted invitations'
-    }, 400);
+      'message': 'Recipient user not found: ${recipientResult.message}'
+    }, recipientResult.statusCode);
   }
   
-  // Find the recipient user
-  final userResult = await findUserByEmail(context, services.users!, fields.recipientEmail);
-  if (!userResult.success) {
+  final inviterResult = await findUserByEmail(context, services.users!, fields.inviterEmail);
+  if (!inviterResult.success) {
     return context.res.json({
       'success': false,
-      'message': userResult.message
-    }, userResult.statusCode);
+      'message': 'Inviter user not found: ${inviterResult.message}'
+    }, inviterResult.statusCode);
   }
   
-  // Add the user to the team
+  // SECURITY: Find matching pending invitation to validate this acceptance
+  // We look for an invitation where the roles are reversed (original inviter sent to recipient)
   try {
-    // First check if the team exists and create it if needed
-    try {
-      await services.teams!.get(teamId: fields.teamId);
-      context.log('Team exists: ${fields.teamId}');
-    } catch (e) {
-      // Team doesn't exist, create it
-      context.log('Team doesn\'t exist, creating team: ${fields.teamId}');
-      await services.teams!.create(
-        teamId: fields.teamId,
-        name: 'Household ${fields.teamId.substring(0, 8)}',
-      );
-      context.log('Created team: ${fields.teamId}');
+    context.log('Looking for matching pending invitation');
+    final pendingInvitations = await services.databases!.listDocuments(
+      databaseId: 'test',
+      collectionId: 'invitation',
+      queries: [
+        // The inviterEmail in the pending invitation should match recipientEmail in the accepted one
+        Query.equal('inviterEmail', fields.inviterEmail),
+        // The recipientEmail in the pending invitation should match inviterEmail in the accepted one
+        Query.equal('recipientEmail', fields.recipientEmail),
+        // Must be pending status
+        Query.equal('status', 0) // 0 = pending
+      ]
+    );
+    
+    // If no matching invitation found, reject the acceptance
+    if (pendingInvitations.total == 0) {
+      context.log('No matching pending invitation found - SECURITY VIOLATION ATTEMPT');
+      return context.res.json({
+        'success': false,
+        'message': 'No matching pending invitation found. Cannot accept an invitation that was not sent.'
+      }, 403); // Forbidden
     }
     
-    // Now add the user to the team
-    await services.teams!.createMembership(
-      teamId: fields.teamId,
-      roles: ['member'],
-      userId: userResult.userId
-    );
+    final pendingInvitation = pendingInvitations.documents[0];
+    context.log('Matching pending invitation found: ${pendingInvitation.$id}');
     
-    context.log('Added user to team: ${userResult.userId} to team: ${fields.teamId}');
+    // Get the household ID from the pending invitation
+    final householdId = pendingInvitation.data['householdId'];
+    if (householdId == null || householdId.isEmpty) {
+      return context.res.json({
+        'success': false,
+        'message': 'Invalid household ID in pending invitation'
+      }, 400);
+    }
     
-    // Update or create user_household record
-    await updateUserHouseholdRecord(
-      context, 
-      services.databases!, 
-      userResult.userId, 
-      userResult.displayName, 
-      fields.recipientEmail, 
-      fields.teamId
-    );
+    // Now handle team membership
+    try {
+      // Check if the team exists
+      bool teamExists = true;
+      try {
+        await services.teams!.get(teamId: householdId);
+        context.log('Team exists: $householdId');
+      } catch (e) {
+        teamExists = false;
+        context.log('Team does not exist, will create it: $householdId');
+      }
+      
+      // If team doesn't exist, create it and add the inviter
+      if (!teamExists) {
+        // Create the team
+        await services.teams!.create(
+          teamId: householdId,
+          name: 'Household ${householdId.substring(0, 8)}',
+        );
+        context.log('Created team: $householdId');
+        
+        // Add the inviter to the team
+        await services.teams!.createMembership(
+          teamId: householdId,
+          roles: ['member', 'admin'],  // Original inviter gets admin role
+          userId: inviterResult.userId
+        );
+        context.log('Added inviter to team: ${inviterResult.userId} to team: $householdId');
+        
+        // Update inviter's household record
+        await updateUserHouseholdRecord(
+          context, 
+          services.databases!, 
+          inviterResult.userId, 
+          inviterResult.displayName, 
+          fields.inviterEmail, 
+          householdId,
+          isAdmin: true
+        );
+      }
+      
+      // Now add the accepting user to the team
+      await services.teams!.createMembership(
+        teamId: householdId,
+        roles: ['member'],  // Accepting user gets regular member role
+        userId: recipientResult.userId
+      );
+      
+      context.log('Added accepting user to team: ${recipientResult.userId} to team: $householdId');
+      
+      // Update accepting user's household record
+      await updateUserHouseholdRecord(
+        context, 
+        services.databases!, 
+        recipientResult.userId, 
+        recipientResult.displayName, 
+        fields.recipientEmail, 
+        householdId
+      );
+      
+      // Trigger permission sync
+      try {
+        await services.functions!.createExecution(
+          functionId: 'sync_household_permissions',
+          body: jsonEncode({
+            'teamId': householdId
+          })
+        );
+        
+        context.log('Permission sync initiated');
+      } catch (e) {
+        context.log('Error triggering permission sync: $e');
+      }
+      
+      return context.res.json({
+        'success': true,
+        'message': 'User added to household team successfully',
+        'householdId': householdId
+      });
+      
+    } catch (e) {
+      context.log('Error managing team membership: $e');
+      return context.res.json({
+        'success': false,
+        'message': 'Error managing team membership: ${e.toString()}'
+      }, 500);
+    }
     
   } catch (e) {
-    context.log('Error adding user to team: $e');
+    context.log('Error validating pending invitation: $e');
     return context.res.json({
       'success': false,
-      'message': 'Error adding user to team: ${e.toString()}'
+      'message': 'Error validating pending invitation: ${e.toString()}'
     }, 500);
   }
-  
-  // Trigger permission sync
-  try {
-    await services.functions!.createExecution(
-      functionId: 'sync_household_permissions',
-      body: jsonEncode({
-        'teamId': fields.teamId
-      })
-    );
-    
-    context.log('Permission sync initiated');
-  } catch (e) {
-    context.log('Error triggering permission sync: $e');
-  }
-  
-  return context.res.json({
-    'success': true,
-    'message': 'User added to household team successfully',
-    'householdId': fields.teamId
-  });
 }
 
 // Find a user by email
@@ -419,7 +492,8 @@ Future<void> updateUserHouseholdRecord(
   String userId,
   String displayName,
   String email,
-  String householdId
+  String householdId,
+  {bool isAdmin = false}
 ) async {
   try {
     // Check if user already has a household record
@@ -439,6 +513,7 @@ Future<void> updateUserHouseholdRecord(
         documentId: documentId,
         data: {
           'householdId': householdId,
+          'isAdmin': isAdmin,
           'timestamp': DateTime.now().millisecondsSinceEpoch
         }
       );
@@ -455,7 +530,7 @@ Future<void> updateUserHouseholdRecord(
           'name': displayName,
           'email': email,
           'householdId': householdId,
-          'isAdmin': false,
+          'isAdmin': isAdmin,
           'timestamp': DateTime.now().millisecondsSinceEpoch
         }
       );
