@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:log/log.dart';
 import 'package:repository/model/household_member.dart';
 import 'package:repository/model/invitation.dart';
+import 'package:repository_appw/database/household_db.dart';
 import 'package:thingzee/main.dart';
 import 'package:thingzee/pages/detail/widget/material_card_widget.dart';
 import 'package:thingzee/pages/detail/widget/title_header_widget.dart';
@@ -32,6 +34,13 @@ class _HouseholdPageState extends ConsumerState<HouseholdPage> {
   @override
   void initState() {
     super.initState();
+
+    // Immediately refresh household members when page opens
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Log.i('HouseholdPage: Refreshing members on page load');
+      ref.read(householdProvider.notifier).refreshMembers();
+    });
+
     // Set up a timer to refresh invitations every 3 seconds
     _refreshTimer = Timer.periodic(
       const Duration(seconds: 3),
@@ -73,10 +82,12 @@ class _HouseholdPageState extends ConsumerState<HouseholdPage> {
     }
 
     // Split invitations into sent and received
-    final sentInvitations = invitations.where((inv) =>
-        inv.inviterEmail == currentUserEmail).toList();
-    final receivedInvitations = invitations.where((inv) =>
-        inv.recipientEmail == currentUserEmail).toList();
+    final sentInvitations = invitations
+        .where((inv) => inv.inviterEmail == currentUserEmail)
+        .toList();
+    final receivedInvitations = invitations
+        .where((inv) => inv.recipientEmail == currentUserEmail)
+        .toList();
 
     // Determine if user can leave household (only if more than one member)
     final bool canLeaveHousehold = members.length > 1;
@@ -84,6 +95,14 @@ class _HouseholdPageState extends ConsumerState<HouseholdPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Household'),
+        actions: [
+          // Add a diagnostic button
+          IconButton(
+            icon: const Icon(Icons.bug_report),
+            tooltip: 'Diagnose Household Issues',
+            onPressed: _runHouseholdDiagnostics,
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -240,7 +259,8 @@ class _HouseholdPageState extends ConsumerState<HouseholdPage> {
         subtitle: isAccepted
             ? const Text(
                 'Accepted - Processing membership',
-                style: TextStyle(color: Colors.green, fontStyle: FontStyle.italic),
+                style:
+                    TextStyle(color: Colors.green, fontStyle: FontStyle.italic),
               )
             : const Text(
                 'Wants to add you to their household',
@@ -256,7 +276,8 @@ class _HouseholdPageState extends ConsumerState<HouseholdPage> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.check_circle_outline, color: Colors.green),
+                    icon: const Icon(Icons.check_circle_outline,
+                        color: Colors.green),
                     tooltip: 'Accept invitation',
                     onPressed: () => _confirmAcceptInvitation(invitation),
                   ),
@@ -272,6 +293,26 @@ class _HouseholdPageState extends ConsumerState<HouseholdPage> {
   }
 
   List<Widget> _buildMembersList(List<HouseholdMember> members) {
+    Log.i(
+        'HouseholdPage: Building members list with ${members.length} members');
+
+    // Debug log each member's details
+    for (var i = 0; i < members.length; i++) {
+      final member = members[i];
+      Log.i(
+          'HouseholdPage: Member $i - name: ${member.name}, email: ${member.email}, userId: ${member.userId}, householdId: ${member.householdId}');
+    }
+
+    if (members.isEmpty) {
+      Log.w('HouseholdPage: No household members found');
+      return [
+        const ListTile(
+          title: Text('No members in this household.'),
+          subtitle: Text('Add members by sending invitations.'),
+        ),
+      ];
+    }
+
     // Get the current user's email
     final currentUserEmail = ref.read(cloudRepoProvider).value?.userEmail;
 
@@ -399,15 +440,18 @@ class _HouseholdPageState extends ConsumerState<HouseholdPage> {
                   .read(invitationsProvider.notifier)
                   .acceptInvite(invitation)
                   .catchError((error) {
-                    // Show error if it occurs
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Error: ${error.toString()}'),
-                        backgroundColor: Colors.red,
-                        duration: const Duration(seconds: 5),
-                      ),
-                    );
-                  });
+                // Only show error if the widget is still mounted
+                if (!mounted) return;
+
+                // Show error if it occurs
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Error: ${error.toString()}'),
+                    backgroundColor: Colors.red,
+                    duration: const Duration(seconds: 5),
+                  ),
+                );
+              });
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.green,
@@ -433,9 +477,7 @@ class _HouseholdPageState extends ConsumerState<HouseholdPage> {
           ),
           ElevatedButton(
             onPressed: () {
-              ref
-                  .read(invitationsProvider.notifier)
-                  .declineInvite(invitation);
+              ref.read(invitationsProvider.notifier).declineInvite(invitation);
               Navigator.of(context).pop();
             },
             style: ElevatedButton.styleFrom(
@@ -514,6 +556,94 @@ class _HouseholdPageState extends ConsumerState<HouseholdPage> {
       // Only send the invitation - don't add the member to the household yet
       // They will be added when they accept the invitation through the cloud function
       await ref.read(invitationsProvider.notifier).sendInvite(email);
+    }
+  }
+
+  // Diagnostic method to help identify and fix household ID issues
+  Future<void> _runHouseholdDiagnostics() async {
+    Log.i('HouseholdPage: Running household diagnostics');
+
+    final householdDB = ref.read(repositoryProvider).household;
+    if (householdDB is AppwriteHouseholdDatabase) {
+      // Run the diagnostics method to log current state
+      await householdDB.logHouseholdInfo();
+
+      // Only proceed if widget is still mounted
+      if (!mounted) return;
+
+      // Show a dialog with diagnostic info and option to fix
+      await showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Household Diagnostics'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Current household ID: ${householdDB.id}'),
+              const SizedBox(height: 16),
+              const Text('Check logs for complete diagnostics information.'),
+              const SizedBox(height: 8),
+              const Text(
+                  'If you are missing household members, you can try to refresh the database.'),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Close'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                // Get the list of database records
+                final allMembers = await householdDB.getAllHouseholdMembers();
+
+                // Find a valid household ID from the database records
+                // Try to use b2d7f5bc-b25c-4f30-bed9-2d924006df36 as the preferred ID
+                String newHouseholdId = householdDB.id;
+
+                // Check all members for the preferred ID
+                for (final member in allMembers) {
+                  if (member.householdId.isNotEmpty) {
+                    if (member.householdId ==
+                        'b2d7f5bc-b25c-4f30-bed9-2d924006df36') {
+                      newHouseholdId = member.householdId;
+                      Log.i(
+                          'HouseholdPage: Found preferred household ID: $newHouseholdId');
+                      break;
+                    } else if (newHouseholdId.isEmpty) {
+                      newHouseholdId = member.householdId;
+                      Log.i(
+                          'HouseholdPage: Found fallback household ID: $newHouseholdId');
+                    }
+                  }
+                }
+
+                // Update the database with the new household ID if different
+                if (newHouseholdId != householdDB.id) {
+                  Log.i(
+                      'HouseholdPage: Switching to household ID: $newHouseholdId');
+                  await householdDB.join(newHouseholdId);
+                  Log.i(
+                      'HouseholdPage: Successfully joined household: $newHouseholdId');
+                }
+
+                // Refresh the members list
+                await ref.read(householdProvider.notifier).refreshMembers();
+
+                // Check if widget is still mounted before accessing context
+                if (!mounted) return;
+
+                Navigator.of(context).pop();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Household data refreshed')),
+                );
+              },
+              child: const Text('Refresh Database'),
+            ),
+          ],
+        ),
+      );
     }
   }
 }
