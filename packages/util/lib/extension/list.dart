@@ -16,7 +16,7 @@ extension ListEquals<T> on List<T> {
 }
 
 extension MapExtension<T> on List<T> {
-  /// Converts a List<T> into a Map<K, T> using a keySelector
+  /// Converts a List&lt;T&gt; into a Map&lt;K, T&gt; using a keySelector
   /// function to determine the keys for each item.
   Map<K, T> toMap<K>(K Function(T) keySelector) {
     return {for (final item in this) keySelector(item): item};
