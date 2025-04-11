@@ -21,7 +21,6 @@ class AppwriteRepository extends CloudRepository {
   late Client _client;
   late Account _account;
   late Databases _databases;
-  late Teams _teams;
   final String appwriteEndpoint = 'https://cloud.appwrite.io/v1';
   final String projectId = 'thingzee';
   final String verificationEndpoint = 'https://verify.thingzee.net';
@@ -292,17 +291,16 @@ class AppwriteRepository extends CloudRepository {
 
     _account = Account(_client);
     _databases = Databases(_client);
-    _teams = Teams(_client);
 
     // Initialize household first since we need its ID for other databases
     final household = AppwriteHouseholdDatabase(
-      _teams,
-      _databases,
       prefs,
-      'test',
-      'user_household',
-      inventoryCollectionId: 'user_inventory',
+      _account,
+      endpoint: appwriteEndpoint,
     );
+    
+    // Initialize the household ID asynchronously
+    await household.initialize();
 
     // Initialize databases with household ID for team permissions
     final itemsDb = AppwriteItemDatabase(
