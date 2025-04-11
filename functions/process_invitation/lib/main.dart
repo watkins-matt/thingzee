@@ -1,63 +1,23 @@
 import 'dart:convert';
-import 'dart:io';
+import 'dart:io' show Platform;
 import 'package:dart_appwrite/dart_appwrite.dart';
 
-// This function is triggered by database events when an invitation status changes
+// Main entry point for Appwrite function
 Future<dynamic> main(final context) async {
   try {
-    // Log the event details
     context.log('Processing invitation event');
     
-    // Parse the event data from the payload
-    Map<String, dynamic> invitation;
-
-    // Handle different payload formats
-    if (context.req.body is String) {
-      try {
-        invitation = jsonDecode(context.req.body as String);
-      } catch (e) {
-        context.log('Error parsing payload as string: $e');
-        context.log('Raw payload: ${context.req.body}');
-        return context.res.json({
-          'success': false,
-          'message': 'Error parsing payload: $e'
-        }, 400);
-      }
-    } else if (context.req.body is Map<String, dynamic>) {
-      // The payload might be the document itself rather than an event wrapper
-      invitation = context.req.body as Map<String, dynamic>;
-    } else {
-      context.log('Invalid payload type: ${context.req.body.runtimeType}');
+    // Parse the invitation data from the request
+    final invitationResult = await parseInvitationFromRequest(context);
+    if (!invitationResult.success) {
       return context.res.json({
         'success': false,
-        'message': 'Invalid payload type: ${context.req.body.runtimeType}'
-      }, 400);
+        'message': invitationResult.message
+      }, invitationResult.statusCode);
     }
     
-    // Log the entire payload for debugging
-    context.log('Event payload: $invitation');
-    
-    // Check if this appears to be an invitation document
-    bool isInvitationDoc = false;
-    
-    // Check if this is directly an invitation document (no event wrapper)
-    if (invitation['\$collectionId'] == 'invitation') {
-      isInvitationDoc = true;
-      context.log('Direct document payload detected');
-    }
-    // For backward compatibility with event-wrapped payloads
-    else if (invitation['\$event'] != null) {
-      context.log('Event name: ${invitation["\$event"]}');
-      if (invitation['\$event'].toString().contains('invitation')) {
-        isInvitationDoc = true;
-        // Extract the data from the event
-        if (invitation['\$data'] is Map<String, dynamic>) {
-          invitation = invitation['\$data'] as Map<String, dynamic>;
-        }
-      }
-    }
-    
-    if (!isInvitationDoc) {
+    // Skip if not an invitation document
+    if (!invitationResult.isInvitationDoc) {
       context.log('Not an invitation document');
       return context.res.json({
         'success': true,
@@ -65,39 +25,186 @@ Future<dynamic> main(final context) async {
       });
     }
     
-    // Process the invitation status
-    int status;
-    if (invitation['status'] is int) {
-      status = invitation['status'];
-    } else {
-      status = int.tryParse(invitation['status']?.toString() ?? '') ?? -1;
-    }
+    final invitation = invitationResult.data!;
+    final status = determineInvitationStatus(invitation, context);
     
-    context.log('Invitation status: $status');
-    
-    // Only process if status is 'accepted' (status=1)
-    // Status is integer type in the database: 0=pending, 1=accepted, 2=declined
-    if (status != 1) {
-      context.log('Status is not accepted (1), ignoring.');
+    // Initialize the Appwrite client and services
+    final services = await initializeAppwriteServices(context);
+    if (!services.success) {
       return context.res.json({
-        'success': true,
-        'message': 'Event ignored: status is not accepted'
-      });
+        'success': false,
+        'message': services.message
+      }, 500);
     }
     
+    // Extract common fields from invitation
+    final fields = extractInvitationFields(invitation, context);
+    context.log('Processing invitation - Status: $status, Recipient: ${fields.recipientEmail}, Team: ${fields.teamId}');
+    
+    // Process the invitation based on its status
+    if (status == 0) {
+      // Handle pending invitation
+      return await handlePendingInvitation(context, services, invitation, fields);
+    } else if (status == 1) {
+      // Handle accepted invitation
+      return await handleAcceptedInvitation(context, services, invitation, fields);
+    } else if (status == 2) {
+      // Handle declined invitation
+      return await handleDeclinedInvitation(context, fields);
+    } else if (status == 3 || fields.action == 'leave') {
+      // Handle leave request
+      return await handleLeaveHousehold(context, services, invitation, fields);
+    } else {
+      // Unknown status
+      context.log('Unknown invitation status: $status');
+      return context.res.json({
+        'success': false,
+        'message': 'Unknown invitation status: $status'
+      }, 400);
+    }
+  } catch (e) {
+    context.log('Unhandled error in process_invitation: $e');
+    return context.res.json({
+      'success': false,
+      'message': 'Unhandled error: $e'
+    }, 500);
+  }
+}
+
+// Result class for invitation parsing
+class InvitationParseResult {
+  final bool success;
+  final Map<String, dynamic>? data;
+  final String message;
+  final int statusCode;
+  final bool isInvitationDoc;
+  
+  InvitationParseResult({
+    required this.success,
+    this.data,
+    required this.message,
+    this.statusCode = 200,
+    this.isInvitationDoc = false,
+  });
+}
+
+// Parse the invitation from the request
+Future<InvitationParseResult> parseInvitationFromRequest(context) async {
+  // Parse the event data from the payload
+  Map<String, dynamic> invitation;
+
+  // Handle different payload formats
+  if (context.req.body is String) {
+    try {
+      invitation = jsonDecode(context.req.body as String);
+    } catch (e) {
+      context.log('Error parsing payload as string: $e');
+      context.log('Raw payload: ${context.req.body}');
+      return InvitationParseResult(
+        success: false,
+        message: 'Error parsing payload: $e',
+        statusCode: 400,
+      );
+    }
+  } else if (context.req.body is Map<String, dynamic>) {
+    // The payload might be the document itself rather than an event wrapper
+    invitation = context.req.body as Map<String, dynamic>;
+  } else {
+    context.log('Invalid payload type: ${context.req.body.runtimeType}');
+    return InvitationParseResult(
+      success: false,
+      message: 'Invalid payload type: ${context.req.body.runtimeType}',
+      statusCode: 400,
+    );
+  }
+  
+  // Log the entire payload for debugging
+  context.log('Event payload: $invitation');
+  
+  // Check if this appears to be an invitation document
+  bool isInvitationDoc = false;
+  
+  // Check if this is directly an invitation document (no event wrapper)
+  if (invitation['\$collectionId'] == 'invitation') {
+    isInvitationDoc = true;
+    context.log('Direct document payload detected');
+  }
+  // For backward compatibility with event-wrapped payloads
+  else if (invitation['\$event'] != null) {
+    context.log('Event name: ${invitation["\$event"]}');
+    if (invitation['\$event'].toString().contains('invitation')) {
+      isInvitationDoc = true;
+      // Extract the data from the event
+      if (invitation['\$data'] is Map<String, dynamic>) {
+        invitation = invitation['\$data'] as Map<String, dynamic>;
+      }
+    }
+  }
+  
+  return InvitationParseResult(
+    success: true,
+    data: invitation,
+    message: 'Successfully parsed invitation',
+    isInvitationDoc: isInvitationDoc,
+  );
+}
+
+// Determine the invitation status
+int determineInvitationStatus(Map<String, dynamic> invitation, context) {
+  int status;
+  if (invitation['status'] is int) {
+    status = invitation['status'];
+  } else {
+    status = int.tryParse(invitation['status']?.toString() ?? '') ?? -1;
+  }
+  
+  context.log('Invitation status: $status');
+  return status;
+}
+
+// Services result class
+class AppwriteServicesResult {
+  final bool success;
+  final String message;
+  final Client? client;
+  final Teams? teams;
+  final Users? users;
+  final Functions? functions;
+  final Databases? databases;
+  
+  AppwriteServicesResult({
+    required this.success,
+    required this.message,
+    this.client,
+    this.teams,
+    this.users,
+    this.functions,
+    this.databases,
+  });
+}
+
+// Initialize Appwrite services
+Future<AppwriteServicesResult> initializeAppwriteServices(context) async {
+  try {
     // Initialize SDK
     final client = Client()..setEndpoint('https://cloud.appwrite.io/v1');
     
-    // Get credentials from environment variables - direct approach
+    // Get credentials from environment variables
     final projectId = Platform.environment['APPWRITE_FUNCTION_PROJECT_ID'];
     final apiKey = context.req.headers['x-appwrite-key'];
     
     if (projectId == null) {
-      throw Exception('Project ID not found in environment variables');
+      return AppwriteServicesResult(
+        success: false,
+        message: 'Project ID not found in environment variables',
+      );
     }
     
     if (apiKey == null) {
-      throw Exception('API key not found in headers');
+      return AppwriteServicesResult(
+        success: false,
+        message: 'API key not found in headers',
+      );
     }
 
     // Set up the client
@@ -110,282 +217,378 @@ Future<dynamic> main(final context) async {
     final teams = Teams(client);
     final users = Users(client);
     final functions = Functions(client);
+    final databases = Databases(client);
     
-    try {
-      // Extract fields with null checks and type conversion for safety
-      final recipientEmail = invitation['recipientEmail']?.toString() ?? '';
-      final inviterEmail = invitation['inviterEmail']?.toString() ?? '';
-      final inviterUserId = invitation['inviterUserId']?.toString() ?? '';
+    return AppwriteServicesResult(
+      success: true,
+      message: 'Services initialized successfully',
+      client: client,
+      teams: teams,
+      users: users,
+      functions: functions,
+      databases: databases,
+    );
+  } catch (e) {
+    context.log('Error initializing Appwrite services: $e');
+    return AppwriteServicesResult(
+      success: false,
+      message: 'Error initializing Appwrite services: $e',
+    );
+  }
+}
+
+// Invitation fields class
+class InvitationFields {
+  final String recipientEmail;
+  final String teamId;
+  final String action;
+  final String inviterEmail;
+  final String documentId;
+  
+  InvitationFields({
+    required this.recipientEmail,
+    required this.teamId,
+    required this.action,
+    required this.inviterEmail,
+    required this.documentId,
+  });
+}
+
+// Extract fields from invitation
+InvitationFields extractInvitationFields(Map<String, dynamic> invitation, context) {
+  final recipientEmail = invitation['recipientEmail']?.toString() ?? '';
+  final teamId = invitation['teamId']?.toString() ?? '';
+  final action = invitation['action']?.toString() ?? '';
+  final inviterEmail = invitation['inviterEmail']?.toString() ?? 'unknown';
+  final documentId = invitation['\$id']?.toString() ?? '';
+  
+  context.log('Extracted fields - Recipient: $recipientEmail, Team: $teamId, Action: $action');
+  
+  return InvitationFields(
+    recipientEmail: recipientEmail,
+    teamId: teamId,
+    action: action,
+    inviterEmail: inviterEmail,
+    documentId: documentId,
+  );
+}
+
+// Handle pending invitation
+Future<dynamic> handlePendingInvitation(
+  context,
+  AppwriteServicesResult services,
+  Map<String, dynamic> invitation,
+  InvitationFields fields
+) async {
+  // Add permission for the recipient to view this invitation
+  try {
+    // Find the recipient user ID
+    final recipientUserList = await services.users!.list(
+      queries: [Query.equal('email', fields.recipientEmail)]
+    );
+    
+    if (recipientUserList.total > 0) {
+      final recipientUserId = recipientUserList.users[0].$id;
       
-      // Log the invitation details for debugging
-      context.log('Processing invitation: inviter=$inviterEmail, recipient=$recipientEmail, inviterUserId=$inviterUserId');
-      
-      // Validate required fields
-      if (recipientEmail.isEmpty || inviterEmail.isEmpty) {
-        throw Exception('Missing required fields: recipientEmail or inviterEmail');
-      }
-      
-      // Step 1: Get user IDs from emails
-      context.log('Looking up user IDs from emails');
-      
-      // Find recipient user
-      final recipientList = await users.list(
-        queries: [Query.equal('email', recipientEmail)]
+      // Update the invitation document with permission for the recipient
+      await services.databases!.updateDocument(
+        databaseId: 'test',
+        collectionId: 'invitation',
+        documentId: fields.documentId,
+        permissions: [
+          // Add permission for the recipient to read this invitation
+          Permission.read(Role.user(recipientUserId))
+        ]
       );
       
-      if (recipientList.total == 0) {
-        throw Exception('Recipient user not found: $recipientEmail');
-      }
-      final recipientUser = recipientList.users[0];
-      context.log('Found recipient user with ID: ${recipientUser.$id}');
-      
-      // Find inviter user
-      final inviterList = await users.list(
-        queries: [Query.equal('email', inviterEmail)]
-      );
-      
-      if (inviterList.total == 0) {
-        throw Exception('Inviter user not found: $inviterEmail');
-      }
-      final inviterUser = inviterList.users[0];
-      context.log('Found inviter user with ID: ${inviterUser.$id}');
-      
-      // Step 2: Try to find an existing team or create a new one
-      context.log('Finding or creating team for users');
-      String teamId = ''; // Initialize to empty string
-      bool teamIdAssigned = false;
-      
-      try {
-        // We'll need to list all teams and check if the inviter is a member of any
-        final teamsList = await teams.list();
-        
-        // Flag to track if we found a team
-        bool foundTeam = false;
-        
-        // Loop through teams to check memberships
-        if (teamsList.total > 0) {
-          context.log('Found ${teamsList.total} teams, checking memberships');
-          
-          // Check each team for the inviter's membership
-          for (final team in teamsList.teams) {
-            try {
-              // Try to get membership of the inviter in this team
-              final memberships = await teams.listMemberships(
-                teamId: team.$id,
-                queries: [Query.equal('userId', inviterUser.$id)]
-              );
-              
-              if (memberships.total > 0) {
-                // Found a team the inviter is a member of
-                teamId = team.$id;
-                foundTeam = true;
-                teamIdAssigned = true;
-                context.log('Found existing team for inviter: $teamId');
-                break;
-              }
-            } catch (e) {
-              context.log('Error checking team ${team.$id}: $e');
-              // Continue to next team
-            }
-          }
-        }
-        
-        if (!foundTeam) {
-          // No team found, create a new one using the inviter's user ID
-          context.log('No team found for inviter, creating new team');
-          final newTeamId = inviterUserId.isNotEmpty ? inviterUserId : inviterUser.$id;
-          
-          final newTeam = await teams.create(
-            teamId: newTeamId,
-            name: 'Household $newTeamId',
-          );
-          teamId = newTeam.$id;
-          teamIdAssigned = true;
-          context.log('Created new team with ID: $teamId');
-          
-          // Make sure inviter is a member of the new team
-          try {
-            await teams.createMembership(
-              teamId: teamId,
-              email: inviterEmail,
-              roles: ['owner', 'member'],
-              url: 'https://cloud.appwrite.io/v1',
-            );
-            context.log('Added inviter to new team: $inviterEmail');
-          } catch (membershipError) {
-            if (membershipError is AppwriteException && membershipError.code == 409) {
-              context.log('Inviter is already a member of the team');
-            } else {
-              context.log('Error adding inviter to team: $membershipError');
-            }
-          }
-        }
-      } catch (e) {
-        // Error finding teams, check if it's because the team already exists
-        context.log('Error finding teams: $e');
-        bool teamCreated = false;
-        
-        // Check if this is a 'team already exists' error
-        if (e is AppwriteException && e.code == 409) {
-          final newTeamId = inviterUserId.isNotEmpty ? inviterUserId : inviterUser.$id;
-          context.log('Team with ID $newTeamId already exists, trying to use it');
-          
-          try {
-            // Try to get the existing team
-            final team = await teams.get(teamId: newTeamId);
-            teamId = team.$id;
-            teamCreated = true;
-            teamIdAssigned = true;
-            context.log('Successfully retrieved existing team: $teamId');
-            
-            // Try to add inviter to this team if not already a member
-            try {
-              // Check if inviter is already a member
-              final memberships = await teams.listMemberships(
-                teamId: teamId,
-                queries: [Query.equal('userId', inviterUser.$id)]
-              );
-              
-              if (memberships.total == 0) {
-                // Inviter not in team yet, add them
-                await teams.createMembership(
-                  teamId: teamId,
-                  email: inviterEmail,
-                  roles: ['owner', 'member'],
-                  url: 'https://cloud.appwrite.io/v1',
-                );
-                context.log('Added inviter to existing team');
-              } else {
-                context.log('Inviter already member of team');
-              }
-            } catch (membershipError) {
-              // Log but continue since we still want to add the recipient
-              context.log('Error checking/adding inviter membership: $membershipError');
-            }
-          } catch (teamError) {
-            context.log('Error retrieving existing team: $teamError');
-            throw Exception('Failed to retrieve or create team: $teamError');
-          }
-        } else {
-          // Different error - try generating a unique team ID instead
-          final timestamp = DateTime.now().millisecondsSinceEpoch;
-          final uniqueId = 'team-$timestamp';
-          context.log('Creating team with unique ID: $uniqueId');
-          
-          try {
-            final newTeam = await teams.create(
-              teamId: uniqueId,
-              name: 'Household $uniqueId',
-            );
-            teamId = newTeam.$id;
-            teamCreated = true;
-            teamIdAssigned = true;
-            context.log('Created team with unique ID: $teamId');
-            
-            // Add inviter to this team
-            await teams.createMembership(
-              teamId: teamId,
-              email: inviterEmail,
-              roles: ['owner', 'member'],
-              url: 'https://cloud.appwrite.io/v1',
-            );
-            context.log('Added inviter to new team with unique ID');
-          } catch (createError) {
-            context.log('Error creating team with unique ID: $createError');
-            throw Exception('Failed to create team with unique ID: $createError');
-          }
-        }
-        
-        if (!teamIdAssigned && !teamCreated) {
-          throw Exception('Team ID not assigned');
-        }
-        
-        // Make sure we use the teamId from either the normal flow or the error handler
-        if (!teamIdAssigned && teamCreated) {
-          teamIdAssigned = true;
-        }
-      }
-      
-      // Debug log to verify team ID before adding recipient
-      context.log('Team ID before adding recipient: $teamId');
-      
-      if (!teamIdAssigned) {
-        throw Exception('Team ID not assigned, cannot add recipient');
-      }
-      
-      // Step 3: Add recipient to the team
-      try {
-        context.log('Adding recipient to team: $teamId');
-        await teams.createMembership(
-          teamId: teamId,
-          email: recipientEmail,
-          roles: ['member'],
-          url: 'https://cloud.appwrite.io/v1', // redirect URL after accepting
-        );
-        context.log('Successfully added recipient to team');
-        
-        // Step 4: Call the sync_household_permissions function to update document permissions
-        context.log('Syncing household permissions for team: $teamId');
-        try {
-          // Call the sync_household_permissions function
-          final syncResponse = await functions.createExecution(
-            functionId: 'sync_household_permissions',
-            body: jsonEncode({
-              'teamId': teamId
-            })
-          );
-          
-          context.log('Permission sync initiated: ${syncResponse.status}');
-        } catch (syncError) {
-          // Log error but don't fail the overall process
-          context.log('Error calling sync_household_permissions: $syncError');
-          context.log('Household team membership was successful, but permission sync failed');
-        }
-        
-        return context.res.json({
-          'success': true,
-          'message': 'User added to household team successfully',
-          'householdId': teamId
-        });
-      } catch (e) {
-        if (e is AppwriteException && e.code == 409) {
-          context.log('Recipient is already a member of the team, continuing');
-          
-          // Still call the sync function for permissions
-          try {
-            await functions.createExecution(
-              functionId: 'sync_household_permissions',
-              body: jsonEncode({
-                'teamId': teamId
-              })
-            );
-            context.log('Permission sync initiated for existing team member');
-          } catch (syncError) {
-            context.log('Error calling sync_household_permissions: $syncError');
-          }
-          
-          return context.res.json({
-            'success': true,
-            'message': 'User already member of household team',
-            'householdId': teamId
-          });
-        } else {
-          context.log('Error adding recipient to team: $e');
-          throw e;
-        }
-      }
-    } catch (e) {
-      context.log('Error processing invitation event: $e');
-      return context.res.json({
-        'success': false, 
-        'message': e.toString()
-      }, 500);
+      context.log('Added read permission for recipient: ${fields.recipientEmail} (ID: $recipientUserId)');
+    } else {
+      context.log('Recipient user not found, cannot add permissions: ${fields.recipientEmail}');
     }
   } catch (e) {
-    context.log('Error processing invitation event: $e');
+    context.log('Error adding permission to invitation: $e');
+    // Continue processing - this is not critical
+  }
+  
+  return context.res.json({
+    'success': true,
+    'message': 'Processed pending invitation'
+  });
+}
+
+// Handle accepted invitation
+Future<dynamic> handleAcceptedInvitation(
+  context,
+  AppwriteServicesResult services,
+  Map<String, dynamic> invitation,
+  InvitationFields fields
+) async {
+  // Validation
+  if (fields.teamId.isEmpty) {
     return context.res.json({
-      'success': false, 
-      'message': e.toString()
+      'success': false,
+      'message': 'Team ID is required for accepted invitations'
+    }, 400);
+  }
+  
+  // Find the recipient user
+  final userResult = await findUserByEmail(context, services.users!, fields.recipientEmail);
+  if (!userResult.success) {
+    return context.res.json({
+      'success': false,
+      'message': userResult.message
+    }, userResult.statusCode);
+  }
+  
+  // Add the user to the team
+  try {
+    await services.teams!.createMembership(
+      teamId: fields.teamId,
+      roles: ['member'],
+      userId: userResult.userId
+    );
+    
+    context.log('Added user to team: ${userResult.userId} to team: ${fields.teamId}');
+    
+    // Update or create user_household record
+    await updateUserHouseholdRecord(
+      context, 
+      services.databases!, 
+      userResult.userId, 
+      userResult.displayName, 
+      fields.recipientEmail, 
+      fields.teamId
+    );
+    
+  } catch (e) {
+    context.log('Error adding user to team: $e');
+    return context.res.json({
+      'success': false,
+      'message': 'Error adding user to team: ${e.toString()}'
+    }, 500);
+  }
+  
+  // Trigger permission sync
+  try {
+    await services.functions!.createExecution(
+      functionId: 'sync_household_permissions',
+      body: jsonEncode({
+        'teamId': fields.teamId
+      })
+    );
+    
+    context.log('Permission sync initiated');
+  } catch (e) {
+    context.log('Error triggering permission sync: $e');
+  }
+  
+  return context.res.json({
+    'success': true,
+    'message': 'User added to household team successfully',
+    'householdId': fields.teamId
+  });
+}
+
+// User result class
+class UserResult {
+  final bool success;
+  final String message;
+  final String userId;
+  final String displayName;
+  final int statusCode;
+  
+  UserResult({
+    required this.success,
+    required this.message,
+    this.userId = '',
+    this.displayName = '',
+    this.statusCode = 200,
+  });
+}
+
+// Find a user by email
+Future<UserResult> findUserByEmail(context, Users users, String email) async {
+  try {
+    final userList = await users.list(
+      queries: [Query.equal('email', email)]
+    );
+    
+    if (userList.total > 0) {
+      return UserResult(
+        success: true,
+        message: 'User found',
+        userId: userList.users[0].$id,
+        displayName: userList.users[0].name,
+      );
+    } else {
+      context.log('User not found: $email');
+      return UserResult(
+        success: false,
+        message: 'User not found',
+        statusCode: 404,
+      );
+    }
+  } catch (e) {
+    context.log('Error finding user: $e');
+    return UserResult(
+      success: false,
+      message: 'Error finding user: ${e.toString()}',
+      statusCode: 500,
+    );
+  }
+}
+
+// Update or create a user_household record
+Future<void> updateUserHouseholdRecord(
+  context,
+  Databases databases,
+  String userId,
+  String displayName,
+  String email,
+  String householdId
+) async {
+  try {
+    // Check if user already has a household record
+    final userDocs = await databases.listDocuments(
+      databaseId: 'test',
+      collectionId: 'user_household',
+      queries: [Query.equal('userId', userId)],
+    );
+    
+    if (userDocs.total > 0) {
+      // Update existing record
+      final documentId = userDocs.documents[0].$id;
+      
+      await databases.updateDocument(
+        databaseId: 'test',
+        collectionId: 'user_household',
+        documentId: documentId,
+        data: {
+          'householdId': householdId,
+          'timestamp': DateTime.now().millisecondsSinceEpoch
+        }
+      );
+      
+      context.log('Updated user_household record');
+    } else {
+      // Create new record
+      await databases.createDocument(
+        databaseId: 'test',
+        collectionId: 'user_household',
+        documentId: userId,
+        data: {
+          'userId': userId,
+          'name': displayName,
+          'email': email,
+          'householdId': householdId,
+          'isAdmin': false,
+          'timestamp': DateTime.now().millisecondsSinceEpoch
+        }
+      );
+      
+      context.log('Created user_household record');
+    }
+  } catch (e) {
+    context.log('Error updating user_household record: $e');
+  }
+}
+
+// Handle declined invitation
+Future<dynamic> handleDeclinedInvitation(context, InvitationFields fields) async {
+  context.log('Invitation declined by: ${fields.recipientEmail}');
+  
+  return context.res.json({
+    'success': true,
+    'message': 'Invitation declined'
+  });
+}
+
+// Handle leave household request
+Future<dynamic> handleLeaveHousehold(
+  context,
+  AppwriteServicesResult services,
+  Map<String, dynamic> invitation,
+  InvitationFields fields
+) async {
+  if (fields.teamId.isEmpty) {
+    return context.res.json({
+      'success': false,
+      'message': 'Team ID is required for leave operations'
+    }, 400);
+  }
+  
+  // Find the user by email
+  final userResult = await findUserByEmail(context, services.users!, fields.recipientEmail);
+  if (!userResult.success) {
+    return context.res.json({
+      'success': false,
+      'message': userResult.message
+    }, userResult.statusCode);
+  }
+  
+  // Remove the user from the team
+  try {
+    // Get the membership to find the membership ID
+    final memberships = await services.teams!.listMemberships(
+      teamId: fields.teamId,
+      queries: [Query.equal('userId', userResult.userId)]
+    );
+    
+    if (memberships.total > 0) {
+      final membershipId = memberships.memberships[0].$id;
+      
+      // Delete the membership
+      await services.teams!.deleteMembership(
+        teamId: fields.teamId,
+        membershipId: membershipId
+      );
+      
+      context.log('Removed user from team: ${userResult.userId} from team: ${fields.teamId}');
+      
+      // Update the user_household record to reflect the change
+      try {
+        final userDocs = await services.databases!.listDocuments(
+          databaseId: 'test',
+          collectionId: 'user_household',
+          queries: [Query.equal('userId', userResult.userId)],
+        );
+        
+        if (userDocs.total > 0) {
+          final documentId = userDocs.documents[0].$id;
+          
+          // Update to clear the householdId
+          await services.databases!.updateDocument(
+            databaseId: 'test',
+            collectionId: 'user_household',
+            documentId: documentId,
+            data: {
+              'householdId': '',
+              'timestamp': DateTime.now().millisecondsSinceEpoch
+            }
+          );
+          
+          context.log('Updated user_household record to clear householdId');
+        }
+      } catch (e) {
+        context.log('Error updating user_household record: $e');
+      }
+      
+      return context.res.json({
+        'success': true,
+        'message': 'User removed from household successfully'
+      });
+    } else {
+      context.log('No membership found for user: ${userResult.userId} in team: ${fields.teamId}');
+      return context.res.json({
+        'success': true,
+        'message': 'User was not a member of the household'
+      });
+    }
+  } catch (e) {
+    context.log('Error removing user from team: $e');
+    return context.res.json({
+      'success': false,
+      'message': 'Error removing user from team: ${e.toString()}'
     }, 500);
   }
 }
