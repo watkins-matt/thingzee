@@ -128,14 +128,11 @@ class AppwriteLocationDatabase extends LocationDatabase
   /// Overrides the default getDocuments method to include household filtering
   @override
   Future<appwrite_models.DocumentList> getDocuments(List<String> queries) async {
-    // Ensure we fetch all documents for the current household, not just user's
-    final householdQueries = [
-      ...queries,
-      Query.equal('householdId', _householdId),
-    ];
+    // Let Appwrite permissions handle access restrictions automatically
+    // without explicitly filtering by householdId
 
     // Call the parent method to handle the actual database access
-    return await super.getDocuments(householdQueries);
+    return await super.getDocuments(queries);
   }
 
   /// Overrides the default getModifiedDocuments to include household data
@@ -145,12 +142,9 @@ class AppwriteLocationDatabase extends LocationDatabase
     final timeQuery = Query.greaterThan(
         'updated', lastSyncTime?.millisecondsSinceEpoch ?? 0);
 
-    // Use multiple queries to get documents that:
-    // 1. Have been updated since last sync AND
-    // 2. Belong to the current household
+    // Only filter by time - permissions will handle access control
     final queries = [
       timeQuery,
-      Query.equal('householdId', _householdId),
     ];
 
     // Use the general getDocuments method to avoid direct database access
