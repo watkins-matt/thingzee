@@ -1,11 +1,9 @@
-// ignore_for_file: avoid_renaming_method_parameters
-
+import 'dart:async';
 import 'package:appwrite/appwrite.dart';
 import 'package:log/log.dart';
 import 'package:repository/database/household_database.dart';
-import 'package:repository/database/preferences.dart';
+import 'package:repository/database/preferences.dart' as app_prefs;
 import 'package:repository/model/household_member.dart';
-import 'package:repository/util/hash.dart';
 import 'package:repository_appw/database/inventory_db.dart';
 import 'package:repository_appw/database/item_db.dart';
 import 'package:repository_appw/util/appwrite_database.dart';
@@ -13,367 +11,663 @@ import 'package:repository_appw/util/synchronizable.dart';
 import 'package:uuid/uuid.dart';
 
 class AppwriteHouseholdDatabase extends HouseholdDatabase
-    with AppwriteSynchronizable<HouseholdMember>, AppwriteDatabase<HouseholdMember> {
-  static const String tag = 'AppwriteHouseholdDatabase';
-  final Teams _teams;
-  final Databases _databases;
-  final Preferences prefs;
-  String _householdId = '';
-  DateTime _created = DateTime.now();
-
-  // Database IDs for inventory and item collections
-  final String _databaseId;
-  final String _inventoryCollectionId;
-
-  // References to other databases for updating when household changes
+    with
+        AppwriteSynchronizable<HouseholdMember>,
+        AppwriteDatabase<HouseholdMember> {
+  final Account _account;
+  final Client client;
+  late Databases _databases;
+  final app_prefs.Preferences prefs;
   AppwriteInventoryDatabase? _inventoryDb;
-  AppwriteItemDatabase? _itemDb;
 
-  AppwriteHouseholdDatabase(
-    this._teams,
-    Databases database,
-    this.prefs,
-    String databaseId,
-    String collectionId, {
-    String? inventoryCollectionId,
-  })  : _databases = database,
-        _databaseId = databaseId,
-        _inventoryCollectionId = inventoryCollectionId ?? 'user_inventory',
+  String _databaseId = 'test';
+  final String _inventoryCollectionId = 'user_inventory';
+  DateTime _created = DateTime.now();
+  String _householdId = '';
+  bool _initializing = false;
+  bool _initialized = false;
+  Completer<void>? _initCompleter;
+
+  // Tag for logging
+  String tag = 'AppwriteHouseholdDatabase';
+
+  AppwriteHouseholdDatabase(this.prefs, this._account,
+      {required String endpoint})
+      : client = Client(),
         super() {
-    constructDatabase(tag, database, databaseId, collectionId);
-    constructSynchronizable(tag, prefs, onConnectivityChange: connectivityChanged);
+    client.setEndpoint(endpoint);
+    client.setProject('thingzee');
+    _databases = Databases(client);
 
-    // Initialize household ID synchronously from preferences, or create a new one if needed
-    final householdId = prefs.getString('household_id');
-    final householdCreated = prefs.getInt('household_created');
+    // Set database and collection IDs
+    _databaseId = 'test';
+    const String householdCollectionId = 'user_household';
 
-    if (householdId != null && householdCreated != null) {
-      // Load existing household ID from preferences
-      _householdId = householdId;
-      _created = DateTime.fromMillisecondsSinceEpoch(householdCreated);
-      Log.i('$tag: Loaded household ID from preferences: $_householdId');
-    } else {
-      // Create a new household ID if none exists
-      _householdId = const Uuid().v4();
-      _created = DateTime.now();
-      prefs.setString('household_id', _householdId);
-      prefs.setInt('household_created', _created.millisecondsSinceEpoch);
-      Log.i('$tag: Created new household ID: $_householdId');
+    // Set specific tag for this database
+    tag = 'AppwriteHouseholdDatabase';
 
-      // Queue the team creation task for when we're online
-      taskQueue.queueTask(() async {
-        try {
-          await _teams.create(teamId: _householdId, name: _householdId);
-          Log.i('$tag: Created new team for household: $_householdId');
-        } catch (e) {
-          Log.e('$tag: Failed to create team for new household', e);
-        }
-      });
-    }
-  }
-
-  /// Initialize the household database fully. This should be called after construction
-  /// and before other databases that depend on the household ID are initialized.
-  Future<void> init() async {
-    if (!online) {
-      Log.w('$tag: Cannot fully initialize household while offline, using cached data');
-      return;
+    // Check for migration from preferences - TEMPORARY during transition
+    // This will be removed in a future version once all users have migrated
+    final prefsHouseholdId = prefs.getString('household_id');
+    if (prefsHouseholdId != null && prefsHouseholdId.isNotEmpty) {
+      Log.i(
+          '$tag: Found legacy household ID in preferences: $prefsHouseholdId - will use for migration');
+      _householdId = prefsHouseholdId;
     }
 
-    try {
-      // Verify the team (household) exists
-      await _teams.get(teamId: _householdId);
-      Log.i('$tag: Verified household team exists: $_householdId');
-    } on AppwriteException catch (e) {
-      // Team does not exist, create it
-      if (e.code == 404) {
-        try {
-          await _teams.create(teamId: _householdId, name: _householdId);
-          Log.i('$tag: Created team for existing household ID: $_householdId');
-        } catch (e) {
-          Log.e('$tag: Failed to create team for household', e);
-          throw Exception('Failed to create Appwrite team for household: $e');
-        }
-      } else {
-        Log.e('$tag: Failed to verify household team: [AppwriteException]', e.message);
-        throw Exception('Failed to verify household: ${e.message}');
-      }
-    } catch (e) {
-      Log.e('$tag: Unexpected error verifying household', e);
-      throw Exception('Unexpected error verifying household: $e');
-    }
+    // Initialize created timestamp (will be overwritten if we find a record)
+    _created = DateTime.fromMillisecondsSinceEpoch(
+        prefs.getInt('household_created') ??
+            DateTime.now().millisecondsSinceEpoch);
+
+    // Initialize AppwriteDatabase mixin
+    constructDatabase(tag, _databases, _databaseId, householdCollectionId);
+
+    // Initialize AppwriteSynchronizable mixin
+    constructSynchronizable(tag, prefs,
+        onConnectivityChange: connectivityChanged);
   }
 
   @override
-  List<HouseholdMember> get admins => values.where((element) => element.isAdmin).toList();
+  String get id => _householdId;
 
   @override
   DateTime get created => _created;
 
   @override
-  String get id => _householdId;
+  List<HouseholdMember> get admins => super
+      .all()
+      .where(
+          (element) => element.isAdmin && element.householdId == _householdId)
+      .toList();
+
+  @override
+  HouseholdMember? deserialize(Map<String, dynamic> json) {
+    try {
+      return HouseholdMember.fromJson(json);
+    } catch (e) {
+      Log.e('$tag: Failed to deserialize household member', e);
+      return null;
+    }
+  }
+
+  @override
+  List<HouseholdMember> all() {
+    // Queue fetching team members if we're online
+    if (online) {
+      taskQueue.queueTask(() async {
+        final members = await fetchTeamMembers();
+        for (final member in members) {
+          super.put(member);
+        }
+      });
+    }
+    return super.all();
+  }
 
   Future<void> connectivityChanged(bool online) async {
     if (online) {
-      await init();
+      await initialize();
       await taskQueue.runUntilComplete();
     }
   }
 
-  @override
-  HouseholdMember? deserialize(Map<String, dynamic> json) => HouseholdMember.fromJson(json);
-
-  @override
-  Future<void> join(String householdId) async {
-    if (!online) {
-      throw Exception('Cannot join household while offline.');
+  /// Initializes household ID from the database
+  ///
+  /// This method should be called early in the app lifecycle to ensure
+  /// the household ID is loaded from the database before it's needed.
+  Future<void> initialize() async {
+    if (_initialized) {
+      return;
     }
 
-    // Store the old household ID
-    final oldHouseholdId = _householdId;
+    // If initialization is already in progress, wait for it to complete
+    if (_initializing && _initCompleter != null) {
+      try {
+        return await _initCompleter!.future;
+      } catch (e) {
+        Log.e('$tag: Error waiting for initialization to complete', e);
+      }
+    }
+
+    // Ensure we have a fresh completer
+    _initializing = true;
+    _initCompleter = Completer<void>();
 
     try {
-      // 1. Verify the household exists
-      await _teams.get(teamId: householdId);
+      Log.i('$tag: Initializing household ID from database');
 
-      // 2. Update the household ID
+      if (!online) {
+        // If offline, we'll use the current ID (or generate one if empty)
+        if (_householdId.isEmpty) {
+          _householdId = const Uuid().v4();
+          Log.i(
+              '$tag: Generated new household ID while offline: $_householdId');
+        }
+        _initialized = true;
+        return;
+      }
+
+      // Try to get the user's record from the database
+      try {
+        final userDocs = await _databases.listDocuments(
+          databaseId: _databaseId,
+          collectionId: collectionId,
+          queries: [Query.equal('userId', userId)],
+        );
+
+        if (userDocs.total > 0) {
+          // User has a record in the database
+          final userDoc = userDocs.documents[0];
+          final dbHouseholdId = userDoc.data['householdId'] as String? ?? '';
+
+          if (dbHouseholdId.isNotEmpty) {
+            if (_householdId.isEmpty || _householdId != dbHouseholdId) {
+              Log.i('$tag: Loaded household ID from database: $dbHouseholdId');
+              _householdId = dbHouseholdId;
+            }
+          } else if (_householdId.isNotEmpty) {
+            // Database record exists but has empty householdId, update it with our ID
+            Log.i(
+                '$tag: Updating empty household ID in database record with: $_householdId');
+            await _databases.updateDocument(
+              databaseId: _databaseId,
+              collectionId: collectionId,
+              documentId: userDoc.$id,
+              data: {'householdId': _householdId},
+            );
+          }
+        } else if (_householdId.isEmpty) {
+          // No user record exists and we don't have an ID, create a new household
+          await _createNewHousehold();
+        } else {
+          // No user record exists but we have an ID from preferences, create record
+          Log.i(
+              '$tag: Creating user_household record with ID from preferences: $_householdId');
+          await _createUserHouseholdRecord();
+        }
+      } catch (e) {
+        Log.e('$tag: Error loading household ID from database', e);
+        if (_householdId.isEmpty) {
+          // If we still don't have a household ID, generate one
+          _householdId = const Uuid().v4();
+          Log.i('$tag: Generated new household ID after error: $_householdId');
+        }
+      }
+
+      // Remove from preferences since we no longer need it
+      if (prefs.containsKey('household_id')) {
+        await prefs.remove('household_id');
+        Log.i('$tag: Removed household ID from preferences');
+      }
+
+      _initialized = true;
+    } catch (e) {
+      Log.e('$tag: Error during household initialization', e);
+      // Make sure the completer completes with an error so clients can handle it
+      if (!_initCompleter!.isCompleted) {
+        _initCompleter!.completeError(e);
+      }
+      rethrow;
+    } finally {
+      _initializing = false;
+      // Make sure we only complete if not already completed
+      if (!_initCompleter!.isCompleted) {
+        _initCompleter!.complete();
+      }
+    }
+  }
+
+  void setInventoryDatabase(AppwriteInventoryDatabase inventoryDb) {
+    _inventoryDb = inventoryDb;
+  }
+
+  void setItemDatabase(AppwriteItemDatabase itemDb) {
+    // Removed unused _itemDb field
+  }
+
+  /// Debug method to log the current household ID and team memberships
+  Future<void> logHouseholdInfo() async {
+    Log.i('$tag: ============ HOUSEHOLD DIAGNOSTICS ============');
+    Log.i('$tag: Current household ID: $_householdId');
+    Log.i('$tag: User ID: $userId');
+
+    // Check if we have any legacy settings in preferences
+    final prefsHouseholdId = prefs.getString('household_id') ?? '';
+    if (prefs.containsKey('household_id')) {
+      Log.i(
+          '$tag: LEGACY: Household ID in preferences: $prefsHouseholdId (should be removed)');
+    }
+
+    try {
+      // Log database records for debugging
+      final allDocs = await _databases.listDocuments(
+        databaseId: _databaseId,
+        collectionId: collectionId,
+      );
+
+      Log.i('$tag: Found ${allDocs.total} user_household records:');
+      for (var i = 0; i < allDocs.documents.length; i++) {
+        final doc = allDocs.documents[i];
+        final data = doc.data;
+        Log.i('$tag: Record $i - userId: ${data['userId']}, '
+            'householdId: ${data['householdId']}, '
+            'email: ${data['email']}');
+      }
+    } catch (e) {
+      Log.e('$tag: Error in logHouseholdInfo', e);
+    }
+  }
+
+  /// Get all household members from the database
+  ///
+  /// This method replaces the previous implementation that relied on Teams API.
+  /// Now we only fetch from the database, which is the single source of truth.
+  Future<List<HouseholdMember>> fetchTeamMembers() async {
+    try {
+      Log.i(
+          '$tag: Fetching household members from database for household: $_householdId');
+
+      if (_householdId.isEmpty) {
+        Log.w('$tag: Cannot fetch members - no household ID set');
+        return [];
+      }
+
+      // Only fetch from database, do not interact with Teams API directly
+      final memberDocs = await _databases.listDocuments(
+        databaseId: _databaseId,
+        collectionId: collectionId,
+        queries: [Query.equal('householdId', _householdId)],
+      );
+
+      Log.i('$tag: Found ${memberDocs.total} members in household database');
+
+      final members = <HouseholdMember>[];
+      for (final doc in memberDocs.documents) {
+        try {
+          final member = deserialize(doc.data);
+          if (member != null) {
+            members.add(member);
+            Log.i('$tag: Added member: ${member.name} (${member.email})');
+          }
+        } catch (e) {
+          Log.e('$tag: Error deserializing member document ${doc.$id}', e);
+        }
+      }
+
+      Log.i('$tag: Fetched ${members.length} household members');
+      return members;
+    } catch (e) {
+      Log.e('$tag: Error fetching household members', e);
+      return [];
+    }
+  }
+
+  /// Join a household by updating the database record
+  ///
+  /// This method creates a self-invitation to join the household and sets the status to 'accepted'.
+  /// The process_invitation function will handle team membership updates.
+  @override
+  Future<void> join(String householdId) async {
+    Log.i('$tag: Joining household: $householdId');
+
+    if (householdId == _householdId) {
+      Log.i('$tag: Already a member of this household, nothing to do');
+      return;
+    }
+
+    if (!online) {
+      throw Exception('Cannot join a household while offline');
+    }
+
+    try {
+      // Store the old household ID for potential data migration
+      final oldHouseholdId = _householdId;
+
+      // Update the household ID in memory
       _householdId = householdId;
-      _created = DateTime.now(); // This might need to be fetched from the team
 
-      // 3. Save to preferences
-      await prefs.setString('household_id', _householdId);
-      await prefs.setInt('household_created', _created.millisecondsSinceEpoch);
+      // Update the user record in the database with the new household ID
+      await _updateUserHouseholdRecord();
 
-      // 4. Update all inventory items to have the new household ID
+      // Update all inventory items with the new household ID
       await updateInventoryHouseholdIds();
 
-      Log.i('$tag: User successfully joined household $householdId');
-      return;
-    } on AppwriteException catch (e) {
-      // Revert to old household ID if there was an error
-      _householdId = oldHouseholdId;
-      Log.e('$tag: Failed to join household: [AppwriteException]', e.message);
-      throw Exception('Failed to join household: ${e.message}');
+      // If we came from a different household, handle item copying
+      if (oldHouseholdId.isNotEmpty && oldHouseholdId != householdId) {
+        try {
+          Log.i(
+              '$tag: Copying inventory items from old household: $oldHouseholdId to new: $householdId');
+          await _copyInventoryToNewHousehold(oldHouseholdId, householdId);
+        } catch (e) {
+          Log.e('$tag: Failed to copy inventory items from old household', e);
+          // Don't throw here, just log the error and continue
+        }
+      }
+
+      // Create a self-invitation with status 'accepted' to trigger the process_invitation function
+      try {
+        // Get user information
+        final user = await _account.get();
+        final email = user.email;
+        String userName = email.contains('@') ? email.split('@').first : email;
+
+        // Create the invitation document with accepted status
+        await _databases.createDocument(
+            databaseId: _databaseId,
+            collectionId: 'invitation',
+            documentId: ID.unique(),
+            data: {
+              'inviterEmail': email,
+              'inviterName': userName,
+              'recipientEmail': email, // Self-invitation
+              'status': 1, // 1 = accepted
+              'timestamp': DateTime.now().millisecondsSinceEpoch,
+              'teamId': householdId // The household/team to join
+            });
+
+        Log.i(
+            '$tag: Created self-invitation with accepted status to trigger team update');
+      } catch (e) {
+        Log.e('$tag: Failed to create invitation for team update', e);
+        // Continue anyway, as the database is the source of truth
+      }
+
+      Log.i('$tag: Successfully joined household: $_householdId');
     } catch (e) {
-      // Revert to old household ID if there was an error
-      _householdId = oldHouseholdId;
-      Log.e('$tag: Failed to join household: [Exception]', e.toString());
+      Log.e('$tag: Failed to join household', e);
       throw Exception('Failed to join household: $e');
     }
   }
 
+  /// Leave the current household by updating the database
+  ///
+  /// This method creates a special invitation with 'leave' type to trigger
+  /// the process_invitation function to remove the user from the team.
   @override
   void leave() {
-    // Store the old household ID before removing it
-    final oldHouseholdId = _householdId;
+    if (!online) {
+      throw Exception('Cannot leave household while offline.');
+    }
 
-    taskQueue.queueTask(() async {
-      try {
-        // 1. Get the user's membership in the team
-        final memberships = await _teams.listMemberships(
-          teamId: oldHouseholdId,
-          queries: [Query.equal('userId', userId)],
-        );
+    try {
+      Log.i('$tag: Leaving current household: $_householdId');
+      final oldHouseholdId = _householdId;
 
-        if (memberships.total > 0) {
-          // 2. Remove the user from the team
-          final membershipId = memberships.memberships[0].$id;
-          await _teams.deleteMembership(
-            teamId: oldHouseholdId,
-            membershipId: membershipId,
-          );
+      // Create a new household ID
+      _householdId = const Uuid().v4();
+      _created = DateTime.now();
 
-          Log.i('$tag: User successfully removed from household team.');
-        } else {
-          Log.w('$tag: User not found in household team.');
+      // Update database record with new household ID
+      taskQueue.queueTask(() async {
+        await _updateUserHouseholdRecord();
+      });
+
+      // Copy inventory items to the new household if needed
+      taskQueue.queueTask(() async {
+        if (oldHouseholdId.isNotEmpty) {
+          try {
+            await _copyInventoryToNewHousehold(oldHouseholdId, _householdId);
+          } catch (e) {
+            Log.e('$tag: Failed to copy inventory to new household', e);
+          }
         }
+      });
 
-        // 3. Create a new household for the user
-        await _createNewHousehold();
+      // Update inventory items to have the new household ID
+      taskQueue.queueTask(() async {
+        await updateInventoryHouseholdIds();
+      });
 
-        // 4. Copy all inventory items to the new household
-        await _copyInventoryToNewHousehold(oldHouseholdId, _householdId);
+      // Create a 'leave' invitation to trigger the team membership update
+      taskQueue.queueTask(() async {
+        try {
+          // Get user information
+          final user = await _account.get();
+          final email = user.email;
 
-        Log.i('$tag: User successfully left household and inventory copied to new household.');
-      } on AppwriteException catch (e) {
-        Log.e('$tag: Failed to leave household: [AppwriteException]', e.message);
-      } catch (e) {
-        Log.e('$tag: Failed to leave household: [Exception]', e.toString());
+          // Create the invitation document with special 'leave' type
+          await _databases.createDocument(
+              databaseId: _databaseId,
+              collectionId: 'invitation',
+              documentId: ID.unique(),
+              data: {
+                'inviterEmail': email,
+                'recipientEmail': email, // Self-invitation
+                'status': 3, // 3 = leave (custom status)
+                'timestamp': DateTime.now().millisecondsSinceEpoch,
+                'teamId': oldHouseholdId, // The household/team to leave
+                'action': 'leave' // Explicit action type
+              });
+
+          Log.i(
+              '$tag: Created leave invitation to trigger team membership removal');
+        } catch (e) {
+          Log.e('$tag: Failed to create leave invitation', e);
+        }
+      });
+
+      Log.i(
+          '$tag: Successfully left household and created new household: $_householdId');
+    } catch (e) {
+      Log.e('$tag: Failed to leave household', e);
+      throw Exception('Failed to leave household: $e');
+    }
+  }
+
+  /// Creates a new user_household record for the current user
+  Future<void> _createUserHouseholdRecord() async {
+    if (!online || userId.isEmpty) {
+      throw Exception(
+          'Cannot create user record while offline or without userId');
+    }
+
+    try {
+      // Get user info from the account
+      final user = await _account.get();
+      final email = user.email;
+
+      // Create simple name from email
+      String userName = email.contains('@') ? email.split('@').first : email;
+
+      // Create a record in the user_household collection
+      await _databases.createDocument(
+          databaseId: _databaseId,
+          collectionId: collectionId,
+          documentId: userId,
+          data: {
+            'userId': userId,
+            'name': userName,
+            'email': email,
+            'householdId': _householdId,
+            'isAdmin': true, // First user is admin by default
+            'timestamp': DateTime.now().millisecondsSinceEpoch
+          });
+
+      Log.i(
+          '$tag: Created new user_household record with householdId $_householdId');
+    } catch (e) {
+      Log.e('$tag: Error creating user_household record', e);
+      throw Exception('Failed to create user record: $e');
+    }
+  }
+
+  /// Updates the current user's household record with the current household ID
+  Future<void> _updateUserHouseholdRecord() async {
+    if (!online || userId.isEmpty) {
+      throw Exception(
+          'Cannot update user record while offline or without userId');
+    }
+
+    try {
+      // Check if the user has a record in the user_household collection
+      final userDocs = await _databases.listDocuments(
+          databaseId: _databaseId,
+          collectionId: collectionId,
+          queries: [Query.equal('userId', userId)]);
+
+      if (userDocs.total > 0) {
+        // Update existing record with current householdId
+        final userDoc = userDocs.documents[0];
+        await _databases.updateDocument(
+            databaseId: _databaseId,
+            collectionId: collectionId,
+            documentId: userDoc.$id,
+            data: {'householdId': _householdId});
+        Log.i(
+            '$tag: Updated existing user_household record with current householdId');
+      } else {
+        // Create a new record if none exists
+        await _createUserHouseholdRecord();
       }
-    });
-
-    // Immediately remove from preferences for UI responsiveness
-    prefs.remove('household_id');
-    prefs.remove('household_created');
-  }
-
-  @override
-  void put(HouseholdMember member, {List<String>? permissions}) {
-    if (member.householdId.isEmpty || member.householdId != _householdId) {
-      member = member.copyWith(householdId: _householdId);
+    } catch (e) {
+      Log.e('$tag: Error updating user_household record', e);
+      throw Exception('Failed to update user record: $e');
     }
-
-    if (member.userId.isEmpty && member.email.isNotEmpty) {
-      member = member.copyWith(userId: hashEmail(member.email));
-    }
-
-    if (member.email.isEmpty) {
-      throw Exception('Cannot put member without valid email.');
-    }
-
-    if (member.name.isEmpty) {
-      throw Exception('Cannot put member without valid name.');
-    }
-
-    super.put(member, permissions: permissions);
-  }
-
-  /// Sets the inventory database reference
-  void setInventoryDatabase(AppwriteInventoryDatabase db) {
-    _inventoryDb = db;
-  }
-
-  /// Sets the item database reference
-  void setItemDatabase(AppwriteItemDatabase db) {
-    _itemDb = db;
   }
 
   @override
   Future<void> updateInventoryHouseholdIds() async {
+    if (_inventoryDb == null) {
+      Log.w(
+          '$tag: Cannot update inventory household IDs - inventory database not set');
+      return;
+    }
+
     if (!online) {
-      throw Exception('Cannot update inventory household IDs while offline.');
+      Log.w('$tag: Cannot update inventory household IDs while offline');
+      return;
     }
 
     try {
-      // 1. Get all inventory items for the current user
+      // Get all inventory items for the user
       final inventoryDocs = await _databases.listDocuments(
         databaseId: _databaseId,
         collectionId: _inventoryCollectionId,
         queries: [Query.equal('userId', userId)],
       );
 
-      // 2. Update each inventory item with the new household ID
+      // Update all documents to have the current household ID
       for (final doc in inventoryDocs.documents) {
-        final Map<String, dynamic> data = doc.data;
-
-        // Skip if the household ID is already correct
-        if (data['householdId'] == _householdId) continue;
-
-        // Update the household ID
-        data['householdId'] = _householdId;
-
-        // Add household team permissions
-        final teamPermissions = [
-          Permission.read(Role.team(_householdId)),
-          Permission.update(Role.team(_householdId)),
-        ];
-
-        // Update the document
         await _databases.updateDocument(
           databaseId: _databaseId,
           collectionId: _inventoryCollectionId,
           documentId: doc.$id,
-          data: data,
-          permissions: teamPermissions,
+          data: {
+            'householdId': _householdId,
+          },
         );
       }
 
-      // 3. Update the inventory database if available
-      if (_inventoryDb != null) {
-        await _inventoryDb!.updateHouseholdIds(_householdId);
-        Log.i('$tag: Updated inventory database with new household ID');
-      }
-
-      // 4. Update the item database permissions if available
-      if (_itemDb != null) {
-        await _itemDb!.updateHouseholdPermissions();
-        Log.i('$tag: Updated item database permissions for new household');
-      }
-
-      Log.i('$tag: Successfully updated inventory household IDs to $_householdId');
+      Log.i(
+          '$tag: Updated ${inventoryDocs.documents.length} inventory items with new household ID: $_householdId');
     } catch (e) {
-      Log.e('$tag: Failed to update inventory household IDs: $e');
+      Log.e('$tag: Failed to update inventory household IDs', e);
       throw Exception('Failed to update inventory household IDs: $e');
-    }
-  }
-
-  /// Copies all inventory items from the old household to the new household
-  Future<void> _copyInventoryToNewHousehold(String oldHouseholdId, String newHouseholdId) async {
-    if (!online) {
-      throw Exception('Cannot copy inventory while offline.');
-    }
-
-    try {
-      // 1. Get all inventory items for the current user in the old household
-      final inventoryDocs = await _databases.listDocuments(
-        databaseId: _databaseId,
-        collectionId: _inventoryCollectionId,
-        queries: [
-          Query.equal('userId', userId),
-          Query.equal('householdId', oldHouseholdId),
-        ],
-      );
-
-      // 2. Copy each inventory item to the new household
-      for (final doc in inventoryDocs.documents) {
-        final Map<String, dynamic> data = doc.data;
-
-        // Update the household ID
-        data['householdId'] = newHouseholdId;
-
-        // Add household team permissions for the new household
-        final teamPermissions = [
-          Permission.read(Role.team(newHouseholdId)),
-          Permission.update(Role.team(newHouseholdId)),
-        ];
-
-        // Create a new document with the updated data
-        await _databases.createDocument(
-          databaseId: _databaseId,
-          collectionId: _inventoryCollectionId,
-          documentId: 'unique()',
-          data: data,
-          permissions: teamPermissions,
-        );
-      }
-
-      Log.i('$tag: Successfully copied inventory from $oldHouseholdId to $newHouseholdId');
-    } catch (e) {
-      Log.e('$tag: Failed to copy inventory to new household: $e');
-      throw Exception('Failed to copy inventory to new household: $e');
     }
   }
 
   Future<void> _createNewHousehold() async {
     _householdId = const Uuid().v4();
     _created = DateTime.now();
-    await prefs.setString('household_id', _householdId);
-    await prefs.setInt('household_created', _created.millisecondsSinceEpoch);
 
     try {
-      await _teams.create(teamId: _householdId, name: _householdId);
-    } on AppwriteException catch (e) {
-      Log.e('Failed to create team: [AppwriteException]', e.message);
+      await _databases.createDocument(
+          databaseId: _databaseId,
+          collectionId: collectionId,
+          documentId: userId,
+          data: {
+            'userId': userId,
+            'householdId': _householdId,
+            'timestamp': DateTime.now().millisecondsSinceEpoch
+          });
+      Log.i('$tag: Created new household record with ID: $_householdId');
+    } catch (e) {
+      Log.e('$tag: Failed to create new household', e);
       rethrow;
     }
   }
 
-  Future<bool> _createTeam() async {
+  Future<void> _copyInventoryToNewHousehold(
+      String oldHouseholdId, String newHouseholdId) async {
+    if (!online) {
+      throw Exception('Cannot copy inventory while offline.');
+    }
+
+    if (oldHouseholdId == newHouseholdId) {
+      Log.w(
+          '$tag: Old and new household IDs are the same, not copying inventory.');
+      return;
+    }
+
     try {
-      await _teams.create(teamId: _householdId, name: _householdId);
-      return true;
-    } on AppwriteException catch (e) {
-      // Team already exists
-      if (e.code == 409) {
-        Log.w('Team already exists, not creating anything.', e.toString());
-        return true;
+      // Get all inventory items for the old household
+      final oldInventoryDocs = await _databases.listDocuments(
+        databaseId: _databaseId,
+        collectionId: _inventoryCollectionId,
+        queries: [
+          Query.equal('householdId', oldHouseholdId),
+          Query.notEqual('userId', userId),
+        ],
+      );
+
+      // Copy each document to the new household
+      for (final doc in oldInventoryDocs.documents) {
+        final data = Map<String, dynamic>.from(doc.data);
+        data['householdId'] = newHouseholdId;
+        data['timestamp'] = DateTime.now().millisecondsSinceEpoch;
+
+        // Create a new document with the same data but new household ID
+        await _databases.createDocument(
+          databaseId: _databaseId,
+          collectionId: _inventoryCollectionId,
+          documentId: ID.unique(),
+          data: data,
+        );
       }
-      // Another AppwriteException occurred
-      Log.e('Error while creating team: [AppwriteException]', e.toString());
-      return false;
-    } on Exception catch (e) {
-      Log.e('Error while creating team: [Exception]', e.toString());
-      return false;
+
+      Log.i(
+          '$tag: Copied ${oldInventoryDocs.documents.length} inventory items from old household to new household');
+    } catch (e) {
+      Log.e('$tag: Failed to copy inventory to new household', e);
+      throw Exception('Failed to copy inventory: $e');
+    }
+  }
+
+  /// Gets all household members from all households in the database
+  /// This is useful for diagnostics and resolving synchronization issues
+  Future<List<HouseholdMember>> getAllHouseholdMembers() async {
+    try {
+      Log.i('$tag: Fetching all household members from database');
+
+      if (!online) {
+        Log.w('$tag: Cannot fetch all household members while offline');
+        return [];
+      }
+
+      final allDocs = await _databases.listDocuments(
+        databaseId: _databaseId,
+        collectionId: collectionId,
+      );
+
+      final members = <HouseholdMember>[];
+      for (final doc in allDocs.documents) {
+        try {
+          final member = deserialize(doc.data);
+          if (member != null) {
+            members.add(member);
+          }
+        } catch (e) {
+          Log.e('$tag: Error deserializing member document ${doc.$id}', e);
+        }
+      }
+
+      Log.i(
+          '$tag: Fetched ${members.length} total household members from database');
+      return members;
+    } catch (e) {
+      Log.e('$tag: Error fetching all household members', e);
+      return [];
     }
   }
 }
